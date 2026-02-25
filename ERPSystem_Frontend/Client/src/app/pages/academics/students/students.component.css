@@ -1,0 +1,359 @@
+.students-page {
+  max-width: 1100px;
+  margin: 40px auto;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.header h2 {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* SEARCH */
+
+.search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.search-bar button {
+  background: #5a4bff;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.search-bar button:hover {
+  background: #4639d6;
+}
+
+/* CARD */
+
+.card {
+  background: white;
+  padding: 18px;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+}
+
+/* TABLE */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #f7f7fb;
+}
+
+th {
+  text-align: left;
+  padding: 12px;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: #666;
+}
+
+td {
+  padding: 12px;
+  border-top: 1px solid #eee;
+  font-size: 14px;
+}
+
+.name {
+  font-weight: 600;
+}
+
+/* STATUS */
+
+.status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status.active {
+  background: #e7f8ee;
+  color: #1c8c4d;
+}
+
+.status.inactive {
+  background: #fdeaea;
+  color: #d94a4a;
+}
+
+/* PAGINATION */
+
+.pagination {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pagination button {
+  background: white;
+  border: 1px solid #ddd;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pagination button:hover {
+  background: #f2f2f2;
+}
+
+/* LOADING */
+
+.loading {
+  padding: 20px;
+  text-align: center;
+  color: #777;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.toolbar .left, .toolbar .right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+
+
+.export {
+  background: #111827;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.export:hover {
+  opacity: 0.9;
+}
+
+.badge-new {
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+.add {
+  background: #5a4bff;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+a {
+  color: #5a4bff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+a:hover { text-decoration: underline; }
+
+/* toolbar container */
+.filters-card {
+  background: #fff;
+  border: 1px solid #eef0f4;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  margin-bottom: 14px;
+}
+
+/* elemente filtrare */
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fafbff;
+  border: 1px solid #eef0f4;
+  padding: 6px 10px;
+  border-radius: 10px;
+  height: 36px;
+}
+
+/* text mic */
+.muted {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+/* input zile mic */
+.days-input {
+  width: 60px;
+  padding: 6px 8px;
+  border: 1px solid #d9dde6;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+}
+
+/* SORT GROUP (combinat) */
+.sort-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fafbff;
+  border: 1px solid #eef0f4;
+  padding: 6px 10px;
+  border-radius: 10px;
+  height: 36px;
+}
+
+.sort-group .label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.sort-group select {
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+
+.sort-group .direction {
+  width: 36px;
+  text-align: center;
+}
+
+/* checkbox mic */
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.checkbox input {
+  display: none;
+}
+
+.checkmark {
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  border: 2px solid #cfd5e3;
+  background: #fff;
+  position: relative;
+}
+
+.checkbox input:checked + .checkmark {
+  background: #5a4bff;
+  border-color: #5a4bff;
+}
+
+.checkbox input:checked + .checkmark::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 0px;
+  width: 4px;
+  height: 9px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+th.sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: 0.15s;
+}
+
+th.sortable:hover {
+  background: #eef1ff;
+}
+
+.arrow {
+  margin-left: 6px;
+  font-weight: 900;
+  color: #5a4bff;
+}
+
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* 🔹 Detalii */
+.details-btn {
+  background: #eef2ff;
+  color: #3b5bdb;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.details-btn:hover {
+  background: #3b5bdb;
+  color: white;
+}
+
+/* 🔹 Edit */
+.edit-btn {
+  background: #e6f4ea;
+  color: #1b7f3a;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+  background: #1b7f3a;
+  color: white;
+}

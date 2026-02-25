@@ -1,0 +1,82 @@
+/* WRAPPER */
+.verify-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #e8f0ff;
+  padding: 20px;
+}
+
+/* CARD */
+.verify-card {
+  background: white;
+  padding: 40px 50px;
+  border-radius: 22px;
+  max-width: 460px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 5px 35px rgba(0,0,0,0.15);
+}
+
+/* ICON */
+.verify-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 15px;
+  background: #1d4ed8;
+  color: white;
+  font-size: 38px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* TEXT */
+h2 {
+  font-size: 26px;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #444;
+}
+
+.info {
+  font-size: 14px;
+  color: #666;
+  margin: 15px 0 25px;
+}
+
+/* BUTTON */
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: #1d4ed8;
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.btn-primary:hover {
+  background: #153ea9;
+}
+
+/* LINK */
+.back-login {
+  display: block;
+  margin-top: 20px;
+  text-decoration: none;
+  font-size: 14px;
+  color: #1d4ed8;
+}
+
+.back-login:hover {
+  text-decoration: underline;
+}

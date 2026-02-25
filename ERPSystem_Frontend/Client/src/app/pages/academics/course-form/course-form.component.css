@@ -1,0 +1,268 @@
+/* =========================
+   DIALOG CONTAINER
+========================= */
+
+.student-dialog .mat-mdc-dialog-container {
+  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================
+   HEADER COMPACT
+========================= */
+
+.header {
+  padding: 16px 22px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* =========================
+   CARD BODY
+========================= */
+
+.card {
+  padding: 18px 22px 22px 22px;
+  overflow-y: auto;
+}
+
+/* =========================
+   GRID COMPACT
+========================= */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field.full {
+  grid-column: span 2;
+}
+
+label {
+  font-size: 12px;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: #475569;
+}
+
+/* =========================
+   INPUTS COMPACT
+========================= */
+
+input,
+select {
+  padding: 8px 10px;
+  font-size: 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  transition: 0.2s ease;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #6366f1;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
+}
+
+small {
+  font-size: 11px;
+  margin-top: 3px;
+  color: #ef4444;
+}
+
+/* =========================
+   SESSIONS SECTION
+========================= */
+
+.sessions {
+  margin-top: 18px;
+}
+
+.sessions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.sessions-header h3 {
+  font-size: 14px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.session-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr auto 1fr auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.session-row select,
+.session-row input {
+  padding: 6px 8px;
+  font-size: 12.5px;
+}
+
+.to {
+  font-size: 12px;
+  text-align: center;
+}
+
+/* =========================
+   BUTTONS COMPACT
+========================= */
+
+.actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.primary {
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  border: none;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.secondary {
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  border: none;
+  cursor: pointer;
+}
+
+.danger {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: none;
+  background: #fee2e2;
+  color: #b91c1c;
+  cursor: pointer;
+}
+
+.danger:hover {
+  background: #fecaca;
+}
+
+.capacity-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 🔹 Switch modern */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  background-color: #ccc;
+  border-radius: 34px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: .3s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .3s;
+}
+
+input:checked + .slider {
+  background-color: #3b5bdb;
+}
+
+input:checked + .slider:before {
+  transform: translateX(18px);
+}
+
+.toggle-label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field.full {
+    grid-column: span 1;
+  }
+
+  .session-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  button {
+    width: 100%;
+  }
+}

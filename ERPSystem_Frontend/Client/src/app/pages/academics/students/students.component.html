@@ -1,0 +1,115 @@
+<div class="students-page">
+
+  <div class="header">
+    <h2>Elevi</h2>
+  </div>
+
+  <div class="search-bar">
+    <input [(ngModel)]="q" placeholder="Caută nume, email sau telefon..." />
+    <button (click)="page=1; load()">Caută</button>
+  </div>
+
+  <div class="card">
+
+    <div *ngIf="loading" class="loading">
+      Se încarcă elevii...
+    </div>
+    <div class="toolbar">
+      <div class="left">
+
+        <div class="filters-card">
+
+          <div class="filter-item">
+            <label class="checkbox">
+              <input type="checkbox" [(ngModel)]="onlyRecent" (change)="page=1; load()" />
+              <span class="checkmark"></span>
+              <span class="label-text">Elevi noi</span>
+            </label>
+
+            <span class="muted">(ultimele</span>
+
+            <input class="days-input" type="number" [(ngModel)]="recentDays" (change)="page=1; load()" min="1"
+              max="3650" />
+
+            <span class="muted">zile)</span>
+          </div>
+
+          <div class="sort-group">
+            <span class="label">Sortează</span>
+
+            <select [(ngModel)]="sortBy" (change)="page=1; load()">
+              <option value="createdAt">Data înscrierii</option>
+              <option value="fullName">Nume</option>
+            </select>
+
+            <button class="sort-direction" (click)="toggleSortDirection()">
+              {{ sortDir === 'asc' ? '↑' : '↓' }}
+            </button>
+          </div>
+
+
+        </div>
+      </div>
+
+      <div class="right">
+
+        <button class="export" (click)="export()">Export Excel</button>
+        <button (click)="openCreate()">Adaugă elev</button>
+      </div>
+    </div>
+
+
+    <table *ngIf="!loading">
+      <thead>
+        <tr>
+          <th class="sortable" (click)="setSort('fullName')">
+            NUME
+            <span class="arrow">{{ sortIcon('fullName') }}</span>
+          </th>
+          <th>Email</th>
+          <th>Telefon</th>
+          <th>Status</th>
+          <th class="sortable" (click)="setSort('createdAt')">
+            DATA ÎNSCRIERII
+            <span class="arrow">{{ sortIcon('createdAt') }}</span>
+          </th>
+          <th>Acțiuni</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let s of items">
+          <td class="name">
+            {{ s.fullName }}
+            <span *ngIf="isNew(s.createdAtUtc)" class="badge-new">NEW</span>
+          </td>
+          <td>{{ s.email || '-' }}</td>
+          <td>{{ s.phone || '-' }}</td>
+          <td>
+            <span class="status" [ngClass]="s.isActive ? 'active' : 'inactive'">
+              {{ s.isActive ? 'Activ' : 'Inactiv' }}
+            </span>
+          </td>
+          <td>{{ s.createdAtUtc | date:'dd.MM.yyyy' }}</td>
+          <td class="actions-cell">
+  <button class="details-btn" (click)="openDetails(s.id)">
+    Detalii
+  </button>
+
+  <button class="edit-btn" (click)="openEdit(s.id)">
+    Edit
+  </button>
+</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <div class="pagination" *ngIf="!loading">
+    <button (click)="prev()" [disabled]="page <= 1">← Înapoi</button>
+    <span>Pagina {{page}} din {{totalPages}} </span>
+    <button (click)="next()" [disabled]="page >= totalPages">Înainte →</button>
+  </div>
+
+</div>

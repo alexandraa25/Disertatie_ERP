@@ -1,0 +1,24 @@
+<nav class="navbar">
+  <div class="navbar-container">
+
+    <a routerLink="/" class="logo">ERP</a>
+
+    <button class="menu-btn" (click)="isMenuOpen = !isMenuOpen">
+      <span class="menu-icon" [class.open]="isMenuOpen"></span>
+    </button>
+
+    <ul class="nav-links" [class.open]="isMenuOpen">
+
+      <ng-container *ngIf="!user">
+        <li><a routerLink="/login" (click)="isMenuOpen=false">Login</a></li>
+        <li><a routerLink="/register" (click)="isMenuOpen=false">Register</a></li>
+      </ng-container>
+
+      <ng-container *ngIf="user">
+        <li><a (click)="goToProfile(); isMenuOpen=false">Profil</a></li>
+        <li><a (click)="logout(); isMenuOpen=false">Logout</a></li>
+      </ng-container>
+
+    </ul>
+  </div>
+</nav>

@@ -1,0 +1,51 @@
+<div class="page">
+  <div class="header">
+    <h2>Cursuri</h2>
+
+    <div class="actions">
+      <input [(ngModel)]="q" placeholder="Caută curs..." />
+      <button class="secondary" (click)="load()">Caută</button>
+      <button class="primary" (click)="openCreate()">+ Adaugă curs</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div *ngIf="loading" class="loading">Se încarcă...</div>
+
+    <table *ngIf="!loading">
+      <thead>
+        <tr>
+          <th>Nume</th>
+          <th>Preț</th>
+          <th>Status</th>
+          <th>Creat</th>
+          <th>Acțiuni</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of items">
+          <td class="name">{{ c.name }}</td>
+          <td>{{ c.price ?? '-' }}</td>
+          <td>
+            <span class="status" [ngClass]="c.isActive ? 'active' : 'inactive'">
+              {{ c.isActive ? 'Activ' : 'Inactiv' }}
+            </span>
+          </td>
+          <td>{{ c.createdAtUtc | date:'dd.MM.yyyy' }}</td>
+          <td class="actions-cell">
+            <a (click)="openDetails(c.id)" class="details">Detalii</a>
+            <a (click)="openEdit(c.id)" class="edit">Editează</a>
+            <button *ngIf="c.isActive" class="danger small" (click)="toggleCourse(c)">
+              Dezactivează
+            </button>
+
+            <button *ngIf="!c.isActive" class="primary small" (click)="toggleCourse(c)">
+              Activează
+            </button>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

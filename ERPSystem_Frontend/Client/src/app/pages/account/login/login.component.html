@@ -1,0 +1,56 @@
+<div class="login-wrapper">
+
+  <div class="login-card">
+    <h3>Sign In</h3>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+
+      <div class="form-group">
+        <i class="fas fa-envelope icon-inside"></i>
+        <input formControlName="email" placeholder="Email" />
+      </div>
+
+      <div class="form-group password-group">
+        <i class="fas fa-lock icon-inside"></i>
+
+        <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Password" />
+
+        <span class="password-toggle" (click)="togglePassword()">
+
+          <!-- OCHI DESCHIS -->
+          <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              d="M17.94 17.94C16.2 19.24 14.21 20 12 20c-7 0-11-8-11-8a21.83 21.83 0 0 1 5.06-6.61m3.6-2.02A11.19 11.19 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-3.21 4.49M1 1l22 22" />
+            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              d="M1 12s4-7 11-7s11 7 11 7s-4 7-11 7s-11-7-11-7zm11 3a3 3 0 1 1 0-6a3 3 0 0 1 0 6z" />
+          </svg>
+
+          <!-- OCHI TĂIAT -->
+          <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              d="M1 12s4-7 11-7s11 7 11 7s-4 7-11 7s-11-7-11-7zm11 3a3 3 0 1 1 0-6a3 3 0 0 1 0 6z" />>
+          </svg>
+
+        </span>
+      </div>
+
+      <div class="extra-links">
+        <span class="clickable" (click)="goToForgot()">Forgot password?</span>
+      </div>
+
+      <button type="submit" class="btn-submit">Login</button>
+
+      <div class="extra-links center">
+        <span>Don't have an account?</span>
+        <span class="clickable" (click)="goToRegister()">Sign Up</span>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner"></div>
+  <span class="loading-text">Loading...</span>
+</div>

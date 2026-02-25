@@ -1,0 +1,52 @@
+<div class="modal-container">
+<div class="modal-header">
+  <h2>Înscriere cursanți</h2>
+  <span class="count" *ngIf="!loading">
+    {{ students.length }} rezultate
+  </span>
+</div>
+
+<div class="search-wrapper">
+  <span class="search-icon">🔎</span>
+  <input
+    [(ngModel)]="q"
+    (input)="load()"
+    placeholder="Caută după nume sau email..."
+    class="search"
+  />
+</div>
+
+<div *ngIf="loading" class="loading">
+  Se încarcă cursanții...
+</div>
+
+<div class="student-list" *ngIf="!loading && students.length">
+
+  <div class="student-item" *ngFor="let s of students">
+
+    <div class="student-info">
+      <div class="name">{{ s.fullName }}</div>
+      <div class="email">{{ s.email || '-' }}</div>
+    </div>
+
+    <button
+      class="btn-enroll"
+      (click)="enroll(s.id)">
+      Înscrie
+    </button>
+
+  </div>
+
+</div>
+
+<div *ngIf="!loading && !students.length" class="empty-state">
+  Nu există cursanți disponibili.
+</div>
+
+<div class="modal-actions">
+  <button class="btn-close" (click)="close()">
+    Închide
+  </button>
+</div>
+
+</div>

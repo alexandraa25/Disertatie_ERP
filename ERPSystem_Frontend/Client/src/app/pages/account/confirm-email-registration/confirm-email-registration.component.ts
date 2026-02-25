@@ -1,0 +1,53 @@
+import { Component, OnInit } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
+import { ActivatedRoute } from '@angular/router';
+
+@Component({
+  selector: 'app-confirm-email-registration',
+  standalone: true,
+  templateUrl: './confirm-email-registration.component.html',
+  styleUrl: './confirm-email-registration.component.css'
+})
+
+export class ConfirmEmailRegistrationComponent implements OnInit {
+
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private customSnackBarService: SnackbarService,
+    private route: ActivatedRoute
+  ) {}
+
+ ngOnInit(): void {
+  this.route.queryParams.subscribe(params => {
+    const userId = params['userId'];
+    const token = params['token'];
+
+    console.log('userId:', userId);
+    console.log('token:', token);
+
+    if (userId && token) {
+      this.confirmEmail(userId, token);
+    } else {
+      this.customSnackBarService.showError("Invalid confirmation link.");
+    }
+  });
+}
+
+  confirmEmail(userId: string, token: string) {
+    this.authService.confirmMail(userId, token).subscribe({
+      next: () => {
+        this.customSnackBarService.showSuccess("Email successfully confirmed!");
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        console.error(err);
+        // Dacă back-end-ul trimite mesaj → se folosește acel mesaj
+        const msg =  err?.error?.message || "Email confirmation failed. The link may be invalid or expired.";
+        this.customSnackBarService.showError(msg);
+      }
+    });
+  }
+}

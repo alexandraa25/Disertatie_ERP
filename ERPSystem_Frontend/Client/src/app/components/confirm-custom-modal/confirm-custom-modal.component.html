@@ -1,0 +1,19 @@
+<div class="overlay" *ngIf="isOpen" (click)="close(false)">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <h2>{{ title }}</h2>
+
+    <p>{{ message }}</p>
+
+    <div class="actions">
+      <button class="btn-cancel" (click)="close(false)">
+        {{ cancelText }}
+      </button>
+
+      <button class="btn-confirm" (click)="close(true)">
+        {{ confirmText }}
+      </button>
+    </div>
+
+  </div>
+</div>

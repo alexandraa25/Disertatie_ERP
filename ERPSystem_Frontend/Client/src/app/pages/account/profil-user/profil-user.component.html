@@ -1,0 +1,37 @@
+<h2>Profil utilizator</h2>
+
+<div *ngIf="loading">Se încarcă profilul...</div>
+
+<form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
+
+  <label>Prenume</label>
+  <input formControlName="firstName" />
+
+  <label>Nume</label>
+  <input formControlName="lastName" />
+
+  <label>Telefon</label>
+  <input formControlName="phone" />
+
+  <label>Funcție</label>
+  <input formControlName="jobTitle" />
+
+  <label>Avatar URL</label>
+  <input formControlName="avatarUrl" />
+
+  <label>Limbă</label>
+  <select formControlName="preferredLanguage">
+    <option value="ro">Română</option>
+    <option value="en">English</option>
+  </select>
+
+  <label>Time Zone</label>
+  <input formControlName="timeZone" />
+
+  <br><br>
+
+  <button type="submit" [disabled]="saving">
+    Salvează
+  </button>
+
+</form>

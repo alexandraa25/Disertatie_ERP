@@ -1,0 +1,112 @@
+<div class="page">
+  <div class="header">
+    <h2>{{ isEdit ? 'Editează curs' : 'Adaugă curs' }}</h2>
+    <button class="secondary" (click)="cancel()">Înapoi</button>
+  </div>
+
+  <div class="card">
+    <div *ngIf="loading" class="loading">Se încarcă...</div>
+
+    <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
+      <div class="grid">
+
+        <div class="field full">
+          <label>Nume curs *</label>
+          <input formControlName="name" placeholder="Engleză B1" />
+          <small *ngIf="c('name').touched && c('name').invalid">Numele este obligatoriu.</small>
+        </div>
+
+        <div class="field full">
+          <label>Descriere</label>
+          <input formControlName="description" placeholder="Detalii despre curs..." />
+        </div>
+
+        <div class="field">
+          <label>Preț</label>
+          <input formControlName="price" type="number" placeholder="ex: 400" />
+        </div>
+
+       
+
+        <div class="field" *ngIf="isEdit">
+          <label>Status</label>
+          <select formControlName="isActive">
+            <option [ngValue]="true">Activ</option>
+            <option [ngValue]="false">Inactiv</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="sessions">
+        <div class="sessions-header">
+          <h3>Orar</h3>
+          <button type="button" class="secondary" (click)="addSession()">+ Adaugă sesiune</button>
+        </div>
+
+        <div formArrayName="sessions" class="sessions-list">
+          <div class="session-row"
+     *ngFor="let s of sessions.controls; let i=index"
+     [formGroupName]="i">
+
+  <select formControlName="dayOfWeek">
+    <option *ngFor="let d of days" [value]="d.id">
+      {{ d.name }}
+    </option>
+  </select>
+
+  <input formControlName="startTime" type="time" />
+  <input formControlName="endTime" type="time" />
+
+  <select formControlName="teacherUserId">
+    <option value="">Profesor</option>
+    <option *ngFor="let t of teachers" [value]="t.userId">
+      {{ t.displayName }}
+    </option>
+  </select>
+
+  <!-- 🔹 NOU -->
+  <!-- 🔹 TOGGLE -->
+<div class="capacity-wrapper">
+
+  <label class="switch">
+    <input type="checkbox" formControlName="unlimited"
+           (change)="onToggleUnlimited(i)">
+    <span class="slider"></span>
+  </label>
+
+  <span class="toggle-label">
+    {{ sessions.at(i).value.unlimited ? 'Nelimitat' : 'Limită' }}
+  </span>
+
+  <!-- 🔹 input doar dacă NU e nelimitat -->
+  <input
+    *ngIf="!sessions.at(i).value.unlimited"
+    type="number"
+    formControlName="capacity"
+    placeholder="Capacitate"
+    min="1"
+  />
+
+</div>
+
+  <button
+    type="button"
+    class="danger"
+    (click)="removeSession(i)"
+    [disabled]="sessions.length <= 1">
+    Șterge
+  </button>
+
+</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="secondary" (click)="cancel()">Anulează</button>
+        <button type="submit" class="primary" [disabled]="saving">
+          {{ saving ? 'Se salvează...' : (isEdit ? 'Salvează' : 'Creează curs') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

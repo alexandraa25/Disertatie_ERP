@@ -1,0 +1,423 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\modules\\students\\studentsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\students\\studentsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\data\\entities\\student.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\entities\\student.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\modules\\students\\models\\studentdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\students\\models\\studentdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\modules\\students\\studentsendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\students\\studentsendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\data\\context\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\context\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\configuration\\serviceconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\configuration\\serviceconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\configuration\\mapconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\configuration\\mapconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\data\\entities\\studentguardian.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\entities\\studentguardian.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\data\\entities\\guardian.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\entities\\guardian.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\data\\entities\\coursesession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\entities\\coursesession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\modules\\course\\coursesservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\course\\coursesservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\modules\\course\\coursesendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\course\\coursesendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\utils\\constants\\general.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\utils\\constants\\general.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\utils\\settings\\airlinesystemsettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\utils\\settings\\airlinesystemsettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\modules\\course\\models\\coursedtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\course\\models\\coursedtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\data\\entities\\course.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\entities\\course.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\data\\entities\\courseenrollment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\entities\\courseenrollment.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260219132647_EnrollmentBySession_AddCapacity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ERPSystem\\Migrations\\20260219132647_EnrollmentBySession_AddCapacity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\modules\\authentification\\authenticationendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\authentification\\authenticationendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\modules\\authentification\\authentificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\authentification\\authentificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\migrations\\20260219125148_addcoursecapacity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\migrations\\20260219125148_addcoursecapacity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\migrations\\20260219133054_enrollmentbysession_addcapacity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\migrations\\20260219133054_enrollmentbysession_addcapacity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\migrations\\20260223152711_addstudentsandguardians.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\migrations\\20260223152711_addstudentsandguardians.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\migrations\\20260223143847_addactivecoursesession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\migrations\\20260223143847_addactivecoursesession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\users\\alexandra\\desktop\\disertatie_erp\\erpsystem\\erpsystem\\migrations\\20260223125529_addteachertocoursesession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\migrations\\20260223125529_addteachertocoursesession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 14,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "20260223152711_AddStudentsAndGuardians.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260223152711_AddStudentsAndGuardians.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260223152711_AddStudentsAndGuardians.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260223152711_AddStudentsAndGuardians.cs",
+              "RelativeToolTip": "ERPSystem\\Migrations\\20260223152711_AddStudentsAndGuardians.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-23T15:27:11.358Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "StudentGuardian.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\StudentGuardian.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\StudentGuardian.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\StudentGuardian.cs",
+              "RelativeToolTip": "ERPSystem\\Data\\Entities\\StudentGuardian.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-23T15:22:34.316Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Guardian.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\Guardian.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\Guardian.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\Guardian.cs",
+              "RelativeToolTip": "ERPSystem\\Data\\Entities\\Guardian.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-23T15:21:40.913Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Student.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\Student.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\Student.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\Student.cs",
+              "RelativeToolTip": "ERPSystem\\Data\\Entities\\Student.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-23T15:17:26.75Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "20260223143847_AddActiveCourseSession.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260223143847_AddActiveCourseSession.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260223143847_AddActiveCourseSession.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260223143847_AddActiveCourseSession.cs",
+              "RelativeToolTip": "ERPSystem\\Migrations\\20260223143847_AddActiveCourseSession.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-23T14:38:47.789Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "AirlineSystemSettings.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Utils\\Settings\\AirlineSystemSettings.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Utils\\Settings\\AirlineSystemSettings.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Utils\\Settings\\AirlineSystemSettings.cs",
+              "RelativeToolTip": "ERPSystem\\Utils\\Settings\\AirlineSystemSettings.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-23T14:12:17.435Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "20260223125529_AddTeacherToCourseSession.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260223125529_AddTeacherToCourseSession.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260223125529_AddTeacherToCourseSession.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260223125529_AddTeacherToCourseSession.cs",
+              "RelativeToolTip": "ERPSystem\\Migrations\\20260223125529_AddTeacherToCourseSession.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-23T12:55:30.113Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "CourseDtos.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Course\\Models\\CourseDtos.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Course\\Models\\CourseDtos.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Course\\Models\\CourseDtos.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Course\\Models\\CourseDtos.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAeAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-19T13:03:20.932Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "CoursesService.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Course\\CoursesService.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Course\\CoursesService.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Course\\CoursesService.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Course\\CoursesService.cs",
+              "ViewState": "AgIAAMQAAAAAAAAAAAAwwN4AAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T16:26:49.497Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "Course.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\Course.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\Course.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\Course.cs",
+              "RelativeToolTip": "ERPSystem\\Data\\Entities\\Course.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-19T12:48:36.665Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "CourseEnrollment.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\CourseEnrollment.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\CourseEnrollment.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\CourseEnrollment.cs",
+              "RelativeToolTip": "ERPSystem\\Data\\Entities\\CourseEnrollment.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-19T12:57:24.563Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
+              "RelativeToolTip": "ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAmwBQAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-19T12:58:46.488Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "StudentsEndpoints.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Students\\StudentsEndpoints.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Students\\StudentsEndpoints.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Students\\StudentsEndpoints.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Students\\StudentsEndpoints.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAcwC0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-19T11:17:18.895Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "General.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Utils\\Constants\\General.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Utils\\Constants\\General.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Utils\\Constants\\General.cs",
+              "RelativeToolTip": "ERPSystem\\Utils\\Constants\\General.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAQwCQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-19T11:33:07.75Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "StudentsService.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Students\\StudentsService.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Students\\StudentsService.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Students\\StudentsService.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Students\\StudentsService.cs",
+              "ViewState": "AgIAAFcAAAAAAAAAAIAwwGAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-19T11:15:10.185Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "StudentDtos.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Students\\Models\\StudentDtos.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Students\\Models\\StudentDtos.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Students\\Models\\StudentDtos.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Students\\Models\\StudentDtos.cs",
+              "ViewState": "AgIAADAAAAAAAAAAAAAowDwAAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-19T11:38:15.963Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "CourseSession.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\CourseSession.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\CourseSession.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\CourseSession.cs",
+              "RelativeToolTip": "ERPSystem\\Data\\Entities\\CourseSession.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-19T12:55:01.802Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "20260219132647_EnrollmentBySession_AddCapacity.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260219132647_EnrollmentBySession_AddCapacity.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260219132647_EnrollmentBySession_AddCapacity.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260219132647_EnrollmentBySession_AddCapacity.cs",
+              "RelativeToolTip": "ERPSystem\\Migrations\\20260219132647_EnrollmentBySession_AddCapacity.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-19T13:26:47.586Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "20260219133054_EnrollmentBySession_AddCapacity.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260219133054_EnrollmentBySession_AddCapacity.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260219133054_EnrollmentBySession_AddCapacity.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260219133054_EnrollmentBySession_AddCapacity.cs",
+              "RelativeToolTip": "ERPSystem\\Migrations\\20260219133054_EnrollmentBySession_AddCapacity.cs",
+              "ViewState": "AgIAACgAAAAAAAAAAAAQwBoAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-19T13:30:55.088Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "MapConfiguration.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Configuration\\MapConfiguration.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Configuration\\MapConfiguration.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Configuration\\MapConfiguration.cs",
+              "RelativeToolTip": "ERPSystem\\Configuration\\MapConfiguration.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwBsAAABLAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T16:47:44.177Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ServiceConfiguration.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Configuration\\ServiceConfiguration.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Configuration\\ServiceConfiguration.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Configuration\\ServiceConfiguration.cs",
+              "RelativeToolTip": "ERPSystem\\Configuration\\ServiceConfiguration.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwCkAAABNAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T16:47:43.691Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "CoursesEndpoints.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Course\\CoursesEndpoints.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Course\\CoursesEndpoints.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Course\\CoursesEndpoints.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Course\\CoursesEndpoints.cs",
+              "ViewState": "AgIAABwAAAAAAAAAAAAQwDkAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T16:41:32.773Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "AuthenticationEndpoints.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Authentification\\AuthenticationEndpoints.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Authentification\\AuthenticationEndpoints.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Authentification\\AuthenticationEndpoints.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Authentification\\AuthenticationEndpoints.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-18T16:41:44.932Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "20260219125148_AddCourseCapacity.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260219125148_AddCourseCapacity.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260219125148_AddCourseCapacity.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260219125148_AddCourseCapacity.cs",
+              "RelativeToolTip": "ERPSystem\\Migrations\\20260219125148_AddCourseCapacity.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-19T12:51:49.046Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "AuthentificationService.cs",
+              "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Authentification\\AuthentificationService.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Authentification\\AuthentificationService.cs",
+              "ToolTip": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Authentification\\AuthentificationService.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Authentification\\AuthentificationService.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAACEAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-19T11:17:28.632Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

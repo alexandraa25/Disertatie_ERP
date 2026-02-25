@@ -1,0 +1,105 @@
+.footer {
+  background-color:#2a3a5e;
+  color: #b705ca;
+  padding: 1.2rem 1.5rem;      /* mult mai mic */
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.footer-container {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;  /* aliniere perfectă */
+  align-items: center;
+  gap: 2rem;
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;                    /* distanță mică */
+}
+
+.footer-column a {
+  color: #d1d5db;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.footer-column a:hover {
+  color: #facc15;
+}
+
+.logo-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.social-icons {
+  display: flex;
+  gap: 0.7rem;
+}
+
+.social-icons i {
+  font-size: 1.2rem;
+  color: #d1d5db;
+}
+
+.social-icons i:hover {
+  color: #facc15;
+}
+
+.footer-copyright {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+}
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* eliminate orice spațiu între conținut și footer */
+.page-wrapper > * {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+app-root {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex-grow: 1; /* împinge footerul jos */
+}
+
+footer {
+  margin-top: auto; /* lipește footerul de jos */
+  margin-left: 0px;
+}

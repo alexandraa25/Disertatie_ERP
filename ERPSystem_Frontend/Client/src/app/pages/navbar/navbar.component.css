@@ -1,0 +1,159 @@
+/* GENERAL NAVBAR */
+.navbar {
+  width: 100%;
+  background: #6a12b8;
+  padding: 0.8rem 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.logo {
+  color: #f6f6f5;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+/* NAV LINKS DESKTOP */
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  align-items: center;
+  transition: 0.3s ease;
+}
+
+.nav-links a {
+  color: #e9e8e3;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: 0.3s;
+}
+
+.nav-links a:hover {
+  color: white;
+  text-shadow: 0 0 6px #eeece5;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.cart-link {
+  color: white;
+  position: relative;
+}
+
+.cart-badge {
+  background: #dc2626;
+  border-radius: 50%;
+  padding: 3px 7px;
+  font-size: 12px;
+  position: absolute;
+  top: -8px;
+  right: -12px;
+  color: white;
+}
+
+/* MOBILE MENU BUTTON */
+.menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.menu-icon,
+.menu-icon::before,
+.menu-icon::after {
+  width: 28px;
+  height: 3px;
+  background: white;
+  display: block;
+  transition: 0.3s;
+  border-radius: 2px;
+  position: relative;
+}
+
+.menu-icon::before,
+.menu-icon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.menu-icon::before {
+  top: -8px;
+}
+
+.menu-icon::after {
+  top: 8px;
+}
+
+/* Animation on click */
+.menu-icon.open {
+  background: transparent;
+}
+
+.menu-icon.open::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.menu-icon.open::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 850px) {
+
+  .nav-right {
+    display: none; /* Cart hides because it appears in mobile menu */
+  }
+
+  .menu-btn {
+    display: block;
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    height: calc(100vh - 70px);
+    background: #1b2741;
+    flex-direction: column;
+    padding-top: 40px;
+    gap: 1.8rem;
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  .nav-links.open {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  .nav-links a {
+    font-size: 1.4rem;
+  }
+
+  .mobile-cart {
+    display: block;
+  }
+}

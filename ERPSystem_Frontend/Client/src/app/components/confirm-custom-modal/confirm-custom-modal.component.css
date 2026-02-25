@@ -1,0 +1,63 @@
+/* overlay full screen */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100000; /* peste TOT */
+}
+
+/* modal box */
+.modal {
+  background: white;
+  border-radius: 14px;
+  padding: 30px;
+  width: 420px;
+  max-width: 90%;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  animation: fadeIn .25s ease-out;
+  text-align: center;
+}
+
+/* buttons */
+.actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 25px;
+}
+
+.btn-cancel {
+  background: #bbb;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-confirm {
+  background: #d32f2f;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-confirm:hover {
+  background: #b71c1c;
+}
+
+.btn-cancel:hover {
+  background: #999;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(.95); }
+  to { opacity: 1; transform: scale(1); }
+}

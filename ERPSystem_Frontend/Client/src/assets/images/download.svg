@@ -1,0 +1,54 @@
+<svg id="creatures" width="500" height="260" viewBox="0 0 500 260" xmlns="http://www.w3.org/2000/svg">
+
+    <!-- M1 — Semicerc mare (portocaliul din exemplu) -->
+    <g id="m1" class="creature">
+        <path d="M80 200 A70 70 0 0 1 220 200 L80 200 Z" fill="#A855F7"></path>
+        
+        <!-- eyes -->
+        <circle class="eye" cx="120" cy="185" r="8" fill="white"></circle>
+        <circle class="eye" cx="150" cy="185" r="8" fill="white"></circle>
+        <circle class="pupil" cx="120" cy="185" r="4" fill="black"></circle>
+        <circle class="pupil" cx="150" cy="185" r="4" fill="black"></circle>
+    </g>
+
+
+
+    <!-- M2 — Dreptunghi înalt (movul din exemplu) -->
+    <g id="m2" class="creature">
+        <rect x="220" y="60" width="70" height="160" rx="10" fill="#3B82F6"></rect>
+
+        <!-- eyes -->
+        <circle class="eye" cx="245" cy="95" r="7" fill="white"></circle>
+        <circle class="eye" cx="265" cy="95" r="7" fill="white"></circle>
+        <circle class="pupil" cx="245" cy="95" r="4" fill="black"></circle>
+        <circle class="pupil" cx="265" cy="95" r="4" fill="black"></circle>
+    </g>
+
+
+
+    <!-- M3 — Dreptunghi mic (negrul din exemplu) -->
+    <g id="m3" class="creature">
+        <rect x="290" y="110" width="60" height="110" rx="10" fill="#1E293B"></rect>
+
+        <!-- eyes -->
+        <circle class="eye" cx="315" cy="145" r="6" fill="white"></circle>
+        <circle class="eye" cx="335" cy="145" r="6" fill="white"></circle>
+        <circle class="pupil" cx="315" cy="145" r="3" fill="black"></circle>
+        <circle class="pupil" cx="335" cy="145" r="3" fill="black"></circle>
+    </g>
+
+
+
+    <!-- M4 — Oval mic (galbenul din exemplu) -->
+    <g id="m4" class="creature">
+        <ellipse cx="380" cy="170" rx="45" ry="65" fill="#06B6D4"></ellipse>
+
+        <!-- eye -->
+        <circle class="eye" cx="370" cy="160" r="7" fill="white"></circle>
+        <circle class="pupil" cx="370" cy="160" r="4" fill="black"></circle>
+
+        <!-- mouth -->
+        <line x1="390" y1="165" x2="405" y2="165" stroke="#0F172A" stroke-width="4" stroke-linecap="round"></line>
+    </g>
+
+</svg>

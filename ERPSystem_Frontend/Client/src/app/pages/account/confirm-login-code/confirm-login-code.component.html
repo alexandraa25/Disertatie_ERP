@@ -1,0 +1,33 @@
+<div class="verify-wrapper">
+
+  <div class="verify-card">
+    <h3>Enter Verification Code</h3>
+    <p class="subtitle">We sent a 6-digit code to your email</p>
+
+    <form [formGroup]="codeForm" (ngSubmit)="onSubmit()">
+
+      <div class="code-inputs">
+        <input maxlength="1" class="code-box"
+               *ngFor="let c of codeControls; let i = index"
+               [formControlName]="c"
+               (input)="moveToNext($event, i)" 
+               (paste)="handlePaste($event)"
+               (keydown.backspace)="moveToPrev($event, i)">
+      </div>
+
+      <button type="submit" class="btn-submit">Verify Code</button>
+
+      <div class="extra-links center">
+        <span>Didn't receive the code? </span>
+        <span class="clickable" (click)="resend()">Resend</span>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+
+<div class="loading-overlay" *ngIf="isLoading">
+  <div class="spinner"></div>
+  <span class="loading-text">Verifying...</span>
+</div>
