@@ -222,6 +222,303 @@
         }
       }
     },
+    "/contracts": {
+      "post": {
+        "tags": [
+          "Contracts"
+        ],
+        "summary": "Creare contract elev",
+        "description": "Creare contract elev (request: CREATE)",
+        "operationId": "CreateContract",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContractDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/contracts/{id}": {
+      "get": {
+        "tags": [
+          "Contracts"
+        ],
+        "summary": "Detalii contract",
+        "description": "Detalii contract (request: GET_BY_ID)",
+        "operationId": "GetContractById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/contracts/students/{id}/contracts": {
+      "get": {
+        "tags": [
+          "Contracts"
+        ],
+        "summary": "Lista contracte elev",
+        "description": "Lista contracte elev (request: LIST_BY_STUDENT)",
+        "operationId": "GetStudentContracts",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/contracts/contracts/{id}/activate": {
+      "put": {
+        "tags": [
+          "Contracts"
+        ],
+        "summary": "Activare contract",
+        "description": "Activare contract (request: ACTIVATE)",
+        "operationId": "ActivateContract",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/contracts/{id}/body": {
+      "put": {
+        "tags": [
+          "Contracts"
+        ],
+        "summary": "Editare conținut contract",
+        "description": "Editare conținut contract (request: UPDATE_BODY)",
+        "operationId": "UpdateContractBody",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateContractBodyDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/contracts/{id}/finalize": {
+      "put": {
+        "tags": [
+          "Contracts"
+        ],
+        "summary": "Finalizare contract",
+        "description": "Finalizare contract (request: FINALIZE)",
+        "operationId": "FinalizeContract",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/contracts/{id}/generate-pdf": {
+      "post": {
+        "tags": [
+          "Contracts"
+        ],
+        "summary": "Generare PDF contract",
+        "description": "Generare PDF contract (request: GENERATE_PDF)",
+        "operationId": "GenerateContractPdf",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/contracts/{id}/sign": {
+      "put": {
+        "tags": [
+          "Contracts"
+        ],
+        "summary": "Semnare contract",
+        "description": "Semnare contract (request: SIGN)",
+        "operationId": "SignContract",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/contracts/{id}/cancel": {
+      "put": {
+        "tags": [
+          "Contracts"
+        ],
+        "summary": "Anulare contract",
+        "description": "Anulare contract (request: CANCEL)",
+        "operationId": "CancelContract",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/courses": {
       "get": {
         "tags": [
@@ -229,7 +526,7 @@
         ],
         "summary": "Lista cursuri",
         "description": "Lista cursuri (request: GET)",
-        "operationId": "GetCourses",
+        "operationId": "GetAllCourses",
         "parameters": [
           {
             "name": "q",
@@ -908,6 +1205,70 @@
           }
         }
       }
+    },
+    "/students/{id}/courses": {
+      "get": {
+        "tags": [
+          "Students"
+        ],
+        "summary": "Lista cursuri si sesiuni asociate elevului",
+        "description": "Lista cursuri si sesiuni asociate elevului (request: GET_STUDENT_COURSES)",
+        "operationId": "GetStudentCourses",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/students/{id}/primary-guardian": {
+      "get": {
+        "tags": [
+          "Students"
+        ],
+        "summary": "Guardian principal pentru elev",
+        "description": "Guardian principal pentru elev (request: GET_GUARDIAN_OPTIONS)",
+        "operationId": "GetPrimaryGuardians",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -972,6 +1333,56 @@
         },
         "additionalProperties": false
       },
+      "CreateContractDto": {
+        "type": "object",
+        "properties": {
+          "guardianId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "studentIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "isUnlimited": {
+            "type": "boolean"
+          },
+          "installments": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "courseSessionIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "discounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateDiscountDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CreateCourseDto": {
         "type": "object",
         "properties": {
@@ -993,6 +1404,24 @@
             "items": {
               "$ref": "#/components/schemas/CourseSessionUpsertDto"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateDiscountDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "number",
+            "format": "double"
+          },
+          "reason": {
+            "type": "string",
             "nullable": true
           }
         },
@@ -1240,6 +1669,16 @@
         },
         "additionalProperties": false
       },
+      "UpdateContractBodyDto": {
+        "type": "object",
+        "properties": {
+          "contractBody": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "UpdateCourseDto": {
         "type": "object",
         "properties": {
@@ -1353,6 +1792,9 @@
   "tags": [
     {
       "name": "Authentication"
+    },
+    {
+      "name": "Contracts"
     },
     {
       "name": "Courses"

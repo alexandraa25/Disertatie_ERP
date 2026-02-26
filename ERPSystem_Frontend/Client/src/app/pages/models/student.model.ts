@@ -22,8 +22,42 @@ export interface StudentDetailsDto extends StudentListItemDto {
   address?: string | null;
   dateOfBirth?: string | null; // ISO
   guardians: GuardianDto[];
+ 
+  invoices?: InvoiceDto[] | null;
+  activityLogs?: ActivityLogDto[] | null;
 }
 
+
+
+export interface InvoiceDto {
+  id: number;
+  number: string;
+  date: string; // ISO
+  amount: number;
+  paid: boolean;
+}
+
+export interface ActivityLogDto {
+  id: number;  
+  date: string; // ISO
+  action: string;
+}
+
+export interface StudentCourseDetailsDto {
+  courseId: number;
+  courseName: string;
+  price: number;
+  sessionId: number;
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
+  teacherName: string;
+}
+
+export interface StudentCoursesResponse {
+  items: StudentCourseDetailsDto[];
+  totalAmount: number;
+}
 export interface CreateGuardianDto {
   firstName: string;
   lastName: string;
@@ -47,9 +81,24 @@ export interface UpdateStudentDto extends CreateStudentDto {
   isActive: boolean;
 }
 
+
+export interface StudentOption {
+  id: number;
+  fullName: string;
+  isMinor: boolean;
+}
+
+export interface GuardianOption {
+  id: number;
+  fullName: string;
+}
+
 export interface PagedResult<T> {
   page: number;
   pageSize: number;
   total: number;
   items: T[];
 }
+
+
+

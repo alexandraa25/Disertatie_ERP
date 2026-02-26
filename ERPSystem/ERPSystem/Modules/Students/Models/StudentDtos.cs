@@ -67,6 +67,20 @@
       List<CreateGuardianDto>? Guardians
   );
 
+    public class StudentCourseDetailsDto
+    {
+        public int CourseId { get; set; }
+        public string CourseName { get; set; } = default!;
+        public decimal Price { get; set; }
+
+        public int SessionId { get; set; }
+        public string DayOfWeek { get; set; } = default!;
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+
+        public string TeacherName { get; set; } = default!;
+    }
+
     public record PagedResult<T>(
         int Page,
         int PageSize,
@@ -75,6 +89,12 @@
     );
 
     public record StudentOptionDto(
+    int Id,
+    string FullName,
+    bool IsMinor
+);
+
+    public record GuardianOptionDto(
     int Id,
     string FullName
 );

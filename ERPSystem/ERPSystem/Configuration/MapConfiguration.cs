@@ -3,6 +3,7 @@ using ERPSystem.Modules.Authentificate;
 using ERPSystem.Modules.Courses;
 using ERPSystem.Modules.Students;
 using ERPSystem.Modules.UserProfile;
+using ERPSystem.Modules.Contracts;
 
 namespace ERPSystem.Configuration
 {
@@ -47,6 +48,15 @@ namespace ERPSystem.Configuration
              );
 
             CoursesEndpoints.Map(coursesGroup);
+            
+            var contractsGroup = app.CreateApiGroup(
+               route: "/contracts",
+               tag: "Contracts",
+               requireAuth: false, // temporar, ca la students
+               description: "Contracts endpoints"
+            );
+
+            ContractsEndpoints.Map(contractsGroup);
         }
     }
 }

@@ -10,6 +10,8 @@ public class CourseSession
     public Course Course { get; set; } = null!;
     public int? Capacity { get; set; } // null = nelimitat
 
+    public string Title { get; set; }
+    public decimal Fee { get; set; }
 
     // 1=Monday ... 7=Sunday
     [Range(1, 7)]

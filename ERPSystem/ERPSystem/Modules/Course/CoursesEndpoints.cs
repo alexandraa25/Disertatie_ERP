@@ -12,7 +12,7 @@ public static class CoursesEndpoints
         group.MapGet(Route.COURSES,
             async (string? q, CoursesService service)
                 => await service.ListAsync(q))
-            .WithDefaultApiSettings("GetCourses", "Lista cursuri", "GET", false);
+            .WithDefaultApiSettings("GetAllCourses", "Lista cursuri", "GET", false);
 
         group.MapGet(Route.COURSE_BY_ID,
             async (int id, CoursesService service)

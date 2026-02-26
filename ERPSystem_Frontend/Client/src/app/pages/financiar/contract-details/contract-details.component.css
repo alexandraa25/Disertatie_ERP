@@ -1,0 +1,47 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.draft { background: #e0e0e0; }
+.finalized { background: #ffcc00; }
+.signed { background: #4caf50; color: white; }
+.active { background: #2196f3; color: white; }
+.cancelled { background: #f44336; color: white; }
+
+.section {
+  margin-top: 20px;
+}
+
+.actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+button.danger {
+  background: #f44336;
+  color: white;
+}
+
+.contract-body {
+  background: #f9f9f9;
+  padding: 15px;
+  white-space: pre-wrap;
+  border-radius: 6px;
+}

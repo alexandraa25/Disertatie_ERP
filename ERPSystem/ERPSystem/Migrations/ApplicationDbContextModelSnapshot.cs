@@ -96,6 +96,104 @@ namespace ERPSystem.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("ERPSystem.Data.Entities.ContractCourse", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ContractId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CourseNameSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("CourseSessionId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("PriceSnapshot")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SessionNameSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractId");
+
+                    b.HasIndex("CourseSessionId");
+
+                    b.ToTable("ContractCourses");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.ContractDiscount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ContractId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Value")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractId");
+
+                    b.ToTable("ContractDiscounts");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.ContractParty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ContractId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("GuardianId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractId");
+
+                    b.HasIndex("GuardianId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("ContractParties");
+                });
+
             modelBuilder.Entity("ERPSystem.Data.Entities.Course", b =>
                 {
                     b.Property<int>("Id")
@@ -185,6 +283,9 @@ namespace ERPSystem.Migrations
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time");
 
+                    b.Property<decimal>("Fee")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -194,6 +295,10 @@ namespace ERPSystem.Migrations
                     b.Property<string>("TeacherUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -298,30 +403,7 @@ namespace ERPSystem.Migrations
                     b.ToTable("Guardians");
                 });
 
-            modelBuilder.Entity("ERPSystem.Data.Entities.StudentGuardian", b =>
-                {
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GuardianId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsPrimaryContact")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("RelationshipType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("StudentId", "GuardianId");
-
-                    b.HasIndex("GuardianId");
-
-                    b.ToTable("StudentGuardians");
-                });
-
-            modelBuilder.Entity("ERPSystem.Modules.Student.Models.Student", b =>
+            modelBuilder.Entity("ERPSystem.Data.Entities.Student", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -371,6 +453,29 @@ namespace ERPSystem.Migrations
                     b.HasIndex("FullName");
 
                     b.ToTable("Students");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.StudentGuardian", b =>
+                {
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GuardianId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsPrimaryContact")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("RelationshipType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("StudentId", "GuardianId");
+
+                    b.HasIndex("GuardianId");
+
+                    b.ToTable("StudentGuardians");
                 });
 
             modelBuilder.Entity("ERPSystem.Modules.UserProfile.Models.AuditLog", b =>
@@ -629,6 +734,123 @@ namespace ERPSystem.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("StudentContract", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ActivatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ContractBody")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContractNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FinalizedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Installments")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsUnlimited")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PdfPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("SignedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractNumber")
+                        .IsUnique();
+
+                    b.ToTable("StudentContracts");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.ContractCourse", b =>
+                {
+                    b.HasOne("StudentContract", "Contract")
+                        .WithMany("Courses")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ERPSystem.Data.Entities.CourseSession", "CourseSession")
+                        .WithMany()
+                        .HasForeignKey("CourseSessionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Contract");
+
+                    b.Navigation("CourseSession");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.ContractDiscount", b =>
+                {
+                    b.HasOne("StudentContract", "Contract")
+                        .WithMany("Discounts")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Contract");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.ContractParty", b =>
+                {
+                    b.HasOne("StudentContract", "Contract")
+                        .WithMany("Parties")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ERPSystem.Data.Entities.Guardian", "Guardian")
+                        .WithMany()
+                        .HasForeignKey("GuardianId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("ERPSystem.Data.Entities.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Contract");
+
+                    b.Navigation("Guardian");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("ERPSystem.Data.Entities.CourseEnrollment", b =>
                 {
                     b.HasOne("ERPSystem.Data.Entities.Course", "Course")
@@ -643,7 +865,7 @@ namespace ERPSystem.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("ERPSystem.Modules.Student.Models.Student", "Student")
+                    b.HasOne("ERPSystem.Data.Entities.Student", "Student")
                         .WithMany()
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -683,7 +905,7 @@ namespace ERPSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ERPSystem.Modules.Student.Models.Student", "Student")
+                    b.HasOne("ERPSystem.Data.Entities.Student", "Student")
                         .WithMany("StudentGuardians")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -757,9 +979,18 @@ namespace ERPSystem.Migrations
                     b.Navigation("StudentGuardians");
                 });
 
-            modelBuilder.Entity("ERPSystem.Modules.Student.Models.Student", b =>
+            modelBuilder.Entity("ERPSystem.Data.Entities.Student", b =>
                 {
                     b.Navigation("StudentGuardians");
+                });
+
+            modelBuilder.Entity("StudentContract", b =>
+                {
+                    b.Navigation("Courses");
+
+                    b.Navigation("Discounts");
+
+                    b.Navigation("Parties");
                 });
 #pragma warning restore 612, 618
         }

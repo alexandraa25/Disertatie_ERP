@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using ERPSystem.Modules.UserProfile;
 using ERPSystem.Modules.Student;
+using ERPSystem.Modules.Contracts;
 
 namespace ERPSystem.Configuration
 {
@@ -33,6 +34,7 @@ namespace ERPSystem.Configuration
             builder.Services.AddScoped<UserProfileBusinessLogic>();
             builder.Services.AddScoped<StudentsService>();
             builder.Services.AddScoped<CoursesService>();
+            builder.Services.AddScoped<ContractsService>();
         }
 
         public static void ConfigureSettings(this WebApplicationBuilder builder)

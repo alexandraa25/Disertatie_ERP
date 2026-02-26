@@ -1,7 +1,12 @@
 /* =========================
    DIALOG CONTAINER
 ========================= */
-
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 90vh; /* important pentru dialog */
+}
 .student-dialog .mat-mdc-dialog-container {
   border-radius: 16px;
   padding: 0;
@@ -9,6 +14,9 @@
   max-height: 90vh;
   display: flex;
   flex-direction: column;
+    display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 /* =========================
@@ -38,6 +46,8 @@
 .card {
   padding: 18px 22px 22px 22px;
   overflow-y: auto;
+  flex: 1;              /* 🔹 ocupă tot spațiul disponibil */
+  min-height: 0;        /* 🔹 foarte important pentru scroll în flex */
 }
 
 /* =========================
@@ -265,4 +275,17 @@ input:checked + .slider:before {
   button {
     width: 100%;
   }
+}
+
+.card::-webkit-scrollbar {
+  width: 8px;
+}
+
+.card::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
+}
+
+.card::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

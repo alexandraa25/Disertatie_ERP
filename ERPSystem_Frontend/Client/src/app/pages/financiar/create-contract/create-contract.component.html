@@ -1,0 +1,184 @@
+<form [formGroup]="contractForm" (ngSubmit)="submit()" class="contract-container">
+
+  <div class="form-header">
+    <h2>Creare Contract</h2>
+  </div>
+
+ <!-- STUDENT & GUARDIAN INFO -->
+<section class="card people-card">
+
+  <div class="section-header">
+    <h3>Informații contract</h3>
+  </div>
+
+  <div class="people-grid">
+
+    <!-- STUDENT -->
+    <div class="person-card student">
+      <div class="person-header">
+        <div class="avatar student-avatar">
+          {{ selectedStudent?.firstName?.charAt(0) }}{{ selectedStudent?.lastName?.charAt(0) }}
+        </div>
+        <div>
+          <div class="person-name">
+            {{ selectedStudent?.firstName }} {{ selectedStudent?.lastName }}
+          </div>
+          <div class="person-role">Elev</div>
+        </div>
+      </div>
+
+      <div class="person-details">
+        <div>Email: {{ selectedStudent?.email }}</div>
+        <div>Telefon: {{ selectedStudent?.phone }}</div>
+        <div *ngIf="selectedStudent?.cnp">CNP: {{ selectedStudent?.cnp }}</div>
+        <div *ngIf="selectedStudent?.address">Adresă: {{ selectedStudent?.address }}</div>
+      </div>
+    </div>
+
+    <!-- GUARDIAN -->
+    <div class="person-card guardian" *ngIf="selectedGuardian">
+      <div class="person-header">
+        <div class="avatar guardian-avatar">
+          {{ selectedGuardian?.firstName?.charAt(0) }}{{ selectedGuardian?.lastName?.charAt(0) }}
+        </div>
+        <div>
+          <div class="person-name">
+            {{ selectedGuardian?.firstName }} {{ selectedGuardian?.lastName }}
+          </div>
+          <div class="person-role">Tutore legal</div>
+        </div>
+      </div>
+
+      <div class="person-details">
+        <div>Email: {{ selectedGuardian?.email }}</div>
+        <div>Telefon: {{ selectedGuardian?.phone }}</div>
+        <div *ngIf="selectedGuardian?.cnp">CNP: {{ selectedGuardian?.cnp }}</div>
+        <div *ngIf="selectedGuardian?.address">Adresă: {{ selectedGuardian?.address }}</div>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+  <!-- COURSES -->
+  <section class="card" *ngIf="studentCourses.length > 0">
+    <div class="section-header">
+      <h3>Cursuri active</h3>
+      <span class="badge success">{{ studentCourses.length }} cursuri</span>
+    </div>
+
+    <div class="courses-grid">
+      <div *ngFor="let c of studentCourses" class="course-card">
+        <div class="course-title">{{ c.courseName }}</div>
+        <div class="course-details">
+          {{ c.dayOfWeek }} • {{ c.startTime }} - {{ c.endTime }}
+        </div>
+        <div class="course-details">
+          Profesor: {{ c.teacherName }}
+        </div>
+        <div class="course-price">
+          {{ c.price }} RON
+        </div>
+      </div>
+    </div>
+
+    <div class="total-box">
+      Total: {{ totalAmount | number:'1.2-2' }} RON
+    </div>
+  </section>
+
+  <div *ngIf="studentCourses.length === 0" class="warning-box">
+    Elevul nu are cursuri active. Nu se poate crea contract.
+  </div>
+
+  <!-- PERIOD -->
+  <section class="card">
+    <h3>Perioadă contract</h3>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Data început *</label>
+        <input type="date" formControlName="startDate" />
+      </div>
+
+      <div class="field" *ngIf="!contractForm.get('isUnlimited')?.value">
+        <label>Data sfârșit</label>
+        <input type="date" formControlName="endDate" />
+      </div>
+    </div>
+
+   <div class="checkbox-row">
+  <input type="checkbox" formControlName="isUnlimited" id="unlimited" />
+  <label for="unlimited">Perioadă nelimitată</label>
+</div>
+
+    <div class="error" *ngIf="contractForm.errors?.['endRequired']">
+      Data de sfârșit este obligatorie pentru contract limitat.
+    </div>
+
+    <div class="error" *ngIf="contractForm.errors?.['endInvalid']">
+      Data de sfârșit trebuie să fie după data de început.
+    </div>
+  </section>
+
+  <!-- INSTALLMENTS -->
+  <section class="card">
+    <h3>Plată</h3>
+
+    <div class="field small">
+      <label>Rate</label>
+      <input type="number" formControlName="installments" min="1" />
+    </div>
+  </section>
+
+  <!-- DISCOUNTS -->
+  <section class="card">
+    <div class="section-header">
+      <h3>Discounturi</h3>
+      <button type="button" class="btn-outline" (click)="addDiscount()">
+        + Adaugă
+      </button>
+    </div>
+
+    <div formArrayName="discounts">
+      <div *ngFor="let d of discounts.controls; let i = index"
+           [formGroupName]="i"
+           class="discount-card">
+
+        <select formControlName="type">
+          <option value="Percentage">Procent</option>
+          <option value="FixedAmount">Sumă fixă</option>
+        </select>
+
+        <input type="number"
+               formControlName="value"
+               placeholder="Valoare" />
+
+        <input type="text"
+               formControlName="reason"
+               placeholder="Motiv" />
+
+        <button type="button"
+                class="btn-danger"
+                (click)="removeDiscount(i)">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <div class="estimated-total">
+      Total estimat: {{ calculateTotal() | number:'1.2-2' }} RON
+    </div>
+  </section>
+
+  <!-- SUBMIT -->
+  <button type="submit"
+          class="btn-primary"
+          [disabled]="isSubmitting">
+
+    <span *ngIf="!isSubmitting">Creează Contract</span>
+    <span *ngIf="isSubmitting">Se creează...</span>
+  </button>
+
+</form>

@@ -182,3 +182,4 @@ C:\Users\Alexandra\Desktop\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\
 C:\Users\Alexandra\Desktop\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\ERPSystem.pdb
 C:\Users\Alexandra\Desktop\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\ERPSystem.genruntimeconfig.cache
 C:\Users\Alexandra\Desktop\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\ref\ERPSystem.dll
+C:\Users\Alexandra\Desktop\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\ERPSystem.sourcelink.json

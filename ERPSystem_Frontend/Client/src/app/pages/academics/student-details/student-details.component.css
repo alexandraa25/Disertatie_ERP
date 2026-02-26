@@ -1,0 +1,399 @@
+.details-container {
+  max-width: 1100px;
+  margin: 100px auto 40px; /* CENTRARE + spacing */
+  padding: 0 20px;
+}
+
+
+
+/* HEADER */
+.student-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  margin-bottom: 24px;
+}
+
+.student-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.student-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.student-text h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  font-size: 18px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 6px 16px rgba(99,102,241,0.25);
+}
+
+.meta {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.status {
+  margin-top: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.status.active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.financial-warning {
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #fef3c7;
+  color: #b45309;
+  font-size: 12px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.actions button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+  border: none;
+}
+
+.actions .secondary {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.actions .secondary:hover {
+  background: #e2e8f0;
+}
+
+.actions .primary {
+  background: #6366f1;
+  color: white;
+}
+
+.actions .primary:hover {
+  background: #4f46e5;
+  box-shadow: 0 4px 12px rgba(99,102,241,0.25);
+}
+.tabs {
+  display: inline-flex;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 16px;
+  background: #e9eef5;
+  margin-bottom: 32px;
+}
+
+.tabs button {
+  padding: 10px 20px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  font-weight: 500;
+  cursor: pointer;
+  color: #475569;
+  transition: all 0.2s ease;
+}
+
+.tabs button.active {
+  background: white;
+  color: #111827;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+/* CARD */
+.card {
+  background: white;
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.05);
+  border: 1px solid #f1f5f9;
+}
+
+/* COURSES */
+/* =========================
+   COURSES SECTION
+========================= */
+
+.courses-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.courses-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.courses-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.total-box {
+  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 120px;
+}
+
+.total-box span {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.total-box strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* CARD CURS */
+
+.course-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px;
+  border-radius: 16px;
+  background: #f9fafc;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 18px;
+  transition: all 0.2s ease;
+}
+
+.course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+}
+
+.course-main {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.course-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.course-title-row h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.day-badge {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.course-meta {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.course-price {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* EMPTY */
+
+.empty-state {
+  text-align: center;
+  padding: 40px 0;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+  .course-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .course-price {
+    align-self: flex-end;
+  }
+
+  .courses-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .total-box {
+    align-self: stretch;
+    align-items: center;
+  }
+}
+
+/* INVOICE */
+.invoice-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #fee2e2;
+  font-size: 12px;
+}
+
+.badge.paid {
+  background: #dcfce7;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px 40px;
+  margin-bottom: 40px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-item label {
+  font-size: 12px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-item span {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.section-title {
+  margin: 20px 0 14px;
+  font-size: 15px;
+  color: #1e293b;
+}
+
+.guardian-card {
+  background: #f9fafc;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  transition: 0.2s ease;
+}
+
+.guardian-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+}
+
+.guardian-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.guardian-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px 16px;
+}
+
+.primary-badge {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.empty-state {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.amount {
+  font-weight: 600;
+}
+
+.guardian-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.guardian-field label {
+  font-size: 12px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.guardian-field span {
+  font-weight: 500;
+  color: #1e293b;
+}

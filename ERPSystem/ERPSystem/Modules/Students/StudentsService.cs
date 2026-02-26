@@ -1,9 +1,10 @@
 ﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Entities;
+using ERPSystem.Modules.Student.Models;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Response;
-using ERPSystem.Data.Entities;
 using Microsoft.EntityFrameworkCore;
-using ERPSystem.Modules.Student.Models;
+using SendGrid.Helpers.Mail;
 
 
 namespace ERPSystem.Modules.Student;
@@ -144,6 +145,8 @@ public class StudentsService
     {
         var response = new PublicResponse(true);
 
+        using var transaction = await _db.Database.BeginTransactionAsync();
+
         try
         {
             if (string.IsNullOrWhiteSpace(dto.FullName))
@@ -163,24 +166,40 @@ public class StudentsService
                 UpdatedAtUtc = DateTime.UtcNow
             };
 
-            // 🔥 REGULA BUSINESS
+            // 🔥 REGULA MINOR
             if (s.IsMinor && (dto.Guardians == null || dto.Guardians.Count == 0))
                 return response.SetError(ErrorCodes.InvalidParameters,
                     "Student minor trebuie să aibă cel puțin un părinte.");
+
+            // 🔥 Validare un singur primary
+            if (dto.Guardians != null && dto.Guardians.Count(g => g.IsPrimaryContact) > 1)
+                return response.SetError(ErrorCodes.InvalidParameters,
+                    "Poate exista un singur contact principal.");
 
             if (dto.Guardians != null)
             {
                 foreach (var g in dto.Guardians)
                 {
-                    var guardian = new Guardian
+                    var email = g.Email.Trim();
+
+                    // 🔥 REUTILIZARE GUARDIAN EXISTENT
+                    var guardian = await _db.Guardians
+                        .FirstOrDefaultAsync(x => x.Email == email);
+
+                    if (guardian == null)
                     {
-                        FirstName = g.FirstName.Trim(),
-                        LastName = g.LastName.Trim(),
-                        Email = g.Email.Trim(),
-                        Phone = g.Phone.Trim(),
-                        CreatedAtUtc = DateTime.UtcNow,
-                        UpdatedAtUtc = DateTime.UtcNow
-                    };
+                        guardian = new Guardian
+                        {
+                            FirstName = g.FirstName.Trim(),
+                            LastName = g.LastName.Trim(),
+                            Email = email,
+                            Phone = g.Phone.Trim(),
+                            CreatedAtUtc = DateTime.UtcNow,
+                            UpdatedAtUtc = DateTime.UtcNow
+                        };
+
+                        _db.Guardians.Add(guardian);
+                    }
 
                     s.StudentGuardians.Add(new StudentGuardian
                     {
@@ -193,11 +212,13 @@ public class StudentsService
 
             _db.Students.Add(s);
             await _db.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return response.SetCreated(new { id = s.Id });
         }
         catch (Exception ex)
         {
+            await transaction.RollbackAsync();
             _logger.LogError(ex, "CreateAsync failed");
             return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
         }
@@ -245,15 +266,25 @@ public class StudentsService
                 // 🔥 Re-adăugăm lista nouă
                 foreach (var g in dto.Guardians)
                 {
-                    var guardian = new Data.Entities.Guardian
+                    var email = g.Email.Trim();
+
+                    var guardian = await _db.Guardians
+                        .FirstOrDefaultAsync(x => x.Email == email);
+
+                    if (guardian == null)
                     {
-                        FirstName = g.FirstName.Trim(),
-                        LastName = g.LastName.Trim(),
-                        Email = g.Email.Trim(),
-                        Phone = g.Phone.Trim(),
-                        CreatedAtUtc = DateTime.UtcNow,
-                        UpdatedAtUtc = DateTime.UtcNow
-                    };
+                        guardian = new Guardian
+                        {
+                            FirstName = g.FirstName.Trim(),
+                            LastName = g.LastName.Trim(),
+                            Email = email,
+                            Phone = g.Phone.Trim(),
+                            CreatedAtUtc = DateTime.UtcNow,
+                            UpdatedAtUtc = DateTime.UtcNow
+                        };
+
+                        _db.Guardians.Add(guardian);
+                    }
 
                     s.StudentGuardians.Add(new StudentGuardian
                     {
@@ -285,7 +316,8 @@ public class StudentsService
             if (s is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
 
-            _db.Students.Remove(s);
+            s.IsActive = false;
+            s.UpdatedAtUtc = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
             return response.SetSuccess(true);
@@ -299,7 +331,9 @@ public class StudentsService
 
     public async Task<List<StudentOptionDto>> SearchOptionsAsync(string? q)
     {
-        var query = _db.Students.AsNoTracking();
+        var query = _db.Students
+            .AsNoTracking()
+            .Where(s => s.IsActive);
 
         if (!string.IsNullOrWhiteSpace(q))
         {
@@ -315,9 +349,73 @@ public class StudentsService
             .Take(20)
             .Select(s => new StudentOptionDto(
                 s.Id,
-                s.FullName
+                s.FullName,
+                s.IsMinor
             ))
             .ToListAsync();
+    }
+
+    public async Task<PublicResponse> GetStudentCoursesAsync(int studentId)
+    {
+        var response = new PublicResponse(true);
+
+        try
+        {
+            var courses = await _db.CourseEnrollments
+                .AsNoTracking()
+                .Where(e => e.StudentId == studentId && e.IsActive)
+                .Select(e => new StudentCourseDetailsDto
+                {
+                    CourseId = e.CourseId,
+                    CourseName = e.Course.Name,
+                    Price = e.Course.Price ?? 0m,
+
+                    SessionId = e.CourseSessionId,
+                    DayOfWeek = e.Session.DayOfWeek.ToString(),
+                    StartTime = e.Session.StartTime,
+                    EndTime = e.Session.EndTime,
+
+                    TeacherName = e.Session.Teacher.FirstName + " " + e.Session.Teacher.LastName
+                })
+                .ToListAsync();
+
+            var total = courses.Sum(c => c.Price);
+
+            return response.SetSuccess(new
+            {
+                items = courses,
+                totalAmount = total
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "GetStudentCoursesAsync failed");
+            return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
+        }
+    }
+
+    public async Task<PublicResponse> GetPrimaryGuardianAsync(int studentId)
+    {
+        var response = new PublicResponse(true);
+
+        var studentExists = await _db.Students
+            .AsNoTracking()
+            .AnyAsync(s => s.Id == studentId);
+
+        if (!studentExists)
+            return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+
+        var guardian = await _db.StudentGuardians
+            .AsNoTracking()
+            .Include(sg => sg.Guardian)
+            .Where(sg => sg.StudentId == studentId && sg.IsPrimaryContact)
+            .Select(sg => new GuardianOptionDto(
+                sg.Guardian.Id,
+                sg.Guardian.FirstName + " " + sg.Guardian.LastName
+            ))
+            .FirstOrDefaultAsync();
+
+        return response.SetSuccess(guardian); // poate fi null
     }
 
 }

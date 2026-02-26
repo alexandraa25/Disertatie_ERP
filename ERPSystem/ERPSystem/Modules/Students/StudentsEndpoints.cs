@@ -40,6 +40,15 @@ namespace ERPSystem.Modules.Students
                     => await studentsService.SearchOptionsAsync(q))
                .WithDefaultApiSettings("SearchStudentOptions", "Căutare elevi pentru dropdown (autocomplete)", "GET", false);
 
+            group.MapGet(Route.STUDENT_COURSES,
+                 async (int id, StudentsService studentsService)
+                     => await studentsService.GetStudentCoursesAsync(id))
+                .WithDefaultApiSettings("GetStudentCourses", "Lista cursuri si sesiuni asociate elevului", "GET_STUDENT_COURSES",   false  );
+        
+            group.MapGet(Route.GUARDIAN_OPTIONS,
+                 async (int id, StudentsService studentsService)
+                     => await studentsService.GetPrimaryGuardianAsync(id))
+                .WithDefaultApiSettings( "GetPrimaryGuardians", "Guardian principal pentru elev", "GET_GUARDIAN_OPTIONS",  false   );
         }
     }
 }

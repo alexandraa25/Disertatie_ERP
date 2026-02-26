@@ -14,8 +14,10 @@ export const routes: Routes = [
   { path: 'students/:id', loadComponent: () => import('./pages/academics/student-details/student-details.component').then(m => m.StudentDetailsComponent)},
   { path: 'students', loadComponent: () => import('./pages/academics/students/students.component').then(m => m.StudentsComponent)},
   {path: 'courses', loadComponent: () => import('./pages/academics/courses/courses.component').then(m => m.CoursesComponent)},
-  { path: 'courses/:id', loadComponent: () => import('./pages/academics/course-details/course-details.component').then(m => m.CourseDetailsComponent)}
-  
+  { path: 'courses/:id', loadComponent: () => import('./pages/academics/course-details/course-details.component').then(m => m.CourseDetailsComponent)},
+  { path: 'create-contract', loadComponent: () => import('./pages/financiar/create-contract/create-contract.component').then(m => m.CreateContractComponent)},
+  { path: 'contracts/:id', loadComponent: () => import('./pages/financiar/contract-details/contract-details.component').then(m => m.ContractDetailsComponent)
+}
 
 ];
 
