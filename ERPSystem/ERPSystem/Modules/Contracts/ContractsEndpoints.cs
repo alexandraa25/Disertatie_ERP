@@ -101,5 +101,17 @@ public static class ContractsEndpoints
         "CANCEL",
         false
     );
+
+        group.MapGet(Route.CONTRACT_GET_LATEST_BY_STUDENT,
+    async (int studentId, ContractsService service)
+        => await service.GetLatestByStudentAsync(studentId))
+.WithDefaultApiSettings(
+    "GetLatestContractByStudent",
+    "Returnează ultimul contract al cursantului",
+    "READ",
+    false
+);
     }
+
+
 }

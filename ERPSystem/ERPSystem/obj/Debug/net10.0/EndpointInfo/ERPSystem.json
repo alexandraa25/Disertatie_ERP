@@ -519,6 +519,38 @@
         }
       }
     },
+    "/contracts/latest-by-student/{studentId}": {
+      "get": {
+        "tags": [
+          "Contracts"
+        ],
+        "summary": "Returnează ultimul contract al cursantului",
+        "description": "Returnează ultimul contract al cursantului (request: READ)",
+        "operationId": "GetLatestContractByStudent",
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/courses": {
       "get": {
         "tags": [
@@ -866,6 +898,27 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/dashboard": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Dashboard statistici",
+        "description": "Dashboard statistici (request: GET)",
+        "operationId": "GetDashboard",
         "responses": {
           "200": {
             "description": "OK"
@@ -1329,6 +1382,10 @@
           "teacherUserId": {
             "type": "string",
             "nullable": true
+          },
+          "fee": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -1392,11 +1449,6 @@
           },
           "description": {
             "type": "string",
-            "nullable": true
-          },
-          "price": {
-            "type": "number",
-            "format": "double",
             "nullable": true
           },
           "sessions": {
@@ -1634,9 +1686,13 @@
             "type": "string",
             "nullable": true
           },
-          "roleId": {
-            "type": "integer",
-            "format": "int32"
+          "phoneNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -1688,11 +1744,6 @@
           },
           "description": {
             "type": "string",
-            "nullable": true
-          },
-          "price": {
-            "type": "number",
-            "format": "double",
             "nullable": true
           },
           "isActive": {
@@ -1798,6 +1849,9 @@
     },
     {
       "name": "Courses"
+    },
+    {
+      "name": "Dashboard"
     },
     {
       "name": "Me"

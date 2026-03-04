@@ -16,3 +16,20 @@ export interface MeDto {
   profile: UserProfileDto;
   unreadNotificationsCount: number;
 }
+
+export enum NotificationChannel {
+  InApp = 1,
+  Email = 2
+}
+
+export enum DigestMode {
+  Immediate = 1,
+  Daily = 2
+}
+
+export interface NotificationSettingDto {
+  eventType: string;
+  channel: NotificationChannel;
+  enabled: boolean;
+  digest: DigestMode;
+}

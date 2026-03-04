@@ -67,16 +67,14 @@ export class CourseFormComponent implements OnInit {
     }
   }
 
-  private buildForm(): void {
-    this.form = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(150)]],
-      description: [''],
-      price: [null],
-      //teacherUserId: ['', Validators.required],
-      isActive: [true],
-      sessions: this.fb.array([])
-    });
-  }
+ private buildForm(): void {
+  this.form = this.fb.group({
+    name: ['', [Validators.required, Validators.maxLength(150)]],
+    description: [''],
+    isActive: [true],
+    sessions: this.fb.array([])
+  });
+}
 
   private loadCourse(id: number): void {
     this.courses.get(id).subscribe({
@@ -84,24 +82,25 @@ export class CourseFormComponent implements OnInit {
 
         const c = res?.value ?? res;
 
-        this.form.patchValue({
-          name: c.name,
-          description: c.description ?? '',
-          price: c.price ?? null,
-          teacherUserId: c.teacherUserId,
-          isActive: c.isActive
-        });
+       this.form.patchValue({
+  name: c.name,
+  description: c.description ?? '',
+  isActive: c.isActive
+});
 
         this.sessions.clear();
 
-        for (const s of c.sessions) {
-          this.sessions.push(this.createSessionGroup({
-            id: s.id,
-            dayOfWeek: s.dayOfWeek,
-            startTime: s.startTime,
-            endTime: s.endTime
-          }));
-        }
+       for (const s of c.sessions) {
+  this.sessions.push(this.createSessionGroup({
+    id: s.id,
+    dayOfWeek: s.dayOfWeek,
+    startTime: s.startTime,
+    endTime: s.endTime,
+    teacherUserId: s.teacherUserId,
+    capacity: s.capacity, 
+     fee: s.fee
+  }));
+}
 
         if (this.sessions.length === 0) this.addSession();
 
@@ -120,17 +119,18 @@ export class CourseFormComponent implements OnInit {
   }
 
   createSessionGroup(data?: Partial<CourseSessionUpsertDto>): FormGroup {
-    return this.fb.group({
-      id: [data?.id ?? null],
-      dayOfWeek: [
-        data?.dayOfWeek ?? 1,
-        [Validators.required, Validators.min(1), Validators.max(7)]
-      ],
-      startTime: [data?.startTime ?? '18:00', Validators.required],
-      endTime: [data?.endTime ?? '19:00', Validators.required],
-      teacherUserId: [data?.teacherUserId ?? '', Validators.required], 
-      capacity: [data?.capacity ?? null], 
-      unlimited: [data?.capacity ? false : true]   
+     return this.fb.group({
+    id: [data?.id ?? null],
+    dayOfWeek: [
+      data?.dayOfWeek ?? 1,
+      [Validators.required, Validators.min(1), Validators.max(7)]
+    ],
+    startTime: [data?.startTime ?? '18:00', Validators.required],
+    endTime: [data?.endTime ?? '19:00', Validators.required],
+    teacherUserId: [data?.teacherUserId ?? '', Validators.required],
+    fee: [data?.fee ?? 0, [Validators.required, Validators.min(0)]], // 🔥 NOU
+    capacity: [data?.capacity ?? null],
+    unlimited: [data?.capacity == null]
     });
   }
 
@@ -178,21 +178,21 @@ export class CourseFormComponent implements OnInit {
     const sessionsPayload: CourseSessionUpsertDto[] =
       this.sessions.value.map((x: any) => ({
         id: x.id ?? null,
-        dayOfWeek: Number(x.dayOfWeek),
-        startTime: x.startTime,
-        endTime: x.endTime,
-        teacherUserId: x.teacherUserId, 
-        capacity: x.unlimited ? null : Number(x.capacity)
+    dayOfWeek: Number(x.dayOfWeek),
+    startTime: x.startTime,
+    endTime: x.endTime,
+    teacherUserId: x.teacherUserId,
+    fee: Number(x.fee), // 🔥 IMPORTANT
+    capacity: x.unlimited ? null : Number(x.capacity)
       }));
 
     if (!this.isEdit) {
 
       const dto: CreateCourseDto = {
-        name: this.form.value.name,
-        description: this.form.value.description || null,
-        price: this.form.value.price ?? null,
-        sessions: sessionsPayload
-      };
+  name: this.form.value.name,
+  description: this.form.value.description || null,
+  sessions: sessionsPayload
+};
 
       this.courses.create(dto).subscribe({
         next: () => {
@@ -215,12 +215,11 @@ export class CourseFormComponent implements OnInit {
     } else {
 
       const dto: UpdateCourseDto = {
-        name: this.form.value.name,
-        description: this.form.value.description || null,
-        price: this.form.value.price ?? null,
-        isActive: !!this.form.value.isActive,
-        sessions: sessionsPayload
-      };
+  name: this.form.value.name,
+  description: this.form.value.description || null,
+  isActive: !!this.form.value.isActive,
+  sessions: sessionsPayload
+};
 
       this.courses.update(this.courseId!, dto).subscribe({
         next: () => {

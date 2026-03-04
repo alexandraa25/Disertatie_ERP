@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { UserProfileDto, MeDto } from '../models/user-profile.model';
+import { UserProfileDto, MeDto, NotificationSettingDto  } from '../models/user-profile.model';
 
 @Injectable({
   providedIn: 'root'
@@ -24,4 +24,19 @@ export class UserProfileService {
   updateProfile(profile: UserProfileDto): Observable<void> {
     return this.http.put<void>(`${this.baseUrl}/profile`, profile, { withCredentials: true });
   }
+
+  getNotificationSettings(): Observable<NotificationSettingDto[]> {
+  return this.http.get<NotificationSettingDto[]>(
+    `${this.baseUrl}/notification-settings`,
+    { withCredentials: true }
+  );
+}
+
+updateNotificationSettings(settings: NotificationSettingDto[]): Observable<void> {
+  return this.http.put<void>(
+    `${this.baseUrl}/notification-settings`,
+    settings,
+    { withCredentials: true }
+  );
+}
 }

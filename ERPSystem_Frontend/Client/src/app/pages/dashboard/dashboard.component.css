@@ -1,0 +1,51 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  margin-top: 100px;
+}
+
+/* CARDS */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* CHART */
+
+.chart-container {
+  width: 500px;      /* 🔥 mai mic */
+  height: 300px;     /* 🔥 controlează înălțimea */
+}
+
+/* LISTS */
+
+.lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.lists ul {
+  list-style: none;
+  padding: 0;
+}
+
+.lists li {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}

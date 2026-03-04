@@ -1,37 +1,215 @@
-<h2>Profil utilizator</h2>
+<div class="profile-wrapper">
 
-<div *ngIf="loading">Se încarcă profilul...</div>
+  <div class="profile-card">
 
-<form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
+    <!-- HEADER -->
+    <div class="profile-header">
 
-  <label>Prenume</label>
-  <input formControlName="firstName" />
+      <div class="avatar">
+        <img *ngIf="form.value.avatarUrl && !editMode"
+             [src]="form.value.avatarUrl" />
 
-  <label>Nume</label>
-  <input formControlName="lastName" />
+        <div *ngIf="!form.value.avatarUrl && !editMode"
+             class="avatar-placeholder">
+          {{ form.value.firstName?.charAt(0) || '?' }}
+        </div>
 
-  <label>Telefon</label>
-  <input formControlName="phone" />
+        <!-- Edit avatar doar in edit mode -->
+        <input *ngIf="editMode && activeTab === 'info'"
+               formControlName="avatarUrl"
+               placeholder="Avatar URL" />
+      </div>
 
-  <label>Funcție</label>
-  <input formControlName="jobTitle" />
+      <div class="header-info">
+        <h2>{{ form.value.firstName }} {{ form.value.lastName }}</h2>
+        <span class="role">{{ form.value.jobTitle }}</span>
+      </div>
 
-  <label>Avatar URL</label>
-  <input formControlName="avatarUrl" />
+      <button class="edit-btn"
+              *ngIf="!editMode && activeTab === 'info'"
+              (click)="enableEdit()">
+        Edit
+      </button>
 
-  <label>Limbă</label>
-  <select formControlName="preferredLanguage">
-    <option value="ro">Română</option>
-    <option value="en">English</option>
-  </select>
+    </div>
 
-  <label>Time Zone</label>
-  <input formControlName="timeZone" />
+    <!-- TABS -->
+    <div class="tabs">
 
-  <br><br>
+      <button 
+        [class.active]="activeTab === 'info'"
+        (click)="setTab('info')">
+        Informații
+      </button>
 
-  <button type="submit" [disabled]="saving">
-    Salvează
-  </button>
+      <button 
+        [class.active]="activeTab === 'password'"
+        (click)="setTab('password')">
+        Parolă
+      </button>
 
-</form>
+      <button 
+        [class.active]="activeTab === 'notifications'"
+        (click)="setTab('notifications')">
+        Notificări
+      </button>
+
+    </div>
+
+    <!-- ================= INFO TAB ================= -->
+
+    <!-- VIEW MODE -->
+    <div *ngIf="activeTab === 'info' && !editMode" class="info-grid">
+
+      <div><strong>Prenume:</strong> {{ form.value.firstName }}</div>
+      <div><strong>Nume:</strong> {{ form.value.lastName }}</div>
+      <div><strong>Telefon:</strong> {{ form.value.phone }}</div>
+      <div><strong>Funcție:</strong> {{ form.value.jobTitle }}</div>
+      <div><strong>Limbă:</strong> {{ form.value.preferredLanguage }}</div>
+      <div><strong>TimeZone:</strong> {{ form.value.timeZone }}</div>
+
+    </div>
+
+    <!-- EDIT MODE -->
+    <form *ngIf="activeTab === 'info' && editMode"
+          [formGroup]="form"
+          (ngSubmit)="save()">
+
+      <div class="grid">
+
+        <div class="form-group">
+          <label>Prenume</label>
+          <input formControlName="firstName" />
+        </div>
+
+        <div class="form-group">
+          <label>Nume</label>
+          <input formControlName="lastName" />
+        </div>
+
+        <div class="form-group">
+          <label>Telefon</label>
+          <input formControlName="phone" />
+        </div>
+
+        <div class="form-group">
+          <label>Funcție</label>
+          <div class="readonly-field">
+            {{ form.value.jobTitle || '—' }}
+            <span class="role-badge">Setat de administrator</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Limbă</label>
+          <select formControlName="preferredLanguage">
+            <option value="ro">Română</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Time Zone</label>
+          <input formControlName="timeZone" />
+        </div>
+
+      </div>
+
+      <div class="actions">
+        <button type="button"
+                class="cancel"
+                (click)="cancelEdit()">
+          Cancel
+        </button>
+
+        <button type="submit">
+          Save
+        </button>
+      </div>
+
+    </form>
+
+    <!-- ================= PASSWORD TAB ================= -->
+
+    <div *ngIf="activeTab === 'password'" class="password-tab">
+
+      <h3>Schimbă parola</h3>
+
+      <div class="form-group">
+        <label>Parolă curentă</label>
+        <input type="password">
+      </div>
+
+      <div class="form-group">
+        <label>Parolă nouă</label>
+        <input type="password">
+      </div>
+
+      <div class="form-group">
+        <label>Confirmare parolă</label>
+        <input type="password">
+      </div>
+
+      <button>
+        Schimbă parola
+      </button>
+
+    </div>
+
+    <!-- ================= NOTIFICATIONS TAB ================= -->
+
+    <div *ngIf="activeTab === 'notifications'">
+
+      <div *ngIf="loadingNotifications">
+        Se încarcă notificările...
+      </div>
+
+      <form *ngIf="!loadingNotifications"
+            [formGroup]="notificationForm">
+
+        <div formArrayName="settings">
+
+          <div *ngFor="let group of settings.controls; let i = index"
+               [formGroupName]="i"
+               class="notification-item">
+
+            <strong>{{ group.value.eventType }}</strong>
+
+            <label>
+              Activ
+              <input type="checkbox" formControlName="enabled">
+            </label>
+
+            <label>
+              Canal
+              <select formControlName="channel">
+                <option [value]="NotificationChannel.InApp">InApp</option>
+                <option [value]="NotificationChannel.Email">Email</option>
+              </select>
+            </label>
+
+            <label>
+              Digest
+              <select formControlName="digest">
+                <option [value]="DigestMode.Immediate">Immediate</option>
+                <option [value]="DigestMode.Daily">Daily</option>
+              </select>
+            </label>
+
+          </div>
+
+        </div>
+
+        <button type="button"
+                (click)="saveNotifications()"
+                [disabled]="savingNotifications">
+          Salvează notificări
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>

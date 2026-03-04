@@ -1,7 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using ERPSystem.Data.Entities;
+﻿using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Authentification.Models;
 using ERPSystem.Shared.BusinessLogic;
 using ERPSystem.Utils.Constants.Email;
@@ -14,6 +11,10 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using LoginRequest = ERPSystem.Modules.Authentification.Models.LoginRequest;
 using RegisterRequest = ERPSystem.Modules.Authentification.Models.RegisterRequest;
 
@@ -27,17 +28,19 @@ namespace ERPSystem.Modules.Authentificate
         private EmailBusinessLogic _emailBusinessLogic;
         private IOptions<ERPSystemSettings> _ERPSystemSettings;
         private IOptions<JwtSettings> _jwtSettings;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         #endregion
 
         #region Constructors
         public AuthentificationService(ILogger<AuthentificationService> logger, EmailBusinessLogic emailBusinessLogic,
-            IOptions<ERPSystemSettings> ERPSystemSettings, IOptions<JwtSettings> jwtSettings)
+            IOptions<ERPSystemSettings> ERPSystemSettings, IOptions<JwtSettings> jwtSettings, UserManager<ApplicationUser> userManager) 
         {
             _logger = logger;
             _emailBusinessLogic = emailBusinessLogic;
             _ERPSystemSettings = ERPSystemSettings;
             _jwtSettings = jwtSettings;
+            _userManager = userManager;
         }
 
         #endregion
@@ -58,33 +61,42 @@ namespace ERPSystem.Modules.Authentificate
                 if (userByUsername != null)
                     return publicResponse.SetError(ErrorCodes.EmailAlreadyExist, ErrorMessages.EmailAlreadyExist);
 
-                ApplicationUser newUser = new ApplicationUser(
-                    userName: request.Username,
-                    email: request.Email,
-                    firstName: request.FirstName,
-                    lastName: request.LastName        
-                );
+                ApplicationUser newUser = new ApplicationUser( userName: request.Username, email: request.Email, firstName: request.FirstName,   lastName: request.LastName )
+                {
+                    PhoneNumber = request.PhoneNumber,
+                    IsActive = true,
+                    MustChangePassword = true,
+                    EmailConfirmed = false, // foarte important
+                    CreatedAt = DateTime.UtcNow
+                };
 
                 var result = await userManager.CreateAsync(newUser, request.Password);
 
                 if (!result.Succeeded)
                     return publicResponse.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
 
-                var token = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
-                var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-                var confirmationUrl = $"{_ERPSystemSettings.Value.BaseUrl}/confirm-email-registration" + $"?userId={newUser.Id}&token={encodedToken}";
-                List<string> to = new List<string>() { newUser.Email };
+                if (!string.IsNullOrEmpty(request.Role))
+                {
+                    await userManager.AddToRoleAsync(newUser, request.Role);
 
-                await _emailBusinessLogic.SendEmailTemplateAsync(TemplateCode.EMAIL_REGISTRATION_CONFIRMATION, JsonConvert.SerializeObject(newUser), to, confirmationUrl);
+                    var token = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
+                    var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+                    var confirmationUrl = $"{_ERPSystemSettings.Value.BaseUrl}/confirm-email-registration" + $"?userId={newUser.Id}&token={encodedToken}";
+                    List<string> to = new List<string>() { newUser.Email };
 
-                return publicResponse.SetCreated();
+                    await _emailBusinessLogic.SendEmailTemplateAsync(TemplateCode.EMAIL_REGISTRATION_CONFIRMATION, JsonConvert.SerializeObject(newUser), to, confirmationUrl);
+
+                    return publicResponse.SetCreated();
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message, "Error occurred while registering user.");
                 return publicResponse.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
             }
+            return publicResponse;
         }
+        
 
         public async Task<PublicResponse> ConfirmEmailAsync(ConfirmEmail confirmEmail, UserManager<ApplicationUser> userManager)
         {
@@ -123,15 +135,52 @@ namespace ERPSystem.Modules.Authentificate
             {
                 var user = await userManager.FindByEmailAsync(request.Email)
                            ?? await userManager.FindByNameAsync(request.UserName);
-
                 if (user == null)
                     return response.SetError(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
+
+                if (!user.IsActive)
+                    return response.SetError(ErrorCodes.InvalidParameters, "Account is inactive.");
+
+                //if (!user.EmailConfirmed)
+                //    return response.SetError(ErrorCodes.InvalidParameters, "Email is not confirmed.");
+
+
+                if (!user.EmailConfirmed)
+                {
+                    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                    var encodedToken = WebEncoders.Base64UrlEncode(
+                        Encoding.UTF8.GetBytes(token)
+                    );
+
+                    var link = $"http://localhost:4200/confirm-email?userId={user.Id}&token={encodedToken}";
+                    Console.WriteLine("LINK: " + link);
+
+                    await _emailBusinessLogic.SendEmailTemplateAsync(
+                        TemplateCode.EMAIL_REGISTRATION_CONFIRMATION,
+                        JsonConvert.SerializeObject(new { Link = link }),
+                        new List<string> { user.Email }
+                    );
+
+                    return response.SetSuccess(new
+                    {
+                        emailNotConfirmed = true,
+                        userId = user.Id
+                    });
+                }
 
                 var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
                 if (!result.Succeeded)
                     return response.SetError(ErrorCodes.InvalidParameters, ErrorMessages.InvalidCredentials);
-
+                if (user.MustChangePassword)
+                {
+                    return response.SetSuccess(new
+                    {
+                        requiresPasswordChange = true,
+                        userId = user.Id
+                    });
+                }
                 var code = await userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
 
                 List<string> to = new List<string>() { user.Email };
@@ -159,6 +208,7 @@ namespace ERPSystem.Modules.Authentificate
 
             try
             {
+
                 var handler = new JwtSecurityTokenHandler();
                 var jwtTemp = handler.ReadJwtToken(request.TempToken);
 
@@ -168,6 +218,7 @@ namespace ERPSystem.Modules.Authentificate
                     return response.SetError(ErrorCodes.InvalidToken, ErrorMessages.InvalidToken);
 
                 var user = await userManager.FindByIdAsync(userId);
+                
 
                 if (user == null)
                     return response.SetError(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
@@ -177,7 +228,9 @@ namespace ERPSystem.Modules.Authentificate
                 if (!isValid)
                     return response.SetError(ErrorCodes.InvalidToken, ErrorMessages.InvalidCode);
 
-                var jwt = GenerateJwtToken(user);
+                var roles = await userManager.GetRolesAsync(user);
+
+                var jwt = await GenerateJwtToken(user);
 
                 var cookieOptions = new CookieOptions
                 {
@@ -192,7 +245,7 @@ namespace ERPSystem.Modules.Authentificate
                 return response.SetSuccess(new
                 {
                     AccessToken = jwt,
-                    User = new { user.Id, user.Email, user.UserName, user.FirstName, user.LastName }
+                    User = new { user.Id, user.Email, user.UserName, user.FirstName, user.LastName, Roles = roles, user.MustChangePassword }
                 });
             }
             catch (Exception ex)
@@ -348,25 +401,38 @@ namespace ERPSystem.Modules.Authentificate
             }
         }
 
-        private string GenerateJwtToken(ApplicationUser user)
+        private async Task<string> GenerateJwtToken(ApplicationUser user)
         {
             var jwtKey = _jwtSettings.Value.SecretKey;
             var jwtIssuer = _jwtSettings.Value.Issuer;
             var jwtAudience = _jwtSettings.Value.Audience;
 
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var roles = await _userManager.GetRolesAsync(user);
 
-            var claims = new[]
+            var claims = new List<Claim>
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+        new Claim(JwtRegisteredClaimNames.Email, user.Email),
+        new Claim("username", user.UserName ?? ""),
+        new Claim("firstname", user.FirstName ?? ""),
+        new Claim("lastname", user.LastName ?? "")
+    };
+
+            foreach (var role in roles)
             {
-              new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-              new Claim(JwtRegisteredClaimNames.Email, user.Email),
-              new Claim("username", user.UserName),
-              new Claim("firstname", user.FirstName ?? ""),
-              new Claim("lastname", user.LastName ?? "")
-            };
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
-            var token = new JwtSecurityToken(issuer: jwtIssuer, audience: jwtAudience, claims: claims, expires: DateTime.UtcNow.AddHours(1), signingCredentials: credentials);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: jwtIssuer,
+                audience: jwtAudience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: creds
+            );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

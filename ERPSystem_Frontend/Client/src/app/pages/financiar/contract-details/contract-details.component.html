@@ -2,106 +2,68 @@
   Se încarcă contract...
 </div>
 
-<div *ngIf="!loading && contract">
+<div class="section contract-section">
 
-  <div class="header">
-    <h2>{{ contract.contractNumber }}</h2>
-    <span [class]="getStatusClass(contract.status)">
-      {{ contract.status }}
-    </span>
+  <div class="section-header">
+    <h3>📄 Conținut Contract</h3>
+
+    <button *ngIf="contract.status === 'Draft' && !isEditingBody"
+            class="edit-btn"
+            type="button"
+            (click)="startEditBody()">
+      ✏️ Editează
+    </button>
   </div>
 
-  <div class="section">
-    <h3>Perioadă</h3>
-    <p>
-      {{ contract.isUnlimited
-        ? 'Nedeterminată'
-        : (contract.startDate | date:'dd.MM.yyyy') + ' - ' +
-          (contract.endDate | date:'dd.MM.yyyy') }}
-    </p>
-  </div>
-
-  <div class="section">
-    <h3>Total</h3>
-    <p>{{ contract.totalAmount | number:'1.2-2' }} RON</p>
-  </div>
-
-  <div class="section">
-    <h3>Cursuri</h3>
-    <ul>
-      <li *ngFor="let c of contract.courses">
-        {{ c.courseNameSnapshot }}
-        ({{ c.sessionNameSnapshot }}) –
-        {{ c.priceSnapshot }} RON
-      </li>
-    </ul>
-  </div>
-
-  <div class="section">
-    <h3>Conținut Contract</h3>
-    <div class="section">
-  <h3>Conținut Contract</h3>
-
+  <!-- VIEW -->
   <div *ngIf="!isEditingBody">
     <pre class="contract-body">
 {{ contract.contractBody || 'Conținut necompletat' }}
     </pre>
-
-    <button *ngIf="contract.status === 'Draft'"
-            (click)="startEditBody()">
-      Editează
-    </button>
   </div>
 
-  <div *ngIf="isEditingBody">
+  <!-- EDIT -->
+  <div *ngIf="isEditingBody" class="body-edit">
     <textarea [(ngModel)]="editedBody"
-              rows="15"
               class="editor">
     </textarea>
 
-    <div class="actions">
-      <button (click)="saveBody()" [disabled]="actionLoading">
-        Salvează
+    <div class="edit-actions">
+      <button class="primary"
+              type="button"
+              (click)="saveBody()">
+        💾 Salvează
       </button>
 
-      <button (click)="cancelEditBody()">
-        Anulează
+      <button class="secondary"
+              type="button"
+              (click)="cancelEditBody()">
+        ❌ Anulează
       </button>
     </div>
   </div>
 
 </div>
-  </div>
 
-  <!-- WORKFLOW BUTTONS -->
+<!-- WORKFLOW BUTTONS -->
 
-  <div class="actions">
+<div class="actions">
 
-    <button *ngIf="contract.status === 'Draft'"
-            (click)="finalize()"
-            [disabled]="actionLoading">
-      Finalizează
-    </button>
+  <button *ngIf="contract.status === 'Draft'" (click)="finalize()" [disabled]="actionLoading">
+    Finalizează
+  </button>
 
-    <button *ngIf="contract.status === 'Finalized'"
-            (click)="sign()"
-            [disabled]="actionLoading">
-      Semnează
-    </button>
+  <button *ngIf="contract.status === 'Finalized'" (click)="sign()" [disabled]="actionLoading">
+    Semnează
+  </button>
 
-    <button *ngIf="contract.status === 'Signed'"
-            (click)="activate()"
-            [disabled]="actionLoading">
-      Activează
-    </button>
+  <button *ngIf="contract.status === 'Signed'" (click)="activate()" [disabled]="actionLoading">
+    Activează
+  </button>
 
-    <button *ngIf="contract.status !== 'Cancelled'"
-            class="danger"
-            (click)="cancel()"
-            [disabled]="actionLoading">
-      Anulează
-    </button>
-
-  </div>
+  <button *ngIf="contract.status !== 'Cancelled'" class="danger" (click)="cancel()" [disabled]="actionLoading">
+    Anulează
+  </button>
 
 </div>
+

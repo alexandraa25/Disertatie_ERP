@@ -186,8 +186,15 @@ if (primaryCount > 1) {
 
     } else {
       const dto: UpdateStudentDto = {
-        ...this.form.value,
-        isActive: !!this.form.value.isActive
+         fullName: this.form.value.fullName!,
+  firstName: this.form.value.firstName || null,
+  lastName: this.form.value.lastName || null,
+  email: this.form.value.email || null,
+  phone: this.form.value.phone || null,
+  address: this.form.value.address || null,
+  dateOfBirth: this.form.value.dateOfBirth || null,
+  isActive: !!this.form.value.isActive,
+  guardians: this.isMinor ? this.guardians.value : null
       };
 
       this.students.update(this.studentId!, dto).subscribe({

@@ -1,5 +1,4 @@
 ﻿using ERPSystem.Data.Entities;
-using ERPSystem.Modules.Student.Models;
 //using ERPSystem.Data.TypeConfigurations;
 using ERPSystem.Modules.UserProfile.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -40,9 +39,25 @@ namespace ERPSystem.Data.Context
             modelBuilder.Entity<UserProfile>()
                 .HasKey(x => x.UserId);
 
-            modelBuilder.Entity<UserNotificationSetting>()
-                .HasIndex(x => new { x.UserId, x.EventType, x.Channel })
-                .IsUnique();
+            modelBuilder.Entity<UserProfile>()
+      .HasOne(x => x.User)
+      .WithOne(u => u.Profile)
+      .HasForeignKey<UserProfile>(x => x.UserId)
+      .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserNotificationSetting>(entity =>
+            {
+                // 🔐 Unicitate pe user + event + channel
+                entity.HasIndex(x => new { x.UserId, x.EventType, x.Channel })
+                      .IsUnique();
+
+                // 🔄 Enum → string în DB
+                entity.Property(x => x.Channel)
+                      .HasConversion<string>();
+
+                entity.Property(x => x.Digest)
+                      .HasConversion<string>();
+            });
 
             // (opțional) index pentru audit
             modelBuilder.Entity<AuditLog>()
@@ -66,9 +81,7 @@ namespace ERPSystem.Data.Context
                 .HasForeignKey(sg => sg.GuardianId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Course>()
-                .Property(x => x.Price)
-                 .HasPrecision(18, 2);
+           
 
             modelBuilder.Entity<CourseSession>()
                 .HasOne(x => x.Course)
@@ -84,6 +97,10 @@ namespace ERPSystem.Data.Context
                 .WithMany()
                 .HasForeignKey(x => x.TeacherUserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CourseSession>()
+    .Property(x => x.Fee)
+    .HasPrecision(18, 2);
 
             modelBuilder.Entity<CourseEnrollment>()
                 .HasOne(e => e.Session)

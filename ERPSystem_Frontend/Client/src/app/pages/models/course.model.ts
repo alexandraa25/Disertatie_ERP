@@ -19,12 +19,12 @@ export interface CourseSessionUpsertDto {
   endTime: string;
   teacherUserId: string;
   capacity: number | null;
+  fee: number;
 }
  
 export interface CourseListItemDto {
   id: number;
   name: string;
-  price?: number | null;
   isActive: boolean;
   createdAtUtc: string;
 }
@@ -33,7 +33,6 @@ export interface CourseDetailsDto {
   id: number;
   name: string;
   description?: string | null;
-  price?: number | null;
   isActive: boolean;
   createdAtUtc: string;
 
@@ -45,7 +44,6 @@ export interface CourseDetailsDto {
 export interface CreateCourseDto {
   name: string;
   description?: string | null;
-  price?: number | null;
  // teacherUserId: string;
   sessions: CourseSessionUpsertDto[];
 }

@@ -7,18 +7,28 @@ public class ApplicationUser : IdentityUser
     public string? FullName { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
-  
+
+    public bool IsActive { get; set; } = true;
+    public bool MustChangePassword { get; set; } = true;
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public string? CreatedBy { get; set; }
+
+    public UserProfile? Profile { get; set; }
+
     public ApplicationUser()
     {
     }
 
-    public ApplicationUser(string userName, string email,string firstName, string lastName)
+    public ApplicationUser(string userName, string email, string firstName, string lastName)
     {
         UserName = userName;
         Email = email;
         FirstName = firstName;
         LastName = lastName;
         FullName = $"{firstName} {lastName}";
-       
+        IsActive = true;
+        MustChangePassword = true;
+        CreatedAt = DateTime.UtcNow;
     }
 }

@@ -69,4 +69,10 @@ export class ContractsService {
     return this.http.post<any>(`${this.baseUrl}/${id}/generate-pdf`, {});
   }
 
+   getLatestByStudent(studentId: number): Observable<any> {
+    return this.http.get<any>(
+      `${this.baseUrl}/latest-by-student/${studentId}`
+    );
+  }
+
 }

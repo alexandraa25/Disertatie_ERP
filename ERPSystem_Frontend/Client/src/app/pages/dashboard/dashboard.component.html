@@ -1,0 +1,55 @@
+<div *ngIf="loading">
+  Se încarcă dashboard...
+</div>
+
+<div *ngIf="!loading" class="dashboard">
+
+  <!-- 🔵 CARDS -->
+  <div class="cards">
+
+    <div class="card">
+      <h3>👨‍🎓 Studenți Activi</h3>
+      <h2>{{ stats.activeStudents }}</h2>
+    </div>
+
+    <div class="card">
+      <h3>📄 Contracte Active</h3>
+      <h2>{{ stats.activeContracts }}</h2>
+    </div>
+
+    <div class="card">
+      <h3>💰 Venit Total</h3>
+      <h2>{{ stats.totalRevenue | number:'1.2-2' }} RON</h2>
+    </div>
+
+  </div>
+
+  <!-- 📈 CHART -->
+  <div class="chart-container">
+    <canvas id="revenueChart"></canvas>
+  </div>
+
+  <!-- 📚 TOP LISTS -->
+  <div class="lists">
+
+    <div>
+      <h3>🔥 Top Cursuri</h3>
+      <ul>
+        <li *ngFor="let c of stats.topCourses">
+          {{ c.name }} - {{ c.students }} studenți
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <h3>👨‍🏫 Top Profesori</h3>
+      <!-- <ul>
+        <li *ngFor="let t of stats.topTeachers">
+          {{ t.name }} - {{ t.contracts }} contracte
+        </li>
+      </ul> -->
+    </div>
+
+  </div>
+
+</div>

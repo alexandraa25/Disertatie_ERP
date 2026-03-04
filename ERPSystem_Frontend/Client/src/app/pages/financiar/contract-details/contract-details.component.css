@@ -1,47 +1,183 @@
-.header {
+/* ========================= */
+/* PAGE WRAPPER */
+/* ========================= */
+
+.section {
+  margin-top: 25px;
+}
+
+/* ========================= */
+/* CONTRACT CARD */
+/* ========================= */
+
+.contract-section {
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+  min-height: 700px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  transition: 0.2s ease;
+}
+
+/* ========================= */
+/* HEADER */
+/* ========================= */
+
+.section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.badge {
-  padding: 6px 12px;
-  border-radius: 20px;
+.section-header h3 {
+  font-size: 18px;
   font-weight: 600;
+  color: #1e293b;
+}
+
+/* ========================= */
+/* STATUS BADGE */
+/* ========================= */
+
+.badge {
+  padding: 6px 14px;
+  border-radius: 20px;
   font-size: 12px;
+  font-weight: 600;
 }
 
-.draft { background: #e0e0e0; }
-.finalized { background: #ffcc00; }
-.signed { background: #4caf50; color: white; }
-.active { background: #2196f3; color: white; }
-.cancelled { background: #f44336; color: white; }
+.draft { background: #e5e7eb; }
+.finalized { background: #facc15; }
+.signed { background: #22c55e; color: white; }
+.active { background: #3b82f6; color: white; }
+.cancelled { background: #ef4444; color: white; }
 
-.section {
-  margin-top: 20px;
+/* ========================= */
+/* CONTRACT BODY - VIEW MODE */
+/* ========================= */
+
+.contract-body {
+  background: #f8fafc;
+  padding: 28px;
+  border-radius: 14px;
+  white-space: pre-wrap;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  border: 1px solid #e2e8f0;
+  max-height: 500px;
+  overflow-y: auto;
 }
+
+/* ========================= */
+/* EDIT MODE */
+/* ========================= */
+
+.body-edit {
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+.editor {
+  width: 100%;
+  min-height: 500px;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #cbd5e1;
+  font-family: monospace;
+  font-size: 14px;
+  resize: vertical;
+  background: #ffffff;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
+}
+
+/* ========================= */
+/* EDIT BUTTON */
+/* ========================= */
+
+.edit-btn {
+  background: #2563eb;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.edit-btn:hover {
+  background: #1e40af;
+  transform: translateY(-2px);
+}
+
+/* ========================= */
+/* EDIT ACTIONS */
+/* ========================= */
+
+.edit-actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
+}
+
+/* ========================= */
+/* WORKFLOW BUTTONS */
+/* ========================= */
 
 .actions {
   margin-top: 30px;
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-button {
-  padding: 8px 14px;
-  border-radius: 6px;
+.actions button {
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 500;
   border: none;
   cursor: pointer;
+  transition: 0.2s ease;
 }
 
-button.danger {
-  background: #f44336;
+.actions button:hover {
+  transform: translateY(-2px);
+}
+
+/* Workflow */
+
+.actions button:nth-child(1) {
+  background: #facc15;
+  color: black;
+}
+
+.actions button:nth-child(2) {
+  background: #3b82f6;
   color: white;
 }
 
-.contract-body {
-  background: #f9f9f9;
-  padding: 15px;
-  white-space: pre-wrap;
-  border-radius: 6px;
+.actions button:nth-child(3) {
+  background: #22c55e;
+  color: white;
+}
+
+.actions .danger {
+  background: #ef4444 !important;
+  color: white;
+}
+
+/* ========================= */
+/* ANIMATION */
+/* ========================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

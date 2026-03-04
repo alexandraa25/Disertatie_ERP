@@ -16,7 +16,6 @@
       <thead>
         <tr>
           <th>Nume</th>
-          <th>Preț</th>
           <th>Status</th>
           <th>Creat</th>
           <th>Acțiuni</th>
@@ -25,7 +24,6 @@
       <tbody>
         <tr *ngFor="let c of items">
           <td class="name">{{ c.name }}</td>
-          <td>{{ c.price ?? '-' }}</td>
           <td>
             <span class="status" [ngClass]="c.isActive ? 'active' : 'inactive'">
               {{ c.isActive ? 'Activ' : 'Inactiv' }}

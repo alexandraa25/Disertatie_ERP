@@ -20,7 +20,7 @@ public class ContractsService
         _db = db;
         _logger = logger;
     }
-    
+
     // =========================
     // CREATE CONTRACT
     // =========================
@@ -28,11 +28,50 @@ public class ContractsService
     {
         var response = new PublicResponse(true);
 
+        await using var transaction = await _db.Database.BeginTransactionAsync();
+
         try
         {
+            // =============================
+            // BASIC VALIDATION
+            // =============================
             if (!dto.StudentIds.Any() || !dto.CourseSessionIds.Any())
                 return response.SetError(ErrorCodes.InvalidParameters, "Invalid parameters");
 
+            if (!dto.IsUnlimited && dto.EndDate == null)
+                return response.SetError(ErrorCodes.InvalidParameters, "EndDate required");
+
+            if (!dto.IsUnlimited && dto.EndDate < dto.StartDate)
+                return response.SetError(ErrorCodes.InvalidParameters, "Invalid period");
+
+            // =============================
+            // LOAD STUDENTS
+            // =============================
+            var students = await _db.Students
+                .Where(x => dto.StudentIds.Contains(x.Id))
+                .ToListAsync();
+
+            if (students.Count != dto.StudentIds.Count)
+                return response.SetError(ErrorCodes.InvalidParameters, "Invalid students");
+
+            // =============================
+            // ACTIVE CONTRACT VALIDATION
+            // =============================
+            var hasActiveContract = await _db.StudentContracts
+                .Include(c => c.Parties)
+                .AnyAsync(c =>
+                    c.Status == ContractStatus.Active &&
+                    c.Parties.Any(p =>
+                        p.StudentId.HasValue && dto.StudentIds.Contains(p.StudentId.Value)));
+
+            if (hasActiveContract)
+                return response.SetError(
+                    ErrorCodes.InvalidParameters,
+                    "Student already has an active contract");
+
+            // =============================
+            // GUARDIAN VALIDATION
+            // =============================
             Guardian? guardian = null;
 
             if (dto.GuardianId.HasValue)
@@ -44,15 +83,6 @@ public class ContractsService
                     return response.SetError(ErrorCodes.InvalidParameters, "Guardian not found");
             }
 
-
-            var students = await _db.Students
-                .Where(x => dto.StudentIds.Contains(x.Id))
-                .ToListAsync();
-
-            if (students.Count != dto.StudentIds.Count)
-                return response.SetError(ErrorCodes.InvalidParameters, "Invalid students");
-
-            // 🔥 VALIDARE MINORI
             var hasMinor = students.Any(s => s.IsMinor);
 
             if (hasMinor)
@@ -71,6 +101,9 @@ public class ContractsService
                         "Guardian not linked to selected student");
             }
 
+            // =============================
+            // LOAD SESSIONS
+            // =============================
             var sessions = await _db.CourseSessions
                 .Include(x => x.Course)
                 .Where(x => dto.CourseSessionIds.Contains(x.Id))
@@ -79,13 +112,37 @@ public class ContractsService
             if (sessions.Count != dto.CourseSessionIds.Count)
                 return response.SetError(ErrorCodes.InvalidParameters, "Invalid sessions");
 
+            // =============================
+            // CAPACITY VALIDATION
+            // =============================
+            foreach (var session in sessions)
+            {
+                if (session.Capacity.HasValue)
+                {
+                    var enrolled = await _db.CourseEnrollments
+                        .CountAsync(e =>
+                            e.CourseSessionId == session.Id &&
+                            e.IsActive);
+
+                    if (enrolled >= session.Capacity.Value)
+                    {
+                        return response.SetError(
+                            ErrorCodes.InvalidParameters,
+                            $"Session {session.Title} is full");
+                    }
+                }
+            }
+
+            // =============================
+            // CREATE CONTRACT
+            // =============================
             var contract = new StudentContract
             {
                 ContractNumber = GenerateContractNumber(),
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
                 IsUnlimited = dto.IsUnlimited,
-                Installments = dto.Installments,
+                Installments = dto.Installments <= 0 ? 1 : dto.Installments,
                 Status = ContractStatus.Draft,
                 CreatedAtUtc = DateTime.UtcNow,
                 UpdatedAtUtc = DateTime.UtcNow
@@ -136,17 +193,45 @@ public class ContractsService
                 }
             }
 
+            // =============================
+            // CALCULATE TOTAL
+            // =============================
             contract.TotalAmount = CalculateTotal(contract);
 
+            // =============================
+            // GENERATE INSTALLMENTS
+            // =============================
+            //if (contract.Installments > 1)
+            //{
+            //    var installmentAmount = Math.Round(
+            //        contract.TotalAmount / contract.Installments, 2);
+
+            //    for (int i = 0; i < contract.Installments; i++)
+            //    {
+            //        contract.InstallmentsList.Add(new ContractInstallment
+            //        {
+            //            DueDate = contract.StartDate.AddMonths(i),
+            //            Amount = installmentAmount,
+            //            IsPaid = false
+            //        });
+            //    }
+            //}
+
+            // =============================
+            // GENERATE BODY
+            // =============================
             contract.ContractBody = GenerateContractBody(contract, guardian, students);
 
             _db.StudentContracts.Add(contract);
             await _db.SaveChangesAsync();
 
+            await transaction.CommitAsync();
+
             return response.SetCreated(new { contract.Id });
         }
         catch (Exception ex)
         {
+            await transaction.RollbackAsync();
             _logger.LogError(ex, "CreateContract failed");
             return response.SetError(ErrorCodes.InternalServerError, "Internal error");
         }
@@ -378,8 +463,24 @@ public class ContractsService
                 $"- {c.CourseNameSnapshot} ({c.SessionNameSnapshot}) – {c.PriceSnapshot} RON"));
 
         var beneficiar = guardian != null
-            ? $"{guardian.FirstName} {guardian.LastName}"
-            : studentList;
+       ? $@"{guardian.FirstName} {guardian.LastName}
+Email: {guardian.Email}
+Telefon: {guardian.Phone}"
+       : studentList;
+
+
+        // 🔥 DISCOUNT SECTION
+        var discountSection = "Nu există discounturi aplicate.";
+
+        if (contract.Discounts.Any())
+        {
+            discountSection = string.Join("\n",
+                contract.Discounts.Select(d =>
+                    $"- {d.Type} | Valoare: {d.Value} | Motiv: {d.Reason}"));
+        }
+
+        var subtotal = contract.Courses.Sum(c => c.PriceSnapshot);
+        var totalDiscount = subtotal - contract.TotalAmount;
 
         return $@"
 CONTRACT DE PRESTĂRI DE SERVICII
@@ -388,20 +489,14 @@ Nr. {contract.ContractNumber}
 
 I. PĂRŢILE CONTRACTANTE
 
-1.1. S.C. GLOBAL LEARNING SRL, cu sediul social în STR. RACOTEANU ION MAIOR nr. 7, Sector 3,
-înregistrată la ORC sub nr. J40/13406/25.07.2017,
-CUI 38021540,
-cont RO34RNCB0073155325720001,
-reprezentată de Director,
-în calitate de PRESTATOR,
-
-și
+1.1. S.C. GLOBAL L SRL,
+...
 
 1.2. {beneficiar}, în calitate de BENEFICIAR.
 
 II. OBIECTUL CONTRACTULUI
 
-2.1. Obiectul contractului îl reprezintă furnizarea următoarelor servicii educaționale:
+Servicii educaționale:
 
 {coursesList}
 
@@ -410,33 +505,31 @@ Cursanți:
 
 III. DURATA CONTRACTULUI
 
-3.1. Contractul se încheie pentru perioada:
 {(contract.IsUnlimited
-        ? "Perioadă nedeterminată"
-        : $"{contract.StartDate:dd.MM.yyyy} - {contract.EndDate:dd.MM.yyyy}")}
+    ? "Perioadă nedeterminată"
+    : $"{contract.StartDate:dd.MM.yyyy} - {contract.EndDate:dd.MM.yyyy}")}
 
 IV. PREŢUL CONTRACTULUI
 
-Valoare totală contract: {contract.TotalAmount} RON
+Subtotal (fără discount): {subtotal:F2} RON
+
+Discounturi aplicate:
+{discountSection}
+
+Reducere totală: {totalDiscount:F2} RON
+
+Valoare finală contract: {contract.TotalAmount:F2} RON
+
 Număr rate: {contract.Installments}
 
 Plata se efectuează prin transfer bancar sau numerar,
 conform condițiilor stabilite de comun acord.
 
 V. OBLIGAŢIILE PĂRŢILOR
-
-5.1. Prestatorul se obligă:
-- să furnizeze serviciile educaționale conform programului stabilit;
-- să asigure calitatea actului educațional.
-
-5.2. Beneficiarul se obligă:
-- să achite contravaloarea serviciilor;
-- să respecte programul cursurilor.
-
+5.1. Prestatorul se obligă: - să furnizeze serviciile educaționale conform programului stabilit; - să asigure calitatea actului educațional.
+5.2. Beneficiarul se obligă: - să achite contravaloarea serviciilor; - să respecte programul cursurilor.
 VI. ÎNCETAREA CONTRACTULUI
-
-Contractul poate înceta prin acordul părților
-sau prin notificare scrisă din partea uneia dintre părți.
+Contractul poate înceta prin acordul părților sau prin notificare scrisă din partea uneia dintre părți.
 
 PRESTATOR                                  BENEFICIAR
 
@@ -502,7 +595,28 @@ GLOBAL LEARNING SRL                        {beneficiar}
 
         return response.SetSuccess(new { path = filePath });
     }
+    public async Task<PublicResponse> GetLatestByStudentAsync(int studentId)
+    {
+        var response = new PublicResponse(true);
 
-  
+        var contract = await _db.StudentContracts
+            .Include(c => c.Parties)
+            .Where(c => c.Parties.Any(p =>
+                p.Role == ContractPartyRole.Student &&
+                p.StudentId.HasValue &&
+                p.StudentId.Value == studentId))
+            .OrderByDescending(c => c.CreatedAtUtc)
+            .Select(c => new
+            {
+                c.Id,
+                Status = c.Status.ToString()
+            })
+            .FirstOrDefaultAsync();
+
+        return response.SetSuccess(contract);
+    }
+
+
+
 
 }

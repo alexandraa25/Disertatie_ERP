@@ -362,22 +362,25 @@ public class StudentsService
         try
         {
             var courses = await _db.CourseEnrollments
-                .AsNoTracking()
-                .Where(e => e.StudentId == studentId && e.IsActive)
-                .Select(e => new StudentCourseDetailsDto
-                {
-                    CourseId = e.CourseId,
-                    CourseName = e.Course.Name,
-                    Price = e.Course.Price ?? 0m,
+    .AsNoTracking()
+    .Where(e => e.StudentId == studentId && e.IsActive)
+    .Select(e => new StudentCourseDetailsDto
+    {
+        CourseId = e.CourseId,
+        CourseName = e.Course.Name,
 
-                    SessionId = e.CourseSessionId,
-                    DayOfWeek = e.Session.DayOfWeek.ToString(),
-                    StartTime = e.Session.StartTime,
-                    EndTime = e.Session.EndTime,
+        // 🔥 PREȚUL VINE DIN SESIUNE
+        Price = e.Session.Fee,
 
-                    TeacherName = e.Session.Teacher.FirstName + " " + e.Session.Teacher.LastName
-                })
-                .ToListAsync();
+        SessionId = e.CourseSessionId,
+        DayOfWeek = e.Session.DayOfWeek.ToString(),
+        StartTime = e.Session.StartTime,
+        EndTime = e.Session.EndTime,
+
+        TeacherName = e.Session.Teacher.FirstName + " " +
+                      e.Session.Teacher.LastName
+    })
+    .ToListAsync();
 
             var total = courses.Sum(c => c.Price);
 

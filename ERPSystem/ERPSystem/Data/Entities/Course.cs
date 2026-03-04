@@ -12,7 +12,6 @@ public class Course
     [MaxLength(500)]
     public string? Description { get; set; }
 
-    public decimal? Price { get; set; }
 
     public bool IsActive { get; set; } = true;
    

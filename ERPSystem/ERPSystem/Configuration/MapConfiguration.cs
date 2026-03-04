@@ -57,6 +57,15 @@ namespace ERPSystem.Configuration
             );
 
             ContractsEndpoints.Map(contractsGroup);
+
+            var dashboardGroup = app.CreateApiGroup(
+              route: "/dashboard",
+              tag: "Dashboard",
+              requireAuth: false, // temporar, ca la students
+              description: "Dashboard endpoints"
+           );
+
+            DashboardEndpoints.Map(dashboardGroup);
         }
     }
 }

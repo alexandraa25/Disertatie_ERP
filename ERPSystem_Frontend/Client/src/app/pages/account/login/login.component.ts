@@ -59,25 +59,54 @@ export class LoginComponent implements OnInit {
   }
 
   processLogin() {
-    this.isLoading = true;
+  this.isLoading = true;
 
-    this.auth.login(this.loginForm.value.email, this.loginForm.value.password).subscribe({
-      next: (res) => {
+  this.auth.login(this.loginForm.value.email, this.loginForm.value.password)
+    .subscribe({
+      next: (res: any) => {
 
-        if(res.isSuccess === false){
-          this.isLoading = false;
-           this.snackbar.showError('Username or password is incorrect. Please try again', 3500);
-           return;
-        }
-        sessionStorage.setItem("tempToken", res.value.tempToken);
         this.isLoading = false;
-       // this.router.navigate(['/confirm-login-code']);
-       this.router.navigate(['/profil-user']);
+
+        if (!res.isSuccess) {
+          this.snackbar.showError(
+            'Username or password is incorrect.',
+            3500
+          );
+          return;
+        }
+
+        // ✅ 1. EMAIL NOT CONFIRMED
+        if (res.value?.emailNotConfirmed) {
+
+          this.router.navigate(['/confirm-email-registration'], {
+            queryParams: {
+              userId: res.value.userId
+            }
+          });
+
+          return;
+        }
+
+        // ✅ 2. 2FA REQUIRED
+        if (res.value?.requiresCode) {
+
+          sessionStorage.setItem("tempToken", res.value.tempToken);
+
+          this.router.navigate(['/confirm-login-code']);
+          return;
+        }
+
+        // ✅ 3. LOGIN NORMAL (EMAIL CONFIRMED)
+        this.router.navigate(['/profil-user']);
       },
+
       error: () => {
         this.isLoading = false;
-        this.snackbar.showError('Login failed. Incorrect credentials.', 2000);
+        this.snackbar.showError(
+          'Login failed.',
+          2000
+        );
       }
     });
-  }
+}
 }

@@ -576,6 +576,44 @@
   },
   {
     "ContainingType": "ERPSystem.Modules.Contracts.ContractsEndpoints\u002B\u003C\u003Ec",
+    "Method": "\u003CMap\u003Eb__0_9",
+    "RelativePath": "contracts/latest-by-student/{studentId:int}",
+    "HttpMethod": "GET",
+    "IsController": false,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "studentId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 200
+      },
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 400
+      },
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 500
+      }
+    ],
+    "Tags": [
+      "Contracts"
+    ],
+    "EndpointName": "GetLatestContractByStudent",
+    "Description": "Returneaz\u0103 ultimul contract al cursantului (request: READ)",
+    "Summary": "Returneaz\u0103 ultimul contract al cursantului"
+  },
+  {
+    "ContainingType": "ERPSystem.Modules.Contracts.ContractsEndpoints\u002B\u003C\u003Ec",
     "Method": "\u003CMap\u003Eb__0_2",
     "RelativePath": "contracts/students/{id:int}/contracts",
     "HttpMethod": "GET",
@@ -1004,9 +1042,9 @@
     "Summary": "Lista profesori"
   },
   {
-    "ContainingType": "ERPSystem.Modules.UserProfile.UserProfileEndpoints\u002B\u003C\u003Ec",
+    "ContainingType": "DashboardEndpoints\u002B\u003C\u003Ec",
     "Method": "\u003CMap\u003Eb__0_0",
-    "RelativePath": "me/",
+    "RelativePath": "dashboard/",
     "HttpMethod": "GET",
     "IsController": false,
     "Order": 0,
@@ -1016,11 +1054,46 @@
         "Type": "System.Void",
         "MediaTypes": [],
         "StatusCode": 200
+      },
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 400
+      },
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 500
+      }
+    ],
+    "Tags": [
+      "Dashboard"
+    ],
+    "EndpointName": "GetDashboard",
+    "Description": "Dashboard statistici (request: GET)",
+    "Summary": "Dashboard statistici"
+  },
+  {
+    "ContainingType": "ERPSystem.Modules.UserProfile.UserProfileEndpoints\u002B\u003C\u003Ec",
+    "Method": "\u003CMap\u003Eb__0_0",
+    "RelativePath": "me/",
+    "HttpMethod": "GET",
+    "IsController": false,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "ERPSystem.Modules.UserProfile.Models.MeDto",
+        "MediaTypes": [
+          "application/json"
+        ],
+        "StatusCode": 200
       }
     ],
     "Tags": [
       "Me"
     ],
+    "EndpointName": "GetMe",
     "Description": "Current user profile, preferences \u0026 activity",
     "Summary": "Me API Endpoints"
   },
@@ -1034,14 +1107,17 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Void",
-        "MediaTypes": [],
+        "Type": "System.Collections.Generic.List\u00601[[ERPSystem.Modules.UserProfile.Models.NotificationSettingDto, ERPSystem, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "application/json"
+        ],
         "StatusCode": 200
       }
     ],
     "Tags": [
       "Me"
     ],
+    "EndpointName": "GetNotificationSettings",
     "Description": "Current user profile, preferences \u0026 activity",
     "Summary": "Me API Endpoints"
   },
@@ -1055,7 +1131,7 @@
     "Parameters": [
       {
         "Name": "body",
-        "Type": "System.Collections.Generic.List\u00601[[ERPSystem.Shared.DTOs.UserProfile.NotificationSettingDto, ERPSystem, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.List\u00601[[ERPSystem.Modules.UserProfile.Models.NotificationSettingDto, ERPSystem, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": true
       }
     ],
@@ -1069,6 +1145,7 @@
     "Tags": [
       "Me"
     ],
+    "EndpointName": "UpdateNotificationSettings",
     "Description": "Current user profile, preferences \u0026 activity",
     "Summary": "Me API Endpoints"
   },
@@ -1082,14 +1159,17 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Void",
-        "MediaTypes": [],
+        "Type": "ERPSystem.Modules.UserProfile.Models.UserProfileDto",
+        "MediaTypes": [
+          "application/json"
+        ],
         "StatusCode": 200
       }
     ],
     "Tags": [
       "Me"
     ],
+    "EndpointName": "GetProfile",
     "Description": "Current user profile, preferences \u0026 activity",
     "Summary": "Me API Endpoints"
   },
@@ -1103,7 +1183,7 @@
     "Parameters": [
       {
         "Name": "body",
-        "Type": "ERPSystem.Shared.DTOs.UserProfile.UpdateUserProfileDto",
+        "Type": "ERPSystem.Modules.UserProfile.Models.UpdateUserProfileDto",
         "IsRequired": true
       }
     ],
@@ -1117,6 +1197,7 @@
     "Tags": [
       "Me"
     ],
+    "EndpointName": "UpdateProfile",
     "Description": "Current user profile, preferences \u0026 activity",
     "Summary": "Me API Endpoints"
   },

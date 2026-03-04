@@ -12,7 +12,14 @@
             public const string RESEND_LOGIN_CODE = "resend-login-code";
             public const string FORGOT_PASSWORD = "forgot-password";
             public const string RESET_PASSWORD = "reset-password";
-            
+
+            public static class Profile
+            {
+                public const string ME = "";          
+                public const string PROFILE = "/profile";
+                public const string NOTIFICATION_SETTINGS = "/notification-settings";
+               
+            }
 
             public static class Students
             {
@@ -45,6 +52,14 @@
                 public const string CONTRACT_CANCEL = "/{id}/cancel";
                 public const string CONTRACT_UPDATE_BODY = "/{id}/body";
                 public const string CONTRACT_GENERATE_PDF = "/{id}/generate-pdf";
+                public const string CONTRACT_GET_LATEST_BY_STUDENT ="/latest-by-student/{studentId:int}";
+
+            }
+
+            public static class Dashboard
+            {
+                public const string DASHBOARD = "";
+                
 
             }
 

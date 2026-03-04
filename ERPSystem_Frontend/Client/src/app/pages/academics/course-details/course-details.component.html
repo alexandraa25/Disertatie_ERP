@@ -11,7 +11,6 @@
     <p class="description">{{ course.description || '-' }}</p>
 
     <div class="meta">
-      <div><strong>Preț:</strong> {{ course.price ?? '-' }}</div>
       <div><strong>Status:</strong> {{ course.isActive ? 'Activ' : 'Inactiv' }}</div>
       <div><strong>Creat:</strong> {{ course.createdAtUtc | date:'dd.MM.yyyy' }}</div>
     </div>

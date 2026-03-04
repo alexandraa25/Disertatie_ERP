@@ -44,7 +44,7 @@ public class CoursesService
             var items = await query
                 .OrderByDescending(x => x.IsActive)
                 .ThenBy(x => x.Name)
-                .Select(x => new CourseListItemDto(x.Id, x.Name, x.Price, x.IsActive, x.CreatedAtUtc))
+                .Select(x => new CourseListItemDto(x.Id, x.Name, x.IsActive, x.CreatedAtUtc))
                 .ToListAsync();
 
             return response.SetSuccess(items);
@@ -91,7 +91,8 @@ public class CoursesService
                     s.Capacity,
                     sessionCounts.TryGetValue(s.Id, out var cnt) ? cnt : 0,
                     s.TeacherUserId,
-                    s.Teacher.UserName ?? s.Teacher.Email ?? s.TeacherUserId
+                    s.Teacher.UserName ?? s.Teacher.Email ?? s.TeacherUserId, 
+                    s.Fee
                 ))
                 .ToList();
 
@@ -99,7 +100,6 @@ public class CoursesService
                 c.Id,
                 c.Name,
                 c.Description,
-                c.Price,
                 c.IsActive,
                 c.CreatedAtUtc,
                 sessions
@@ -146,7 +146,6 @@ public class CoursesService
             {
                 Name = dto.Name.Trim(),
                 Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim(),
-                Price = dto.Price,
                 IsActive = true,
                 CreatedAtUtc = DateTime.UtcNow,
                 UpdatedAtUtc = DateTime.UtcNow
@@ -160,7 +159,9 @@ public class CoursesService
                     StartTime = ParseTime(s.StartTime),
                     EndTime = ParseTime(s.EndTime),
                     Capacity = s.Capacity,
-                    TeacherUserId = s.TeacherUserId
+                    TeacherUserId = s.TeacherUserId,
+                    Fee = s.Fee,
+                    Title = $"{dto.Name} - {s.DayOfWeek}"
                 });
             }
 
@@ -212,7 +213,6 @@ public class CoursesService
 
             c.Name = dto.Name.Trim();
             c.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
-            c.Price = dto.Price;
             c.IsActive = dto.IsActive;
             if (!dto.IsActive)
             {
@@ -243,7 +243,8 @@ public class CoursesService
                         StartTime = ParseTime(sDto.StartTime),
                         EndTime = ParseTime(sDto.EndTime),
                         Capacity = sDto.Capacity,
-                        TeacherUserId = sDto.TeacherUserId   // 🔥 IMPORTANT
+                        TeacherUserId = sDto.TeacherUserId ,
+                        Fee = sDto.Fee
                     });
                 }
                 else
@@ -255,7 +256,8 @@ public class CoursesService
                     existing.StartTime = ParseTime(sDto.StartTime);
                     existing.EndTime = ParseTime(sDto.EndTime);
                     existing.Capacity = sDto.Capacity;
-                    existing.TeacherUserId = sDto.TeacherUserId;   // 🔥 IMPORTANT
+                    existing.TeacherUserId = sDto.TeacherUserId;
+                    existing.Fee = sDto.Fee;// 🔥 IMPORTANT
                 }
             }
 
@@ -478,6 +480,11 @@ public class CoursesService
             if (string.IsNullOrWhiteSpace(s.TeacherUserId))
                 return "Each session must have a teacher";
         }
+        foreach (var s in dto.Sessions)
+        {
+            if (s.Fee <= 0)
+                return "Session fee must be greater than 0";
+        }
 
         return null;
     }
@@ -494,6 +501,11 @@ public class CoursesService
         {
             if (string.IsNullOrWhiteSpace(s.TeacherUserId))
                 return "Each session must have a teacher";
+        }
+        foreach (var s in dto.Sessions)
+        {
+            if (s.Fee <= 0)
+                return "Session fee must be greater than 0";
         }
 
         return null;

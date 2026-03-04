@@ -1,193 +1,616 @@
-.profile-page {
-  width: 100%;
-  min-height: calc(100vh - 80px);
-  background: #0f172a;
-  padding: 40px 0;
+/* ================================= */
+/* PROFILE WRAPPER */
+/* ================================= */
+
+.profile-wrapper {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  background: #f1f5f9;
+  min-height: 100vh;
 }
+
+/* ================================= */
+/* PROFILE CARD */
+/* ================================= */
 
 .profile-card {
   width: 100%;
-  max-width: 1400px; 
-  background: #1e293b;
-  border-radius: 14px;
-  padding: 45px 60px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.35);
-  margin-bottom: 40px;
-  color: #f1f5f9;
+  max-width: 1000px;
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
-.profile-card h2 {
-  text-align: center;
-  margin-bottom: 35px;
-  color: #facc15;
-  font-size: 2rem;
+/* ================================= */
+/* HEADER */
+/* ================================= */
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  margin-bottom: 40px;
+  position: relative;
 }
+
+/* Avatar */
+
+.avatar img,
+.avatar-placeholder {
+  width: 95px;
+  height: 95px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #1d4ed8;
+  color: white;
+  font-size: 36px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Avatar input (edit mode) */
+
+.avatar input {
+  margin-top: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+}
+
+/* Header info */
+
+.header-info h2 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.role {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: #e0e7ff;
+  color: #1e40af;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Edit button */
+
+.edit-btn {
+  margin-left: auto;
+  background: #1d4ed8;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+/* ================================= */
+/* VIEW MODE GRID */
+/* ================================= */
 
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  font-size: 15px;
 }
 
-.info-box {
-  background: #334155;
-  border-radius: 8px;
-  padding: 18px 22px;
+.info-grid div {
+  background: #f8fafc;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
 }
 
-.info-box label {
-  font-size: 0.9rem;
-  color: #94a3b8;
+/* ================================= */
+/* FORM GRID (EDIT MODE) */
+/* ================================= */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 22px;
 }
 
-.value {
-  margin-top: 6px;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #f8fafc;
-}
+/* Form group */
 
-.edit-btn {
-  display: block;
-  margin: 35px auto 0;
-  background: #facc15;
-  border: none;
-  padding: 14px 36px;
-  border-radius: 999px;
-  font-weight: bold;
-  cursor: pointer;
-  color: #1e293b;
-  transition: 0.2s;
-  font-size: 1rem;
-}
-.edit-btn:hover { background: #eab308; }
-
-.orders-card {
-  width: 100%;
-  max-width: 1400px;
-  background: #1e293b;
-  border-radius: 14px;
-  padding: 35px 60px;
-  box-shadow: 0 4px 18px rgba(0,0,0,0.35);
-  color: #f1f5f9;
-}
-
-.orders-card h3 {
-  color: #facc15;
-  margin-bottom: 12px;
-  font-size: 1.6rem;
-}
-
-.placeholder {
-  color: #94a3b8;
-  font-style: italic;
-  text-align: center;
-  padding: 20px;
-}
-.input-edit {
-  width: 100%;
-  background: #2d3b50;
-  border: none;
-  border-radius: 6px;
-  padding: 10px 12px;
-  color: #f8fafc;
-  font-size: 1.1rem;
-  margin-top: 6px;
-}
-.input-edit:focus {
-  outline: 2px solid #facc15;
-}
-.button-edit-group {
+.form-group {
   display: flex;
- gap: 14px;
-  margin-top: 20px;
-  justify-content: flex-start;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.save-btn {
-  background: #facc15;
-  color: #1e293b;
-  border: none;
-  padding: 12px 28px;
+.form-group label {
+  font-size: 14px;
   font-weight: 600;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: 0.2s ease-in-out;
+  color: #374151;
 }
 
-.save-btn:hover {
-  background: #eab308;
-  box-shadow: 0 0 12px rgba(255, 204, 0, 0.35);
-}
+/* Inputs */
 
-.cancel-btn {
-  background: transparent;
-  color: #e2e8f0;
-  border: 1px solid #64748b;
-  padding: 12px 28px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: 0.2s ease-in-out;
-}
-
-.cancel-btn:hover {
-  background: #334155;
-  border-color: #94a3b8;
-}
-
-.order-box {
-  background: #1e293b;
+.form-group input,
+.form-group select {
+  height: 45px;
   border-radius: 10px;
-  padding: 20px;
-  margin-top: 18px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+  border: 1px solid #d1d5db;
+  padding: 0 12px;
+  font-size: 14px;
+  transition: all 0.2s ease;
 }
 
-.order-header {
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+  outline: none;
+}
+
+/* ================================= */
+/* READONLY FIELD (FUNCȚIE) */
+/* ================================= */
+
+.readonly-field {
+  height: 45px;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  font-weight: 500;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+}
+
+/* Role badge */
+
+.role-badge {
+  margin-left: auto;
+  font-size: 11px;
+  background: #1d4ed8;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+/* ================================= */
+/* ACTIONS */
+/* ================================= */
+
+.actions {
+  margin-top: 30px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.actions button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
   font-weight: 600;
-  color: #facc15;
-  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.order-items {
-  border-top: 1px solid #334155;
-  padding-top: 10px;
-  margin-bottom: 10px;
+/* Save */
+
+.actions button[type="submit"] {
+  background: #1d4ed8;
+  color: white;
 }
 
-.order-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-  color: #e2e8f0;
+.actions button[type="submit"]:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
 }
 
-.order-total {
-  text-align: right;
-  font-size: 1.1rem;
-  color: #ffffff;
-  font-weight: bold;
+/* Cancel */
+
+.actions .cancel {
+  background: #dc2626;
+  color: white;
 }
 
-@media (max-width: 900px) {
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
-  .profile-card, .orders-card {
+.actions .cancel:hover {
+  background: #b91c1c;
+  transform: translateY(-2px);
+}
+
+/* ================================= */
+/* RESPONSIVE */
+/* ================================= */
+
+@media (max-width: 768px) {
+
+  .profile-card {
     padding: 25px;
   }
+
+  .profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .edit-btn {
+    margin-left: 0;
+  }
+
+}
+
+/* ================================= */
+/* TABS */
+/* ================================= */
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 35px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.tabs button {
+  background: transparent;
+  border: none;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.tabs button:hover {
+  background: #f3f4f6;
+}
+
+.tabs button.active {
+  background: #1d4ed8;
+  color: white;
+  box-shadow: 0 6px 15px rgba(29, 78, 216, 0.25);
+}
+
+
+/* ================================= */
+/* PASSWORD TAB */
+/* ================================= */
+
+.password-tab {
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.password-tab h3 {
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.password-tab button {
+  margin-top: 10px;
+  height: 45px;
+  border-radius: 10px;
+  border: none;
+  background: #1d4ed8;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.password-tab button:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+
+/* ================================= */
+/* NOTIFICATIONS TAB */
+/* ================================= */
+
+.notification-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 18px;
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.2s ease;
+}
+
+.notification-item:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.notification-item strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Notification controls */
+
+.notification-item label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.notification-item select {
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 0 8px;
+  font-size: 13px;
+}
+
+/* Save notifications button */
+
+[formgroup] button[type="button"] {
+  margin-top: 15px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background: #1d4ed8;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+[formgroup] button[type="button"]:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+
+/* ================================= */
+/* CHECKBOX STYLE */
+/* ================================= */
+
+.notification-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #1d4ed8;
+  cursor: pointer;
+}
+
+
+/* ================================= */
+/* LOADING STATE */
+/* ================================= */
+
+.profile-card div[ng-reflect-ng-if="true"] {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+
+/* ================================= */
+/* RESPONSIVE IMPROVEMENTS */
+/* ================================= */
+
+@media (max-width: 768px) {
+
+  .tabs {
+    flex-wrap: wrap;
+  }
+
+  .notification-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .notification-item label {
+    justify-content: space-between;
+  }
+
+}
+/* ================================= */
+/* TABS */
+/* ================================= */
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 35px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 10px;
+}
+
+.tabs button {
+  background: transparent;
+  border: none;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.tabs button:hover {
+  background: #f3f4f6;
+}
+
+.tabs button.active {
+  background: #1d4ed8;
+  color: white;
+  box-shadow: 0 6px 15px rgba(29, 78, 216, 0.25);
+}
+
+
+/* ================================= */
+/* PASSWORD TAB */
+/* ================================= */
+
+.password-tab {
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.password-tab h3 {
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.password-tab button {
+  margin-top: 10px;
+  height: 45px;
+  border-radius: 10px;
+  border: none;
+  background: #1d4ed8;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.password-tab button:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+
+/* ================================= */
+/* NOTIFICATIONS TAB */
+/* ================================= */
+
+.notification-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 18px;
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.2s ease;
+}
+
+.notification-item:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
+}
+
+.notification-item strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Notification controls */
+
+.notification-item label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.notification-item select {
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 0 8px;
+  font-size: 13px;
+}
+
+/* Save notifications button */
+
+[formgroup] button[type="button"] {
+  margin-top: 15px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background: #1d4ed8;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+[formgroup] button[type="button"]:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+}
+
+
+/* ================================= */
+/* CHECKBOX STYLE */
+/* ================================= */
+
+.notification-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #1d4ed8;
+  cursor: pointer;
+}
+
+
+/* ================================= */
+/* LOADING STATE */
+/* ================================= */
+
+.profile-card div[ng-reflect-ng-if="true"] {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+
+/* ================================= */
+/* RESPONSIVE IMPROVEMENTS */
+/* ================================= */
+
+@media (max-width: 768px) {
+
+  .tabs {
+    flex-wrap: wrap;
+  }
+
+  .notification-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .notification-item label {
+    justify-content: space-between;
+  }
+
 }

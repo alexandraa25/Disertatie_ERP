@@ -119,7 +119,7 @@
   <div class="right-side">
     <div class="form-card">
 
-      <h3>Create Account</h3>
+      <h3>Create User</h3>
 
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
 
@@ -134,8 +134,14 @@
           <i class="fas fa-envelope icon-inside"></i>
           <input type="email" formControlName="emailAddress" placeholder="Email">
         </div>
+        
+        <!-- Phone -->
+<div class="form-group">
+  <i class="fas fa-phone icon-inside"></i>
+  <input type="text" formControlName="phoneNumber" placeholder="Phone Number">
+</div>
 
-        <!-- Password -->
+        <!-- Password
         <div class="form-group password-group">
           <i class="fas fa-lock icon-inside"></i>
           <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Password"/>
@@ -151,11 +157,11 @@
           </span>
         </div>
 
-        <!-- Confirm Password -->
+         Confirm Password 
         <div class="form-group password-group">
           <i class="fas fa-lock icon-inside"></i>
           <input [type]="showPassword ? 'text' : 'password'" formControlName="confirmPassword" placeholder="Confirm Password"/>
-        </div>
+        </div> -->
 
         <!-- First Name -->
         <div class="form-group">
@@ -169,8 +175,32 @@
           <input type="text" formControlName="lastName" placeholder="Last Name">
         </div>
 
+        <!-- Role -->
+<div class="form-group">
+  <i class="fas fa-user-shield icon-inside"></i>
+  <select formControlName="roleId">
+    <option value="" disabled selected>Select Role</option>
+    <option value="01d50d95-ac7c-48ab-8353-a8b9d7637394">Administrator</option>
+    <option value="c1c3e439-6ade-4b5a-900a-2717365e3d57">Manager</option>
+    <option value="b4602696-77d2-474c-81df-758de1c9ab96">Secretar</option>
+    <option value="cb67b999-d1c0-43e0-a145-b9a7c4aef34d">Profesor</option>
+    <option value="44e00413-8e89-43f6-9f78-bb73c591d2df">Contabil</option>
+    <option value="a7146498-4b45-44a3-b9b1-194b31d4c1af">Marketing</option>
+    <option value="ccc6ecea-2893-43d5-ad9e-1870fe7ba1ec">Cursant</option>
+  </select>
+</div>
+
+<!-- Account Status -->
+<div class="form-group">
+  <label class="checkbox-container">
+    <input type="checkbox" formControlName="isActive">
+    <span class="checkmark"></span>
+    Active Account
+  </label>
+</div>
+
         <!-- Register Button -->
-        <button type="submit" class="btn-submit" [disabled]="!isFormValid || isLoading">Register</button>
+        <button type="submit" class="btn-submit" [disabled]="!registerForm.valid || isLoading">Register</button>
 
       </form>
 

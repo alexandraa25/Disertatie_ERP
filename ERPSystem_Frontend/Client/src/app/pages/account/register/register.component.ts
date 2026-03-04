@@ -55,23 +55,30 @@ export class RegisterComponent implements OnInit, OnDestroy {
   private blinkTimers: any[] = [];
 
   ngOnInit(): void {
+//     const currentUserRole = localStorage.getItem('role');
+
+// if (currentUserRole !== 'Admin') {
+//   this.router.navigate(['/unauthorized']);
+
     this.registerForm = this.fb.group({
       username: ['', Validators.required],
       emailAddress: ['', [Validators.required, Validators.email]],
-      password: [
-        '',
-        [
-          Validators.required,
-          Validators.minLength(8),
-          Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$')
-        ]
-      ],
-      confirmPassword: ['', Validators.required],
+      // password: [
+      //   '',
+      //   [
+      //     Validators.required,
+      //     Validators.minLength(8),
+      //     Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$')
+      //   ]
+      // ],
+      // confirmPassword: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      roleId: [2], 
+       phoneNumber: [''],
+  roleId: ['', Validators.required],
+  isActive: [true],
       
-    });
+    }); 
 
     this.recalcCenter();
     this.startBlinking();
@@ -83,19 +90,40 @@ export class RegisterComponent implements OnInit, OnDestroy {
     cancelAnimationFrame(this.raf);
     this.blinkTimers.forEach(t => clearTimeout(t));
   }
+generateRandomPassword(length: number = 12): string {
+  const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lower = 'abcdefghijklmnopqrstuvwxyz';
+  const numbers = '0123456789';
+  const special = '@$!%*?&';
+  const all = upper + lower + numbers + special;
 
+  let password =
+    upper[Math.floor(Math.random() * upper.length)] +
+    lower[Math.floor(Math.random() * lower.length)] +
+    numbers[Math.floor(Math.random() * numbers.length)] +
+    special[Math.floor(Math.random() * special.length)];
+
+  for (let i = 4; i < length; i++) {
+    password += all[Math.floor(Math.random() * all.length)];
+  }
+
+  return password
+    .split('')
+    .sort(() => 0.5 - Math.random())
+    .join('');
+}
   // ===== REGISTER LOGIC =====
-  togglePassword(): void {
-    this.showPassword = !this.showPassword;
-  }
+  // togglePassword(): void {
+  //   this.showPassword = !this.showPassword;
+  // }
 
-  private passwordsMatch(): boolean {
-    return this.registerForm.value.password === this.registerForm.value.confirmPassword;
-  }
+  // private passwordsMatch(): boolean {
+  //   return this.registerForm.value.password === this.registerForm.value.confirmPassword;
+  // }
 
-  get isFormValid(): boolean {
-    return this.registerForm.valid && this.passwordsMatch();
-  }
+  // get isFormValid(): boolean {
+  //   return this.registerForm.valid && this.passwordsMatch();
+  // }
 
   onSubmit(): void {
     if (this.registerForm.invalid) {
@@ -103,37 +131,48 @@ export class RegisterComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.passwordsMatch()) {
-      this.customSnackBarService.showError('Parolele nu coincid.', 1500);
-      return;
-    }
+  //  if (!this.passwordsMatch()) {
+  //     this.customSnackBarService.showError('Parolele nu coincid.', 1500);
+  //     return;
+  //   }
 
     this.processRegistration();
   }
 
   processRegistration(): void {
     this.isLoading = true;
-
+     const randomPassword = this.generateRandomPassword();
     const userData = {
       username: this.registerForm.value.username,
-      email: this.registerForm.value.emailAddress,
-      password: this.registerForm.value.password,
-      firstName: this.registerForm.value.firstName,
-      lastName: this.registerForm.value.lastName,
-      roleId: this.registerForm.value.roleId
+    email: this.registerForm.value.emailAddress,
+    password: randomPassword,
+    firstName: this.registerForm.value.firstName,
+    lastName: this.registerForm.value.lastName,
+    phoneNumber: this.registerForm.value.phoneNumber,
+    roleId: this.registerForm.value.roleId,
+    isActive: this.registerForm.value.isActive,
     };
 
     this.authService.register(userData).subscribe({
       next: () => {
-        this.isLoading = false;
-        this.customSnackBarService.showSuccess('User registered successfully!', 1500);
-        this.registerForm.reset();
-        this.router.navigate(['/login']);
-      },
-      error: () => {
-        this.isLoading = false;
-        this.customSnackBarService.showError('Registration failed. Please try again.', 1500);
-      }
+      this.isLoading = false;
+
+      alert(
+        'User created successfully!\n\nTemporary Password: ' +
+        randomPassword +
+        '\n\nPlease save it. It will not be shown again.'
+      );
+
+      this.registerForm.reset();
+      this.router.navigate(['/login']);
+    },
+    error: () => {
+      this.isLoading = false;
+      this.customSnackBarService.showError(
+        'Registration failed. Please try again.',
+        1500
+      );
+    }
     });
   }
 

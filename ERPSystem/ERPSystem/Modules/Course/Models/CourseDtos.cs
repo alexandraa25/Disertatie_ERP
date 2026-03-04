@@ -3,7 +3,6 @@
 public record CourseListItemDto(
     int Id,
     string Name,
-    decimal? Price,
     bool IsActive,
     DateTime CreatedAtUtc
 );
@@ -12,7 +11,6 @@ public record CourseDetailsDto(
     int Id,
     string Name,
     string? Description,
-    decimal? Price,
     bool IsActive,
     DateTime CreatedAtUtc,
     List<CourseSessionDto> Sessions
@@ -21,14 +19,12 @@ public record CourseDetailsDto(
 public record CreateCourseDto(
     string Name,
     string? Description,
-    decimal? Price,
     List<CourseSessionUpsertDto> Sessions
 );
 
 public record UpdateCourseDto(
     string Name,
     string? Description,
-    decimal? Price,
     bool IsActive,
     List<CourseSessionUpsertDto> Sessions
 );
@@ -41,7 +37,8 @@ public record CourseSessionDto(
     int? Capacity,
     int EnrolledActiveCount,
     string TeacherUserId,
-    string TeacherName
+    string TeacherName,
+    decimal Fee
 );
 
 public record CourseSessionUpsertDto(
@@ -50,7 +47,8 @@ public record CourseSessionUpsertDto(
     string StartTime,
     string EndTime,
     int? Capacity,
-    string TeacherUserId
+    string TeacherUserId,
+    decimal Fee
 
 
 );

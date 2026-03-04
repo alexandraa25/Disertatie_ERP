@@ -1,4 +1,7 @@
-﻿using ERPSystem.Shared.DTOs.UserProfile;
+﻿using ERPSystem.Modules.UserProfile.Models;
+using ERPSystem.Data.Entities;
+using Route = ERPSystem.Utils.Constants.General.Route.Profile;
+
 
 namespace ERPSystem.Modules.UserProfile;
 
@@ -6,39 +9,33 @@ public static class UserProfileEndpoints
 {
     public static void Map(RouteGroupBuilder group)
     {
-        // GET /me
-        group.MapGet("", async (HttpContext ctx, UserProfileBusinessLogic bl) =>
-        {
-            var me = await bl.GetMeAsync(ctx.User);
-            return Results.Ok(me);
-        });
+        group.MapGet(Route.ME,
+            async (UserProfileService service, HttpContext ctx)
+                => await service.GetMeAsync(ctx.User))
+        .WithName("GetMe");
 
-        // GET /me/profile
-        group.MapGet("/profile", async (HttpContext ctx, UserProfileBusinessLogic bl) =>
-        {
-            var profile = await bl.GetProfileAsync(ctx.User);
-            return Results.Ok(profile);
-        });
+        group.MapGet(Route.PROFILE,
+            async (UserProfileService service, HttpContext ctx)
+                => await service.GetProfileAsync(ctx.User))
+        .WithName("GetProfile");
 
-        // PUT /me/profile
-        group.MapPut("/profile", async (HttpContext ctx, UpdateUserProfileDto body, UserProfileBusinessLogic bl) =>
-        {
-            await bl.UpdateProfileAsync(ctx.User, body);
-            return Results.NoContent();
-        });
+        group.MapPut(Route.PROFILE,
+            async (UpdateUserProfileDto body,
+                   UserProfileService service,
+                   HttpContext ctx)
+                => await service.UpdateProfileAsync(ctx.User, body))
+        .WithName("UpdateProfile");
 
-        // GET /me/notification-settings
-        group.MapGet("/notification-settings", async (HttpContext ctx, UserProfileBusinessLogic bl) =>
-        {
-            var items = await bl.GetNotificationSettingsAsync(ctx.User);
-            return Results.Ok(items);
-        });
+        group.MapGet(Route.NOTIFICATION_SETTINGS,
+            async (UserProfileService service, HttpContext ctx)
+                => await service.GetNotificationSettingsAsync(ctx.User))
+        .WithName("GetNotificationSettings");
 
-        // PUT /me/notification-settings
-        group.MapPut("/notification-settings", async (HttpContext ctx, List<NotificationSettingDto> body, UserProfileBusinessLogic bl) =>
-        {
-            await bl.UpsertNotificationSettingsAsync(ctx.User, body);
-            return Results.NoContent();
-        });
+        group.MapPut(Route.NOTIFICATION_SETTINGS,
+            async (List<NotificationSettingDto> body,
+                   UserProfileService service,
+                   HttpContext ctx)
+                => await service.UpsertNotificationSettingsAsync(ctx.User, body))
+        .WithName("UpdateNotificationSettings");
     }
 }

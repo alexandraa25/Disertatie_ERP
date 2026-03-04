@@ -1,13 +1,15 @@
 ﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Authentificate;
+using ERPSystem.Modules.Contracts;
+using ERPSystem.Modules.Dashboard;
+using ERPSystem.Modules.Student;
+using ERPSystem.Modules.UserProfile;
 using ERPSystem.Shared.BusinessLogic;
 using ERPSystem.Utils.Settings;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-using ERPSystem.Modules.UserProfile;
-using ERPSystem.Modules.Student;
-using ERPSystem.Modules.Contracts;
 
 namespace ERPSystem.Configuration
 {
@@ -31,10 +33,11 @@ namespace ERPSystem.Configuration
         public static void ConfigureBusinessLogic(this WebApplicationBuilder builder)
         {
             builder.Services.AddScoped<EmailBusinessLogic>();
-            builder.Services.AddScoped<UserProfileBusinessLogic>();
+            builder.Services.AddScoped<UserProfileService>();
             builder.Services.AddScoped<StudentsService>();
             builder.Services.AddScoped<CoursesService>();
             builder.Services.AddScoped<ContractsService>();
+            builder.Services.AddScoped<DashboardService>();
         }
 
         public static void ConfigureSettings(this WebApplicationBuilder builder)
@@ -49,7 +52,14 @@ namespace ERPSystem.Configuration
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Identity + API Endpoints
-            builder.Services.AddIdentityApiEndpoints<ApplicationUser>().AddEntityFrameworkStores<ApplicationDbContext>();
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.Password.RequireDigit = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 8;
+            })
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
         }
 
         public static void ConfigureLogger(this WebApplicationBuilder builder)

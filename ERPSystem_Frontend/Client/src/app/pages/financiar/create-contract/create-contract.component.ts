@@ -122,10 +122,32 @@ buildForm() {
   prefillFromStudent(studentId: number) {
 
   // 🔵 1️⃣ Aducem datele elevului
-  this.studentsService.getById(studentId)
-    .subscribe(student => {
-      this.selectedStudent = student;
+this.studentsService.getById(studentId)
+  .subscribe(res => {
+
+    if (!res?.isSuccess || !res.value) return;
+
+    const student = res.value;
+
+    this.selectedStudent = student;
+
+    const primary = student.guardians?.find(
+      (g: any) => g.isPrimaryContact
+    );
+
+   if (primary) {
+
+  this.selectedGuardian = null; // 🔥 reset
+
+  setTimeout(() => {
+    this.selectedGuardian = { ...primary };
+
+    this.contractForm.patchValue({
+      guardianId: primary.id
     });
+
+  }); }
+}); 
 
   // select student automat
   this.contractForm.patchValue({
@@ -133,31 +155,26 @@ buildForm() {
   });
 
   // 🔵 2️⃣ Aducem cursuri
-  this.studentsService.getStudentCourses(studentId)
-    .subscribe(res => {
+this.studentsService.getStudentCourses(studentId)
+  .subscribe(res => {
 
-      this.studentCourses = res.items;
-      this.totalAmount = res.totalAmount;
+    this.studentCourses = res.items ?? [];
 
-      const sessionIds = res.items.map(x => x.sessionId);
+    // 🔥 calcul corect
+    this.totalAmount = this.studentCourses.reduce((sum, course) => {
+      return sum + (course.price ?? 0);
+    }, 0);
 
-      this.contractForm.patchValue({
-        courseSessionIds: sessionIds
-      });
+    const sessionIds = this.studentCourses.map(x => x.sessionId);
+
+    this.contractForm.patchValue({
+      courseSessionIds: sessionIds
     });
 
-  // 🔵 3️⃣ Aducem guardian dacă există
-  this.studentsService.getPrimaryGuardian(studentId)
-    .subscribe(guardian => {
+  });
 
-      if (guardian) {
-        this.selectedGuardian = guardian; // 🔥 IMPORTANT
-        this.contractForm.patchValue({
-          guardianId: guardian.id
-        });
-      }
-    });
-}
+
+ }
 
   // ===============================
   // SUBMIT
@@ -188,26 +205,29 @@ buildForm() {
     discounts: formValue.discounts
   };
 
-  this.contractsService.create(dto)
-    .subscribe({
-      next: (res) => {
+ this.contractsService.create(dto)
+  .subscribe({
+    next: (res) => {
 
-        this.isSubmitting = false;
+      this.isSubmitting = false;
 
-        // 🔥 ERP flow corect: redirect la ContractDetails
-        if (res?.id) {
-          this.router.navigate(['/contracts', res.value.id]);
-        }
+      const contractId = res?.value?.id;
 
-      },
-      error: err => {
+      if (contractId) {
+        console.log(contractId);
+        // 🔥 Redirect corect
+        this.router.navigate(['/contracts', contractId]);
 
-        this.isSubmitting = false;
-
-        // ideal: toast service, nu alert
-        console.error(err);
       }
-    });
+
+    },
+    error: err => {
+
+      this.isSubmitting = false;
+      console.error(err);
+    }
+  });
+    
 }
 private dateRangeValidator(): ValidatorFn {
   return (group: AbstractControl): ValidationErrors | null => {
@@ -217,9 +237,8 @@ private dateRangeValidator(): ValidatorFn {
     const isUnlimited = group.get('isUnlimited')?.value;
 
     if (!start) return null;
-
-    if (!isUnlimited && !end) {
-      return { endRequired: true };
+     if (!isUnlimited && !end) {
+      return { endRequired: true }; 
     }
 
     if (!isUnlimited && end && new Date(end) <= new Date(start)) {

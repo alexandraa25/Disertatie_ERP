@@ -81,6 +81,6 @@ export class StudentsService {
 }
 
    getById(id: number) {
-  return this.http.get<any>(`${this.baseUrl}/students/${id}`);
+  return this.http.get<any>(`${this.baseUrl}/${id}`);
 }
 }

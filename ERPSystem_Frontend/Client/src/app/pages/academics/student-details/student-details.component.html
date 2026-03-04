@@ -168,8 +168,9 @@
     <!-- FINANCIAR -->
     <div *ngIf="activeTab === 'Financiar'" class="card">
       <h3>Situație financiară</h3>
-<button class="btn-primary" (click)="createContract()">
-  Creează contract
+<button class="btn-primary"
+        (click)="handleContractAction()">
+  {{ getContractButtonText() }}
 </button>
       <div *ngFor="let f of student.invoices ?? []" class="invoice-item">
         <div>
