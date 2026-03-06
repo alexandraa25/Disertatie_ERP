@@ -5,6 +5,9 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
+import { ViewChild } from '@angular/core';
+import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
+
 
 type Vec2 = { x: number; y: number };
 
@@ -13,21 +16,24 @@ type Vec2 = { x: number; y: number };
   standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [CommonModule, ReactiveFormsModule, MatSnackBarModule]
+  imports: [CommonModule, ReactiveFormsModule, MatSnackBarModule,  ConfirmCustomModalComponent ]
+  
 })
 export class RegisterComponent implements OnInit, OnDestroy {
   registerForm!: FormGroup;
   showPassword = false;
   isLoading = false;
   errorAnim = false;
-
+  roles: any[] = [];
+  @ViewChild(ConfirmCustomModalComponent, { static: false })
+successModal!: ConfirmCustomModalComponent;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
     private customSnackBarService: SnackbarService
-  ) {}
+  ) { }
 
   // ===== SVG INTERACTIVITY STATE =====
   creatureT: string[] = Array(4).fill('translate(0 0)');
@@ -55,116 +61,104 @@ export class RegisterComponent implements OnInit, OnDestroy {
   private blinkTimers: any[] = [];
 
   ngOnInit(): void {
-//     const currentUserRole = localStorage.getItem('role');
+    //     const currentUserRole = localStorage.getItem('role');
 
-// if (currentUserRole !== 'Admin') {
-//   this.router.navigate(['/unauthorized']);
+    // if (currentUserRole !== 'Admin') {
+    //   this.router.navigate(['/unauthorized']);
 
     this.registerForm = this.fb.group({
       username: ['', Validators.required],
       emailAddress: ['', [Validators.required, Validators.email]],
-      // password: [
-      //   '',
-      //   [
-      //     Validators.required,
-      //     Validators.minLength(8),
-      //     Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).+$')
-      //   ]
-      // ],
-      // confirmPassword: ['', Validators.required],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-       phoneNumber: [''],
-  roleId: ['', Validators.required],
-  isActive: [true],
-      
-    }); 
+      phoneNumber: [''],
+      role: ['', Validators.required],
+      isActive: [true],
 
+    });
+     this.loadRoles();
     this.recalcCenter();
     this.startBlinking();
     this.loop();
-    
+
   }
 
+  loadRoles() {
+  this.authService.getRoles().subscribe({
+    next: (data) => {
+      this.roles = data;
+    },
+    error: (err) => {
+      console.error('Error loading roles', err);
+    }
+  });
+}
   ngOnDestroy(): void {
     cancelAnimationFrame(this.raf);
     this.blinkTimers.forEach(t => clearTimeout(t));
   }
-generateRandomPassword(length: number = 12): string {
-  const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const lower = 'abcdefghijklmnopqrstuvwxyz';
-  const numbers = '0123456789';
-  const special = '@$!%*?&';
-  const all = upper + lower + numbers + special;
+  generateRandomPassword(length: number = 12): string {
+    const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lower = 'abcdefghijklmnopqrstuvwxyz';
+    const numbers = '0123456789';
+    const special = '@$!%*?&';
+    const all = upper + lower + numbers + special;
 
-  let password =
-    upper[Math.floor(Math.random() * upper.length)] +
-    lower[Math.floor(Math.random() * lower.length)] +
-    numbers[Math.floor(Math.random() * numbers.length)] +
-    special[Math.floor(Math.random() * special.length)];
+    let password =
+      upper[Math.floor(Math.random() * upper.length)] +
+      lower[Math.floor(Math.random() * lower.length)] +
+      numbers[Math.floor(Math.random() * numbers.length)] +
+      special[Math.floor(Math.random() * special.length)];
 
-  for (let i = 4; i < length; i++) {
-    password += all[Math.floor(Math.random() * all.length)];
+    for (let i = 4; i < length; i++) {
+      password += all[Math.floor(Math.random() * all.length)];
+    }
+
+    return password
+      .split('')
+      .sort(() => 0.5 - Math.random())
+      .join('');
   }
-
-  return password
-    .split('')
-    .sort(() => 0.5 - Math.random())
-    .join('');
-}
-  // ===== REGISTER LOGIC =====
-  // togglePassword(): void {
-  //   this.showPassword = !this.showPassword;
-  // }
-
-  // private passwordsMatch(): boolean {
-  //   return this.registerForm.value.password === this.registerForm.value.confirmPassword;
-  // }
-
-  // get isFormValid(): boolean {
-  //   return this.registerForm.valid && this.passwordsMatch();
-  // }
 
   onSubmit(): void {
     if (this.registerForm.invalid) {
       this.customSnackBarService.showError('Formular invalid. Verifică câmpurile.', 1500);
       return;
     }
-
-  //  if (!this.passwordsMatch()) {
-  //     this.customSnackBarService.showError('Parolele nu coincid.', 1500);
-  //     return;
-  //   }
-
     this.processRegistration();
   }
 
   processRegistration(): void {
-    this.isLoading = true;
-     const randomPassword = this.generateRandomPassword();
-    const userData = {
-      username: this.registerForm.value.username,
+  this.isLoading = true;
+  const randomPassword = this.generateRandomPassword();
+
+  const userData = {
+    username: this.registerForm.value.username,
     email: this.registerForm.value.emailAddress,
     password: randomPassword,
     firstName: this.registerForm.value.firstName,
     lastName: this.registerForm.value.lastName,
     phoneNumber: this.registerForm.value.phoneNumber,
-    roleId: this.registerForm.value.roleId,
+    role: this.registerForm.value.role,
     isActive: this.registerForm.value.isActive,
-    };
+  };
 
-    this.authService.register(userData).subscribe({
-      next: () => {
+  this.authService.register(userData).subscribe({
+    next: () => {
+
       this.isLoading = false;
 
-      alert(
-        'User created successfully!\n\nTemporary Password: ' +
-        randomPassword +
-        '\n\nPlease save it. It will not be shown again.'
-      );
+      // 🔥 AICI DESCHIDEM POPUP-UL
+      const tempPassword = randomPassword;
 
-      this.registerForm.reset();
-      this.router.navigate(['/login']);
+      this.successModal.title = 'Utilizator creat cu succes';
+      this.successModal.message = 'Parola temporara a fost generata';
+      this.successModal.copyText = tempPassword;
+
+      this.successModal.open();
+
+      this.successModal.confirmed.pipe().subscribe();
+
     },
     error: () => {
       this.isLoading = false;
@@ -173,9 +167,13 @@ generateRandomPassword(length: number = 12): string {
         1500
       );
     }
-    });
-  }
+  });
+}
 
+onModalConfirmed(event: boolean) {
+  this.registerForm.reset();
+  this.router.navigate(['/login']);
+}
   // ===== EVENTS =====
   @HostListener('window:resize')
   onResize() {

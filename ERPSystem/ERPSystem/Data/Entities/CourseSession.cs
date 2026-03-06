@@ -23,4 +23,7 @@ public class CourseSession
     public TimeOnly EndTime { get; set; }
 
     public bool IsActive { get; set; } = true;
+
+    public ICollection<CourseEnrollment> Enrollments { get; set; }
+      = new List<CourseEnrollment>();
 }

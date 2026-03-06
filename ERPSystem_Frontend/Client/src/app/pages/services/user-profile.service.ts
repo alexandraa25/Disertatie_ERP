@@ -18,7 +18,7 @@ export class UserProfileService {
   }
 
   getProfile(): Observable<UserProfileDto> {
-    return this.http.get<UserProfileDto>(`${this.baseUrl}/profile`, { withCredentials: true });
+    return this.http.get<UserProfileDto>(`${this.baseUrl}/profile`);
   }
 
   updateProfile(profile: UserProfileDto): Observable<void> {

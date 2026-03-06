@@ -7,6 +7,7 @@ using ERPSystem.Utils.Response;
 using ERPSystem.Utils.Settings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -29,18 +30,20 @@ namespace ERPSystem.Modules.Authentificate
         private IOptions<ERPSystemSettings> _ERPSystemSettings;
         private IOptions<JwtSettings> _jwtSettings;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         #endregion
 
         #region Constructors
         public AuthentificationService(ILogger<AuthentificationService> logger, EmailBusinessLogic emailBusinessLogic,
-            IOptions<ERPSystemSettings> ERPSystemSettings, IOptions<JwtSettings> jwtSettings, UserManager<ApplicationUser> userManager) 
+            IOptions<ERPSystemSettings> ERPSystemSettings, IOptions<JwtSettings> jwtSettings, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _logger = logger;
             _emailBusinessLogic = emailBusinessLogic;
             _ERPSystemSettings = ERPSystemSettings;
             _jwtSettings = jwtSettings;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         #endregion
@@ -61,7 +64,7 @@ namespace ERPSystem.Modules.Authentificate
                 if (userByUsername != null)
                     return publicResponse.SetError(ErrorCodes.EmailAlreadyExist, ErrorMessages.EmailAlreadyExist);
 
-                ApplicationUser newUser = new ApplicationUser( userName: request.Username, email: request.Email, firstName: request.FirstName,   lastName: request.LastName )
+                ApplicationUser newUser = new ApplicationUser(userName: request.Username, email: request.Email, firstName: request.FirstName, lastName: request.LastName)
                 {
                     PhoneNumber = request.PhoneNumber,
                     IsActive = true,
@@ -96,7 +99,7 @@ namespace ERPSystem.Modules.Authentificate
             }
             return publicResponse;
         }
-        
+
 
         public async Task<PublicResponse> ConfirmEmailAsync(ConfirmEmail confirmEmail, UserManager<ApplicationUser> userManager)
         {
@@ -128,6 +131,7 @@ namespace ERPSystem.Modules.Authentificate
         }
 
         public async Task<PublicResponse> LoginAsync(LoginRequest request, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+
         {
             PublicResponse response = new PublicResponse(true);
 
@@ -141,10 +145,6 @@ namespace ERPSystem.Modules.Authentificate
                 if (!user.IsActive)
                     return response.SetError(ErrorCodes.InvalidParameters, "Account is inactive.");
 
-                //if (!user.EmailConfirmed)
-                //    return response.SetError(ErrorCodes.InvalidParameters, "Email is not confirmed.");
-
-
                 if (!user.EmailConfirmed)
                 {
                     var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -156,10 +156,9 @@ namespace ERPSystem.Modules.Authentificate
                     var link = $"http://localhost:4200/confirm-email?userId={user.Id}&token={encodedToken}";
                     Console.WriteLine("LINK: " + link);
 
-                    await _emailBusinessLogic.SendEmailTemplateAsync(
-                        TemplateCode.EMAIL_REGISTRATION_CONFIRMATION,
-                        JsonConvert.SerializeObject(new { Link = link }),
-                        new List<string> { user.Email }
+                    await _emailBusinessLogic.SendEmailTemplateAsync(templateCode: TemplateCode.EMAIL_REGISTRATION_CONFIRMATION, tableRow: JsonConvert.SerializeObject(user),
+                        url: link,
+                        to: new List<string> { user.Email }
                     );
 
                     return response.SetSuccess(new
@@ -173,14 +172,15 @@ namespace ERPSystem.Modules.Authentificate
 
                 if (!result.Succeeded)
                     return response.SetError(ErrorCodes.InvalidParameters, ErrorMessages.InvalidCredentials);
-                if (user.MustChangePassword)
-                {
-                    return response.SetSuccess(new
-                    {
-                        requiresPasswordChange = true,
-                        userId = user.Id
-                    });
-                }
+                //if (user.MustChangePassword)
+                //{
+                //    return response.SetSuccess(new
+                //    {
+                //        requiresPasswordChange = true,
+                //        userId = user.Id
+                //    });
+                //}
+
                 var code = await userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
 
                 List<string> to = new List<string>() { user.Email };
@@ -218,7 +218,7 @@ namespace ERPSystem.Modules.Authentificate
                     return response.SetError(ErrorCodes.InvalidToken, ErrorMessages.InvalidToken);
 
                 var user = await userManager.FindByIdAsync(userId);
-                
+
 
                 if (user == null)
                     return response.SetError(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
@@ -332,7 +332,7 @@ namespace ERPSystem.Modules.Authentificate
             }
         }
 
-        public async Task<PublicResponse> ResetPasswordAsync(Authentification.Models.ResetPasswordRequest request,UserManager<ApplicationUser> userManager)
+        public async Task<PublicResponse> ResetPasswordAsync(Authentification.Models.ResetPasswordRequest request, UserManager<ApplicationUser> userManager)
         {
             PublicResponse response = new PublicResponse(true);
 
@@ -437,6 +437,21 @@ namespace ERPSystem.Modules.Authentificate
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+
         #endregion
+
+
+        public async Task<IResult> GetRolesAsync()
+        {
+            var roles =  _roleManager.Roles
+                .Select(r => new
+                {
+                    id = r.Id,
+                    name = r.Name
+                })
+                .ToList();
+
+            return Results.Ok(roles);
+        }
     }
 }

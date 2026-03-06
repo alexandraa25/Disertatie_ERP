@@ -14,6 +14,7 @@ export class ConfirmCustomModalComponent {
   @Input() message: string = '';
   @Input() confirmText: string = 'Confirm';
   @Input() cancelText: string = 'Cancel';
+  @Input() copyText: string = '';
 
   @Output() confirmed = new EventEmitter<boolean>();
 
@@ -27,4 +28,8 @@ export class ConfirmCustomModalComponent {
     this.isOpen = false;
     this.confirmed.emit(result);
   }
+
+  copyToClipboard() {
+  navigator.clipboard.writeText(this.copyText);
+}
 }

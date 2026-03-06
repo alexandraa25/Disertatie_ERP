@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { StudentsService } from '../../services/students.service';
 import { ContractsService } from '../../services/contracts.service';
 import { StudentDetailsDto, StudentCourseDetailsDto } from '../../models/student.model';
+import { StudentFormComponent } from '../student-form/student-form.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-student-details',
@@ -31,7 +33,8 @@ export class StudentDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private students: StudentsService, 
-    private contracts: ContractsService
+    private contracts: ContractsService, 
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -57,10 +60,7 @@ export class StudentDetailsComponent implements OnInit {
     this.router.navigate(['/students']);
   }
 
-  edit() {
-    this.router.navigate(['/students/edit', this.student.id]);
-  }
-
+  
   // 🔥 schimbare tab corectă
   onTabChange(tab: string) {
     this.activeTab = tab;
@@ -170,4 +170,27 @@ createContract() {
 openContract(id: number) {
   this.router.navigate(['/contracts', id]);
 }
+
+  openEdit(id: number) {
+
+  if (this.dialog.openDialogs.length > 0) {
+    return;
+  }
+
+  const dialogRef = this.dialog.open(StudentFormComponent, {
+    width: '720px',
+    maxWidth: '92vw',
+    panelClass: 'student-dialog',
+    data: { id }   // 🔥 AICI ERA PROBLEMA
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result) {
+      this.loadContract();
+    }
+  });
+
+  
 }
+}
+

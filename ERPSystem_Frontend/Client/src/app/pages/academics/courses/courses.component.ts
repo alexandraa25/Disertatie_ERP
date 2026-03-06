@@ -41,8 +41,7 @@ export class CoursesComponent implements OnInit {
 
 openCreate() {
   const dialogRef = this.dialog.open(CourseFormComponent, {
-    width: '720px',
-    maxWidth: '92vw',
+    width: '1020px',
     panelClass: 'student-dialog'
   });
 
@@ -60,8 +59,7 @@ openEdit(id: number) {
   }
 
   const dialogRef = this.dialog.open(CourseFormComponent, {
-    width: '720px',
-    maxWidth: '92vw',
+    width: '1020px',
     panelClass: 'student-dialog',
     data: { id }
   });

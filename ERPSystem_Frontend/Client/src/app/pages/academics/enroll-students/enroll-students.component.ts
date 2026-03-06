@@ -2,6 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { CoursesService } from '../../services/courses.service';
+import { StudentsService } from '../../services/students.service';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -15,26 +16,39 @@ export class EnrollStudentsComponent implements OnInit {
   students: any[] = [];
   loading = false;
   q = '';
+  mode: 'course' | 'student' = 'course';
 
   constructor(
     private courses: CoursesService,
+    private student: StudentsService,
     private dialogRef: MatDialogRef<EnrollStudentsComponent>,
     @Inject(MAT_DIALOG_DATA) public data: {
-      courseId: number;
-      sessionId: number;
+      courseId?: number;
+      sessionId?: number;
+      studentId?: number;
     }
   ) {}
 
   ngOnInit(): void {
-    this.load();
+
+  if (this.data.studentId) {
+    this.mode = 'student';
   }
 
-  load() {
-    this.loading = true;
+  this.load();
 
+}
+
+ load() {
+
+  this.loading = true;
+
+  if (this.mode === 'course') {
+
+    // CURS -> înscrii elevi
     this.courses.getAvailableStudents(
-      this.data.courseId,
-      this.data.sessionId,
+      this.data.courseId!,
+      this.data.sessionId!,
       this.q
     ).subscribe({
       next: (res: any) => {
@@ -46,17 +60,55 @@ export class EnrollStudentsComponent implements OnInit {
         alert('Eroare la încărcare cursanți');
       }
     });
+
+  } else {
+
+    // STUDENT -> vezi cursuri disponibile
+    this.student.getAvailableCoursesForStudent(
+      this.data.studentId!,
+      this.q
+    ).subscribe({
+      next: (res: any) => {
+        this.students = res?.value ?? res;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        alert('Eroare la încărcare cursuri');
+      }
+    });
+
   }
 
-  enroll(studentId: number) {
-   this.courses.enroll(this.data.courseId, {
-  studentId: studentId,
-  sessionId: this.data.sessionId
-}).subscribe({
-  next: () => this.load(),
-  error: () => alert('Eroare la înscriere')
-});
+}
+
+ enroll(id: number) {
+
+  if (this.mode === 'course') {
+
+    // înscrii student în curs
+    this.courses.enroll(this.data.courseId!, {
+      studentId: id,
+      sessionId: this.data.sessionId!
+    }).subscribe({
+      next: () => this.load(),
+      error: () => alert('Eroare la înscriere')
+    });
+
+  } else {
+
+    // înscrii studentul la curs
+    this.courses.enroll(id, {
+      studentId: this.data.studentId!,
+      sessionId: 0
+    }).subscribe({
+      next: () => this.load(),
+      error: () => alert('Eroare la înscriere')
+    });
+
   }
+
+}
 
   close() {
     this.dialogRef.close(true);

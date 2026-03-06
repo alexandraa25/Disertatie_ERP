@@ -76,6 +76,12 @@ export class CoursesService {
     `${this.baseUrl}/${courseId}/sessions/${sessionId}/available-students`,
     { params: { q: q || '' } }
   );
+  
+}
+getAvailableCoursesForStudent(studentId: number, q: string = '') {
+  return this.http.get<any>(
+    `${this.baseUrl}/${studentId}/available-courses?q=${q}`
+  );
 }
 }
 

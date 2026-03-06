@@ -421,4 +421,35 @@ public class StudentsService
         return response.SetSuccess(guardian); // poate fi null
     }
 
+    public async Task<List<AvailableCourseDto>> GetAvailableCoursesForStudentAsync(
+    int studentId,
+    string? q)
+    {
+        var query = _db.CourseSessions
+            .Include(x => x.Course)
+            .Include(x => x.Teacher)
+            .Where(x => !x.Enrollments.Any(e => e.StudentId == studentId));
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            query = query.Where(x => x.Course.Name.Contains(q));
+        }
+
+        return await query
+            .Select(x => new AvailableCourseDto
+            {
+                CourseId = x.CourseId,
+                SessionId = x.Id,
+                CourseName = x.Course.Name,
+                DayOfWeek = x.DayOfWeek,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                TeacherName = $"{x.Teacher.FirstName} {x.Teacher.LastName}",
+                Price = x.Fee,
+                Capacity = x.Capacity,
+                Enrolled = x.Enrollments.Count()
+            })
+            .ToListAsync();
+    }
+
 }

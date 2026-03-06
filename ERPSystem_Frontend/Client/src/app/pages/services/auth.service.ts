@@ -188,6 +188,12 @@ export class AuthService {
    resetPassword(userId: string, token: string, newPassword: string) {
     return this.http.post<any>(`${this.apiUrl}/reset-password`, {userId, token,  newPassword
     });
+
+    
+}
+
+getRoles() {
+  return this.http.get<any[]>(`${this.apiUrl}/roles`);
 }
 
 }

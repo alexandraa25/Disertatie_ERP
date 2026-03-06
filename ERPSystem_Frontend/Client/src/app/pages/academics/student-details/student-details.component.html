@@ -24,7 +24,6 @@
 
     <div class="actions">
       <button class="secondary" (click)="goBack()">Înapoi</button>
-      <button class="primary" (click)="edit()">Editează</button>
     </div>
   </div>
 
@@ -46,6 +45,8 @@
   <div *ngIf="activeTab === 'Informații'" class="card">
 
     <h3>Informații personale</h3>
+
+     <button class="primary" (click)="openEdit(student.id)">Editează</button>
 
     <div class="info-grid">
       <div class="info-item">
@@ -122,11 +123,19 @@
     
     </div>
 
+<div class="courses-actions">
+
+    <button class="primary small"
+            (click)="openEnrollModal()">
+      Înscrie la curs
+    </button>
+    
     <div class="total-box" *ngIf="courses.length">
       <span>Total</span>
       <strong>{{ totalAmount }} RON</strong>
     </div>
   </div>
+</div>
 
   <div *ngIf="courses.length; else noCourses">
 

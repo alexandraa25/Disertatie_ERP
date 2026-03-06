@@ -48,6 +48,11 @@ namespace ERPSystem.Modules.Authentificate
             async (ResetPasswordRequest resetPasswordRequest, UserManager<ApplicationUser> userManager, AuthentificationService authService)
                 => await authService.ResetPasswordAsync(resetPasswordRequest, userManager))
               .WithDefaultApiSettings("ResetPasswordAsync", "Reset Password Async", "RESET_PASSWORD", false);
+
+            group.MapGet(Route.GET_ROLES,
+            async (RoleManager<IdentityRole> roleManager, AuthentificationService authService)
+                 =>await authService.GetRolesAsync())
+            .WithDefaultApiSettings("GetRoles", "Get Roles", "GET_ROLES", false);
         }
     }
 }

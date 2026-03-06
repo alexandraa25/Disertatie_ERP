@@ -12,6 +12,7 @@
             public const string RESEND_LOGIN_CODE = "resend-login-code";
             public const string FORGOT_PASSWORD = "forgot-password";
             public const string RESET_PASSWORD = "reset-password";
+            public const string GET_ROLES = "/roles";
 
             public static class Profile
             {
@@ -28,6 +29,7 @@
                 public const string STUDENT_OPTIONS = "/students/options";
                 public const string STUDENT_COURSES = "/{id}/courses";
                 public const string GUARDIAN_OPTIONS = "/{id}/primary-guardian";
+                public const string STUDENTS_AVAILABLE_COURSE = "{id}/available-courses";
 
             }
             public static class Courses

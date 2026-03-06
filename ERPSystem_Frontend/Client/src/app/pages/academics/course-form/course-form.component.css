@@ -133,13 +133,21 @@ small {
 
 .session-row {
   display: grid;
-  grid-template-columns: 1.2fr 1fr auto 1fr auto;
-  gap: 6px;
+  grid-template-columns: 
+    1.3fr   /* zi */
+    1fr     /* start */
+    1fr     /* end */
+    1.5fr   /* profesor */
+    1fr     /* fee */
+    1.6fr   /* capacity */
+    auto;   /* delete */
+  gap: 8px;
   align-items: center;
 }
 
-.session-row select,
-.session-row input {
+.session-row input,
+.session-row select {
+  width: 100%;
   padding: 6px 8px;
   font-size: 12.5px;
 }
@@ -181,8 +189,8 @@ small {
 }
 
 .danger {
-  padding: 6px 10px;
-  font-size: 12px;
+ padding: 6px 8px;
+  font-size: 11.5px;
   border-radius: 6px;
   border: none;
   background: #fee2e2;
@@ -197,7 +205,11 @@ small {
 .capacity-wrapper {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+}
+
+.capacity-wrapper input {
+  width: 80px;
 }
 
 /* 🔹 Switch modern */
@@ -288,4 +300,17 @@ input:checked + .slider:before {
 
 .card::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.session-row {
+  background: #f8fafc;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }

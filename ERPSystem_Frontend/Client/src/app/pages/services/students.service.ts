@@ -83,4 +83,10 @@ export class StudentsService {
    getById(id: number) {
   return this.http.get<any>(`${this.baseUrl}/${id}`);
 }
+
+getAvailableCoursesForStudent(studentId: number, q: string = '') {
+  return this.http.get<any>(
+    `${this.baseUrl}/${studentId}/available-courses?q=${q}`
+  );
+}
 }

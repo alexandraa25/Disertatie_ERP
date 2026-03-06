@@ -98,4 +98,24 @@
     int Id,
     string FullName
 );
+
+    public class AvailableCourseDto
+    {
+        public int CourseId { get; set; }
+        public int SessionId { get; set; }
+
+        public string CourseName { get; set; }
+
+        public int DayOfWeek { get; set; }
+
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+
+        public string TeacherName { get; set; }
+
+        public decimal Price { get; set; }
+
+        public int? Capacity { get; set; }
+        public int Enrolled { get; set; }
+    }
 }

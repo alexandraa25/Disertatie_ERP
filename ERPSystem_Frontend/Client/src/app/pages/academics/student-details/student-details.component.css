@@ -192,6 +192,16 @@
   font-weight: 600;
 }
 
+.courses-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.primary.small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
 /* CARD CURS */
 
 .course-card {

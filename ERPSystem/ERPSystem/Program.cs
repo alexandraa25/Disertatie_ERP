@@ -11,8 +11,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-await RoleSeeder.SeedAsync(app);
-await UserSeeder.SeedAdminAsync(app);
+
 app.UseCors("frontend");
 app.UseAuthentication();
 app.UseAuthorization();

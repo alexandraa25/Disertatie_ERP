@@ -244,7 +244,8 @@ public class CoursesService
                         EndTime = ParseTime(sDto.EndTime),
                         Capacity = sDto.Capacity,
                         TeacherUserId = sDto.TeacherUserId ,
-                        Fee = sDto.Fee
+                        Fee = sDto.Fee,
+                        Title = $"{dto.Name} - {sDto.DayOfWeek}"
                     });
                 }
                 else
@@ -432,7 +433,7 @@ public class CoursesService
         try
         {
             var roleId = await _db.Roles
-                .Where(r => r.Name == "PROFESOR")
+                .Where(r => r.Name == "Teacher")
                 .Select(r => r.Id)
                 .FirstOrDefaultAsync();
 

@@ -1,6 +1,7 @@
 ﻿using ERPSystem.Extensions;
 using ERPSystem.Modules.Student;
 using ERPSystem.Modules.Student.Models;
+using ERPSystem.Shared.BusinessLogic;
 using Route = ERPSystem.Utils.Constants.General.Route.Students;
 
 namespace ERPSystem.Modules.Students
@@ -49,6 +50,11 @@ namespace ERPSystem.Modules.Students
                  async (int id, StudentsService studentsService)
                      => await studentsService.GetPrimaryGuardianAsync(id))
                 .WithDefaultApiSettings( "GetPrimaryGuardians", "Guardian principal pentru elev", "GET_GUARDIAN_OPTIONS",  false   );
+
+            group.MapGet(Route.STUDENTS_AVAILABLE_COURSE,
+                 async (int studentId, string? q, StudentsService service)
+                     => await service.GetAvailableCoursesForStudentAsync(studentId, q))
+                 .WithDefaultApiSettings("GetAvailableCoursesForStudent", "Lista cursurilor disponibile pentru student", "AVAILABLE_COURSES_LIST", false );
         }
     }
 }

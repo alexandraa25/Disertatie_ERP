@@ -95,7 +95,7 @@ export class ConfirmLoginCodeComponent implements OnInit {
         localStorage.setItem("user", JSON.stringify(user));
         sessionStorage.removeItem("tempToken");
         this.snackbar.showSuccess("Login confirmed!", 1500);
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/profil-user']);
       },
       error: () => {
         this.isLoading = false;

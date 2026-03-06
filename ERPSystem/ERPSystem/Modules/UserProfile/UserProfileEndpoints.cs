@@ -1,5 +1,6 @@
-﻿using ERPSystem.Modules.UserProfile.Models;
-using ERPSystem.Data.Entities;
+﻿using ERPSystem.Data.Entities;
+using ERPSystem.Extensions;
+using ERPSystem.Modules.UserProfile.Models;
 using Route = ERPSystem.Utils.Constants.General.Route.Profile;
 
 
@@ -12,12 +13,12 @@ public static class UserProfileEndpoints
         group.MapGet(Route.ME,
             async (UserProfileService service, HttpContext ctx)
                 => await service.GetMeAsync(ctx.User))
-        .WithName("GetMe");
+                      .WithDefaultApiSettings("GetMe", "Get ME", "ME", true);
 
         group.MapGet(Route.PROFILE,
             async (UserProfileService service, HttpContext ctx)
                 => await service.GetProfileAsync(ctx.User))
-        .WithName("GetProfile");
+       .WithDefaultApiSettings("GetProfile", "Get Profile", "GET_PROFILE", true);
 
         group.MapPut(Route.PROFILE,
             async (UpdateUserProfileDto body,
