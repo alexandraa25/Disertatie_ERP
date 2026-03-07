@@ -1,11 +1,12 @@
 ﻿# ======================
 # .NET
 # ======================
+.vs/
 bin/
 obj/
-.vs/
+
 # Visual Studio
-.vs/
+
 *.user
 *.suo
 *.cache

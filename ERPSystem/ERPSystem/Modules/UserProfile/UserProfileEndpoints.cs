@@ -25,6 +25,7 @@ public static class UserProfileEndpoints
         // ===============================
         // UPDATE PROFILE
         // ===============================
+      
         group.MapPut(Route.PROFILE, async (UpdateUserProfileDto body,   UserProfileService service)
                 => await service.UpdateProfileAsync(body))
         .WithDefaultApiSettings("UpdateProfile", "Update Profile", "UPDATE_PROFILE", true);
