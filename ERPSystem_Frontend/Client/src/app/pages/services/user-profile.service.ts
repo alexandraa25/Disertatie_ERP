@@ -17,10 +17,9 @@ export class UserProfileService {
     return this.http.get<MeDto>(this.baseUrl, { withCredentials: true });
   }
 
-  getProfile(): Observable<UserProfileDto> {
-    return this.http.get<UserProfileDto>(`${this.baseUrl}/profile`);
-  }
-
+getProfile(): Observable<UserProfileDto> {
+  return this.http.get<UserProfileDto>(`${this.baseUrl}/profile`);
+}
   updateProfile(profile: UserProfileDto): Observable<void> {
     return this.http.put<void>(`${this.baseUrl}/profile`, profile, { withCredentials: true });
   }

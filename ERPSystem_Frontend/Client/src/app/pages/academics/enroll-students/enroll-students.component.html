@@ -1,6 +1,6 @@
 <div class="modal-container">
 <div class="modal-header">
-  <h2>Înscriere cursanți</h2>
+   {{ mode === 'course' ? 'Înscriere cursanți' : 'Înscriere la curs' }}
   <span class="count" *ngIf="!loading">
     {{ students.length }} rezultate
   </span>
@@ -11,36 +11,50 @@
   <input
     [(ngModel)]="q"
     (input)="load()"
-    placeholder="Caută după nume sau email..."
+    placeholder="Caută după nume..."
     class="search"
   />
 </div>
 
 <div *ngIf="loading" class="loading">
-  Se încarcă cursanții...
+ {{ mode === 'course' ? 'Se încarcă cursanții...' : 'Se încarcă cursurile...' }} 
 </div>
 
-<div class="student-list" *ngIf="!loading && students.length">
+<div class="student-item" *ngFor="let s of students">
 
-  <div class="student-item" *ngFor="let s of students">
+  <div class="student-info">
 
-    <div class="student-info">
+    <!-- CURS -> afișezi studenți -->
+    <ng-container *ngIf="mode === 'course'; else courseTemplate">
+
       <div class="name">{{ s.fullName }}</div>
       <div class="email">{{ s.email || '-' }}</div>
-    </div>
 
-    <button
-      class="btn-enroll"
-      (click)="enroll(s.id)">
-      Înscrie
-    </button>
+    </ng-container>
+
+    <!-- STUDENT -> afișezi cursuri -->
+    <ng-template #courseTemplate>
+
+      <div class="name">{{ s.courseName }}</div>
+
+      <div class="email">
+        {{ s.teacherName }} • {{ s.dayOfWeek }}
+        {{ s.startTime }} - {{ s.endTime }}
+      </div>
+
+    </ng-template>
 
   </div>
 
-</div>
+  <button
+    class="btn-enroll"
+    (click)="enroll(s)">
+    Înscrie
+  </button>
 
+</div>
 <div *ngIf="!loading && !students.length" class="empty-state">
-  Nu există cursanți disponibili.
+  {{ mode === 'course' ? 'Nu există cursanți disponibili.' : 'Nu există cursuri disponibile.' }} 
 </div>
 
 <div class="modal-actions">

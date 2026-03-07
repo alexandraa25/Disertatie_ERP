@@ -6,6 +6,7 @@ import { ContractsService } from '../../services/contracts.service';
 import { StudentDetailsDto, StudentCourseDetailsDto } from '../../models/student.model';
 import { StudentFormComponent } from '../student-form/student-form.component';
 import { MatDialog } from '@angular/material/dialog';
+import { EnrollStudentsComponent } from '../enroll-students/enroll-students.component';
 
 @Component({
   selector: 'app-student-details',
@@ -191,6 +192,23 @@ openContract(id: number) {
   });
 
   
+}
+
+openEnrollModal() {
+
+  const ref = this.dialog.open(EnrollStudentsComponent, {
+    width: '600px',
+    data: {
+      studentId: this.student.id
+    }
+  });
+
+  ref.afterClosed().subscribe(result => {
+    if (result) {
+      this.loadCourses(); // reîncarcă lista de cursuri
+    }
+  });
+
 }
 }
 
