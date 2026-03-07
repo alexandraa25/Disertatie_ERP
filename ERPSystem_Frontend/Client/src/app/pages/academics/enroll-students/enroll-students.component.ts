@@ -82,13 +82,12 @@ export class EnrollStudentsComponent implements OnInit {
 
 }
 
- enroll(id: number) {
+enroll(item: any) {
 
   if (this.mode === 'course') {
 
-    // înscrii student în curs
     this.courses.enroll(this.data.courseId!, {
-      studentId: id,
+      studentId: item.id,
       sessionId: this.data.sessionId!
     }).subscribe({
       next: () => this.load(),
@@ -97,10 +96,9 @@ export class EnrollStudentsComponent implements OnInit {
 
   } else {
 
-    // înscrii studentul la curs
-    this.courses.enroll(id, {
+    this.courses.enroll(item.courseId, {
       studentId: this.data.studentId!,
-      sessionId: 0
+      sessionId: item.sessionId
     }).subscribe({
       next: () => this.load(),
       error: () => alert('Eroare la înscriere')
@@ -109,6 +107,8 @@ export class EnrollStudentsComponent implements OnInit {
   }
 
 }
+
+
 
   close() {
     this.dialogRef.close(true);

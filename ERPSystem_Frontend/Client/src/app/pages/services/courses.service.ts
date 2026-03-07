@@ -78,10 +78,6 @@ export class CoursesService {
   );
   
 }
-getAvailableCoursesForStudent(studentId: number, q: string = '') {
-  return this.http.get<any>(
-    `${this.baseUrl}/${studentId}/available-courses?q=${q}`
-  );
-}
+
 }
 

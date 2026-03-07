@@ -61,6 +61,8 @@ export class ProfilUserComponent implements OnInit {
       timeZone: ['Europe/Bucharest']
     });
 
+console.log('Token ' + localStorage.getItem('accessToken'));
+
     this.loadProfile();
 
     // ===== NOTIFICATIONS FORM =====
