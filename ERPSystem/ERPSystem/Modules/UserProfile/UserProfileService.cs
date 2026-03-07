@@ -8,31 +8,59 @@ using UserProfileEntity = ERPSystem.Data.Entities.UserProfile;
 
 namespace ERPSystem.Modules.UserProfile;
 
+
+//DE FOLOSIT PUBLIC RESPONSE PULIFRICIII!!
 public class UserProfileService
 {
-    private readonly ApplicationDbContext _db;
+    private readonly ApplicationDbContext _applicationDbContext;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserProfileService(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
+    public UserProfileService(
+        ApplicationDbContext applicationDbContex,
+        UserManager<ApplicationUser> userManager,
+        IHttpContextAccessor httpContextAccessor)
     {
-        _db = db;
+        _applicationDbContext = applicationDbContex;
         _userManager = userManager;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    // =====================================================
+    // GET CURRENT USER FROM TOKEN
+    // =====================================================
+    private ClaimsPrincipal GetCurrentUser()
+    {
+        var user = _httpContextAccessor.HttpContext?.User;
+
+        if (user == null || !user.Identity?.IsAuthenticated == true)
+            throw new UnauthorizedAccessException();
+
+        return user;
+    }
+
+    private string GetCurrentUserId()
+    {
+        var user = GetCurrentUser();
+
+        return user.FindFirstValue(ClaimTypes.NameIdentifier)
+               ?? user.FindFirstValue("sub")
+               ?? throw new UnauthorizedAccessException();
     }
 
     // =====================================================
     // GET ME
     // =====================================================
-    public async Task<MeDto> GetMeAsync(ClaimsPrincipal principal)
+    public async Task<MeDto> GetMeAsync()
     {
-        var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)
-                     ?? throw new UnauthorizedAccessException();
+        var userId = GetCurrentUserId();
 
         var user = await _userManager.FindByIdAsync(userId)
                    ?? throw new UnauthorizedAccessException();
 
         var roles = (await _userManager.GetRolesAsync(user)).ToArray();
 
-        var profile = await _db.UserProfiles
+        var profile = await _applicationDbContext.UserProfiles
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.UserId == userId);
 
@@ -62,12 +90,11 @@ public class UserProfileService
     // =====================================================
     // GET PROFILE
     // =====================================================
-    public async Task<UserProfileDto> GetProfileAsync(ClaimsPrincipal principal)
+    public async Task<UserProfileDto> GetProfileAsync()
     {
-        var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)
-                     ?? throw new UnauthorizedAccessException();
+        var userId = GetCurrentUserId();
 
-        var profile = await _db.UserProfiles
+        var profile = await _applicationDbContext.UserProfiles
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.UserId == userId);
 
@@ -98,14 +125,13 @@ public class UserProfileService
     // =====================================================
     // UPDATE PROFILE
     // =====================================================
-    public async Task UpdateProfileAsync(ClaimsPrincipal principal, UpdateUserProfileDto body)
+    public async Task UpdateProfileAsync(UpdateUserProfileDto body)
     {
-        var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier)
-                     ?? throw new UnauthorizedAccessException();
+        var userId = GetCurrentUserId();
 
-        await using var transaction = await _db.Database.BeginTransactionAsync();
+        await using var transaction = await _applicationDbContext.Database.BeginTransactionAsync();
 
-        var profile = await _db.UserProfiles
+        var profile = await _applicationDbContext.UserProfiles
             .FirstOrDefaultAsync(x => x.UserId == userId);
 
         if (profile == null)
@@ -116,7 +142,7 @@ public class UserProfileService
                 CreatedAt = DateTime.UtcNow
             };
 
-            _db.UserProfiles.Add(profile);
+            _applicationDbContext.UserProfiles.Add(profile);
         }
 
         profile.FirstName = body.FirstName?.Trim();
@@ -127,19 +153,18 @@ public class UserProfileService
         profile.TimeZone = body.TimeZone ?? "Europe/Bucharest";
         profile.UpdatedAt = DateTime.UtcNow;
 
-        await _db.SaveChangesAsync();
+        await _applicationDbContext.SaveChangesAsync();
         await transaction.CommitAsync();
     }
 
     // =====================================================
     // GET NOTIFICATION SETTINGS
     // =====================================================
-    public async Task<List<NotificationSettingDto>> GetNotificationSettingsAsync(ClaimsPrincipal user)
+    public async Task<List<NotificationSettingDto>> GetNotificationSettingsAsync()
     {
-        var userId = user.FindFirstValue(ClaimTypes.NameIdentifier)
-                     ?? throw new UnauthorizedAccessException();
+        var userId = GetCurrentUserId();
 
-        return await _db.UserNotificationSettings
+        return await _applicationDbContext.UserNotificationSettings
             .AsNoTracking()
             .Where(x => x.UserId == userId)
             .OrderBy(x => x.EventType)
@@ -154,16 +179,13 @@ public class UserProfileService
     }
 
     // =====================================================
-    // UPSERT NOTIFICATION SETTINGS (OPTIMIZED)
+    // UPSERT NOTIFICATION SETTINGS
     // =====================================================
-    public async Task UpsertNotificationSettingsAsync(
-        ClaimsPrincipal user,
-        List<NotificationSettingDto> body)
+    public async Task UpsertNotificationSettingsAsync(List<NotificationSettingDto> body)
     {
-        var userId = user.FindFirstValue(ClaimTypes.NameIdentifier)
-                     ?? throw new UnauthorizedAccessException();
+        var userId = GetCurrentUserId();
 
-        var existingSettings = await _db.UserNotificationSettings
+        var existingSettings = await _applicationDbContext.UserNotificationSettings
             .Where(x => x.UserId == userId)
             .ToListAsync();
 
@@ -176,7 +198,7 @@ public class UserProfileService
 
             if (existing == null)
             {
-                _db.UserNotificationSettings.Add(new UserNotificationSetting
+                _applicationDbContext.UserNotificationSettings.Add(new UserNotificationSetting
                 {
                     UserId = userId,
                     EventType = dto.EventType,
@@ -194,15 +216,6 @@ public class UserProfileService
             }
         }
 
-        _db.AuditLogs.Add(new AuditLog
-        {
-            UserId = userId,
-            ActionType = "NotificationSettingsUpdated",
-            EntityType = "UserNotificationSetting",
-            EntityId = userId,
-            TimestampUtc = DateTime.UtcNow
-        });
-
-        await _db.SaveChangesAsync();
+        await _applicationDbContext.SaveChangesAsync();
     }
 }

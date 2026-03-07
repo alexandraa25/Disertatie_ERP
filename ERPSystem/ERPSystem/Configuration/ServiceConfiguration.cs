@@ -7,9 +7,12 @@ using ERPSystem.Modules.Student;
 using ERPSystem.Modules.UserProfile;
 using ERPSystem.Shared.BusinessLogic;
 using ERPSystem.Utils.Settings;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Text;
 
 namespace ERPSystem.Configuration
 {
@@ -58,8 +61,36 @@ namespace ERPSystem.Configuration
                 options.Password.RequireUppercase = true;
                 options.Password.RequiredLength = 8;
             })
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
+              .AddEntityFrameworkStores<ApplicationDbContext>()
+              .AddDefaultTokenProviders();
+
+            builder.Services
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                var jwt = builder.Configuration.GetSection("JwtSettings");
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = jwt["Issuer"],
+                    ValidAudience = jwt["Audience"],
+
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwt["SecretKey"])
+                    ),
+
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
         }
 
         public static void ConfigureLogger(this WebApplicationBuilder builder)

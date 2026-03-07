@@ -52,8 +52,8 @@ namespace ERPSystem.Modules.Students
                 .WithDefaultApiSettings( "GetPrimaryGuardians", "Guardian principal pentru elev", "GET_GUARDIAN_OPTIONS",  false   );
 
             group.MapGet(Route.STUDENTS_AVAILABLE_COURSE,
-                 async (int studentId, string? q, StudentsService service)
-                     => await service.GetAvailableCoursesForStudentAsync(studentId, q))
+                 async (int id, string? q, StudentsService service)
+                     => await service.GetAvailableCoursesForStudentAsync(id, q))
                  .WithDefaultApiSettings("GetAvailableCoursesForStudent", "Lista cursurilor disponibile pentru student", "AVAILABLE_COURSES_LIST", false );
         }
     }

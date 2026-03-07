@@ -106,7 +106,7 @@ namespace ERPSystem.Data.Context
                 .HasOne(e => e.Session)
                 .WithMany(x => x.Enrollments)
                 .HasForeignKey(e => e.CourseSessionId)
-               .OnDelete(DeleteBehavior.Cascade); // sau Restrict
+               .OnDelete(DeleteBehavior.Restrict); // sau Restrict
 
             // StudentContract
             modelBuilder.Entity<StudentContract>(entity =>

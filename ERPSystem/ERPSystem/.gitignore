@@ -1,0 +1,28 @@
+﻿# ======================
+# .NET
+# ======================
+bin/
+obj/
+.vs/
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.cache
+
+# Rider / JetBrains
+.idea/
+
+# ======================
+# Angular / Node
+# ======================
+node_modules/
+dist/
+coverage/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
