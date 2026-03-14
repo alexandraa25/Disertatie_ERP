@@ -1,10 +1,13 @@
 ﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Contracts.Models;
+using ERPSystem.Shared.BusinessLogic;
+using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Enums;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace ERPSystem.Modules.Contracts;
 
@@ -12,13 +15,15 @@ public class ContractsService
 {
     private readonly ApplicationDbContext _db;
     private readonly ILogger<ContractsService> _logger;
+    private readonly PdfService _pdfService;
+    private readonly EmailBusinessLogic _emailBusinessLogic;
 
-    public ContractsService(
-        ApplicationDbContext db,
-        ILogger<ContractsService> logger)
+    public ContractsService(  ApplicationDbContext db,  ILogger<ContractsService> logger, EmailBusinessLogic emailBusinessLogic, PdfService pdfService)
     {
         _db = db;
         _logger = logger;
+        _emailBusinessLogic = emailBusinessLogic;
+        _pdfService = pdfService;
     }
 
     // =========================
@@ -276,7 +281,9 @@ public class ContractsService
     {
         var response = new PublicResponse(true);
 
-        var contract = await _db.StudentContracts.FindAsync(id);
+        var contract = await _db.StudentContracts
+            .Include(c => c.Courses)
+            .FirstOrDefaultAsync(c => c.Id == id);
 
         if (contract is null)
             return response.SetError(ErrorCodes.InvalidParameters, "Not found");
@@ -287,6 +294,12 @@ public class ContractsService
         if (string.IsNullOrWhiteSpace(contract.ContractBody))
             return response.SetError(ErrorCodes.InvalidParameters, "Contract body empty");
 
+        if (!contract.Courses.Any())
+            return response.SetError(ErrorCodes.InvalidParameters, "Contract has no courses");
+
+        var pdfPath = await GeneratePdfAsync(contract);
+
+        contract.PdfPath = pdfPath;
         contract.Status = ContractStatus.Finalized;
         contract.FinalizedAtUtc = DateTime.UtcNow;
         contract.UpdatedAtUtc = DateTime.UtcNow;
@@ -294,6 +307,165 @@ public class ContractsService
         await _db.SaveChangesAsync();
 
         return response.SetSuccess(true);
+    }
+
+
+    // =========================
+    // SEND TO CLIENT
+    // =========================
+    public async Task<PublicResponse> SendToClientAsync(int id)
+    {
+        var response = new PublicResponse(true);
+
+        try
+        {
+            var contract = await _db.StudentContracts
+    .Include(c => c.Parties)
+        .ThenInclude(p => p.Guardian)
+    .Include(c => c.Parties)
+        .ThenInclude(p => p.Student)
+    .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (contract is null)
+                return response.SetError(ErrorCodes.InvalidParameters, "Not found");
+
+            if (contract.Status != ContractStatus.Finalized)
+                return response.SetError(ErrorCodes.InvalidParameters, "Contract must be finalized");
+
+            var guardian = contract.Parties
+      .FirstOrDefault(p => p.Role == ContractPartyRole.Guardian)?.Guardian;
+
+            var student = contract.Parties
+                .FirstOrDefault(p => p.Role == ContractPartyRole.Student)?.Student;
+
+            string clientName;
+            string email;
+
+            if (guardian != null)
+            {
+                clientName = $"{guardian.FirstName} {guardian.LastName}";
+                email = guardian.Email;
+            }
+            else
+            {
+                clientName = $"{student.FirstName} {student.LastName}";
+                email = student.Email;
+            }
+
+            if (string.IsNullOrWhiteSpace(email))
+                return response.SetError(ErrorCodes.InvalidParameters, "Client email missing");
+
+            // generăm token pentru semnare
+            var token = Guid.NewGuid().ToString();
+
+            var signingToken = new ContractSigningToken
+            {
+                ContractId = contract.Id,
+                Token = token,
+                CreatedAtUtc = DateTime.UtcNow,
+                ExpiresAtUtc = DateTime.UtcNow.AddDays(7),
+                IsUsed = false
+            };
+
+            _db.ContractSigningTokens.Add(signingToken);
+
+            var link = $"http://localhost:4200/sign-contract/{token}";
+
+            var model = new ContractSignEmailModel
+            {
+                ClientName = clientName,
+                ContractNumber = contract.ContractNumber
+            };
+
+            var to = new List<string> { email };
+
+            var emailResponse = await _emailBusinessLogic.SendEmailTemplateAsync(
+                TemplateCode.CONTRACT_SIGN_REQUEST,
+                JsonConvert.SerializeObject(model),
+                to,
+                link
+            );
+
+            if (!emailResponse.IsSuccess)
+                return emailResponse;
+
+            contract.Status = ContractStatus.SentToClient;
+            contract.UpdatedAtUtc = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+
+            return response.SetSuccess(new { link });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending contract email.");
+            return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
+        }
+    }
+    // =========================
+    // SIGN BY CLIENT
+    // =========================
+    public async Task<PublicResponse> SignByClientAsync(string token, string signature)
+    {
+        var response = new PublicResponse(true);
+
+        if (string.IsNullOrWhiteSpace(signature))
+            return response.SetError(
+                ErrorCodes.InvalidParameters,
+                "Signature missing");
+
+        var signingToken = await _db.ContractSigningTokens
+            .Include(x => x.Contract)
+            .FirstOrDefaultAsync(x => x.Token == token);
+
+        if (signingToken is null || signingToken.IsUsed)
+            return response.SetError(ErrorCodes.InvalidParameters, "Invalid token");
+
+        if (signingToken.ExpiresAtUtc < DateTime.UtcNow)
+            return response.SetError(ErrorCodes.InvalidParameters, "Token expired");
+
+        var contract = signingToken.Contract;
+
+        if (contract.Status != ContractStatus.SentToClient)
+            return response.SetError(
+                ErrorCodes.InvalidParameters,
+                "Contract cannot be signed");
+
+        contract.ClientSignature = signature;
+        contract.ClientSignedAtUtc = DateTime.UtcNow;
+        contract.Status = ContractStatus.SignedByClient;
+
+        // regenerăm PDF-ul cu semnătura
+        var pdfName = _pdfService.GenerateContractPdf(contract);
+
+        contract.PdfPath = pdfName;
+
+        signingToken.IsUsed = true;
+
+        await _db.SaveChangesAsync();
+
+        return response.SetSuccess(true);
+    }
+
+    public async Task<PublicResponse> GetContractForSigningAsync(string token)
+    {
+        var response = new PublicResponse(true);
+
+        var signingToken = await _db.ContractSigningTokens
+            .Include(x => x.Contract)
+            .FirstOrDefaultAsync(x => x.Token == token);
+
+        if (signingToken == null || signingToken.IsUsed)
+            return response.SetError(ErrorCodes.InvalidParameters, "Invalid token");
+
+        var contract = signingToken.Contract;
+
+        return response.SetSuccess(new
+        {
+            contract.ContractNumber,
+            contract.ContractBody,
+            contract.PdfPath
+        });
     }
 
     // =========================
@@ -575,25 +747,19 @@ GLOBAL LEARNING SRL                        {beneficiar}
         return response.SetSuccess(true);
     }
 
-    public async Task<PublicResponse> GeneratePdfAsync(int id)
+    private async Task<string> GeneratePdfAsync(StudentContract contract)
     {
-        var response = new PublicResponse(true);
-
-        var contract = await _db.StudentContracts.FindAsync(id);
-
-        if (contract is null)
-            return response.SetError(ErrorCodes.InvalidParameters, "Not found");
-
         var folder = Path.Combine("wwwroot", "contracts");
 
         if (!Directory.Exists(folder))
             Directory.CreateDirectory(folder);
 
-        var filePath = Path.Combine(folder, $"{contract.ContractNumber}.txt");
+        var fileName = $"{contract.ContractNumber}.txt";
+        var filePath = Path.Combine(folder, fileName);
 
         await File.WriteAllTextAsync(filePath, contract.ContractBody);
 
-        return response.SetSuccess(new { path = filePath });
+        return filePath;
     }
     public async Task<PublicResponse> GetLatestByStudentAsync(int studentId)
     {
@@ -616,7 +782,85 @@ GLOBAL LEARNING SRL                        {beneficiar}
         return response.SetSuccess(contract);
     }
 
+    public async Task<PublicResponse> CompleteAsync(int id)
+    {
+        var response = new PublicResponse(true);
+
+        var contract = await _db.StudentContracts.FindAsync(id);
+
+        if (contract is null)
+            return response.SetError(ErrorCodes.InvalidParameters, "Not found");
+
+        if (contract.Status != ContractStatus.Active)
+            return response.SetError(ErrorCodes.InvalidParameters,
+                "Only active contracts can be completed");
+
+        contract.Status = ContractStatus.Completed;
+        contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        return response.SetSuccess(true);
+    }
+
+    public async Task ExpireContractsAsync()
+    {
+        var contracts = await _db.StudentContracts
+            .Where(c =>
+                c.Status == ContractStatus.Active &&
+                !c.IsUnlimited &&
+                c.EndDate < DateTime.UtcNow)
+            .ToListAsync();
+
+        foreach (var contract in contracts)
+        {
+            contract.Status = ContractStatus.Expired;
+            contract.UpdatedAtUtc = DateTime.UtcNow;
+        }
+
+        await _db.SaveChangesAsync();
+    }
 
 
+    public async Task<PublicResponse> SuspendAsync(int id)
+    {
+        var response = new PublicResponse(true);
 
+        var contract = await _db.StudentContracts.FindAsync(id);
+
+        if (contract is null)
+            return response.SetError(ErrorCodes.InvalidParameters, "Not found");
+
+        if (contract.Status != ContractStatus.Active)
+            return response.SetError(ErrorCodes.InvalidParameters,
+                "Only active contracts can be suspended");
+
+        contract.Status = ContractStatus.Suspended;
+        contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        return response.SetSuccess(true);
+    }
+
+    public async Task<PublicResponse> ResumeAsync(int id)
+    {
+        var response = new PublicResponse(true);
+
+        var contract = await _db.StudentContracts.FindAsync(id);
+
+        if (contract is null)
+            return response.SetError(ErrorCodes.InvalidParameters, "Not found");
+
+        if (contract.Status != ContractStatus.Suspended)
+            return response.SetError(ErrorCodes.InvalidParameters,
+                "Only suspended contracts can be resumed");
+
+        contract.Status = ContractStatus.Active;
+        contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        return response.SetSuccess(true);
+    }
 }

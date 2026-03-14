@@ -5,6 +5,9 @@ using ERPSystem.Modules.Contracts;
 using ERPSystem.Modules.Dashboard;
 using ERPSystem.Modules.Student;
 using ERPSystem.Modules.UserProfile;
+using ERPSystem.Modules.Admin;
+using ERPSystem.Modules.Employees;
+using ERPSystem.Modules.Company;
 using ERPSystem.Shared.BusinessLogic;
 using ERPSystem.Utils.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -13,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
+
 
 namespace ERPSystem.Configuration
 {
@@ -41,6 +45,9 @@ namespace ERPSystem.Configuration
             builder.Services.AddScoped<CoursesService>();
             builder.Services.AddScoped<ContractsService>();
             builder.Services.AddScoped<DashboardService>();
+            builder.Services.AddScoped<AdminService>();
+            builder.Services.AddScoped<EmployeeService>();
+            builder.Services.AddScoped<CompanyService>();
         }
 
         public static void ConfigureSettings(this WebApplicationBuilder builder)

@@ -1,0 +1,80 @@
+<div class="modal-backdrop" *ngIf="visible">
+
+  <div class="modal">
+
+    <h2>Date companie</h2>
+
+    <div class="form">
+
+      <label>Denumire</label>
+      <input [(ngModel)]="company.name">
+
+      <label>CUI</label>
+      <input [(ngModel)]="company.cui">
+
+      <label>Nr Registrul Comerțului</label>
+      <input [(ngModel)]="company.registrationNumber">
+
+      <label>Adresă</label>
+      <input [(ngModel)]="company.address">
+
+      <label>IBAN</label>
+      <input [(ngModel)]="company.iban">
+
+      <label>Bancă</label>
+      <input [(ngModel)]="company.bank">
+
+      <label>Email</label>
+      <input [(ngModel)]="company.email">
+
+      <label>Telefon</label>
+      <input [(ngModel)]="company.phone">
+
+      <!-- LOGO -->
+
+      <label>Logo companie</label>
+      <input type="file" (change)="onFileSelected($event,'logoPath')">
+
+      <img *ngIf="company.logoPath" [src]="company.logoPath" class="preview">
+
+      <!-- SEMNATURA -->
+
+      <label>Semnătura firmei</label>
+
+      <div class="signature-box">
+
+        <canvas #signatureCanvas width="400" height="150" (mousedown)="startDrawing($event)" (mousemove)="draw($event)"
+          (mouseup)="stopDrawing()" (mouseleave)="stopDrawing()"></canvas>
+
+        <div class="signature-buttons">
+
+          <button (click)="clearSignature()">
+            Clear
+          </button>
+
+          <button (click)="saveSignature()">
+            Use signature
+          </button>
+
+        </div>
+
+      </div>
+
+      <img *ngIf="company.signatureImage" [src]="company.signatureImage" class="preview">
+
+
+    <div class="buttons">
+
+      <button class="cancel" (click)="close.emit()">
+        Cancel
+      </button>
+
+      <button class="save" (click)="save()" [disabled]="loading">
+        Salvează
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

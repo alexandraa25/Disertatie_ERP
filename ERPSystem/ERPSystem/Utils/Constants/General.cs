@@ -13,13 +13,37 @@
             public const string FORGOT_PASSWORD = "forgot-password";
             public const string RESET_PASSWORD = "reset-password";
             public const string GET_ROLES = "/roles";
+            public const string CHANGE_PASSWORD = "change-password"; 
 
             public static class Profile
             {
-                public const string ME = "";          
                 public const string PROFILE = "/profile";
                 public const string NOTIFICATION_SETTINGS = "/notification-settings";
                
+            }
+
+            public static class Admin
+            {
+                public const string USERS = "/users";
+
+            }
+
+            public static class Company
+            {
+                public const string COMPANY_GET = "/";
+                public const string COMPANY_SAVE = "/";
+
+            }
+
+
+            public static class Employee
+            {
+                public const string EMPLOYEE = "/employee";
+                public const string EMPLOYEES = "/employees";
+                public const string EMPLOYEE_BY_ID = "/employee/{id}";
+                public const string TERMINATE_EMPLOYEE = "/employee/{id}/terminate";
+                public const string HR_DASHBOARD = "/employees/dashboard";
+
             }
 
             public static class Students
@@ -55,6 +79,12 @@
                 public const string CONTRACT_UPDATE_BODY = "/{id}/body";
                 public const string CONTRACT_GENERATE_PDF = "/{id}/generate-pdf";
                 public const string CONTRACT_GET_LATEST_BY_STUDENT ="/latest-by-student/{studentId:int}";
+                public const string CONTRACT_SEND_TO_CLIENT = "{id}/send";
+                public const string CONTRACT_CLIENT_SIGN = "/client-sign";
+                public const string CONTRACT_GET_FOR_SIGNING = "/sign/{token}";
+
+
+
 
             }
 

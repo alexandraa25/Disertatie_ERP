@@ -1,0 +1,35 @@
+<div class="page">
+
+  <h2 class="contract-title">
+    Contract {{ contract?.contractNumber }}
+  </h2>
+
+  <div class="contract-container">
+
+    <div class="contract-body">
+      {{ contract?.contractBody }}
+    </div>
+
+  </div>
+
+
+  <h3 class="signature-title">Semnătura dvs.</h3>
+
+  <canvas #canvas width="600" height="200" (mousedown)="startDrawing($event)" (mousemove)="draw($event)"
+    (mouseup)="stopDrawing()" (mouseleave)="stopDrawing()"></canvas>
+
+  <div class="buttons">
+
+    <button (click)="clear()">Șterge</button>
+
+    <button (click)="sign()" [disabled]="loading">
+      Semnează contractul
+    </button>
+
+  </div>
+
+  <div *ngIf="signed" class="success">
+    Contract semnat cu succes!
+  </div>
+
+</div>

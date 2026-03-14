@@ -1,0 +1,25 @@
+<div class="company-container">
+  <h2>Date companie</h2> <!-- Dacă există date -->
+  <div *ngIf="company?.name; else noCompany">
+    <div class="company-info">
+      <div class="row"> <span>Denumire</span> <strong>{{ company.name }}</strong> </div>
+      <div class="row"> <span>CUI</span> <strong>{{ company.cui }}</strong> </div>
+      <div class="row"> <span>Nr Registrul Comerțului</span> <strong>{{ company.registrationNumber }}</strong> </div>
+      <div class="row"> <span>Adresă</span> <strong>{{ company.address }}</strong> </div>
+      <div class="row"> <span>IBAN</span> <strong>{{ company.iban }}</strong> </div>
+      <div class="row"> <span>Bancă</span> <strong>{{ company.bank }}</strong> </div>
+      <div class="row"> <span>Email</span> <strong>{{ company.email }}</strong> </div>
+      <div class="row"> <span>Telefon</span> <strong>{{ company.phone }}</strong> </div>
+    </div> <!-- LOGO -->
+    <div class="image-section" *ngIf="company.logoPath"> <label>Logo</label> <img [src]="company.logoPath"
+        class="company-image"> </div> <!-- SEMNATURA -->
+    <div class="image-section" *ngIf="company.signatureImage"> <label>Semnătura firmei</label> <img
+        [src]="company.signatureImage" class="company-image"> </div> <button class="edit-btn" (click)="openModal()">
+      Editează </button>
+  </div> <!-- Dacă nu există companie --> <ng-template #noCompany>
+    <div class="empty-state">
+      <p>Nu există date companie</p> <button class="add-btn" (click)="openModal()"> Adaugă companie </button>
+    </div>
+  </ng-template>
+</div> <app-company-modal [visible]="showModal" [company]="company" (close)="showModal=false" (saved)="reload()">
+</app-company-modal>

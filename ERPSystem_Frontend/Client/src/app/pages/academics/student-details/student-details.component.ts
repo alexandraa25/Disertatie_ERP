@@ -124,24 +124,54 @@ get contractAction(): string {
   if (!this.contract) return 'create';
 
   switch (this.contract.status) {
-    case 'Draft': return 'finalize';
-    case 'Finalized': return 'sign';
-    case 'Signed': return 'activate';
-    case 'Active': return 'view';
-    case 'Cancelled': return 'create';
-    default: return 'create';
+
+    case 'Draft':
+      return 'finalize';
+
+    case 'Finalized':
+      return 'send';
+
+    case 'SentToClient':
+      return 'waiting';
+
+    case 'SignedByClient':
+      return 'activate';
+
+    case 'Active':
+      return 'view';
+
+    case 'Cancelled':
+      return 'create';
+
+    default:
+      return 'create';
   }
 }
 
 getContractButtonText(): string {
 
   switch (this.contractAction) {
-    case 'create': return 'Creează contract';
-    case 'finalize': return 'Finalizează contract';
-    case 'sign': return 'Semnează contract';
-    case 'activate': return 'Activează contract';
-    case 'view': return 'Vizualizează contract';
-    default: return 'Creează contract';
+
+    case 'create':
+      return 'Creează contract';
+
+    case 'finalize':
+      return 'Finalizează contract';
+
+    case 'send':
+      return 'Trimite clientului';
+
+    case 'waiting':
+      return 'Așteaptă semnarea clientului';
+
+    case 'activate':
+      return 'Activează contract';
+
+    case 'view':
+      return 'Vizualizează contract';
+
+    default:
+      return 'Creează contract';
   }
 }
 
@@ -154,8 +184,17 @@ handleContractAction(): void {
       break;
 
     case 'finalize':
-    case 'sign':
+      this.finalizeContract();
+      break;
+
+    case 'send':
+      this.sendContract();
+      break;
+
     case 'activate':
+      this.activateContract();
+      break;
+
     case 'view':
       this.openContract(this.contract.id);
       break;
@@ -172,7 +211,7 @@ openContract(id: number) {
   this.router.navigate(['/contracts', id]);
 }
 
-  openEdit(id: number) {
+ openEdit(id: number) {
 
   if (this.dialog.openDialogs.length > 0) {
     return;
@@ -194,6 +233,32 @@ openContract(id: number) {
   
 }
 
+finalizeContract() {
+
+  this.contracts.finalize(this.contract.id)
+    .subscribe(() => {
+      this.loadContract();
+    });
+
+}
+
+sendContract() {
+
+  this.contracts.send(this.contract.id)
+    .subscribe(() => {
+      this.loadContract();
+    });
+
+}
+
+activateContract() {
+
+  this.contracts.activate(this.contract.id)
+    .subscribe(() => {
+      this.loadContract();
+    });
+
+}
 openEnrollModal() {
 
   const ref = this.dialog.open(EnrollStudentsComponent, {

@@ -1,0 +1,163 @@
+<div class="container">
+
+<h2>HR Dashboard</h2>
+
+<div class="stats">
+
+<div class="card">
+<h3>{{dashboard?.totalEmployees}}</h3>
+<p>Total Employees</p>
+</div>
+
+<div class="card">
+<h3>{{dashboard?.activeEmployees}}</h3>
+<p>Active</p>
+</div>
+
+<div class="card">
+<h3>{{dashboard?.terminatedEmployees}}</h3>
+<p>Terminated</p>
+</div>
+
+<div class="card">
+<h3>{{dashboard?.newHiresThisMonth}}</h3>
+<p>New Hires</p>
+</div>
+
+</div>
+
+<div class="toolbar">
+
+<input
+type="text"
+placeholder="Search employee..."
+[(ngModel)]="searchText"
+class="search"
+/>
+
+</div>
+
+<button class="btn primary" (click)="openCreate()">
+Add Employee
+</button>
+
+<div *ngIf="showCreate" class="create-form">
+
+<h3>Create Employee</h3>
+
+<form [formGroup]="createForm" (ngSubmit)="saveEmployee()">
+
+<div class="form-group">
+<label>Job Title</label>
+<input formControlName="jobTitle">
+</div>
+
+<div class="form-group">
+<label>Hire Date</label>
+<input type="date" formControlName="hireDate">
+</div>
+
+<div class="form-group">
+<label>Salary</label>
+<input type="number" formControlName="salary">
+</div>
+
+<div class="form-group">
+<label>Contract Type</label>
+
+<select formControlName="contractType">
+
+<option value="FullTime">Full Time</option>
+<option value="PartTime">Part Time</option>
+<option value="Collaboration">Collaboration</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+<label>Notes</label>
+<textarea formControlName="notes"></textarea>
+</div>
+
+<div class="actions">
+
+<button type="button" (click)="cancelCreate()">
+Cancel
+</button>
+
+<button type="submit">
+Create
+</button>
+
+</div>
+
+</form>
+
+</div>
+<table>
+
+<thead>
+<tr>
+<th>Name</th>
+<th>Job</th>
+<th>Status</th>
+<th>Hire Date</th>
+<th>Salary</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr *ngFor="let employee of filteredEmployees()">
+
+<td>
+{{employee.firstName}} {{employee.lastName}}
+</td>
+
+<td>
+{{employee.jobTitle}}
+</td>
+
+<td>
+
+<span *ngIf="employee.employmentStatus === 'Active'" class="badge success">
+Active
+</span>
+
+<span *ngIf="employee.employmentStatus === 'Terminated'" class="badge danger">
+Terminated
+</span>
+
+</td>
+
+<td>
+{{employee.hireDate | date:'shortDate'}}
+</td>
+
+<td>
+{{employee.salary}}
+</td>
+
+<td>
+
+<button
+class="btn danger"
+(click)="terminateEmployee(employee)"
+*ngIf="employee.employmentStatus === 'Active'"
+>
+Terminate
+</button>
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+

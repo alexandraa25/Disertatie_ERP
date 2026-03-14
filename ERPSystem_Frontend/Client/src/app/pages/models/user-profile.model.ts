@@ -1,22 +1,42 @@
 export interface UserProfileDto {
+
   firstName: string;
   lastName: string;
-  phone?: string | null;
-  jobTitle?: string | null;
-  avatarUrl?: string | null;
-  preferredLanguage: string;
-  timeZone: string;
-}
 
-export interface MeDto {
-  userId: string;
+  username: string;
+
   email: string;
   emailConfirmed: boolean;
+
+  phoneNumber?: string | null;
+
   roles: string[];
-  profile: UserProfileDto;
+
+  isActive: boolean;
+
+  birthdayDate?: string | null;
+
+  createdAt: string;
+  lastLoginAt?: string | null;
+
+  avatarUrl?: string | null;
+
   unreadNotificationsCount: number;
+
 }
 
+export interface UpdateUserProfileDto {
+
+  firstName?: string;
+  lastName?: string;
+
+  phoneNumber?: string | null;
+
+  birthdayDate?: string | null;
+
+  avatarUrl?: string | null;
+
+}
 export enum NotificationChannel {
   InApp = 1,
   Email = 2
@@ -32,4 +52,9 @@ export interface NotificationSettingDto {
   channel: NotificationChannel;
   enabled: boolean;
   digest: DigestMode;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string
+  newPassword: string
 }

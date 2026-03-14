@@ -3,10 +3,14 @@
     public enum ContractStatus
     {
         Draft,
-        InReview,
         Finalized,
+        SentToClient,
+        SignedByClient,
         Signed,
         Active,
+        Suspended,
+        Completed,
+        Expired,
         Cancelled
     }
 }

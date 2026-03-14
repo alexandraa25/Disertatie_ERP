@@ -37,13 +37,26 @@ export class ContractsService {
   // ============================
   // FINALIZE
   // ============================
-  finalize(id: number): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/${id}/finalize`, {});
-  }
 
+  finalize(id: number) {
+   return this.http.put<any>(`${this.baseUrl}/${id}/finalize`, {});
+}
+  
+send(id: number) {
+  return this.http.post(`${this.baseUrl}/${id}/send`, {});
+}
+
+getForSigning(token: string) {
+  return this.http.get(`${this.baseUrl}/sign/${token}`);
+}
+
+
+signClient(dto: any) {
+  return this.http.post(`${this.baseUrl}/client-sign`, dto);
+}
   // ============================
   // SIGN
-  // ============================
+  // ============================s
   sign(id: number): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/${id}/sign`, {});
   }
@@ -51,9 +64,11 @@ export class ContractsService {
   // ============================
   // ACTIVATE
   // ============================
-  activate(id: number): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/contracts/${id}/activate`, {});
-  }
+
+  activate(id: number) {
+   return this.http.put<any>(`${this.baseUrl}/contracts/${id}/activate`, {});
+}
+  
 
   // ============================
   // CANCEL
@@ -74,5 +89,7 @@ export class ContractsService {
       `${this.baseUrl}/latest-by-student/${studentId}`
     );
   }
+
+  
 
 }

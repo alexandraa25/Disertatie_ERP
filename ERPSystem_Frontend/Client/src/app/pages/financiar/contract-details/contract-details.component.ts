@@ -9,8 +9,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './contract-details.component.html',
-  styleUrl: './contract-details.component.css'
-})
+styleUrls: ['./contract-details.component.css']})
 export class ContractDetailsComponent implements OnInit {
 
   contract: any;

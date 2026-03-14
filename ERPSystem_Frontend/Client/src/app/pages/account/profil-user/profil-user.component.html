@@ -59,103 +59,180 @@
     <!-- ================= INFO TAB ================= -->
 
     <!-- VIEW MODE -->
-    <div *ngIf="activeTab === 'info' && !editMode" class="info-grid">
+   <div *ngIf="form && !loading && activeTab === 'info' && !editMode" class="info-grid">
 
-      <div><strong>Prenume:</strong> {{ form.value.firstName }}</div>
-      <div><strong>Nume:</strong> {{ form.value.lastName }}</div>
-      <div><strong>Telefon:</strong> {{ form.value.phone }}</div>
-      <div><strong>Funcție:</strong> {{ form.value.jobTitle }}</div>
-      <div><strong>Limbă:</strong> {{ form.value.preferredLanguage }}</div>
-      <div><strong>TimeZone:</strong> {{ form.value.timeZone }}</div>
+  <div>
+    <strong>Prenume:</strong>
+    {{ form.get('firstName')?.value }}
+  </div>
 
-    </div>
+  <div>
+    <strong>Nume:</strong>
+    {{ form.get('lastName')?.value }}
+  </div>
+
+  <div>
+    <strong>Username:</strong>
+    {{ originalData.username }}
+  </div>
+
+  <div>
+    <strong>Email:</strong>
+    {{ originalData.email }}
+  </div>
+
+  <div>
+    <strong>Telefon:</strong>
+    {{ form.get('phoneNumber')?.value || '-' }}
+  </div>
+
+  <div>
+    <strong>Functie:</strong>
+    <span class="role-badge">
+      {{ originalData?.roles?.join(', ') }}
+    </span>
+  </div>
+
+  <div>
+    <strong>Status cont:</strong>
+    <span class="status"
+          [class.active]="originalData?.isActive"
+          [class.inactive]="!originalData?.isActive">
+      {{ originalData?.isActive ? 'Activ' : 'Inactiv' }}
+    </span>
+  </div>
+
+  <!-- <div>
+    <strong>Data angajării:</strong>
+    {{ originalData?.hireDate | date:'dd MMM yyyy' }}
+  </div> -->
+
+  <div>
+    <strong>Data nașterii:</strong>
+    {{ originalData?.birthdayDate | date:'dd MMM yyyy' }}
+  </div>
+
+  <div>
+    <strong>Creat la:</strong>
+    {{ originalData?.createdAt | date:'dd MMM yyyy HH:mm' }}
+  </div>
+
+  <div>
+    <strong>Ultima autentificare:</strong>
+    {{ originalData?.lastLoginAt | date:'dd MMM yyyy HH:mm' }}
+  </div>
+
+</div>
 
     <!-- EDIT MODE -->
-    <form *ngIf="activeTab === 'info' && editMode"
-          [formGroup]="form"
-          (ngSubmit)="save()">
+ <form *ngIf="activeTab === 'info' && editMode"
+      [formGroup]="form"
+      (ngSubmit)="save()">
 
-      <div class="grid">
+  <div class="grid">
 
-        <div class="form-group">
-          <label>Prenume</label>
-          <input formControlName="firstName" />
-        </div>
+    <div class="form-group">
+      <label>Prenume</label>
+      <input formControlName="firstName" />
+    </div>
 
-        <div class="form-group">
-          <label>Nume</label>
-          <input formControlName="lastName" />
-        </div>
+    <div class="form-group">
+      <label>Nume</label>
+      <input formControlName="lastName" />
+    </div>
 
-        <div class="form-group">
-          <label>Telefon</label>
-          <input formControlName="phone" />
-        </div>
+    <div class="form-group">
+      <label>Telefon</label>
+      <input formControlName="phoneNumber" />
+    </div>
 
-        <div class="form-group">
-          <label>Funcție</label>
-          <div class="readonly-field">
-            {{ form.value.jobTitle || '—' }}
-            <span class="role-badge">Setat de administrator</span>
-          </div>
-        </div>
+    <div class="form-group">
+      <label>Data nașterii</label>
+      <input type="date" formControlName="birthdayDate" />
+    </div>
 
-        <div class="form-group">
-          <label>Limbă</label>
-          <select formControlName="preferredLanguage">
-            <option value="ro">Română</option>
-            <option value="en">English</option>
-          </select>
-        </div>
+    <div class="form-group">
+      <label>Avatar URL</label>
+      <input formControlName="avatarUrl" />
+    </div>
 
-        <div class="form-group">
-          <label>Time Zone</label>
-          <input formControlName="timeZone" />
-        </div>
-
+    <div class="form-group">
+      <label>Email</label>
+      <div class="readonly-field">
+        {{ originalData?.email }}
       </div>
+    </div>
 
-      <div class="actions">
-        <button type="button"
-                class="cancel"
-                (click)="cancelEdit()">
-          Cancel
-        </button>
-
-        <button type="submit">
-          Save
-        </button>
+    <div class="form-group">
+      <label>Rol</label>
+      <div class="readonly-field">
+        {{ originalData?.roles?.join(', ') }}
+        <span class="role-badge">Setat de administrator</span>
       </div>
+    </div>
 
-    </form>
+    <div class="form-group">
+      <label>Status cont</label>
+      <div class="readonly-field">
+        {{ originalData?.isActive ? 'Activ' : 'Inactiv' }}
+      </div>
+    </div>
+
+    <!-- <div class="form-group">
+      <label>Data angajării</label>
+      <div class="readonly-field">
+        {{ originalData?.hireDate | date:'dd MMM yyyy' }}
+      </div>
+    </div> -->
+
+  </div>
+
+  <div class="actions">
+
+    <button type="button"
+            class="cancel"
+            (click)="cancelEdit()">
+      Cancel
+    </button>
+
+    <button type="submit">
+      Save
+    </button>
+
+  </div>
+
+</form>
 
     <!-- ================= PASSWORD TAB ================= -->
 
-    <div *ngIf="activeTab === 'password'" class="password-tab">
+   <div *ngIf="activeTab === 'password'" class="password-tab">
 
-      <h3>Schimbă parola</h3>
+  <h3>Schimbă parola</h3>
 
-      <div class="form-group">
-        <label>Parolă curentă</label>
-        <input type="password">
-      </div>
+  <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
 
-      <div class="form-group">
-        <label>Parolă nouă</label>
-        <input type="password">
-      </div>
-
-      <div class="form-group">
-        <label>Confirmare parolă</label>
-        <input type="password">
-      </div>
-
-      <button>
-        Schimbă parola
-      </button>
-
+    <div class="form-group">
+      <label>Parolă curentă</label>
+      <input type="password" formControlName="currentPassword">
     </div>
 
+    <div class="form-group">
+      <label>Parolă nouă</label>
+      <input type="password" formControlName="newPassword">
+    </div>
+
+    <div class="form-group">
+      <label>Confirmare parolă</label>
+      <input type="password" formControlName="confirmPassword">
+    </div>
+
+    <button type="submit" [disabled]="passwordForm.invalid">
+      Schimbă parola
+    </button>
+
+  </form>
+
+</div>
     <!-- ================= NOTIFICATIONS TAB ================= -->
 
     <div *ngIf="activeTab === 'notifications'">

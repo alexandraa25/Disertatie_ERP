@@ -82,13 +82,21 @@ namespace ERPSystem.Modules.Authentificate
                 {
                     await userManager.AddToRoleAsync(newUser, request.Role);
 
-                    var token = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
-                    var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-                    var confirmationUrl = $"{_ERPSystemSettings.Value.BaseUrl}/confirm-email-registration" + $"?userId={newUser.Id}&token={encodedToken}";
+                    //var token = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
+                    //var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+                    //var confirmationUrl = $"{_ERPSystemSettings.Value.BaseUrl}/confirm-email-registration" + $"?userId={newUser.Id}&token={encodedToken}";
                     List<string> to = new List<string>() { newUser.Email };
 
-                    await _emailBusinessLogic.SendEmailTemplateAsync(TemplateCode.EMAIL_REGISTRATION_CONFIRMATION, JsonConvert.SerializeObject(newUser), to, confirmationUrl);
+                    // await _emailBusinessLogic.SendEmailTemplateAsync(TemplateCode.EMAIL_REGISTRATION_CONFIRMATION, JsonConvert.SerializeObject(newUser), to, confirmationUrl);
 
+                    var emailModel = new UserCredentialsEmailModel
+                    {
+                        FirstName = newUser.FirstName,
+                        Email = newUser.Email,
+                        Password = request.Password
+                    };
+
+                    await _emailBusinessLogic.SendEmailTemplateAsync( TemplateCode.EMAIL_USER_CREDENTIALS, JsonConvert.SerializeObject(emailModel),  to  );
                     return publicResponse.SetCreated();
                 }
             }
@@ -153,7 +161,7 @@ namespace ERPSystem.Modules.Authentificate
                         Encoding.UTF8.GetBytes(token)
                     );
 
-                    var link = $"http://localhost:4200/confirm-email?userId={user.Id}&token={encodedToken}";
+                    var link = $"http://localhost:4200/confirm-email-registration?userId={user.Id}&token={encodedToken}";
                     Console.WriteLine("LINK: " + link);
 
                     await _emailBusinessLogic.SendEmailTemplateAsync(templateCode: TemplateCode.EMAIL_REGISTRATION_CONFIRMATION, tableRow: JsonConvert.SerializeObject(user),
@@ -355,6 +363,40 @@ namespace ERPSystem.Modules.Authentificate
             {
                 _logger.LogError(ex, "Reset password error");
                 return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
+            }
+        }
+
+        public async Task<IResult> ChangePasswordAsync(ChangePasswordRequest request,  UserManager<ApplicationUser> userManager, HttpContext httpContext)
+        {
+            try
+            {
+                var userId = httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                if (string.IsNullOrEmpty(userId))
+                    return Results.Unauthorized();
+
+                var user = await userManager.FindByIdAsync(userId);
+
+                if (user == null)
+                    return Results.BadRequest("User not found");
+
+                var result = await userManager.ChangePasswordAsync(
+                    user,
+                    request.CurrentPassword,
+                    request.NewPassword
+                );
+
+                if (!result.Succeeded)
+                    return Results.BadRequest(result.Errors.First().Description);
+
+                await userManager.UpdateSecurityStampAsync(user);
+
+                return Results.Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Change password error");
+                return Results.Problem("Internal server error");
             }
         }
 

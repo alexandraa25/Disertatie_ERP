@@ -5,32 +5,31 @@ namespace ERPSystem.Modules.UserProfile.Models
 {
 
     public record UserProfileDto(
-        string? FirstName,
-        string? LastName,
-        string? Phone,
-        string? JobTitle,
-        string? AvatarUrl,
-        string PreferredLanguage,
-        string TimeZone
+         string? FirstName,
+    string? LastName,
+    string? FullName,
+    string? Username,
+    string? Email,
+    bool EmailConfirmed,
+    string? PhoneNumber,
+    string[] Roles,
+    bool IsActive,
+    DateTime? BirthdayDate,
+    DateTime CreatedAt,
+    DateTime? LastLoginAt,
+    string? AvatarUrl,
+    int UnreadNotifications
     );
 
     public record UpdateUserProfileDto(
-    [property: MaxLength(80)] string FirstName,
-    [property: MaxLength(80)] string LastName,
-    [property: MaxLength(30)] string? Phone,
-    [property: MaxLength(300)] string? AvatarUrl,
-    string? PreferredLanguage,
-    string? TimeZone
-);
+      string? FirstName,
+      string? LastName,
+      string? PhoneNumber,
+      DateTime? BirthdayDate,
+      string? AvatarUrl
+  );
 
-    public record MeDto(
-   string UserId,
-   string Email,
-   bool EmailConfirmed,
-   string[] Roles,
-   UserProfileDto Profile,
-   int UnreadNotificationsCount
-);
+
 
     public record NotificationSettingDto
   (

@@ -53,6 +53,11 @@ namespace ERPSystem.Modules.Authentificate
             async (RoleManager<IdentityRole> roleManager, AuthentificationService authService)
                  =>await authService.GetRolesAsync())
             .WithDefaultApiSettings("GetRoles", "Get Roles", "GET_ROLES", false);
+
+            group.MapPost(Route.CHANGE_PASSWORD,
+            async (ChangePasswordRequest request, UserManager<ApplicationUser> userManager, AuthentificationService authService, HttpContext httpContext)
+                 => await authService.ChangePasswordAsync(request, userManager, httpContext)) .RequireAuthorization()
+            .WithDefaultApiSettings("ChangePasswordAsync", "Change Password", "CHANGE_PASSWORD", false);
         }
     }
 }

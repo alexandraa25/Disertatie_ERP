@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "rG3O3V6JLzc=",
+  "dgSpecHash": "7PQTyrjqO30=",
   "success": true,
   "projectFilePath": "D:\\Disertatie_ERP\\ERPSystem\\ERPSystem\\ERPSystem.csproj",
   "expectedPackageFiles": [
@@ -46,6 +46,7 @@
     "C:\\Users\\Alexandra\\.nuget\\packages\\microsoft.sqlserver.server\\1.0.0\\microsoft.sqlserver.server.1.0.0.nupkg.sha512",
     "C:\\Users\\Alexandra\\.nuget\\packages\\mono.texttemplating\\3.0.0\\mono.texttemplating.3.0.0.nupkg.sha512",
     "C:\\Users\\Alexandra\\.nuget\\packages\\newtonsoft.json\\13.0.4\\newtonsoft.json.13.0.4.nupkg.sha512",
+    "C:\\Users\\Alexandra\\.nuget\\packages\\questpdf\\2026.2.3\\questpdf.2026.2.3.nupkg.sha512",
     "C:\\Users\\Alexandra\\.nuget\\packages\\restsharp\\113.1.0\\restsharp.113.1.0.nupkg.sha512",
     "C:\\Users\\Alexandra\\.nuget\\packages\\sendgrid\\9.29.3\\sendgrid.9.29.3.nupkg.sha512",
     "C:\\Users\\Alexandra\\.nuget\\packages\\serilog\\4.3.0\\serilog.4.3.0.nupkg.sha512",

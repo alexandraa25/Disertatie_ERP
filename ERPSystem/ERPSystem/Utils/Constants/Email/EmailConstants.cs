@@ -7,5 +7,10 @@
         public const string YEAR = "YEAR";
         public const string CONFIRMATION_LOGIN_CODE = "CONFIRMATION_LOGIN_CODE";
         public const string FORGOT_PASSWORD_URL = "FORGOT_PASSWORD_URL";
+        public const string EMAIL = "EMAIL";
+        public const string PASSWORD = "PASSWORD";
+        public const string CLIENT_NAME = "{{ClientName}}";
+        public const string CONTRACT_NUMBER = "{{ContractNumber}}";
+        public const string SIGN_CONTRACT_URL = "{{SignUrl}}";
     }
 }

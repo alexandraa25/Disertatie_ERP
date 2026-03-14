@@ -1,11 +1,10 @@
-﻿using System.Security.Claims;
-using ERPSystem.Data.Context;
+﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.UserProfile.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using UserProfileEntity = ERPSystem.Data.Entities.UserProfile;
-
+using System.Data;
+using System.Security.Claims;
 namespace ERPSystem.Modules.UserProfile;
 
 
@@ -48,44 +47,7 @@ public class UserProfileService
                ?? throw new UnauthorizedAccessException();
     }
 
-    // =====================================================
-    // GET ME
-    // =====================================================
-    public async Task<MeDto> GetMeAsync()
-    {
-        var userId = GetCurrentUserId();
 
-        var user = await _userManager.FindByIdAsync(userId)
-                   ?? throw new UnauthorizedAccessException();
-
-        var roles = (await _userManager.GetRolesAsync(user)).ToArray();
-
-        var profile = await _applicationDbContext.UserProfiles
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.UserId == userId);
-
-        profile ??= new UserProfileEntity
-        {
-            UserId = userId
-        };
-
-        return new MeDto(
-            userId,
-            user.Email ?? string.Empty,
-            user.EmailConfirmed,
-            roles,
-            new UserProfileDto(
-                profile.FirstName,
-                profile.LastName,
-                profile.Phone,
-                profile.JobTitle,
-                profile.AvatarUrl,
-                profile.PreferredLanguage ?? "ro",
-                profile.TimeZone ?? "Europe/Bucharest"
-            ),
-            0
-        );
-    }
 
     // =====================================================
     // GET PROFILE
@@ -94,31 +56,29 @@ public class UserProfileService
     {
         var userId = GetCurrentUserId();
 
-        var profile = await _applicationDbContext.UserProfiles
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.UserId == userId);
+        var user = await _userManager.FindByIdAsync(userId)
+            ?? throw new UnauthorizedAccessException();
 
-        if (profile == null)
-        {
-            return new UserProfileDto(
-                null,
-                null,
-                null,
-                null,
-                null,
-                "ro",
-                "Europe/Bucharest"
-            );
-        }
+        var roles = (await _userManager.GetRolesAsync(user)).ToArray();
+
+        var unreadNotifications = await _applicationDbContext.UserNotificationSettings
+            .CountAsync(x => x.UserId == userId && !x.Enabled);
 
         return new UserProfileDto(
-            profile.FirstName,
-            profile.LastName,
-            profile.Phone,
-            profile.JobTitle,
-            profile.AvatarUrl,
-            profile.PreferredLanguage ?? "ro",
-            profile.TimeZone ?? "Europe/Bucharest"
+            user.FirstName,
+            user.LastName,
+            user.FullName,
+            user.UserName,
+            user.Email,
+            user.EmailConfirmed,
+            user.PhoneNumber,
+            roles,
+            user.IsActive,
+            user.BirthdayDate,
+            user.CreatedAt,
+            user.LastLoginAt,
+            user.AvatarUrl,
+            unreadNotifications
         );
     }
 
@@ -131,27 +91,20 @@ public class UserProfileService
 
         await using var transaction = await _applicationDbContext.Database.BeginTransactionAsync();
 
-        var profile = await _applicationDbContext.UserProfiles
-            .FirstOrDefaultAsync(x => x.UserId == userId);
+        var user = await _applicationDbContext.Users
+            .FirstOrDefaultAsync(x => x.Id == userId);
 
-        if (profile == null)
-        {
-            profile = new UserProfileEntity
-            {
-                UserId = userId,
-                CreatedAt = DateTime.UtcNow
-            };
+        if (user == null)
+            throw new Exception("User not found");
 
-            _applicationDbContext.UserProfiles.Add(profile);
-        }
+        user.FirstName = body.FirstName?.Trim();
+        user.LastName = body.LastName?.Trim();
+        user.PhoneNumber = body.PhoneNumber?.Trim();
+        user.BirthdayDate = body.BirthdayDate;
+        user.AvatarUrl = body.AvatarUrl;
 
-        profile.FirstName = body.FirstName?.Trim();
-        profile.LastName = body.LastName?.Trim();
-        profile.Phone = body.Phone?.Trim();
-        profile.AvatarUrl = body.AvatarUrl?.Trim();
-        profile.PreferredLanguage = body.PreferredLanguage ?? "ro";
-        profile.TimeZone = body.TimeZone ?? "Europe/Bucharest";
-        profile.UpdatedAt = DateTime.UtcNow;
+        user.UpdatedAt = DateTime.UtcNow;
+        user.UpdatedBy = userId;
 
         await _applicationDbContext.SaveChangesAsync();
         await transaction.CommitAsync();

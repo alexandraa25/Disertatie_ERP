@@ -25,6 +25,10 @@ public class StudentContract
     public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
     public DateTime? ActivatedAtUtc { get; set; }
 
+    public string? ClientSignature { get; set; }
+
+    public DateTime? ClientSignedAtUtc { get; set; }
+
     public ICollection<ContractParty> Parties { get; set; }
         = new List<ContractParty>();
 

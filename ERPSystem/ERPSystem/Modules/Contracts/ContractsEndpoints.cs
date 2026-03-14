@@ -72,15 +72,15 @@ public static class ContractsEndpoints
         false
     );
 
-        group.MapPost(Route.CONTRACT_GENERATE_PDF,
-    async (int id, ContractsService service)
-        => await service.GeneratePdfAsync(id))
-    .WithDefaultApiSettings(
-        "GenerateContractPdf",
-        "Generare PDF contract",
-        "GENERATE_PDF",
-        false
-    );
+    //    group.MapPost(Route.CONTRACT_GENERATE_PDF,
+    //async (int id, ContractsService service)
+    //    => await service.GeneratePdfAsync(id))
+    //.WithDefaultApiSettings(
+    //    "GenerateContractPdf",
+    //    "Generare PDF contract",
+    //    "GENERATE_PDF",
+    //    false
+    //);
 
         group.MapPut(Route.CONTRACT_SIGN,
     async (int id, ContractsService service)
@@ -110,6 +110,36 @@ public static class ContractsEndpoints
     "Returnează ultimul contract al cursantului",
     "READ",
     false
+);
+
+        group.MapPost(Route.CONTRACT_SEND_TO_CLIENT,
+    async (int id, ContractsService service)
+        => await service.SendToClientAsync(id))
+.WithDefaultApiSettings(
+    "SendContractToClient",
+    "Trimite contractul către client pentru semnare",
+    "UPDATE",
+    false
+);
+
+        group.MapPost(Route.CONTRACT_CLIENT_SIGN,
+       async (SignContractDto dto, ContractsService service)
+           => await service.SignByClientAsync(dto.Token, dto.Signature))
+   .WithDefaultApiSettings(
+       "ClientSignContract",
+       "Semnarea contractului de către client",
+       "UPDATE",
+       false
+   );
+
+        group.MapGet(Route.CONTRACT_GET_FOR_SIGNING,
+    async (string token, ContractsService service)
+        => await service.GetContractForSigningAsync(token))
+.WithDefaultApiSettings(
+    "GetContractForSigning",
+    "Returnează contractul pentru semnare",
+    "READ",
+    true
 );
     }
 

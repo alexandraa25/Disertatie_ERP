@@ -40,6 +40,7 @@ export class ProfilUserComponent implements OnInit {
 
   form!: FormGroup;
   notificationForm!: FormGroup;
+  passwordForm!: FormGroup;
 
   originalData!: UserProfileDto;
 
@@ -48,72 +49,115 @@ export class ProfilUserComponent implements OnInit {
     private userProfileService: UserProfileService
   ) {}
 
-  ngOnInit(): void {
+ ngOnInit(): void {
 
-    // ===== PROFILE FORM =====
-    this.form = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      phone: [''],
-      jobTitle: [''],
-      avatarUrl: [''],
-      preferredLanguage: ['ro'],
-      timeZone: ['Europe/Bucharest']
-    });
+  // ===== PROFILE FORM =====
+  this.form = this.fb.group({
+    firstName: [''],
+    lastName: [''],
+    phoneNumber: [''], 
+      birthdayDate: [null],
 
-console.log('Token ' + localStorage.getItem('accessToken'));
+  avatarUrl: ['']
+  });
 
-    this.loadProfile();
+  console.log('Token ' + localStorage.getItem('accessToken'));
 
-    // ===== NOTIFICATIONS FORM =====
-    this.notificationForm = this.fb.group({
-      settings: this.fb.array([])
-    });
+  this.loadProfile();
 
-    this.loadNotifications();
-  }
+  // ===== NOTIFICATIONS FORM =====
+  this.notificationForm = this.fb.group({
+    settings: this.fb.array([])
+  });
 
+  this.loadNotifications();
+
+  this.passwordForm = this.fb.group({
+  currentPassword: ['', Validators.required],
+  newPassword: ['', Validators.required],
+  confirmPassword: ['', Validators.required]
+})
+}
   // ================= PROFILE =================
 
-  private loadProfile() {
-    this.userProfileService.getProfile()
-      .pipe(finalize(() => this.loading = false))
-      .subscribe({
-        next: (data) => {
-          if (!data) return;
+private loadProfile() {
 
-          this.form.patchValue(data);
-          this.originalData = { ...data };
-        },
-        error: () => {
-          alert("Eroare la încărcarea profilului");
-        }
-      });
-  }
+  this.userProfileService.getProfile()
+    .pipe(finalize(() => this.loading = false))
+    .subscribe({
+      next: (data: UserProfileDto) => {
 
+        if (!data) return;
+
+        this.form.patchValue({
+          firstName: data.firstName,
+          lastName: data.lastName,
+
+          phoneNumber: data.phoneNumber,
+
+          birthdayDate: data.birthdayDate
+            ? data.birthdayDate.substring(0,10)
+            : null,
+
+          avatarUrl: data.avatarUrl
+        });
+
+        this.originalData = { ...data };
+
+        console.log("PROFILE", data);
+      },
+
+      error: () => {
+        alert("Eroare la încărcarea profilului");
+      }
+    });
+}
   enableEdit() {
     this.editMode = true;
   }
 
-  cancelEdit() {
-    this.editMode = false;
-    this.form.patchValue(this.originalData);
-  }
+cancelEdit() {
+  this.editMode = false;
 
-  save() {
-    if (this.form.invalid) return;
+  this.form.patchValue({
+    firstName: this.originalData.firstName,
+    lastName: this.originalData.lastName,
+    phoneNumber: this.originalData.phoneNumber,
 
-    this.saving = true;
+    birthdayDate: this.originalData.birthdayDate
+      ? this.originalData.birthdayDate.substring(0,10)
+      : null,
 
-    this.userProfileService.updateProfile(this.form.value)
-      .pipe(finalize(() => this.saving = false))
-      .subscribe({
-        next: () => {
-          this.editMode = false;
-          this.originalData = { ...this.form.value };
-        }
-      });
-  }
+    avatarUrl: this.originalData.avatarUrl
+  });
+}
+
+save() {
+
+  const body = {
+
+    firstName: this.form.value.firstName,
+    lastName: this.form.value.lastName,
+
+    phoneNumber: this.form.value.phoneNumber || null,
+
+    birthdayDate: this.form.value.birthdayDate || null,
+
+    avatarUrl: this.form.value.avatarUrl || null
+
+  };
+
+  console.log(body);
+
+  this.userProfileService.updateProfile(body)
+    .subscribe(() => {
+
+      this.editMode = false;
+      this.loadProfile();
+
+    });
+
+}
 
   // ================= NOTIFICATIONS =================
 
@@ -158,6 +202,32 @@ console.log('Token ' + localStorage.getItem('accessToken'));
       .pipe(finalize(() => this.savingNotifications = false))
       .subscribe();
   }
+
+  changePassword() {
+
+  if (this.passwordForm.invalid) return
+
+  const { currentPassword, newPassword, confirmPassword } = this.passwordForm.value
+
+  if (newPassword !== confirmPassword) {
+    alert("Parolele nu coincid")
+    return
+  }
+
+  this.userProfileService.changePassword({
+    currentPassword,
+    newPassword
+  })
+  .subscribe({
+    next: () => {
+      alert("Parola a fost schimbată")
+      this.passwordForm.reset()
+    },
+    error: () => {
+      alert("Eroare schimbare parolă")
+    }
+  })
+}
 
   // ================= TAB CHANGE =================
 

@@ -1,9 +1,11 @@
 ﻿using ERPSystem.Extensions;
+using ERPSystem.Modules.Admin;
 using ERPSystem.Modules.Authentificate;
+using ERPSystem.Modules.Contracts;
 using ERPSystem.Modules.Courses;
+using ERPSystem.Modules.Employees;
 using ERPSystem.Modules.Students;
 using ERPSystem.Modules.UserProfile;
-using ERPSystem.Modules.Contracts;
 
 namespace ERPSystem.Configuration
 {
@@ -30,6 +32,24 @@ namespace ERPSystem.Configuration
             );
 
             UserProfileEndpoints.Map(meGroup);
+
+            // ✅ GROUP pentru profil (necesită autentificare)
+            var adminGroup = app.CreateApiGroup(
+                route: "/admin",
+                tag: "Admin",
+                requireAuth: false,
+                description: "Admin dashboard"
+            );
+            AdminEndpoints.Map(adminGroup);
+
+            var employeeGroup = app.CreateApiGroup(
+                route: "/employee",
+                tag: "Employee",
+                requireAuth: false,
+                description: "Employee dashboard"
+            );
+
+            EmployeeEndpoints.Map(employeeGroup);
 
             var studentsGroup = app.CreateApiGroup(
                 route: "/students",
@@ -66,6 +86,16 @@ namespace ERPSystem.Configuration
            );
 
             DashboardEndpoints.Map(dashboardGroup);
+
+
+            var companyGroup = app.CreateApiGroup(
+             route: "/company",
+             tag: "company",
+             requireAuth: false, // temporar, ca la students
+             description: "Company endpoints"
+          );
+
+            CompanyEndpoints.Map(companyGroup);
         }
     }
 }

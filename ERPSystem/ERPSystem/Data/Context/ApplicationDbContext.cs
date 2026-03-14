@@ -10,7 +10,6 @@ namespace ERPSystem.Data.Context
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
-        public DbSet<UserProfile> UserProfiles { get; set; }
         public DbSet<UserNotificationSetting> UserNotificationSettings { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
 
@@ -22,10 +21,22 @@ namespace ERPSystem.Data.Context
 
         public DbSet<CourseEnrollment> CourseEnrollments { get; set; }
 
+        public DbSet<CompanySettings> CompanySettings { get; set; }
         public DbSet<StudentContract> StudentContracts { get; set; }
         public DbSet<ContractCourse> ContractCourses { get; set; }
         public DbSet<ContractParty> ContractParties { get; set; }
         public DbSet<ContractDiscount> ContractDiscounts { get; set; }
+
+        public DbSet<ContractSigningToken> ContractSigningTokens { get; set; }
+
+        public DbSet<Employee> Employees { get; set; }
+
+
+        public DbSet<EmployeeContract> EmployeeContracts { get; set; }
+
+        public DbSet<EmployeeLeave> EmployeeLeaves { get; set; }
+
+        public DbSet<EmployeeDocument> EmployeeDocuments { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
@@ -35,15 +46,7 @@ namespace ERPSystem.Data.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            // ✅ Config minim (chei + indexuri)
-            modelBuilder.Entity<UserProfile>()
-                .HasKey(x => x.UserId);
-
-            modelBuilder.Entity<UserProfile>()
-      .HasOne(x => x.User)
-      .WithOne(u => u.Profile)
-      .HasForeignKey<UserProfile>(x => x.UserId)
-      .OnDelete(DeleteBehavior.Cascade);
+           
 
             modelBuilder.Entity<UserNotificationSetting>(entity =>
             {
@@ -187,7 +190,41 @@ namespace ERPSystem.Data.Context
                     .HasMaxLength(300);
             });
 
+
+            modelBuilder.Entity<Employee>()
+    .HasOne(e => e.User)
+    .WithOne(u => u.Employee)
+    .HasForeignKey<Employee>(e => e.UserId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Employee>()
+    .HasIndex(x => new { x.UserId, x.EmploymentStatus });
+
+            modelBuilder.Entity<Employee>()
+    .Property(x => x.Salary)
+    .HasPrecision(18, 2);
+
+            modelBuilder.Entity<EmployeeContract>()
+    .HasOne(x => x.Employee)
+    .WithMany(x => x.Contracts)
+    .HasForeignKey(x => x.EmployeeId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EmployeeLeave>()
+    .HasOne(x => x.Employee)
+    .WithMany(x => x.Leaves)
+    .HasForeignKey(x => x.EmployeeId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EmployeeDocument>()
+    .HasOne(x => x.Employee)
+    .WithMany(x => x.Documents)
+    .HasForeignKey(x => x.EmployeeId)
+    .OnDelete(DeleteBehavior.Cascade);
+
         }
+
+
 
     }
 }

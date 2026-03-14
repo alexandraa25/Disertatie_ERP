@@ -8,11 +8,7 @@ public static class UserProfileEndpoints
 {
     public static void Map(RouteGroupBuilder group)
     {
-        // ===============================
-        // GET ME
-        // ===============================
-        group.MapGet(Route.ME,  async (UserProfileService service) => await service.GetMeAsync())
-            .WithDefaultApiSettings("GetMe", "Get ME", "ME", true);
+       
 
 
         // ===============================

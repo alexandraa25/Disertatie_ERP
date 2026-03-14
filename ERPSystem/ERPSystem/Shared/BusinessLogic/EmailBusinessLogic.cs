@@ -1,6 +1,7 @@
 ﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Authentification.Models;
+using ERPSystem.Modules.Contracts.Models;
 using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Response;
@@ -65,7 +66,7 @@ namespace ERPSystem.Shared.BusinessLogic
                 var apiKey = _emailConnectionSettings.Value.Token;
                 var client = new SendGridClient(apiKey);
 
-                var from = new EmailAddress(_emailConnectionSettings.Value.DefaultFromEmail, "Airline System");
+                var from = new EmailAddress(_emailConnectionSettings.Value.DefaultFromEmail, "ERP System");
 
                 var msg = new SendGridMessage()
                 {
@@ -124,6 +125,25 @@ namespace ERPSystem.Shared.BusinessLogic
                       .Replace(EmailConstants.FIRST_NAME, applicationUser.FirstName)
                       .Replace(EmailConstants.FORGOT_PASSWORD_URL, url)
                       .Replace(EmailConstants.YEAR, DateTime.UtcNow.Year.ToString());
+            }
+            else if (templateCode == TemplateCode.EMAIL_USER_CREDENTIALS)
+            {
+                var model = JsonConvert.DeserializeObject<UserCredentialsEmailModel>(tableRow);
+
+                template = emailTemplate.HtmlContent
+                      .Replace(EmailConstants.FIRST_NAME, model.FirstName)
+                      .Replace(EmailConstants.EMAIL, model.Email)
+                      .Replace(EmailConstants.PASSWORD, model.Password);
+            }
+            else if (templateCode == TemplateCode.CONTRACT_SIGN_REQUEST)
+            {
+                var model = JsonConvert.DeserializeObject<ContractSignEmailModel>(tableRow);
+
+                template = emailTemplate.HtmlContent
+                    .Replace(EmailConstants.CLIENT_NAME, model.ClientName)
+                    .Replace(EmailConstants.CONTRACT_NUMBER, model.ContractNumber)
+                    .Replace(EmailConstants.SIGN_CONTRACT_URL, url)
+                    .Replace(EmailConstants.YEAR, DateTime.UtcNow.Year.ToString());
             }
 
             return template;

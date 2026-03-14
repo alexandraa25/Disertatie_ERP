@@ -1,0 +1,63 @@
+.page{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:30px;
+}
+
+.contract-title{
+  margin-bottom:20px;
+  font-size:22px;
+}
+
+.contract-container{
+
+  background:white;
+
+  border:1px solid #ccc;
+
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+
+  border-radius:6px;
+
+  max-width:900px;
+
+  width:100%;
+
+  padding:40px;
+   width:794px;
+
+  min-height:1123px;
+    max-height:1123px;
+
+  overflow-y:auto;
+
+}
+
+.contract-body{
+
+  white-space:pre-wrap;
+
+  line-height:1.6;
+
+  font-size:16px;
+
+  font-family:"Times New Roman", serif;
+
+}
+
+.signature-title{
+
+  margin-top:40px;
+
+}
+
+canvas{
+
+  border:2px dashed #888;
+
+  border-radius:6px;
+
+  margin-top:10px;
+
+}
