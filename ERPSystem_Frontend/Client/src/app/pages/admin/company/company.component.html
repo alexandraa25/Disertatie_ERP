@@ -11,12 +11,22 @@
       <div class="row"> <span>Email</span> <strong>{{ company.email }}</strong> </div>
       <div class="row"> <span>Telefon</span> <strong>{{ company.phone }}</strong> </div>
     </div> <!-- LOGO -->
-    <div class="image-section" *ngIf="company.logoPath"> <label>Logo</label> <img [src]="company.logoPath"
-        class="company-image"> </div> <!-- SEMNATURA -->
-    <div class="image-section" *ngIf="company.signatureImage"> <label>Semnătura firmei</label> <img
-        [src]="company.signatureImage" class="company-image"> </div> <button class="edit-btn" (click)="openModal()">
-      Editează </button>
-  </div> <!-- Dacă nu există companie --> <ng-template #noCompany>
+   <div class="images-row">
+
+  <div class="image-section" *ngIf="company.logoPath">
+    <label>Logo</label>
+    <img [src]="company.logoPath" class="company-image">
+  </div>
+
+  <div class="image-section" *ngIf="company.signatureImage">
+    <label>Semnătura firmei</label>
+    <img [src]="company.signatureImage" class="company-image">
+  </div>
+
+</div>
+    <button class="edit-btn" (click)="openModal()">Editează </button>
+  </div>
+   <!-- Dacă nu există companie --> <ng-template #noCompany>
     <div class="empty-state">
       <p>Nu există date companie</p> <button class="add-btn" (click)="openModal()"> Adaugă companie </button>
     </div>

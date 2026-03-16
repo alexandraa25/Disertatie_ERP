@@ -7,6 +7,7 @@ import { StudentDetailsDto, StudentCourseDetailsDto } from '../../models/student
 import { StudentFormComponent } from '../student-form/student-form.component';
 import { MatDialog } from '@angular/material/dialog';
 import { EnrollStudentsComponent } from '../enroll-students/enroll-students.component';
+import { AdminSignatureModalComponent } from '../../financiar/admin-signature-modal/admin-signature-modal.component';
 
 @Component({
   selector: 'app-student-details',
@@ -165,7 +166,7 @@ getContractButtonText(): string {
       return 'Așteaptă semnarea clientului';
 
     case 'activate':
-      return 'Activează contract';
+      return 'Semneaza contract';
 
     case 'view':
       return 'Vizualizează contract';
@@ -253,10 +254,18 @@ sendContract() {
 
 activateContract() {
 
-  this.contracts.activate(this.contract.id)
-    .subscribe(() => {
+  const dialogRef = this.dialog.open(AdminSignatureModalComponent, {
+    width: '600px',
+    data: this.contract.id
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+
+    if (result) {
       this.loadContract();
-    });
+    }
+
+  });
 
 }
 openEnrollModal() {

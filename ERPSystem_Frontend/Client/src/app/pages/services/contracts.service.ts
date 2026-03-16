@@ -90,6 +90,12 @@ signClient(dto: any) {
     );
   }
 
-  
+  adminSign(id: number, signature: string) {
+
+  return this.http.post(`${this.baseUrl}/contracts/${id}/admin-sign`, {
+    signature: signature
+  });
+
+}
 
 }

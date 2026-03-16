@@ -12,32 +12,24 @@ namespace ERPSystem.Data.Context
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
         public DbSet<UserNotificationSetting> UserNotificationSettings { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
-
         public DbSet<Student> Students => Set<Student>();
         public DbSet<Guardian> Guardians => Set<Guardian>();
         public DbSet<StudentGuardian> StudentGuardians => Set<StudentGuardian>();
         public DbSet<Course> Courses { get; set; }
         public DbSet<CourseSession> CourseSessions { get; set; }
-
         public DbSet<CourseEnrollment> CourseEnrollments { get; set; }
-
         public DbSet<CompanySettings> CompanySettings { get; set; }
+        public DbSet<ContractTemplate> ContractTemplates { get; set; }
         public DbSet<StudentContract> StudentContracts { get; set; }
         public DbSet<ContractCourse> ContractCourses { get; set; }
         public DbSet<ContractParty> ContractParties { get; set; }
         public DbSet<ContractDiscount> ContractDiscounts { get; set; }
-
         public DbSet<ContractSigningToken> ContractSigningTokens { get; set; }
-
         public DbSet<Employee> Employees { get; set; }
-
-
         public DbSet<EmployeeContract> EmployeeContracts { get; set; }
-
         public DbSet<EmployeeLeave> EmployeeLeaves { get; set; }
-
         public DbSet<EmployeeDocument> EmployeeDocuments { get; set; }
-
+        
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }

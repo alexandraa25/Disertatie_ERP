@@ -43,8 +43,15 @@
 
       <div class="signature-box">
 
-        <canvas #signatureCanvas width="400" height="150" (mousedown)="startDrawing($event)" (mousemove)="draw($event)"
-          (mouseup)="stopDrawing()" (mouseleave)="stopDrawing()"></canvas>
+       <canvas
+  #signatureCanvas
+  width="400"
+  height="150"
+  (mousedown)="startDrawing($event)"
+  (mousemove)="draw($event)"
+  (mouseup)="stopDrawing()"
+  (mouseleave)="stopDrawing()">
+</canvas>
 
         <div class="signature-buttons">
 
@@ -65,9 +72,9 @@
 
     <div class="buttons">
 
-      <button class="cancel" (click)="close.emit()">
-        Cancel
-      </button>
+      <button class="cancel" (click)="closeModal()">
+  Cancel
+</button>
 
       <button class="save" (click)="save()" [disabled]="loading">
         Salvează

@@ -1,0 +1,37 @@
+<div class="signature-container">
+
+  <h2>Semnătura administratorului</h2>
+
+  <canvas
+    #canvas
+    width="500"
+    height="220"
+    class="signature-canvas"
+    (mousedown)="startDrawing($event)"
+    (mousemove)="draw($event)"
+    (mouseup)="stopDrawing()"
+    (mouseleave)="stopDrawing()">
+  </canvas>
+
+  <div class="signature-hint">
+    Desenați semnătura în zona de mai sus
+  </div>
+
+  <div class="actions">
+
+    <button
+      class="btn-clear"
+      (click)="clear()">
+      Șterge
+    </button>
+
+    <button
+      class="btn-sign"
+      [disabled]="loading"
+      (click)="sign()">
+      Semnează
+    </button>
+
+  </div>
+
+</div>

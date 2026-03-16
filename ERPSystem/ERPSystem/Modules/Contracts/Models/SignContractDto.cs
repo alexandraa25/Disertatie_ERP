@@ -5,4 +5,9 @@
         public string Token { get; set; }
         public string Signature { get; set; }
     }
+
+    public class AdminSignContractDto
+    {
+        public string Signature { get; set; }
+    }
 }

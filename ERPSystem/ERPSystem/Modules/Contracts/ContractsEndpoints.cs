@@ -41,16 +41,6 @@ public static class ContractsEndpoints
                 false
             );
 
-        // Activate Contract
-        group.MapPut(Route.CONTRACT_ACTIVATE,
-            async (int id, ContractsService service)
-                => await service.ActivateAsync(id))
-            .WithDefaultApiSettings(
-                "ActivateContract",
-                "Activare contract",
-                "ACTIVATE",
-                false
-            );
 
         group.MapPut(Route.CONTRACT_UPDATE_BODY,
     async (int id, UpdateContractBodyDto dto, ContractsService service)
@@ -82,15 +72,7 @@ public static class ContractsEndpoints
     //    false
     //);
 
-        group.MapPut(Route.CONTRACT_SIGN,
-    async (int id, ContractsService service)
-        => await service.SignAsync(id))
-    .WithDefaultApiSettings(
-        "SignContract",
-        "Semnare contract",
-        "SIGN",
-        false
-    );
+     
 
         group.MapPut(Route.CONTRACT_CANCEL,
     async (int id, ContractsService service)
@@ -141,7 +123,21 @@ public static class ContractsEndpoints
     "READ",
     true
 );
+        group.MapPost(Route.CONTRACT_ADMIN_SIGN,
+    async (int id, AdminSignContractDto dto, ContractsService service)
+        => await service.SignByAdminAsync(id, dto.Signature))
+.WithDefaultApiSettings(
+    "AdminSignContract",
+    "Semnarea contractului de către administrator",
+    "UPDATE",
+    false
+);
+
+
     }
+
+
+
 
 
 }

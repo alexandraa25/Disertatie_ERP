@@ -44,13 +44,12 @@ public class PdfService
                         {
                             row.RelativeItem().Column(col2 =>
                             {
-                                col2.Item().Text("Prestator");
-                                col2.Item().Text("GLOBAL LEARNING SRL");
+                               
                             });
 
                             row.RelativeItem().Column(col2 =>
                             {
-                                col2.Item().Text("Beneficiar");
+                              
 
                                 if (signatureBytes != null)
                                 {

@@ -82,6 +82,7 @@
                 public const string CONTRACT_SEND_TO_CLIENT = "{id}/send";
                 public const string CONTRACT_CLIENT_SIGN = "/client-sign";
                 public const string CONTRACT_GET_FOR_SIGNING = "/sign/{token}";
+                public const string CONTRACT_ADMIN_SIGN = "/contracts/{id}/admin-sign";
 
 
 

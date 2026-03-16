@@ -1,8 +1,9 @@
 .company-container{
 
   max-width:600px;
+  
 
-  margin:40px auto;
+  margin:100px auto;
 
   padding:30px;
 
@@ -109,11 +110,7 @@
 
 }
 
-.image-section{
 
-  margin-top:20px;
-
-}
 
 .image-section label{
 
@@ -125,9 +122,35 @@
 
 }
 
+
+
+.images-row{
+
+  display:flex;
+
+  gap:40px;
+
+  margin-top:25px;
+
+  align-items:flex-start;
+
+}
+
+.image-section{
+
+  display:flex;
+
+  flex-direction:column;
+
+}
+
 .company-image{
 
   max-height:120px;
+
+  max-width:120px;
+
+  object-fit:contain;
 
   border:1px solid #ddd;
 

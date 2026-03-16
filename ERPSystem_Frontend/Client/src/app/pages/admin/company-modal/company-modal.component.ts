@@ -1,8 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CompanyService } from '../../services/company.service';
-import { ViewChild, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-company-modal',
@@ -11,7 +10,7 @@ import { ViewChild, ElementRef } from '@angular/core';
   templateUrl: './company-modal.component.html',
   styleUrl: './company-modal.component.css'
 })
-export class CompanyModalComponent {
+export class CompanyModalComponent implements AfterViewChecked {
 
   @Input() visible = false;
   @Input() company: any = {};
@@ -19,14 +18,14 @@ export class CompanyModalComponent {
   @Output() close = new EventEmitter();
   @Output() saved = new EventEmitter();
 
-  @ViewChild('signatureCanvas')
+ @ViewChild('signatureCanvas', { static: false })
 canvas!: ElementRef<HTMLCanvasElement>;
 
 private ctx!: CanvasRenderingContext2D;
-
 drawing = false;
 
   loading = false;
+  canvasInitialized = false;
 
   constructor(private service: CompanyService) {}
 
@@ -70,14 +69,22 @@ drawing = false;
 
   }
 
-  ngAfterViewInit(){
 
-  const canvas = this.canvas.nativeElement;
 
-  this.ctx = canvas.getContext('2d')!;
+ngAfterViewChecked() {
 
-  this.ctx.lineWidth = 2;
-  this.ctx.lineCap = 'round';
+  if (this.visible && this.canvas && !this.canvasInitialized) {
+
+    const canvas = this.canvas.nativeElement;
+
+    this.ctx = canvas.getContext('2d')!;
+
+    this.ctx.lineWidth = 2;
+    this.ctx.lineCap = 'round';
+    this.ctx.strokeStyle = '#000';
+
+    this.canvasInitialized = true;
+  }
 
 }
 
@@ -120,6 +127,13 @@ saveSignature(){
   const canvas = this.canvas.nativeElement;
 
   this.company.signatureImage = canvas.toDataURL();
+
+}
+
+closeModal() {
+
+  this.canvasInitialized = false;
+  this.close.emit();
 
 }
 

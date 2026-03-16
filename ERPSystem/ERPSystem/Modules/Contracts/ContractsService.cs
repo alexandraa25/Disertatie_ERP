@@ -37,9 +37,7 @@ public class ContractsService
 
         try
         {
-            // =============================
-            // BASIC VALIDATION
-            // =============================
+            
             if (!dto.StudentIds.Any() || !dto.CourseSessionIds.Any())
                 return response.SetError(ErrorCodes.InvalidParameters, "Invalid parameters");
 
@@ -48,24 +46,18 @@ public class ContractsService
 
             if (!dto.IsUnlimited && dto.EndDate < dto.StartDate)
                 return response.SetError(ErrorCodes.InvalidParameters, "Invalid period");
-
-            // =============================
-            // LOAD STUDENTS
-            // =============================
+     
             var students = await _db.Students
                 .Where(x => dto.StudentIds.Contains(x.Id))
                 .ToListAsync();
 
             if (students.Count != dto.StudentIds.Count)
                 return response.SetError(ErrorCodes.InvalidParameters, "Invalid students");
-
-            // =============================
-            // ACTIVE CONTRACT VALIDATION
-            // =============================
+     
             var hasActiveContract = await _db.StudentContracts
                 .Include(c => c.Parties)
                 .AnyAsync(c =>
-                    c.Status == ContractStatus.Active &&
+                   c.Status == ContractStatus.Active  &&
                     c.Parties.Any(p =>
                         p.StudentId.HasValue && dto.StudentIds.Contains(p.StudentId.Value)));
 
@@ -74,9 +66,6 @@ public class ContractsService
                     ErrorCodes.InvalidParameters,
                     "Student already has an active contract");
 
-            // =============================
-            // GUARDIAN VALIDATION
-            // =============================
             Guardian? guardian = null;
 
             if (dto.GuardianId.HasValue)
@@ -106,9 +95,6 @@ public class ContractsService
                         "Guardian not linked to selected student");
             }
 
-            // =============================
-            // LOAD SESSIONS
-            // =============================
             var sessions = await _db.CourseSessions
                 .Include(x => x.Course)
                 .Where(x => dto.CourseSessionIds.Contains(x.Id))
@@ -117,30 +103,6 @@ public class ContractsService
             if (sessions.Count != dto.CourseSessionIds.Count)
                 return response.SetError(ErrorCodes.InvalidParameters, "Invalid sessions");
 
-            // =============================
-            // CAPACITY VALIDATION
-            // =============================
-            foreach (var session in sessions)
-            {
-                if (session.Capacity.HasValue)
-                {
-                    var enrolled = await _db.CourseEnrollments
-                        .CountAsync(e =>
-                            e.CourseSessionId == session.Id &&
-                            e.IsActive);
-
-                    if (enrolled >= session.Capacity.Value)
-                    {
-                        return response.SetError(
-                            ErrorCodes.InvalidParameters,
-                            $"Session {session.Title} is full");
-                    }
-                }
-            }
-
-            // =============================
-            // CREATE CONTRACT
-            // =============================
             var contract = new StudentContract
             {
                 ContractNumber = GenerateContractNumber(),
@@ -153,7 +115,17 @@ public class ContractsService
                 UpdatedAtUtc = DateTime.UtcNow
             };
 
-            // Parties
+            var company = await _db.CompanySettings.FirstAsync();
+
+            contract.CompanyNameSnapshot = company.Name;
+            contract.CompanyAddressSnapshot = company.Address;
+            contract.CompanyCuiSnapshot = company.CUI;
+            contract.CompanyRegistrationSnapshot = company.RegistrationNumber;
+            contract.CompanyIbanSnapshot = company.IBAN;
+            contract.CompanyBankSnapshot = company.Bank;
+            contract.CompanyEmailSnapshot = company.Email;
+            contract.CompanyPhoneSnapshot = company.Phone;
+
             if (guardian != null)
             {
                 contract.Parties.Add(new ContractParty
@@ -172,7 +144,23 @@ public class ContractsService
                 });
             }
 
-            // Courses snapshot
+            if (guardian != null)
+            {
+                contract.BeneficiaryNameSnapshot = $"{guardian.FirstName} {guardian.LastName}";
+                contract.BeneficiaryEmailSnapshot = guardian.Email;
+                contract.BeneficiaryPhoneSnapshot = guardian.Phone;
+                contract.BeneficiaryAddressSnapshot = guardian.Address;
+            }
+            else
+            {
+                var student = students.First();
+
+                contract.BeneficiaryNameSnapshot = $"{student.FirstName} {student.LastName}";
+                contract.BeneficiaryEmailSnapshot = student.Email;
+                contract.BeneficiaryPhoneSnapshot = student.Phone;
+                contract.BeneficiaryAddressSnapshot = student.Address;
+            }
+
             foreach (var session in sessions)
             {
                 contract.Courses.Add(new ContractCourse
@@ -184,7 +172,6 @@ public class ContractsService
                 });
             }
 
-            // Discounts
             if (dto.Discounts != null)
             {
                 foreach (var d in dto.Discounts)
@@ -198,9 +185,6 @@ public class ContractsService
                 }
             }
 
-            // =============================
-            // CALCULATE TOTAL
-            // =============================
             contract.TotalAmount = CalculateTotal(contract);
 
             // =============================
@@ -222,10 +206,9 @@ public class ContractsService
             //    }
             //}
 
-            // =============================
-            // GENERATE BODY
-            // =============================
-            contract.ContractBody = GenerateContractBody(contract, guardian, students);
+          
+            contract.ContractBody = await GenerateContractBody(contract, guardian, students);
+
 
             _db.StudentContracts.Add(contract);
             await _db.SaveChangesAsync();
@@ -435,11 +418,6 @@ public class ContractsService
         contract.ClientSignedAtUtc = DateTime.UtcNow;
         contract.Status = ContractStatus.SignedByClient;
 
-        // regenerăm PDF-ul cu semnătura
-        var pdfName = _pdfService.GenerateContractPdf(contract);
-
-        contract.PdfPath = pdfName;
-
         signingToken.IsUsed = true;
 
         await _db.SaveChangesAsync();
@@ -471,53 +449,37 @@ public class ContractsService
     // =========================
     // SIGN
     // =========================
-    public async Task<PublicResponse> SignAsync(int id)
+    public async Task<PublicResponse> SignByAdminAsync(int id, string signature)
     {
         var response = new PublicResponse(true);
+
+        if (string.IsNullOrWhiteSpace(signature))
+            return response.SetError(
+                ErrorCodes.InvalidParameters,
+                "Signature missing");
 
         var contract = await _db.StudentContracts.FindAsync(id);
 
         if (contract is null)
-            return response.SetError(ErrorCodes.InvalidParameters, "Not found");
+            return response.SetError(ErrorCodes.InvalidParameters, "Contract not found");
 
-        if (contract.Status != ContractStatus.Finalized)
-            return response.SetError(ErrorCodes.InvalidParameters, "Finalize first");
+        if (contract.Status != ContractStatus.SignedByClient)
+            return response.SetError(
+                ErrorCodes.InvalidParameters,
+                "Client must sign first");
 
-        contract.Status = ContractStatus.Signed;
-        contract.SignedAtUtc = DateTime.UtcNow;
-        contract.UpdatedAtUtc = DateTime.UtcNow;
+        contract.AdminSignature = signature;
+        contract.AdminSignedAtUtc = DateTime.UtcNow;
 
-        await _db.SaveChangesAsync();
-
-        return response.SetSuccess(true);
-    }
-
-    // =========================
-    // ACTIVATE
-    // =========================
-    public async Task<PublicResponse> ActivateAsync(int id)
-    {
-        var response = new PublicResponse(true);
-
-        var contract = await _db.StudentContracts.FindAsync(id); 
-
-        if (contract is null)
-            return response.SetError(ErrorCodes.InvalidParameters, "Not found");
-
-        if (contract.Status != ContractStatus.Signed)
-            return response.SetError(ErrorCodes.InvalidParameters,
-                "Contract must be signed before activation");
-        if (!contract.IsUnlimited && contract.EndDate == null)
-            return response.SetError(ErrorCodes.InvalidParameters,
-                "EndDate required if not unlimited");
-
-        if (!contract.IsUnlimited && contract.EndDate < contract.StartDate)
-            return response.SetError(ErrorCodes.InvalidParameters,
-                "Invalid period");
-
+        // activare automată
         contract.Status = ContractStatus.Active;
         contract.ActivatedAtUtc = DateTime.UtcNow;
         contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        // generăm PDF final cu ambele semnături
+        var pdfName = _pdfService.GenerateContractPdf(contract);
+
+        contract.PdfPath = pdfName;
 
         await _db.SaveChangesAsync();
 
@@ -620,95 +582,81 @@ public class ContractsService
 
     private string GenerateContractNumber()
     {
-        return $"CTR-{DateTime.UtcNow.Year}-{Guid.NewGuid().ToString()[..6]}";
+        return $"CTR-{DateTime.UtcNow:yyyy}-{DateTime.UtcNow.Ticks.ToString()[^6..]}";
     }
 
-    private string GenerateContractBody(
-     StudentContract contract,
-     Guardian? guardian,
-     List<ERPSystem.Data.Entities.Student> students)
+    private async Task<string> GenerateContractBody(
+      StudentContract contract,
+      Guardian? guardian,
+      List<ERPSystem.Data.Entities.Student> students)
     {
+        var template = await _db.ContractTemplates
+            .Where(x => x.IsActive)
+            .Select(x => x.Body)
+            .FirstAsync();
+
+        
+
         var studentList = string.Join(", ", students.Select(s => s.FullName));
 
         var coursesList = string.Join("\n",
             contract.Courses.Select(c =>
                 $"- {c.CourseNameSnapshot} ({c.SessionNameSnapshot}) – {c.PriceSnapshot} RON"));
 
-        var beneficiar = guardian != null
-       ? $@"{guardian.FirstName} {guardian.LastName}
-Email: {guardian.Email}
-Telefon: {guardian.Phone}"
-       : studentList;
+        string beneficiaryName;
+        string beneficiaryEmail;
+        string beneficiaryPhone;
+        string beneficiaryAddress;
 
-
-        // 🔥 DISCOUNT SECTION
-        var discountSection = "Nu există discounturi aplicate.";
-
-        if (contract.Discounts.Any())
-        {
-            discountSection = string.Join("\n",
-                contract.Discounts.Select(d =>
-                    $"- {d.Type} | Valoare: {d.Value} | Motiv: {d.Reason}"));
-        }
-
+        
         var subtotal = contract.Courses.Sum(c => c.PriceSnapshot);
-        var totalDiscount = subtotal - contract.TotalAmount;
+        var discount = subtotal - contract.TotalAmount;
 
-        return $@"
-CONTRACT DE PRESTĂRI DE SERVICII
-Nr. {contract.ContractNumber}
-Încheiat astăzi {DateTime.UtcNow:dd.MM.yyyy}
+        var period = contract.IsUnlimited
+            ? "Perioadă nedeterminată"
+            : $"{contract.StartDate:dd.MM.yyyy} - {contract.EndDate:dd.MM.yyyy}";
 
-I. PĂRŢILE CONTRACTANTE
+        var values = new Dictionary<string, string>
+        {
+            ["ContractNumber"] = contract.ContractNumber,
+            ["Date"] = DateTime.UtcNow.ToString("dd.MM.yyyy"),
 
-1.1. S.C. GLOBAL L SRL,
-...
+            ["CompanyName"] = contract.CompanyNameSnapshot,
+            ["CompanyCui"] = contract.CompanyCuiSnapshot,
+            ["CompanyRegistration"] = contract.CompanyRegistrationSnapshot,
+            ["CompanyAddress"] = contract.CompanyAddressSnapshot,
+            ["CompanyIban"] = contract.CompanyIbanSnapshot,
+            ["CompanyBank"] = contract.CompanyBankSnapshot,
+            ["CompanyEmail"] = contract.CompanyEmailSnapshot,
+            ["CompanyPhone"] = contract.CompanyPhoneSnapshot,
 
-1.2. {beneficiar}, în calitate de BENEFICIAR.
+            ["BeneficiaryName"] = contract.BeneficiaryNameSnapshot,
+            ["BeneficiaryEmail"] = contract.BeneficiaryEmailSnapshot,
+            ["BeneficiaryPhone"] = contract.BeneficiaryPhoneSnapshot,
+            ["BeneficiaryAddress"] = contract.BeneficiaryAddressSnapshot,
+            ["Students"] = studentList,
+            ["Courses"] = coursesList,
 
-II. OBIECTUL CONTRACTULUI
+            ["ContractPeriod"] = period,
 
-Servicii educaționale:
+            ["Subtotal"] = $"{subtotal:F2} RON",
+            ["Discount"] = $"{discount:F2} RON",
+            ["Total"] = $"{contract.TotalAmount:F2} RON"
+        };
 
-{coursesList}
-
-Cursanți:
-{studentList}
-
-III. DURATA CONTRACTULUI
-
-{(contract.IsUnlimited
-    ? "Perioadă nedeterminată"
-    : $"{contract.StartDate:dd.MM.yyyy} - {contract.EndDate:dd.MM.yyyy}")}
-
-IV. PREŢUL CONTRACTULUI
-
-Subtotal (fără discount): {subtotal:F2} RON
-
-Discounturi aplicate:
-{discountSection}
-
-Reducere totală: {totalDiscount:F2} RON
-
-Valoare finală contract: {contract.TotalAmount:F2} RON
-
-Număr rate: {contract.Installments}
-
-Plata se efectuează prin transfer bancar sau numerar,
-conform condițiilor stabilite de comun acord.
-
-V. OBLIGAŢIILE PĂRŢILOR
-5.1. Prestatorul se obligă: - să furnizeze serviciile educaționale conform programului stabilit; - să asigure calitatea actului educațional.
-5.2. Beneficiarul se obligă: - să achite contravaloarea serviciilor; - să respecte programul cursurilor.
-VI. ÎNCETAREA CONTRACTULUI
-Contractul poate înceta prin acordul părților sau prin notificare scrisă din partea uneia dintre părți.
-
-PRESTATOR                                  BENEFICIAR
-
-GLOBAL LEARNING SRL                        {beneficiar}
-";
+        return ApplyTemplate(template, values);
     }
 
+
+    private string ApplyTemplate(string template, Dictionary<string, string> values)
+    {
+        foreach (var item in values)
+        {
+            template = template.Replace($"{{{{{item.Key}}}}}", item.Value ?? "");
+        }
+
+        return template;
+    }
     public async Task<PublicResponse> UpdateBodyAsync(int id, UpdateContractBodyDto dto)
     {
         var response = new PublicResponse(true);
@@ -754,7 +702,7 @@ GLOBAL LEARNING SRL                        {beneficiar}
         if (!Directory.Exists(folder))
             Directory.CreateDirectory(folder);
 
-        var fileName = $"{contract.ContractNumber}.txt";
+        var fileName = $"{contract.ContractNumber}.html";
         var filePath = Path.Combine(folder, fileName);
 
         await File.WriteAllTextAsync(filePath, contract.ContractBody);

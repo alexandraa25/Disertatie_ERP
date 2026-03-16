@@ -4,6 +4,7 @@ using ERPSystem.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERPSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260316135148_AddContractTemplates")]
+    partial class AddContractTemplates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -748,125 +751,6 @@ namespace ERPSystem.Migrations
                     b.ToTable("Students");
                 });
 
-            modelBuilder.Entity("ERPSystem.Data.Entities.StudentContract", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("ActivatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("AdminSignature")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("AdminSignedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("BeneficiaryAddressSnapshot")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BeneficiaryEmailSnapshot")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BeneficiaryNameSnapshot")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BeneficiaryPhoneSnapshot")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClientSignature")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ClientSignedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CompanyAddressSnapshot")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CompanyBankSnapshot")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CompanyCuiSnapshot")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CompanyEmailSnapshot")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CompanyIbanSnapshot")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CompanyNameSnapshot")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CompanyPhoneSnapshot")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CompanyRegistrationSnapshot")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ContractBody")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ContractNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("FinalizedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Installments")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsUnlimited")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("PdfPath")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("UpdatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContractNumber")
-                        .IsUnique();
-
-                    b.ToTable("StudentContracts");
-                });
-
             modelBuilder.Entity("ERPSystem.Data.Entities.StudentGuardian", b =>
                 {
                     b.Property<int>("StudentId")
@@ -1100,9 +984,77 @@ namespace ERPSystem.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("StudentContract", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("ActivatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ClientSignature")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ClientSignedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ContractBody")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContractNumber")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FinalizedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Installments")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsUnlimited")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PdfPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("SignedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractNumber")
+                        .IsUnique();
+
+                    b.ToTable("StudentContracts");
+                });
+
             modelBuilder.Entity("ERPSystem.Data.Entities.ContractCourse", b =>
                 {
-                    b.HasOne("ERPSystem.Data.Entities.StudentContract", "Contract")
+                    b.HasOne("StudentContract", "Contract")
                         .WithMany("Courses")
                         .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1121,7 +1073,7 @@ namespace ERPSystem.Migrations
 
             modelBuilder.Entity("ERPSystem.Data.Entities.ContractDiscount", b =>
                 {
-                    b.HasOne("ERPSystem.Data.Entities.StudentContract", "Contract")
+                    b.HasOne("StudentContract", "Contract")
                         .WithMany("Discounts")
                         .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1132,7 +1084,7 @@ namespace ERPSystem.Migrations
 
             modelBuilder.Entity("ERPSystem.Data.Entities.ContractParty", b =>
                 {
-                    b.HasOne("ERPSystem.Data.Entities.StudentContract", "Contract")
+                    b.HasOne("StudentContract", "Contract")
                         .WithMany("Parties")
                         .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1157,7 +1109,7 @@ namespace ERPSystem.Migrations
 
             modelBuilder.Entity("ERPSystem.Data.Entities.ContractSigningToken", b =>
                 {
-                    b.HasOne("ERPSystem.Data.Entities.StudentContract", "Contract")
+                    b.HasOne("StudentContract", "Contract")
                         .WithMany()
                         .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1361,7 +1313,7 @@ namespace ERPSystem.Migrations
                     b.Navigation("StudentGuardians");
                 });
 
-            modelBuilder.Entity("ERPSystem.Data.Entities.StudentContract", b =>
+            modelBuilder.Entity("StudentContract", b =>
                 {
                     b.Navigation("Courses");
 

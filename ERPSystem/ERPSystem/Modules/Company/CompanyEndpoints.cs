@@ -13,7 +13,7 @@ namespace ERPSystem.Modules.Admin
 
             group.MapGet(Route.COMPANY_GET,
             async (CompanyService service)
-                => await service.GetAsync())
+   => await service.GetAsync())
         .WithDefaultApiSettings("GetCompanySettings", "Get Company Settings", "GET_COMPANY_SETTINGS", false);
 
 
