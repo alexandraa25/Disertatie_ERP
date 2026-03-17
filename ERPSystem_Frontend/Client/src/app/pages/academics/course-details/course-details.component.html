@@ -26,91 +26,83 @@
           <th>Înscriși</th>
         </tr>
       </thead>
-     <tbody>
-  <ng-container *ngFor="let s of course.sessions">
+      <tbody>
+        <ng-container *ngFor="let s of course.sessions">
 
-    <!-- 🔹 ROW PRINCIPAL -->
-    <tr class="session-row">
-      <td>{{ getDayName(s.dayOfWeek) }}</td>
-      <td>{{ s.startTime }} - {{ s.endTime }}</td>
-      <td>{{ s.teacherName }}</td>
+          <tr class="session-row">
+            <td>{{ getDayName(s.dayOfWeek) }}</td>
+            <td>{{ s.startTime }} - {{ s.endTime }}</td>
+            <td>{{ s.teacherName }}</td>
 
-      <td>
+            <td>
 
-  <!-- 🔹 dacă nelimitat -->
-  <ng-container *ngIf="!s.capacity">
-    <span class="unlimited">Nelimitat</span>
-  </ng-container>
+              <ng-container *ngIf="!s.capacity">
+                <span class="unlimited">Nelimitat</span>
+              </ng-container>
 
-  <!-- 🔹 dacă limitat -->
-  <ng-container *ngIf="s.capacity">
-    {{ s.enrolledActiveCount }} / {{ s.capacity }}
+              <ng-container *ngIf="s.capacity">
+                {{ s.enrolledActiveCount }} / {{ s.capacity }}
 
-    <div class="capacity-bar">
-      <div class="capacity-fill"
-           [style.width.%]="(s.enrolledActiveCount / s.capacity) * 100">
-      </div>
-    </div>
+                <div class="capacity-bar">
+                  <div class="capacity-fill" [style.width.%]="(s.enrolledActiveCount / s.capacity) * 100">
+                  </div>
+                </div>
 
-    <span class="remaining">
-      {{ s.capacity - s.enrolledActiveCount }} locuri rămase
-    </span>
-  </ng-container>
+                <span class="remaining">
+                  {{ s.capacity - s.enrolledActiveCount }} locuri rămase
+                </span>
+              </ng-container>
 
-</td>
+            </td>
 
-      <td class="actions-cell">
-        <button class="primary small"
-                (click)="openEnrollModal(s)">
-          Înscrie
-        </button>
+            <td class="actions-cell">
+              <button class="primary small" (click)="openEnrollModal(s)">
+                Înscrie
+              </button>
 
-        <button class="secondary small"
-                (click)="toggleSession(s.id)">
-          {{ expandedSessionId === s.id ? 'Ascunde' : 'Cursanți' }}
-        </button>
-      </td>
-    </tr>
+              <button class="secondary small" (click)="toggleSession(s.id)">
+                {{ expandedSessionId === s.id ? 'Ascunde' : 'Cursanți' }}
+              </button>
+            </td>
+          </tr>
 
-    <!-- 🔹 ROW EXPAND -->
-    <tr *ngIf="expandedSessionId === s.id">
-      <td colspan="5" class="expand-cell">
+          <tr *ngIf="expandedSessionId === s.id">
+            <td colspan="5" class="expand-cell">
 
-        <div *ngIf="loadingEnrollments">Se încarcă...</div>
+              <div *ngIf="loadingEnrollments">Se încarcă...</div>
 
-        <table *ngIf="!loadingEnrollments && enrollments[s.id]?.length">
-          <thead>
-            <tr>
-              <th>Nume</th>
-              <th>Email</th>
-              <th>Activ</th>
-              <th>Acțiuni</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let e of enrollments[s.id]">
-              <td>{{ e.studentName }}</td>
-              <td>{{ e.studentEmail }}</td>
-              <td>{{ e.isActive ? 'Da' : 'Nu' }}</td>
-              <td>
-                <button class="danger small"
-                        (click)="toggleEnrollment(s.id, e)">
-                  {{ e.isActive ? 'Dezactivează' : 'Activează' }}
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              <table *ngIf="!loadingEnrollments && enrollments[s.id]?.length">
+                <thead>
+                  <tr>
+                    <th>Nume</th>
+                    <th>Email</th>
+                    <th>Activ</th>
+                    <th>Acțiuni</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let e of enrollments[s.id]">
+                    <td>{{ e.studentName }}</td>
+                    <td>{{ e.studentEmail }}</td>
+                    <td>{{ e.isActive ? 'Da' : 'Nu' }}</td>
+                    <td>
+                      <button class="danger small" (click)="toggleEnrollment(s.id, e)">
+                        {{ e.isActive ? 'Dezactivează' : 'Activează' }}
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
 
-        <div *ngIf="!loadingEnrollments && !enrollments[s.id]?.length">
-          Nu există cursanți înscriși.
-        </div>
+              <div *ngIf="!loadingEnrollments && !enrollments[s.id]?.length">
+                Nu există cursanți înscriși.
+              </div>
 
-      </td>
-    </tr>
+            </td>
+          </tr>
 
-  </ng-container>
-</tbody>
+        </ng-container>
+      </tbody>
     </table>
 
   </div>

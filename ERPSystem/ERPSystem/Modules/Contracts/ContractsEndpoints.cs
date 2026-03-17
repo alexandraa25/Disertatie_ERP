@@ -134,6 +134,16 @@ public static class ContractsEndpoints
 );
 
 
+        group.MapGet(Route.CONTRACT_DOWNLOAD,
+    async (int id, ContractsService service) =>
+        await service.DownloadContractAsync(id))
+.WithDefaultApiSettings(
+    "DownloadContract",
+    "Descarcă PDF contract",
+    "GET",
+    false
+);
+
     }
 
 

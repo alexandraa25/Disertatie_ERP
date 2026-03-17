@@ -280,9 +280,7 @@ public class ContractsService
         if (!contract.Courses.Any())
             return response.SetError(ErrorCodes.InvalidParameters, "Contract has no courses");
 
-        var pdfPath = await GeneratePdfAsync(contract);
-
-        contract.PdfPath = pdfPath;
+       
         contract.Status = ContractStatus.Finalized;
         contract.FinalizedAtUtc = DateTime.UtcNow;
         contract.UpdatedAtUtc = DateTime.UtcNow;
@@ -447,7 +445,7 @@ public class ContractsService
     }
 
     // =========================
-    // SIGN
+    // SIGN by admin
     // =========================
     public async Task<PublicResponse> SignByAdminAsync(int id, string signature)
     {
@@ -526,38 +524,75 @@ public class ContractsService
         var response = new PublicResponse(true);
 
         var contract = await _db.StudentContracts
-            .AsNoTracking()
-            .Include(c => c.Courses)
-            .Include(c => c.Discounts)
-            .FirstOrDefaultAsync(c => c.Id == id);
+    .AsNoTracking()
+    .Include(c => c.Courses)
+    .Include(c => c.Discounts)
+    .Include(c => c.Parties)
+        .ThenInclude(p => p.Student)
+    .Include(c => c.Parties)
+        .ThenInclude(p => p.Guardian)
+    .FirstOrDefaultAsync(c => c.Id == id);
 
         if (contract is null)
             return response.SetError(ErrorCodes.InvalidParameters, "Not found");
 
-        var dto = new
-        {
-            contract.Id,
-            contract.ContractNumber,
-            Status = contract.Status.ToString(),
-            contract.StartDate,
-            contract.EndDate,
-            contract.IsUnlimited,
-            contract.TotalAmount,
-            contract.Installments,
-            contract.ContractBody,
-            Courses = contract.Courses.Select(c => new
-            {
-                c.CourseNameSnapshot,
-                c.SessionNameSnapshot,
-                c.PriceSnapshot
-            }),
-            Discounts = contract.Discounts.Select(d => new
-            {
-                Type = d.Type.ToString(),
-                d.Value,
-                d.Reason
-            })
-        };
+        var dto = new ContractDetailsDto(
+     contract.Id,
+     contract.ContractNumber,
+     contract.StartDate,
+     contract.EndDate,
+     contract.IsUnlimited,
+     contract.TotalAmount,
+     contract.Installments,
+     contract.Status.ToString(),
+     contract.CreatedAtUtc,
+     contract.FinalizedAtUtc,
+
+     // 🔥 SEMNĂTURI
+     contract.ClientSignature,
+     contract.ClientSignedAtUtc,
+     contract.AdminSignature,
+     contract.AdminSignedAtUtc,
+
+     // 🔥 COMPANY
+     contract.CompanyNameSnapshot,
+     contract.CompanyAddressSnapshot,
+     contract.CompanyCuiSnapshot,
+     contract.CompanyRegistrationSnapshot,
+     contract.CompanyIbanSnapshot,
+     contract.CompanyBankSnapshot,
+     contract.CompanyEmailSnapshot,
+     contract.CompanyPhoneSnapshot,
+
+     // 🔥 BENEFICIAR
+     contract.BeneficiaryNameSnapshot,
+     contract.BeneficiaryEmailSnapshot,
+     contract.BeneficiaryPhoneSnapshot,
+     contract.BeneficiaryAddressSnapshot,
+
+     contract.ContractBody,
+
+   contract.Parties.Select(p => new ContractPartyDto(
+    p.StudentId,
+    p.Student != null ? p.Student.FirstName + " " + p.Student.LastName : null,
+    p.GuardianId,
+    p.Guardian != null ? p.Guardian.FirstName + " " + p.Guardian.LastName : null,
+    p.Role.ToString()
+)).ToList(),
+
+     contract.Courses.Select(c => new ContractCourseDto(
+         c.CourseSessionId,
+         c.CourseNameSnapshot,
+         c.SessionNameSnapshot,
+         c.PriceSnapshot
+     )).ToList(),
+
+     contract.Discounts.Select(d => new ContractDiscountDto(
+         d.Type.ToString(),
+         d.Value,
+         d.Reason
+     )).ToList()
+ );
 
         return response.SetSuccess(dto);
     }
@@ -585,10 +620,7 @@ public class ContractsService
         return $"CTR-{DateTime.UtcNow:yyyy}-{DateTime.UtcNow.Ticks.ToString()[^6..]}";
     }
 
-    private async Task<string> GenerateContractBody(
-      StudentContract contract,
-      Guardian? guardian,
-      List<ERPSystem.Data.Entities.Student> students)
+    private async Task<string> GenerateContractBody( StudentContract contract,    Guardian? guardian,    List<ERPSystem.Data.Entities.Student> students)
     {
         var template = await _db.ContractTemplates
             .Where(x => x.IsActive)
@@ -695,40 +727,7 @@ public class ContractsService
         return response.SetSuccess(true);
     }
 
-    private async Task<string> GeneratePdfAsync(StudentContract contract)
-    {
-        var folder = Path.Combine("wwwroot", "contracts");
-
-        if (!Directory.Exists(folder))
-            Directory.CreateDirectory(folder);
-
-        var fileName = $"{contract.ContractNumber}.html";
-        var filePath = Path.Combine(folder, fileName);
-
-        await File.WriteAllTextAsync(filePath, contract.ContractBody);
-
-        return filePath;
-    }
-    public async Task<PublicResponse> GetLatestByStudentAsync(int studentId)
-    {
-        var response = new PublicResponse(true);
-
-        var contract = await _db.StudentContracts
-            .Include(c => c.Parties)
-            .Where(c => c.Parties.Any(p =>
-                p.Role == ContractPartyRole.Student &&
-                p.StudentId.HasValue &&
-                p.StudentId.Value == studentId))
-            .OrderByDescending(c => c.CreatedAtUtc)
-            .Select(c => new
-            {
-                c.Id,
-                Status = c.Status.ToString()
-            })
-            .FirstOrDefaultAsync();
-
-        return response.SetSuccess(contract);
-    }
+    
 
     public async Task<PublicResponse> CompleteAsync(int id)
     {
@@ -768,7 +767,6 @@ public class ContractsService
 
         await _db.SaveChangesAsync();
     }
-
 
     public async Task<PublicResponse> SuspendAsync(int id)
     {
@@ -810,5 +808,57 @@ public class ContractsService
         await _db.SaveChangesAsync();
 
         return response.SetSuccess(true);
+    }
+
+
+    public async Task<IResult> DownloadContractAsync(int id)
+    {
+        var contract = await _db.StudentContracts.FindAsync(id);
+
+        if (contract == null)
+            return Results.NotFound();
+
+        // 🔥 generează dacă nu există
+        if (string.IsNullOrEmpty(contract.PdfPath) || !File.Exists(contract.PdfPath))
+        {
+            var fileName = _pdfService.GenerateContractPdf(contract);
+
+            contract.PdfPath = Path.Combine("wwwroot", "contracts", fileName);
+            await _db.SaveChangesAsync();
+        }
+
+        var bytes = await File.ReadAllBytesAsync(contract.PdfPath);
+
+        return Results.File(
+            bytes,
+            "application/pdf",
+            $"Contract_{contract.ContractNumber}.pdf"
+        );
+    }
+
+
+    public async Task<PublicResponse> GetLatestByStudentAsync(int studentId)
+    {
+        var response = new PublicResponse(true);
+
+        var contract = await _db.StudentContracts
+            .Include(c => c.Parties)
+            .Where(c => c.Parties.Any(p =>
+                p.Role == ContractPartyRole.Student &&
+                p.StudentId.HasValue &&
+                p.StudentId.Value == studentId))
+            .OrderByDescending(c => c.CreatedAtUtc)
+            .Select(c => new
+            {
+                c.Id,
+                c.ContractNumber,
+                c.StartDate,
+                c.EndDate,
+                Status = c.Status.ToString()
+
+            })
+            .FirstOrDefaultAsync();
+
+        return response.SetSuccess(contract);
     }
 }

@@ -40,12 +40,12 @@ public static class CoursesEndpoints
             .WithDefaultApiSettings("GetCourseEnrollments", "Lista inscrieri curs", "ENROLLMENTS_LIST", false);
 
         group.MapPost(Route.COURSE_ENROLLMENTS,
-    async (int id, EnrollStudentRequest body, CoursesService service)
-        => await service.EnrollStudentAsync(id, body.StudentId, body.SessionId));
+            async (int id, EnrollStudentRequest body, CoursesService service)
+                => await service.EnrollStudentAsync(id, body.StudentId, body.SessionId));
 
         group.MapPut(Route.COURSE_ENROLLMENT_BY_SESSION_STUDENT,
-    async (int id, int sessionId, int studentId, bool isActive, CoursesService service)
-        => await service.SetEnrollmentActiveAsync(id, sessionId, studentId, isActive));
+            async (int id, int sessionId, int studentId, bool isActive, CoursesService service)
+                => await service.SetEnrollmentActiveAsync(id, sessionId, studentId, isActive));
 
         group.MapGet(Route.COURSE_TEACHERS,
             async (CoursesService service)
@@ -53,13 +53,8 @@ public static class CoursesEndpoints
             .WithDefaultApiSettings("GetTeachers", "Lista profesori", "TEACHERS", false);
 
         group.MapGet(Route.COURSE_AVAILABLE_STUDENTS,
-    async (int id, int sessionId, string? q, CoursesService service)
-        => await service.GetAvailableStudentsAsync(id, sessionId, q))
-    .WithDefaultApiSettings(
-        "GetAvailableStudents",
-        "Lista cursanti disponibili pentru sesiune",
-        "AVAILABLE_STUDENTS_LIST",
-        false
-    );
+           async (int id, int sessionId, string? q, CoursesService service)
+               => await service.GetAvailableStudentsAsync(id, sessionId, q))
+         .WithDefaultApiSettings("GetAvailableStudents","Lista cursanti disponibili pentru sesiune", "AVAILABLE_STUDENTS_LIST", false );
     }
 }

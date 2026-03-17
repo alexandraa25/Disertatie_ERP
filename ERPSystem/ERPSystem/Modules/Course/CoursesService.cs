@@ -10,8 +10,6 @@ namespace ERPSystem.Shared.BusinessLogic;
 
 public class CoursesService
 {
-    #region Constructor
-
     private readonly ApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<CoursesService> _logger;
@@ -22,10 +20,6 @@ public class CoursesService
         _userManager = userManager;
         _logger = logger;
     }
-
-    #endregion
-
-    #region Courses - List
 
     public async Task<PublicResponse> ListAsync(string? q)
     {
@@ -55,10 +49,6 @@ public class CoursesService
             return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
         }
     }
-
-    #endregion
-
-    #region Courses - Details
 
     public async Task<PublicResponse> GetAsync(int id)
     {
@@ -114,10 +104,6 @@ public class CoursesService
         }
     }
 
-    #endregion
-
-    #region Courses - Create
-
     public async Task<PublicResponse> CreateAsync(CreateCourseDto dto)
     {
         var response = new PublicResponse(true);
@@ -128,7 +114,6 @@ public class CoursesService
             if (validation is not null)
                 return response.SetError(ErrorCodes.InvalidParameters, validation);
 
-            // 🔥 VALIDARE SUPRAPUNERE PROFESOR
             if (HasTeacherOverlap(dto.Sessions))
                 return response.SetError(
                     ErrorCodes.InvalidParameters,
@@ -177,9 +162,6 @@ public class CoursesService
         }
     }
 
-    #endregion
-
-    #region Courses - Update
 
     public async Task<PublicResponse> UpdateAsync(int id, UpdateCourseDto dto)
     {
@@ -209,7 +191,7 @@ public class CoursesService
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (c is null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Course not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursul nu a fost gasit.");
 
             c.Name = dto.Name.Trim();
             c.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
@@ -221,16 +203,13 @@ public class CoursesService
                     session.IsActive = false;
                 }
             }
-            // c.TeacherUserId = dto.TeacherUserId;
             c.UpdatedAtUtc = DateTime.UtcNow;
 
-            // upsert sessions
             var incomingIds = dto.Sessions
                 .Where(x => x.Id.HasValue)
                 .Select(x => x.Id!.Value)
                 .ToHashSet();
 
-            // șterge sesiunile eliminate
             c.Sessions.RemoveAll(s => !incomingIds.Contains(s.Id));
 
             foreach (var sDto in dto.Sessions)
@@ -258,7 +237,7 @@ public class CoursesService
                     existing.EndTime = ParseTime(sDto.EndTime);
                     existing.Capacity = sDto.Capacity;
                     existing.TeacherUserId = sDto.TeacherUserId;
-                    existing.Fee = sDto.Fee;// 🔥 IMPORTANT
+                    existing.Fee = sDto.Fee;
                 }
             }
 
@@ -273,10 +252,7 @@ public class CoursesService
         }
     }
 
-    #endregion
-
-    #region Courses - Delete
-
+ 
     public async Task<PublicResponse> DeleteAsync(int id)
     {
         var response = new PublicResponse(true);
@@ -299,9 +275,6 @@ public class CoursesService
         }
     }
 
-    #endregion
-
-    #region Courses - Enrollments
 
     public async Task<PublicResponse> ListEnrollmentsAsync(int courseId)
     {
@@ -312,7 +285,7 @@ public class CoursesService
             var items = await _db.CourseEnrollments.AsNoTracking()
            .Include(x => x.Student)
            .Include(x => x.Session)
-           .Where(x => x.CourseId == courseId) // tu ai păstrat CourseId
+           .Where(x => x.CourseId == courseId) 
            .OrderByDescending(x => x.IsActive)
            .ThenBy(x => x.Student.FullName)
            .Select(x => new EnrollmentDto(
@@ -321,7 +294,7 @@ public class CoursesService
                x.Student.Email,
                x.EnrolledAtUtc,
                x.IsActive,
-               x.CourseSessionId,                         // SessionId (int)
+               x.CourseSessionId,                         
                x.Session.DayOfWeek,
                x.Session.StartTime.ToString("HH:mm"),
                x.Session.EndTime.ToString("HH:mm")
@@ -357,7 +330,6 @@ public class CoursesService
             if (session is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Session not found for this course");
 
-            // verifica capacity pe sesiune
             if (session.Capacity.HasValue)
             {
                 var activeCount = await _db.CourseEnrollments
@@ -367,7 +339,6 @@ public class CoursesService
                     return response.SetError(ErrorCodes.InvalidParameters, "Sesiunea a atins limita de cursanți.");
             }
 
-            // upsert enrollment pe sesiune + student
             var existing = await _db.CourseEnrollments
                 .FirstOrDefaultAsync(x => x.CourseSessionId == sessionId && x.StudentId == studentId);
 
@@ -422,10 +393,6 @@ public class CoursesService
         }
     }
 
-    #endregion
-
-    #region Courses - Teachers
-
     public async Task<PublicResponse> GetTeachersAsync()
     {
         var response = new PublicResponse(true);
@@ -456,10 +423,6 @@ public class CoursesService
         }
     }
 
-
-    #endregion
-
-    #region Helpers
 
     private static TimeOnly ParseTime(string s)
     {
@@ -512,7 +475,6 @@ public class CoursesService
         return null;
     }
 
-    #endregion
 
     private static bool HasTeacherOverlap(List<CourseSessionUpsertDto> sessions)
     {
@@ -542,9 +504,7 @@ public class CoursesService
         return false;
     }
 
-    private async Task<bool> HasTeacherOverlapInDatabase(
-    List<CourseSessionUpsertDto> sessions,
-    int? currentCourseId = null)
+    private async Task<bool> HasTeacherOverlapInDatabase(  List<CourseSessionUpsertDto> sessions, int? currentCourseId = null)
     {
         foreach (var s in sessions)
         {
@@ -559,7 +519,6 @@ public class CoursesService
                     x.StartTime < end
                 );
 
-            // dacă e update, excludem sesiunile din cursul curent
             if (currentCourseId.HasValue)
             {
                 query = query.Where(x => x.CourseId != currentCourseId.Value);
@@ -574,10 +533,7 @@ public class CoursesService
         return false;
     }
 
-    public async Task<PublicResponse> GetAvailableStudentsAsync(
-    int courseId,
-    int sessionId,
-    string? q)
+    public async Task<PublicResponse> GetAvailableStudentsAsync( int courseId, int sessionId, string? q)
     {
         var response = new PublicResponse(true);
 

@@ -1,17 +1,20 @@
+/* =========================
+   LAYOUT
+========================= */
 .details-container {
   max-width: 1100px;
-  margin: 100px auto 40px; /* CENTRARE + spacing */
+  margin: 100px auto 40px;
   padding: 0 20px;
 }
 
-
-
-/* HEADER */
+/* =========================
+   HEADER STUDENT
+========================= */
 .student-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 24px;
+  padding: 20px 24px;
   border-radius: 16px;
   background: white;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
@@ -24,10 +27,16 @@
   gap: 16px;
 }
 
-.student-text {
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
   display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  color: white;
+  font-weight: 600;
 }
 
 .student-text h2 {
@@ -37,32 +46,18 @@
   color: #1e293b;
 }
 
-
-.avatar {
-  width: 56px;
-  height: 56px;
-  font-size: 18px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 6px 16px rgba(99,102,241,0.25);
-}
-
 .meta {
   display: flex;
   gap: 10px;
   margin-top: 6px;
+  font-size: 13px;
+  color: #64748b;
 }
 
 .status {
-  margin-top: 8px;
-  padding: 6px 14px;
+  padding: 6px 12px;
+  border-radius: 20px;
   font-size: 12px;
-  border-radius: 999px;
   font-weight: 500;
 }
 
@@ -71,174 +66,236 @@
   color: #15803d;
 }
 
-.financial-warning {
-  padding: 4px 10px;
-  border-radius: 20px;
-  background: #fef3c7;
-  color: #b45309;
-  font-size: 12px;
-}
-
-.actions {
-  display: flex;
-  gap: 10px;
-}
-
-.actions button {
+/* =========================
+   BUTTONS (UNIFIED)
+========================= */
+button {
   padding: 8px 14px;
   border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
+  border: none;
   cursor: pointer;
   transition: 0.2s ease;
-  border: none;
 }
 
-.actions .secondary {
-  background: #f1f5f9;
-  color: #334155;
-}
-
-.actions .secondary:hover {
-  background: #e2e8f0;
-}
-
-.actions .primary {
+.primary,
+.btn-primary {
   background: #6366f1;
   color: white;
 }
 
-.actions .primary:hover {
+.primary:hover,
+.btn-primary:hover {
   background: #4f46e5;
-  box-shadow: 0 4px 12px rgba(99,102,241,0.25);
 }
+
+.secondary,
+.btn-secondary {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.secondary:hover,
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+/* =========================
+   TABS
+========================= */
 .tabs {
   display: inline-flex;
   gap: 6px;
   padding: 6px;
-  border-radius: 16px;
-  background: #e9eef5;
-  margin-bottom: 32px;
+  border-radius: 14px;
+  background: #f1f5f9;
+  margin-bottom: 24px;
 }
 
 .tabs button {
-  padding: 10px 20px;
-  border-radius: 12px;
-  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
   background: transparent;
-  font-weight: 500;
-  cursor: pointer;
-  color: #475569;
-  transition: all 0.2s ease;
+  color: #64748b;
 }
 
 .tabs button.active {
   background: white;
   color: #111827;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 }
-/* CARD */
+
+/* =========================
+   CARD (ALL TABS)
+========================= */
 .card {
   background: white;
-  padding: 32px;
-  border-radius: 20px;
-  box-shadow: 0 12px 35px rgba(15, 23, 42, 0.05);
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
   border: 1px solid #f1f5f9;
+  margin-bottom: 20px;
 }
 
-/* COURSES */
-/* =========================
-   COURSES SECTION
-========================= */
-
-.courses-header {
+.section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 }
 
-.courses-header h3 {
-  margin: 0;
-  font-size: 18px;
+/* opțional – să fie mai elegant */
+.edit-btn {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+/* =========================
+   INFO GRID
+========================= */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px 30px;
+}
+
+.info-item label {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.info-item span {
   font-weight: 600;
   color: #1e293b;
 }
 
-.courses-subtitle {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: #64748b;
+/* GRID MODERN */
+.info-grid.modern {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px 30px;
+  margin-bottom: 30px;
 }
 
-.total-box {
-  background: linear-gradient(135deg, #6366f1, #3b82f6);
-  color: white;
-  padding: 12px 18px;
-  border-radius: 14px;
+/* BOX INFO */
+.info-box {
+  background: #f9fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  min-width: 120px;
+  gap: 6px;
+  transition: 0.2s;
 }
 
-.total-box span {
+.info-box:hover {
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+}
+
+/* LABEL */
+.info-box label {
   font-size: 12px;
-  opacity: 0.9;
+  color: #94a3b8;
 }
 
-.total-box strong {
-  font-size: 16px;
+/* VALUE */
+.info-box span {
+  font-size: 14px;
   font-weight: 600;
+  color: #1e293b;
+}
+/* =========================
+   GUARDIANS
+========================= */
+/* CARD */
+.guardian-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px 20px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 14px;
+  transition: 0.2s ease;
 }
 
-.courses-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.guardian-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
 }
 
-.primary.small {
-  padding: 6px 12px;
-  font-size: 12px;
-}
-/* CARD CURS */
-
-.course-card {
+/* HEADER */
+.guardian-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 22px;
-  border-radius: 16px;
+  margin-bottom: 12px;
+}
+
+.guardian-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* BADGE */
+.primary-badge {
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 500;
+}
+
+/* GRID */
+.guardian-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px 20px;
+}
+
+/* ITEM */
+.guardian-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.guardian-item label {
+  font-size: 11px;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.guardian-item span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+}
+/* =========================
+   COURSES
+========================= */
+.course-card {
+  display: flex;
+  justify-content: space-between;
+  padding: 18px;
+  border-radius: 14px;
   background: #f9fafc;
   border: 1px solid #e5e7eb;
-  margin-bottom: 18px;
-  transition: all 0.2s ease;
+  margin-bottom: 12px;
+  transition: 0.2s ease;
 }
 
 .course-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05);
-  background: #ffffff;
-}
-
-.course-main {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.05);
 }
 
 .course-title-row {
   display: flex;
+  gap: 10px;
   align-items: center;
-  gap: 12px;
-}
-
-.course-title-row h4 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #1e293b;
 }
 
 .day-badge {
@@ -247,57 +304,163 @@
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 12px;
-  font-weight: 500;
 }
 
 .course-meta {
-  display: flex;
-  gap: 20px;
   font-size: 13px;
   color: #64748b;
 }
 
 .course-price {
-  font-size: 18px;
   font-weight: 600;
-  color: #111827;
 }
 
-/* EMPTY */
-
-.empty-state {
-  text-align: center;
-  padding: 40px 0;
-  color: #94a3b8;
-  font-style: italic;
+/* HEADER */
+.courses-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-/* RESPONSIVE */
-
-@media (max-width: 768px) {
-  .course-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-  }
-
-  .course-price {
-    align-self: flex-end;
-  }
-
-  .courses-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .total-box {
-    align-self: stretch;
-    align-items: center;
-  }
+/* LEFT */
+.courses-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-/* INVOICE */
+.courses-count {
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* RIGHT */
+.courses-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* TOTAL */
+.total-box {
+  background: #f1f5f9;
+  padding: 8px 14px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.total-box span {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.total-box strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+/* =========================
+   CONTRACT CARD
+========================= */
+.contract-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* 🔥 IMPORTANT */
+  padding: 24px;
+  border-radius: 16px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  gap: 20px;
+}
+
+/* LEFT */
+.contract-left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contract-left h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* META */
+.contract-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* ACTIONS */
+.contract-actions {
+  display: flex;
+  flex-direction: column; /* 🔥 STACK */
+  gap: 10px;
+  align-items: flex-end;
+}
+
+/* BUTTONS */
+.contract-actions button {
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  min-width: 180px; /* 🔥 uniform */
+}
+
+/* =========================
+   STATUS BADGE
+========================= */
+.status-badge {
+  width: fit-content;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.Active {
+  background: #22c55e;
+  color: white;
+}
+
+.status-badge.Draft { background: #eee; }
+.status-badge.Finalized { background: #fde68a; }
+.status-badge.SentToClient { background: #93c5fd; }
+.status-badge.SignedByClient { background: #bbf7d0; }
+.status-badge.Cancelled {
+  background: #ef4444;
+  color: white;
+}
+
+/* =========================
+   ALERTS
+========================= */
+.alert {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-top: 4px; /* 🔥 spacing */
+}
+
+.alert.warning {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.alert.danger {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* =========================
+   INVOICES
+========================= */
 .invoice-item {
   display: flex;
   justify-content: space-between;
@@ -316,94 +479,27 @@
   background: #dcfce7;
 }
 
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px 40px;
-  margin-bottom: 40px;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.info-item label {
-  font-size: 12px;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.info-item span {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1e293b;
-}
-
-.section-title {
-  margin: 20px 0 14px;
-  font-size: 15px;
-  color: #1e293b;
-}
-
-.guardian-card {
-  background: #f9fafc;
-  border-radius: 16px;
-  padding: 20px;
-  border: 1px solid #e5e7eb;
-  transition: 0.2s ease;
-}
-
-.guardian-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-}
-
-.guardian-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.guardian-details {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 8px 16px;
-}
-
-.primary-badge {
-  font-size: 11px;
-  padding: 4px 8px;
-  border-radius: 12px;
-  background: #dbeafe;
-  color: #1d4ed8;
-}
-
+/* =========================
+   EMPTY STATE
+========================= */
 .empty-state {
+  text-align: center;
+  padding: 24px;
   color: #94a3b8;
   font-style: italic;
 }
 
-.amount {
-  font-weight: 600;
-}
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .course-card {
+    flex-direction: column;
+    gap: 10px;
+  }
 
-.guardian-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.guardian-field label {
-  font-size: 12px;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.guardian-field span {
-  font-weight: 500;
-  color: #1e293b;
+  .contract-header {
+    flex-direction: column;
+    gap: 10px;
+  }
 }

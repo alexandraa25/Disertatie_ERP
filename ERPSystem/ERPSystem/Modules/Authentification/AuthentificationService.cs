@@ -69,7 +69,7 @@ namespace ERPSystem.Modules.Authentificate
                     PhoneNumber = request.PhoneNumber,
                     IsActive = true,
                     MustChangePassword = true,
-                    EmailConfirmed = false, // foarte important
+                    EmailConfirmed = false, 
                     CreatedAt = DateTime.UtcNow
                 };
 

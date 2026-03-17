@@ -22,8 +22,31 @@ public record ContractDetailsDto(
     string Status,
     DateTime CreatedAtUtc,
     DateTime? FinalizedAtUtc,
-    DateTime? SignedAtUtc,
+
+    // 🔥 SEMNĂTURI
+    string? ClientSignature,
+    DateTime? ClientSignedAtUtc,
+    string? AdminSignature,
+    DateTime? AdminSignedAtUtc,
+
+    // 🔥 COMPANY SNAPSHOT
+    string CompanyName,
+    string CompanyAddress,
+    string CompanyCui,
+    string CompanyRegistration,
+    string CompanyIban,
+    string CompanyBank,
+    string CompanyEmail,
+    string CompanyPhone,
+
+    // 🔥 BENEFICIAR SNAPSHOT
+    string BeneficiaryName,
+    string BeneficiaryEmail,
+    string BeneficiaryPhone,
+    string BeneficiaryAddress,
+
     string ContractBody,
+
     List<ContractPartyDto> Parties,
     List<ContractCourseDto> Courses,
     List<ContractDiscountDto> Discounts

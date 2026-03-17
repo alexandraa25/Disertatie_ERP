@@ -181,3 +181,34 @@
     transform: translateY(0);
   }
 }
+
+.signatures-grid {
+  display: flex;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.signature-box {
+  flex: 1;
+  border: 1px solid #ddd;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.signature-img {
+  max-width: 100%;
+  max-height: 120px;
+  margin: 10px 0;
+}
+
+.no-sign {
+  color: #999;
+  font-style: italic;
+  margin: 20px 0;
+}
+
+.sign-date {
+  font-size: 12px;
+  color: #666;
+}

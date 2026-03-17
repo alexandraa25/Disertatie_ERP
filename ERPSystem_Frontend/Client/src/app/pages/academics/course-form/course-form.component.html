@@ -21,10 +21,6 @@
           <input formControlName="description" placeholder="Detalii despre curs..." />
         </div>
 
-
-
-
-
         <div class="field" *ngIf="isEdit">
           <label>Status</label>
           <select formControlName="isActive">
@@ -60,7 +56,6 @@
               </option>
             </select>
 
-            <!-- 🔥 PREȚ PE SESIUNE -->
             <input type="number" formControlName="fee" placeholder="Preț sesiune" min="0" />
 
             <div class="capacity-wrapper">

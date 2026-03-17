@@ -3,12 +3,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CoursesService } from '../../services/courses.service';
-import {
-  TeacherOptionDto,
-  CreateCourseDto,
-  UpdateCourseDto,
-  CourseSessionUpsertDto
-} from '../../models/course.model';
+import { TeacherOptionDto, CreateCourseDto, UpdateCourseDto, CourseSessionUpsertDto } from '../../models/course.model';
 
 @Component({
   selector: 'app-course-form',
@@ -48,7 +43,6 @@ export class CourseFormComponent implements OnInit {
   ngOnInit(): void {
     this.buildForm();
 
-    // load teachers
     this.courses.teachers().subscribe({
       next: (res: any) => {
         this.teachers = res?.value ?? res ?? [];
@@ -56,25 +50,24 @@ export class CourseFormComponent implements OnInit {
       error: () => alert('Nu pot încărca lista de profesori.')
     });
 
-    // edit mode
     if (this.data && this.data.id !== undefined) {
       this.isEdit = true;
       this.courseId = this.data.id;
       this.loadCourse(this.courseId);
     } else {
-      this.addSession(); // minim o sesiune la create
+      this.addSession();
       this.loading = false;
     }
   }
 
- private buildForm(): void {
-  this.form = this.fb.group({
-    name: ['', [Validators.required, Validators.maxLength(150)]],
-    description: [''],
-    isActive: [true],
-    sessions: this.fb.array([])
-  });
-}
+  private buildForm(): void {
+    this.form = this.fb.group({
+      name: ['', [Validators.required, Validators.maxLength(150)]],
+      description: [''],
+      isActive: [true],
+      sessions: this.fb.array([])
+    });
+  }
 
   private loadCourse(id: number): void {
     this.courses.get(id).subscribe({
@@ -82,25 +75,25 @@ export class CourseFormComponent implements OnInit {
 
         const c = res?.value ?? res;
 
-       this.form.patchValue({
-  name: c.name,
-  description: c.description ?? '',
-  isActive: c.isActive
-});
+        this.form.patchValue({
+          name: c.name,
+          description: c.description ?? '',
+          isActive: c.isActive
+        });
 
         this.sessions.clear();
 
-       for (const s of c.sessions) {
-  this.sessions.push(this.createSessionGroup({
-    id: s.id,
-    dayOfWeek: s.dayOfWeek,
-    startTime: s.startTime,
-    endTime: s.endTime,
-    teacherUserId: s.teacherUserId,
-    capacity: s.capacity, 
-     fee: s.fee
-  }));
-}
+        for (const s of c.sessions) {
+          this.sessions.push(this.createSessionGroup({
+            id: s.id,
+            dayOfWeek: s.dayOfWeek,
+            startTime: s.startTime,
+            endTime: s.endTime,
+            teacherUserId: s.teacherUserId,
+            capacity: s.capacity,
+            fee: s.fee
+          }));
+        }
 
         if (this.sessions.length === 0) this.addSession();
 
@@ -119,18 +112,18 @@ export class CourseFormComponent implements OnInit {
   }
 
   createSessionGroup(data?: Partial<CourseSessionUpsertDto>): FormGroup {
-     return this.fb.group({
-    id: [data?.id ?? null],
-    dayOfWeek: [
-      data?.dayOfWeek ?? 1,
-      [Validators.required, Validators.min(1), Validators.max(7)]
-    ],
-    startTime: [data?.startTime ?? '18:00', Validators.required],
-    endTime: [data?.endTime ?? '19:00', Validators.required],
-    teacherUserId: [data?.teacherUserId ?? '', Validators.required],
-    fee: [data?.fee ?? 0, [Validators.required, Validators.min(0)]], // 🔥 NOU
-    capacity: [data?.capacity ?? null],
-    unlimited: [data?.capacity == null]
+    return this.fb.group({
+      id: [data?.id ?? null],
+      dayOfWeek: [
+        data?.dayOfWeek ?? 1,
+        [Validators.required, Validators.min(1), Validators.max(7)]
+      ],
+      startTime: [data?.startTime ?? '18:00', Validators.required],
+      endTime: [data?.endTime ?? '19:00', Validators.required],
+      teacherUserId: [data?.teacherUserId ?? '', Validators.required],
+      fee: [data?.fee ?? 0, [Validators.required, Validators.min(0)]],
+      capacity: [data?.capacity ?? null],
+      unlimited: [data?.capacity == null]
     });
   }
 
@@ -150,7 +143,6 @@ export class CourseFormComponent implements OnInit {
       return;
     }
 
-    // 🔹 validare interval orar
     for (const g of this.sessions.controls) {
       const start = g.value.startTime as string;
       const end = g.value.endTime as string;
@@ -161,13 +153,11 @@ export class CourseFormComponent implements OnInit {
       }
     }
 
-    /// 🔹 validare duplicate identice
     if (!this.validateDuplicateSessions()) {
       alert('Există sesiuni duplicate pentru același profesor și interval.');
       return;
     }
 
-    // 🔹 validare suprapunere locală profesor
     if (this.hasLocalTeacherOverlap()) {
       alert('Profesorul are sesiuni suprapuse în acest curs.');
       return;
@@ -178,21 +168,21 @@ export class CourseFormComponent implements OnInit {
     const sessionsPayload: CourseSessionUpsertDto[] =
       this.sessions.value.map((x: any) => ({
         id: x.id ?? null,
-    dayOfWeek: Number(x.dayOfWeek),
-    startTime: x.startTime,
-    endTime: x.endTime,
-    teacherUserId: x.teacherUserId,
-    fee: Number(x.fee), // 🔥 IMPORTANT
-    capacity: x.unlimited ? null : Number(x.capacity)
+        dayOfWeek: Number(x.dayOfWeek),
+        startTime: x.startTime,
+        endTime: x.endTime,
+        teacherUserId: x.teacherUserId,
+        fee: Number(x.fee),
+        capacity: x.unlimited ? null : Number(x.capacity)
       }));
 
     if (!this.isEdit) {
 
       const dto: CreateCourseDto = {
-  name: this.form.value.name,
-  description: this.form.value.description || null,
-  sessions: sessionsPayload
-};
+        name: this.form.value.name,
+        description: this.form.value.description || null,
+        sessions: sessionsPayload
+      };
 
       this.courses.create(dto).subscribe({
         next: () => {
@@ -215,11 +205,11 @@ export class CourseFormComponent implements OnInit {
     } else {
 
       const dto: UpdateCourseDto = {
-  name: this.form.value.name,
-  description: this.form.value.description || null,
-  isActive: !!this.form.value.isActive,
-  sessions: sessionsPayload
-};
+        name: this.form.value.name,
+        description: this.form.value.description || null,
+        isActive: !!this.form.value.isActive,
+        sessions: sessionsPayload
+      };
 
       this.courses.update(this.courseId!, dto).subscribe({
         next: () => {
@@ -263,7 +253,7 @@ export class CourseFormComponent implements OnInit {
       const key = `${day}-${start}-${end}-${teacher}`;
 
       if (seen.has(key)) {
-        return false; // duplicat găsit
+        return false;
       }
 
       seen.add(key);
@@ -298,12 +288,12 @@ export class CourseFormComponent implements OnInit {
 
   onToggleUnlimited(index: number): void {
 
-  const group = this.sessions.at(index);
+    const group = this.sessions.at(index);
 
-  if (group.value.unlimited) {
-    group.patchValue({ capacity: null });
-  } else {
-    group.patchValue({ capacity: 1 });
+    if (group.value.unlimited) {
+      group.patchValue({ capacity: null });
+    } else {
+      group.patchValue({ capacity: 1 });
+    }
   }
-}
 }

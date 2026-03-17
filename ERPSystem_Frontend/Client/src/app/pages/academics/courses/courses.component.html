@@ -3,8 +3,7 @@
     <h2>Cursuri</h2>
 
     <div class="actions">
-      <input [(ngModel)]="q" placeholder="Caută curs..." />
-      <button class="secondary" (click)="load()">Caută</button>
+     <input [(ngModel)]="q" (ngModelChange)="onSearch($event)" placeholder="Caută curs..." />
       <button class="primary" (click)="openCreate()">+ Adaugă curs</button>
     </div>
   </div>

@@ -2,19 +2,19 @@
 
   <!-- HEADER -->
   <div class="student-header">
-   <div class="student-info">
-  <div class="avatar">
-    {{ student.firstName?.charAt(0) }}{{ student.lastName?.charAt(0) }}
-  </div>
+    <div class="student-info">
+      <div class="avatar">
+        {{ student.firstName?.charAt(0) }}{{ student.lastName?.charAt(0) }}
+      </div>
 
-  <div class="student-text">
-    <h2>{{ student.fullName }}</h2>
+      <div class="student-text">
+        <h2>{{ student.fullName }}</h2>
 
-    <div class="meta">
-      <span class="status" [class.active]="student.isActive">
-        {{ student.isActive ? 'Activ' : 'Inactiv' }}
-      </span>
-    
+        <div class="meta">
+          <span class="status" [class.active]="student.isActive">
+            {{ student.isActive ? 'Activ' : 'Inactiv' }}
+          </span>
+
           <!-- <span class="financial-warning" *ngIf="student.hasDebt">
             Restanțe
           </span> -->
@@ -28,187 +28,242 @@
   </div>
 
   <div class="tabs">
-  <button 
-    *ngFor="let tab of tabs"
-    [class.active]="activeTab === tab"
-    (click)="onTabChange(tab)">
-    {{ tab }}
-  </button>
-</div>
+    <button *ngFor="let tab of tabs" [class.active]="activeTab === tab" (click)="onTabChange(tab)">
+      {{ tab }}
+    </button>
+  </div>
 
   <!-- TAB CONTENT -->
   <div class="tab-content">
 
-   <div class="tab-content">
+    <div class="tab-content">
 
-  <!-- ================= INFORMAȚII ================= -->
-  <div *ngIf="activeTab === 'Informații'" class="card">
+      <!-- ================= INFORMAȚII ================= -->
+      <div *ngIf="activeTab === 'Informații'" class="card">
 
-    <h3>Informații personale</h3>
+        <!-- HEADER -->
+        <div class="section-header">
+          <h3>Informații personale</h3>
 
-     <button class="primary" (click)="openEdit(student.id)">Editează</button>
+          <button class="primary edit-btn" (click)="openEdit(student.id)">
+            ✏️ Editează
+          </button>
+        </div>
 
-    <div class="info-grid">
-      <div class="info-item">
-        <label>Email</label>
-        <span>{{ student.email || '-' }}</span>
+        <!-- GRID INFO -->
+        <div class="info-grid modern">
+
+          <div class="info-box">
+            <label>Email</label>
+            <span>{{ student.email || '-' }}</span>
+          </div>
+
+          <div class="info-box">
+            <label>Telefon</label>
+            <span>{{ student.phone || '-' }}</span>
+          </div>
+
+          <div class="info-box">
+            <label>Adresă</label>
+            <span>{{ student.address || '-' }}</span>
+          </div>
+
+          <div class="info-box">
+            <label>Data nașterii</label>
+            <span>
+              {{ student.dateOfBirth ? (student.dateOfBirth | date:'dd.MM.yyyy') : '-' }}
+            </span>
+          </div>
+
+        </div>
+
+        <!-- PĂRINȚI -->
+        <h3 class="section-title">Părinți / Tutori</h3>
+
+        <div *ngIf="student.guardians?.length; else noGuardians">
+
+          <div class="guardian-card" *ngFor="let g of student.guardians">
+
+            <div class="guardian-top">
+              <div class="guardian-name">
+                {{ g.firstName }} {{ g.lastName }}
+              </div>
+
+              <span class="primary-badge" *ngIf="g.isPrimaryContact">
+                ⭐ Contact principal
+              </span>
+            </div>
+
+            <div class="guardian-grid">
+
+              <div class="guardian-item">
+                <label>Relație</label>
+                <span>{{ g.relationshipType }}</span>
+              </div>
+
+              <div class="guardian-item">
+                <label>Email</label>
+                <span>{{ g.email }}</span>
+              </div>
+
+              <div class="guardian-item">
+                <label>Telefon</label>
+                <span>{{ g.phone }}</span>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <ng-template #noGuardians>
+          <p class="empty-state">Nu există tutori asociați.</p>
+        </ng-template>
+
       </div>
 
-      <div class="info-item">
-        <label>Telefon</label>
-        <span>{{ student.phone || '-' }}</span>
+
+      <!-- ================= CURSURI ================= -->
+      <div *ngIf="activeTab === 'Cursuri'" class="card">
+
+        <div class="courses-header">
+
+          <!-- LEFT -->
+          <div class="courses-left">
+            <h3>Cursuri înscrise</h3>
+            <span class="courses-count">
+              {{ courses.length }} cursuri active
+            </span>
+          </div>
+
+          <!-- RIGHT -->
+          <div class="courses-right">
+
+            <div class="total-box" *ngIf="courses.length">
+              <span>Total</span>
+              <strong>{{ totalAmount }} RON</strong>
+            </div>
+
+            <button class="primary small" (click)="openEnrollModal()">
+              ➕ Înscrie la curs
+            </button>
+
+          </div>
+
+        </div>
+
+        <div *ngIf="courses.length; else noCourses">
+
+          <div *ngFor="let c of courses" class="course-card">
+
+            <div class="course-main">
+              <div class="course-title-row">
+                <h4>{{ c.courseName }}</h4>
+                <span class="day-badge"> {{ getRomanianDay(c.dayOfWeek) }}</span>
+              </div>
+
+              <div class="course-meta">
+                <span class="time">
+                  {{ c.startTime }} - {{ c.endTime }}
+                </span>
+
+                <span class="teacher">
+                  👨‍🏫 {{ c.teacherName }}
+                </span>
+              </div>
+            </div>
+
+            <div class="course-price">
+              {{ c.price }} RON
+            </div>
+
+          </div>
+
+        </div>
+
+        <ng-template #noCourses>
+          <div class="empty-state">
+            Elevul nu este înscris la niciun curs.
+          </div>
+        </ng-template>
+
       </div>
 
-      <div class="info-item">
-        <label>Adresă</label>
-        <span>{{ student.address || '-' }}</span>
-      </div>
+      <!-- FINANCIAR -->
+      <div *ngIf="activeTab === 'Financiar'" class="card">
+        <div class="contract-card">
 
-      <div class="info-item">
-        <label>Data nașterii</label>
-        <span>
-          {{ student.dateOfBirth ? (student.dateOfBirth | date:'dd.MM.yyyy') : '-' }}
-        </span>
-      </div>
+          <div class="contract-left">
+            <h2>Contract #{{ contract?.contractNumber || '—' }}</h2>
+
+            <span class="status-badge" [ngClass]="contract.status">
+              {{ contract.status }}
+            </span>
+
+            <div *ngIf="isExpired()" class="alert danger">
+              ⚠️ Contractul a expirat! Nu mai poate fi activ.
+            </div>
+
+            <div *ngIf="isExpiringSoon()" class="alert warning">
+              ⏳ Contractul expiră în {{ daysLeft }} zile
+            </div>
+
+            <div class="contract-meta">
+      <span>📅 Start: {{ contract?.startDate | date:'dd.MM.yyyy' }}</span>
+
+      <span *ngIf="contract?.endDate">
+        ⏳ Final: {{ contract?.endDate | date:'dd.MM.yyyy' }}
+      </span>
     </div>
+          </div>
 
-    <!-- PĂRINȚI -->
-    <h3 class="section-title">Părinți / Tutori</h3>
+          <div class="contract-actions">
 
-    <div *ngIf="student.guardians?.length; else noGuardians">
+            <button class="primary" (click)="handleContractAction()" [disabled]="contractAction === 'waiting'">
+              {{ getContractButtonText() }}
+            </button>
 
-      <div class="guardian-card" *ngFor="let g of student.guardians">
-        <div class="guardian-header">
-          <strong>{{ g.firstName }} {{ g.lastName }}</strong>
+            <button class="secondary" *ngIf="contract.status === 'Active'" (click)="downloadPdf()"  [disabled]="loading">
+               <span *ngIf="!loading">📄 Descarcă PDF</span>
+              <span *ngIf="loading">Se descarcă...</span>
+            </button>
 
-          <span class="primary-badge" *ngIf="g.isPrimaryContact">
-            Contact principal
+            <!-- <button class="btn-danger" *ngIf="contract.status !== 'Cancelled'" (click)="cancelContract()">
+              ❌
+            </button> -->
+
+          </div>
+
+        </div>
+        <div *ngFor="let f of student.invoices ?? []" class="invoice-item">
+          <div>
+            <strong>{{ f.number }}</strong>
+            <div class="sub">{{ f.date | date:'dd.MM.yyyy' }}</div>
+          </div>
+
+          <div>
+            {{ f.amount }} RON
+          </div>
+
+          <span class="badge" [class.paid]="f.paid">
+            {{ f.paid ? 'Achitat' : 'Neachitat' }}
           </span>
         </div>
+      </div>
 
-       <div class="guardian-details">
-  <div class="guardian-field">
-    <label>Relație</label>
-    <span>{{ g.relationshipType }}</span>
-  </div>
+      <!-- ISTORIC -->
+      <div *ngIf="activeTab === 'Istoric'" class="card">
+        <h3>Istoric activitate</h3>
 
-  <div class="guardian-field">
-    <label>Email</label>
-    <span>{{ g.email }}</span>
-  </div>
+        <div *ngFor="let log of student.activityLogs ?? []" class="log-item">
+          <div class="log-date">
+            {{ log.date | date:'dd.MM.yyyy HH:mm' }}
+          </div>
+          <div>{{ log.action }}</div>
+        </div>
 
-  <div class="guardian-field">
-    <label>Telefon</label>
-    <span>{{ g.phone }}</span>
-  </div>
-</div>
       </div>
 
     </div>
-
-    <ng-template #noGuardians>
-      <p class="empty-state">Nu există tutori asociați.</p>
-    </ng-template>
-
   </div>
-
-    <!-- CURSURI -->
-   <!-- ================= CURSURI ================= -->
- <div *ngIf="activeTab === 'Cursuri'" class="card">
-
-  <div class="courses-header">
-    <div>
-      <h3>Cursuri înscrise</h3> 
-        {{ courses.length }} cursuri active
-    
-    </div>
-
-<div class="courses-actions">
-
-    <button class="primary small"
-            (click)="openEnrollModal()">
-      Înscrie la curs
-    </button>
-    
-    <div class="total-box" *ngIf="courses.length">
-      <span>Total</span>
-      <strong>{{ totalAmount }} RON</strong>
-    </div>
-  </div>
-</div>
-
-  <div *ngIf="courses.length; else noCourses">
-
-    <div *ngFor="let c of courses" class="course-card">
-
-      <div class="course-main">
-        <div class="course-title-row">
-          <h4>{{ c.courseName }}</h4>
-          <span class="day-badge"> {{ getRomanianDay(c.dayOfWeek) }}</span>
-        </div>
-
-        <div class="course-meta">
-          <span class="time">
-            {{ c.startTime }} - {{ c.endTime }}
-          </span>
-
-          <span class="teacher">
-            👨‍🏫 {{ c.teacherName }}
-          </span>
-        </div>
-      </div>
-
-      <div class="course-price">
-        {{ c.price }} RON
-      </div>
-
-    </div>
-
-  </div>
-
-  <ng-template #noCourses>
-    <div class="empty-state">
-      Elevul nu este înscris la niciun curs.
-    </div>
-  </ng-template>
-
-</div>
-
-    <!-- FINANCIAR -->
-    <div *ngIf="activeTab === 'Financiar'" class="card">
-      <h3>Situație financiară</h3>
-<button class="btn-primary"
-        (click)="handleContractAction()">
-  {{ getContractButtonText() }}
-</button>
-      <div *ngFor="let f of student.invoices ?? []" class="invoice-item">
-        <div>
-          <strong>{{ f.number }}</strong>
-          <div class="sub">{{ f.date | date:'dd.MM.yyyy' }}</div>
-        </div>
-
-        <div>
-          {{ f.amount }} RON
-        </div>
-
-        <span class="badge" [class.paid]="f.paid">
-          {{ f.paid ? 'Achitat' : 'Neachitat' }}
-        </span>
-      </div>
-    </div>
-
-    <!-- ISTORIC -->
-    <div *ngIf="activeTab === 'Istoric'" class="card">
-      <h3>Istoric activitate</h3>
-
-      <div *ngFor="let log of student.activityLogs ?? []" class="log-item">
-        <div class="log-date">
-          {{ log.date | date:'dd.MM.yyyy HH:mm' }}
-        </div>
-        <div>{{ log.action }}</div>
-      </div>
-
-    </div>
-
-  </div>
-</div>

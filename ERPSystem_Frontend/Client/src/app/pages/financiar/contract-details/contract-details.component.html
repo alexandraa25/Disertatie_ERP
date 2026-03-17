@@ -22,6 +22,53 @@
     </pre>
   </div>
 
+  <div class="section signatures-section" *ngIf="contract">
+
+  <div class="section-header">
+    <h3>✍️ Semnături</h3>
+  </div>
+
+  <div class="signatures-grid">
+
+    <!-- CLIENT -->
+    <div class="signature-box">
+      <h4>Client</h4>
+
+      <img *ngIf="contract.clientSignature"
+           [src]="contract.clientSignature"
+           class="signature-img" />
+
+      <div *ngIf="!contract.clientSignature" class="no-sign">
+        Nesemnat
+      </div>
+
+      <div class="sign-date" *ngIf="contract.clientSignedAtUtc">
+        Semnat la:
+        {{ contract.clientSignedAtUtc | date:'dd.MM.yyyy HH:mm' }}
+      </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div class="signature-box">
+      <h4>Administrator</h4>
+
+      <img *ngIf="contract.adminSignature"
+           [src]="contract.adminSignature"
+           class="signature-img" />
+
+      <div *ngIf="!contract.adminSignature" class="no-sign">
+        Nesemnat
+      </div>
+
+      <div class="sign-date" *ngIf="contract.adminSignedAtUtc">
+        Semnat la:
+        {{ contract.adminSignedAtUtc | date:'dd.MM.yyyy HH:mm' }}
+      </div>
+    </div>
+
+  </div>
+</div>
+
   <!-- EDIT -->
   <div *ngIf="isEditingBody" class="body-edit">
     <textarea [(ngModel)]="editedBody"

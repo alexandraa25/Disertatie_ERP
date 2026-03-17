@@ -8,83 +8,65 @@ export class ContractsService {
 
   private baseUrl = 'https://localhost:7195/contracts';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   create(dto: CreateContractDto): Observable<any> {
     return this.http.post(this.baseUrl, dto);
   }
-  // ============================
-  // GET BY ID
-  // ============================
+
   getById(id: number): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/${id}`);
   }
 
-  // ============================
-  // LIST BY STUDENT
-  // ============================
+
   listByStudent(studentId: number): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/students/${studentId}/contracts`);
   }
 
-  // ============================
-  // UPDATE BODY
-  // ============================
+
   updateBody(id: number, dto: any): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/${id}/body`, dto);
   }
 
-  // ============================
-  // FINALIZE
-  // ============================
 
   finalize(id: number) {
-   return this.http.put<any>(`${this.baseUrl}/${id}/finalize`, {});
-}
-  
-send(id: number) {
-  return this.http.post(`${this.baseUrl}/${id}/send`, {});
-}
+    return this.http.put<any>(`${this.baseUrl}/${id}/finalize`, {});
+  }
 
-getForSigning(token: string) {
-  return this.http.get(`${this.baseUrl}/sign/${token}`);
-}
+  send(id: number) {
+    return this.http.post(`${this.baseUrl}/${id}/send`, {});
+  }
+
+  getForSigning(token: string) {
+    return this.http.get(`${this.baseUrl}/sign/${token}`);
+  }
 
 
-signClient(dto: any) {
-  return this.http.post(`${this.baseUrl}/client-sign`, dto);
-}
-  // ============================
-  // SIGN
-  // ============================s
+  signClient(dto: any) {
+    return this.http.post(`${this.baseUrl}/client-sign`, dto);
+  }
+
   sign(id: number): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/${id}/sign`, {});
   }
 
-  // ============================
-  // ACTIVATE
-  // ============================
 
   activate(id: number) {
-   return this.http.put<any>(`${this.baseUrl}/contracts/${id}/activate`, {});
-}
-  
+    return this.http.put<any>(`${this.baseUrl}/contracts/${id}/activate`, {});
+  }
 
-  // ============================
-  // CANCEL
-  // ============================
+
+
   cancel(id: number): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/${id}/cancel`, {});
   }
 
-  // ============================
-  // GENERATE PDF
-  // ============================
+
   generatePdf(id: number): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/${id}/generate-pdf`, {});
   }
 
-   getLatestByStudent(studentId: number): Observable<any> {
+  getLatestByStudent(studentId: number): Observable<any> {
     return this.http.get<any>(
       `${this.baseUrl}/latest-by-student/${studentId}`
     );
@@ -92,10 +74,16 @@ signClient(dto: any) {
 
   adminSign(id: number, signature: string) {
 
-  return this.http.post(`${this.baseUrl}/contracts/${id}/admin-sign`, {
-    signature: signature
-  });
+    return this.http.post(`${this.baseUrl}/contracts/${id}/admin-sign`, {
+      signature: signature
+    });
 
-}
+  }
+
+  download(id: number) {
+    return this.http.get(`${this.baseUrl}/contracts/${id}/download`, {
+      responseType: 'blob'
+    });
+  }
 
 }

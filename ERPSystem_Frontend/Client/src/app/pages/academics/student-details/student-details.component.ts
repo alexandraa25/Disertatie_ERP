@@ -24,46 +24,43 @@ export class StudentDetailsComponent implements OnInit {
   tabs = ['Informații', 'Cursuri', 'Financiar', 'Istoric'];
   activeTab = 'Informații';
 
-  // 🔥 NOI
   courses: StudentCourseDetailsDto[] = [];
   totalAmount = 0;
   coursesLoaded = false;
   contract: any = null;
 
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private students: StudentsService, 
-    private contracts: ContractsService, 
+    private students: StudentsService,
+    private contracts: ContractsService,
     private dialog: MatDialog
-  ) {}
+  ) { }
 
   ngOnInit(): void {
-  const id = Number(this.route.snapshot.paramMap.get('id'));
+    const id = Number(this.route.snapshot.paramMap.get('id'));
 
-  this.students.get(id).subscribe({
-    next: (res) => {
-      this.student = res;
-      this.loading = false;
+    this.students.get(id).subscribe({
+      next: (res) => {
+        this.student = res;
+        this.loading = false;
 
-      if (this.student?.id) {
-        this.loadContract(); // ✅ aici
+        if (this.student?.id) {
+          this.loadContract(); 
+        }
+      },
+      error: () => {
+        this.loading = false;
+        alert('Nu am putut încărca elevul.');
+        this.router.navigate(['/students']);
       }
-    },
-    error: () => {
-      this.loading = false;
-      alert('Nu am putut încărca elevul.');
-      this.router.navigate(['/students']);
-    }
-  });
-}
+    });
+  }
+
   goBack() {
     this.router.navigate(['/students']);
   }
 
-  
-  // 🔥 schimbare tab corectă
   onTabChange(tab: string) {
     this.activeTab = tab;
 
@@ -81,53 +78,55 @@ export class StudentDetailsComponent implements OnInit {
       });
   }
 
- getRomanianDay(day: any): string {
+  getRomanianDay(day: any): string {
 
-  const mapByNumber: Record<number, string> = {
-    0: 'Duminică',
-    1: 'Luni',
-    2: 'Marți',
-    3: 'Miercuri',
-    4: 'Joi',
-    5: 'Vineri',
-    6: 'Sâmbătă'
-  };
+    const mapByNumber: Record<number, string> = {
+      0: 'Duminică',
+      1: 'Luni',
+      2: 'Marți',
+      3: 'Miercuri',
+      4: 'Joi',
+      5: 'Vineri',
+      6: 'Sâmbătă'
+    };
 
-  if (!isNaN(day)) {
-    return mapByNumber[Number(day)] ?? day;
+    if (!isNaN(day)) {
+      return mapByNumber[Number(day)] ?? day;
+    }
+
+    const normalized = day?.toString().toLowerCase();
+
+    const mapByName: Record<string, string> = {
+      monday: 'Luni',
+      tuesday: 'Marți',
+      wednesday: 'Miercuri',
+      thursday: 'Joi',
+      friday: 'Vineri',
+      saturday: 'Sâmbătă',
+      sunday: 'Duminică'
+    };
+
+    return mapByName[normalized] ?? day;
   }
 
-  const normalized = day?.toString().toLowerCase();
 
-  const mapByName: Record<string, string> = {
-    monday: 'Luni',
-    tuesday: 'Marți',
-    wednesday: 'Miercuri',
-    thursday: 'Joi',
-    friday: 'Vineri',
-    saturday: 'Sâmbătă',
-    sunday: 'Duminică'
-  };
+  loadContract() {
+    this.contracts.getLatestByStudent(this.student.id)
+      .subscribe((res: { value: null; }) => {
+        this.contract = res?.value ?? null;
+        console.log(this.contract);
+      });
+     
+  }
 
-  return mapByName[normalized] ?? day;
-}
-
-
-loadContract() {
-  this.contracts.getLatestByStudent(this.student.id)
-    .subscribe((res: { value: null; }) => {
-      this.contract = res?.value ?? null;
-    });
-}
-
-get contractAction(): string {
+  get contractAction(): string {
 
   if (!this.contract) return 'create';
 
   switch (this.contract.status) {
 
     case 'Draft':
-      return 'finalize';
+      return 'edit';
 
     case 'Finalized':
       return 'send';
@@ -136,7 +135,7 @@ get contractAction(): string {
       return 'waiting';
 
     case 'SignedByClient':
-      return 'activate';
+      return 'sign-admin';
 
     case 'Active':
       return 'view';
@@ -149,34 +148,34 @@ get contractAction(): string {
   }
 }
 
-getContractButtonText(): string {
+  getContractButtonText(): string {
 
   switch (this.contractAction) {
 
     case 'create':
-      return 'Creează contract';
+      return '➕ Creează contract';
 
-    case 'finalize':
-      return 'Finalizează contract';
+    case 'edit':
+      return '✏️ Editează / Finalizează';
 
     case 'send':
-      return 'Trimite clientului';
+      return '📤 Trimite clientului';
 
     case 'waiting':
-      return 'Așteaptă semnarea clientului';
+      return '⏳ Așteaptă semnarea';
 
-    case 'activate':
-      return 'Semneaza contract';
+    case 'sign-admin':
+      return '✍️ Semnează (Admin)';
 
     case 'view':
-      return 'Vizualizează contract';
+      return '📄 Vizualizeaza PDF';
 
     default:
-      return 'Creează contract';
+      return '➕ Creează contract';
   }
 }
 
-handleContractAction(): void {
+ handleContractAction(): void {
 
   switch (this.contractAction) {
 
@@ -184,105 +183,165 @@ handleContractAction(): void {
       this.createContract();
       break;
 
-    case 'finalize':
-      this.finalizeContract();
+    case 'edit':
+      this.openContract(this.contract.id); // sau edit
       break;
 
     case 'send':
       this.sendContract();
       break;
 
-    case 'activate':
+    case 'sign-admin':
       this.activateContract();
       break;
 
     case 'view':
       this.openContract(this.contract.id);
       break;
+
+    case 'waiting':
+      // nu face nimic sau show mesaj
+      alert('Contractul a fost trimis și așteaptă semnarea clientului');
+      break;
   }
 }
 
-createContract() {
-  this.router.navigate(['/create-contract'], {
-    queryParams: { studentId: this.student.id }
-  });
-}
-
-openContract(id: number) {
-  this.router.navigate(['/contracts', id]);
-}
-
- openEdit(id: number) {
-
-  if (this.dialog.openDialogs.length > 0) {
-    return;
+  createContract() {
+    this.router.navigate(['/create-contract'], {
+      queryParams: { studentId: this.student.id }
+    });
   }
 
-  const dialogRef = this.dialog.open(StudentFormComponent, {
-    width: '720px',
-    maxWidth: '92vw',
-    panelClass: 'student-dialog',
-    data: { id }   // 🔥 AICI ERA PROBLEMA
-  });
+  openContract(id: number) {
+    this.router.navigate(['/contracts', id]);
+  }
 
-  dialogRef.afterClosed().subscribe(result => {
-    if (result) {
-      this.loadContract();
+  openEdit(id: number) {
+
+    if (this.dialog.openDialogs.length > 0) {
+      return;
     }
-  });
 
-  
-}
-
-finalizeContract() {
-
-  this.contracts.finalize(this.contract.id)
-    .subscribe(() => {
-      this.loadContract();
+    const dialogRef = this.dialog.open(StudentFormComponent, {
+      width: '720px',
+      maxWidth: '92vw',
+      panelClass: 'student-dialog',
+      data: { id }  
     });
 
-}
-
-sendContract() {
-
-  this.contracts.send(this.contract.id)
-    .subscribe(() => {
-      this.loadContract();
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadContract();
+      }
     });
 
+  }
+
+  finalizeContract() {
+
+    this.contracts.finalize(this.contract.id)
+      .subscribe(() => {
+        this.loadContract();
+      });
+
+  }
+
+  sendContract() {
+
+    this.contracts.send(this.contract.id)
+      .subscribe(() => {
+        this.loadContract();
+      });
+
+  }
+
+  activateContract() {
+
+    const dialogRef = this.dialog.open(AdminSignatureModalComponent, {
+      width: '600px',
+      data: this.contract.id
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+
+      if (result) {
+        this.loadContract();
+      }
+
+    });
+
+  }
+
+  isExpired(): boolean {
+  return !!this.contract?.endDate &&
+         new Date(this.contract.endDate) < new Date();
 }
 
-activateContract() {
+isExpiringSoon(): boolean {
+  if (!this.contract?.endDate) return false;
 
-  const dialogRef = this.dialog.open(AdminSignatureModalComponent, {
-    width: '600px',
-    data: this.contract.id
-  });
+  const end = new Date(this.contract.endDate);
+  const today = new Date();
 
-  dialogRef.afterClosed().subscribe(result => {
+  const diff = (end.getTime() - today.getTime()) / (1000 * 3600 * 24);
 
-    if (result) {
-      this.loadContract();
-    }
-
-  });
-
+  return diff > 0 && diff <= 7; // 7 zile
 }
-openEnrollModal() {
 
-  const ref = this.dialog.open(EnrollStudentsComponent, {
-    width: '600px',
-    data: {
-      studentId: this.student.id
-    }
-  });
+get daysLeft(): number {
+  if (!this.contract?.endDate) return 0;
 
-  ref.afterClosed().subscribe(result => {
-    if (result) {
-      this.loadCourses(); // reîncarcă lista de cursuri
-    }
-  });
+  const end = new Date(this.contract.endDate);
+  const today = new Date();
 
+  return Math.ceil((end.getTime() - today.getTime()) / (1000 * 3600 * 24));
 }
+
+  downloadPdf(): void {
+  if (!this.contract?.id) return;
+
+  this.loading = true;
+
+  this.contracts.download(this.contract.id).subscribe({
+    next: (blob: Blob) => {
+
+      const url = window.URL.createObjectURL(blob);
+
+      const fileName =
+        this.contract?.contractNumber
+          ? `contract_${this.contract.contractNumber}.pdf`
+          : 'contract.pdf';
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+      this.loading = false;
+    },
+    error: () => {
+      this.loading = false;
+      alert('Eroare la descărcare PDF');
+    }
+  });
+}
+
+  openEnrollModal() {
+
+    const ref = this.dialog.open(EnrollStudentsComponent, {
+      width: '600px',
+      data: {
+        studentId: this.student.id
+      }
+    });
+
+    ref.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadCourses(); 
+      }
+    });
+
+  }
 }
 

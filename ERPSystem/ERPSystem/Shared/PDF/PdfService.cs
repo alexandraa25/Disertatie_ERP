@@ -2,6 +2,7 @@
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using ERPSystem.Data.Entities;
+using System.Text.RegularExpressions;
 
 public class PdfService
 {
@@ -13,59 +14,125 @@ public class PdfService
             Directory.CreateDirectory(folder);
 
         var fileName = $"{contract.ContractNumber}.pdf";
-
         var filePath = Path.Combine(folder, fileName);
 
-        var signatureBytes = string.IsNullOrEmpty(contract.ClientSignature)
-            ? null
-            : Convert.FromBase64String(
-                contract.ClientSignature.Replace("data:image/png;base64,", "")
-            );
+        var clientSignature = GetImage(contract.ClientSignature);
+        var adminSignature = GetImage(contract.AdminSignature);
 
         Document.Create(container =>
         {
             container.Page(page =>
             {
+                page.Size(PageSizes.A4);
                 page.Margin(40);
 
-                page.Header()
-                    .Text($"Contract {contract.ContractNumber}")
-                    .FontSize(20)
-                    .Bold();
+                page.DefaultTextStyle(x => x
+                    .FontSize(11)
+                );
 
-                page.Content()
-                    .Column(col =>
+                // ================= HEADER =================
+                page.Header().Column(col =>
+                {
+                    col.Item().AlignCenter().Text("CONTRACT DE PRESTĂRI SERVICII")
+                        .FontSize(16).Bold();
+
+                    col.Item().AlignCenter().Text($"Nr. {contract.ContractNumber}")
+                        .FontSize(12);
+
+                    col.Item().AlignCenter().Text(
+                        $"Data: {DateTime.UtcNow:dd.MM.yyyy}"
+                    ).FontSize(10).FontColor(Colors.Grey.Darken1);
+                });
+
+                // ================= CONTENT =================
+                page.Content().Column(col =>
+                {
+                    col.Spacing(6);
+
+                    // 🔹 BODY (din template)
+                    var paragraphs = SplitText(contract.ContractBody);
+
+                    foreach (var p in paragraphs)
                     {
-                        col.Item().Text(contract.ContractBody);
+                        col.Item().Text(p).LineHeight(1.4f);
+                    }
 
-                        col.Item().PaddingTop(30);
+                    // 🔹 SPACING
+                    col.Item().PaddingTop(30);
 
-                        col.Item().Row(row =>
+                    // ================= SEMNĂTURI =================
+                    col.Item().Row(row =>
+                    {
+                        row.RelativeItem().Column(left =>
                         {
-                            row.RelativeItem().Column(col2 =>
-                            {
-                               
-                            });
+                            left.Spacing(4);
 
-                            row.RelativeItem().Column(col2 =>
-                            {
-                              
+ 
+                            if (adminSignature != null)
+                                left.Item().Height(60).Image(adminSignature);
 
-                                if (signatureBytes != null)
-                                {
-                                    col2.Item().Image(signatureBytes);
-                                }
+                            left.Item().Text(
+                                contract.AdminSignedAtUtc?.ToString("dd.MM.yyyy") ?? "-"
+                            ).FontSize(10);
+                        });
 
-                                col2.Item().Text(
-                                    contract.ClientSignedAtUtc?.ToString("dd.MM.yyyy")
-                                );
-                            });
+                        row.RelativeItem().Column(right =>
+                        {
+                            right.Spacing(4);
+
+                            
+
+                            if (clientSignature != null)
+                                right.Item().Height(60).Image(clientSignature);
+
+                            right.Item().AlignRight().Text(
+                                contract.ClientSignedAtUtc?.ToString("dd.MM.yyyy") ?? "-"
+                            ).FontSize(10);
                         });
                     });
+                });
+
+                // ================= FOOTER =================
+                page.Footer()
+    .AlignCenter()
+    .Text(x =>
+    {
+        x.DefaultTextStyle(t => t
+            .FontSize(10)
+            .FontColor(Colors.Grey.Darken1)
+        );
+
+        x.Span("Pagina ");
+        x.CurrentPageNumber();
+    });
+
             });
         })
         .GeneratePdf(filePath);
 
         return fileName;
+    }
+
+    // ================= HELPERS =================
+
+    private byte[]? GetImage(string? base64)
+    {
+        if (string.IsNullOrWhiteSpace(base64))
+            return null;
+
+        var cleaned = base64.Replace("data:image/png;base64,", "");
+        return Convert.FromBase64String(cleaned);
+    }
+
+    private List<string> SplitText(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return new List<string>();
+
+        return text
+            .Replace("\r\n", "\n")
+            .Split("\n")
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToList();
     }
 }
