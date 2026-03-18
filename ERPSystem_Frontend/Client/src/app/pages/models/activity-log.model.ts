@@ -15,9 +15,9 @@ export interface ActivityFilterOptions {
 }
 
 export interface ActivityFilters {
-  entity: string;
-  action: string;
-  performedBy: string;
+  entity: string[];
+  action: string[];
+  performedBy: string[];
   from: string;
   to: string;
   page: number;

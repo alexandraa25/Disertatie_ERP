@@ -3,12 +3,17 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivityLogService } from '../../services/activity-log.service';
 import { ActivityFilters, ActivityLog,  } from '../../models/activity-log.model';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatNativeDateModule } from '@angular/material/core';
 
 
 @Component({
   selector: 'app-admin-activity',
   standalone: true,
-   imports: [CommonModule, FormsModule],
+   imports: [CommonModule, FormsModule, NgSelectModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatNativeDateModule],
   templateUrl: './admin-activity.component.html',
   styleUrls: ['./admin-activity.component.scss']
 })
@@ -21,20 +26,15 @@ export class AdminActivityComponent implements OnInit {
 actions: string[] = [];
 users: string[] = [];
 
-entityDropdownOpen = false;
-entitySearch = '';
-actionSearch = '';
-userSearch = '';
-
-  filters: ActivityFilters = {
-  entity: '',
-  action: '',
-  performedBy: '',
+ filters: ActivityFilters = {
+  entity: [],        // 🔥 array
+  action: [],
+  performedBy: [],
   from: '',
   to: '',
   page: 1,
   pageSize: 20
-};;
+};
 
   loading = false;
 
@@ -104,31 +104,48 @@ userSearch = '';
   
 }
 
-get filteredEntities() {
-  return this.entities.filter(e =>
-    e.toLowerCase().includes(this.entitySearch.toLowerCase())
-  );
+clearDate() {
+  this.filters.from = '';
+  this.filters.to = '';
+  this.loadLogs();
 }
 
-toggleEntityDropdown() {
-  this.entityDropdownOpen = !this.entityDropdownOpen;
+
+// setPreset(type: string) {
+//   const today = new Date();
+
+//   let from: Date;
+//   let to: Date = new Date(today);
+
+//   switch (type) {
+//     case 'today':
+//       from = new Date(today);
+//       break;
+
+//     case 'yesterday':
+//       from = new Date(today);
+//       from.setDate(today.getDate() - 1);
+//       to = new Date(from);
+//       break;
+
+//     case 'week':
+//       from = new Date(today);
+//       from.setDate(today.getDate() - 7);
+//       break;
+
+//     case 'month':
+//       from = new Date(today);
+//       from.setMonth(today.getMonth() - 1);
+//       break;
+
+//     default:
+//       return;
+//   }
+
+//   this.filters.from = from.toISOString();
+//   this.filters.to = to.toISOString();
+
+//   this.loadLogs();
+// }
 }
 
-selectEntity(value: string) {
-  this.filters.entity = value;
-  this.entityDropdownOpen = false;
-  this.entitySearch = '';
-}
-
-get filteredActions() {
-  return this.actions.filter(a =>
-    a.toLowerCase().includes(this.actionSearch.toLowerCase())
-  );
-}
-
-get filteredUsers() {
-  return this.users.filter(u =>
-    u.toLowerCase().includes(this.userSearch.toLowerCase())
-  );
-}
-}

@@ -1,6 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { ActivityFilterOptions, ActivityFilters, ActivityLog } from "../models/activity-log.model";
+import { HttpParams } from '@angular/common/http';
 
 
 @Injectable({
@@ -24,26 +25,42 @@ getFilters() {
   );
 }
 
-getAllActivity(filters: ActivityFilters) {
-  const params: any = { ...filters };
+getAllActivity(filters: any) {
+  let params = new HttpParams()
+    .set('page', filters.page)
+    .set('pageSize', filters.pageSize);
 
- if (params.from) {
-  params.from = new Date(params.from).toISOString();
-} else {
-  delete params.from;
-}
+  // 🔥 entity list
+  filters.entity?.forEach((e: string) => {
+    params = params.append('entity', e);
+  });
 
-if (params.to) {
-  params.to = new Date(params.to).toISOString();
-} else {
-  delete params.to;
-}
+  // 🔥 action list
+  filters.action?.forEach((a: string) => {
+    params = params.append('action', a);
+  });
+
+  // 🔥 users list
+  filters.performedBy?.forEach((u: string) => {
+    params = params.append('performedBy', u);
+  });
+
+  if (filters.from) {
+    const from = new Date(filters.from);
+    from.setHours(0,0,0,0);
+    params = params.set('from', from.toISOString());
+  }
+
+  if (filters.to) {
+    const to = new Date(filters.to);
+    to.setHours(23,59,59,999);
+    params = params.set('to', to.toISOString());
+  }
 
   return this.http.get<any>(
-   `${this.apiUrl}/activity/all`,
+    `${this.apiUrl}/activity/all`,
     { params }
   );
 }
-
 
 }

@@ -53,18 +53,18 @@ public class ActivityLogService
     }
 
 
-    public async Task<PagedResult<ActivityLogDto>> GetAllActivity( string? entityType, string? action, string? performedBy, DateTime? from, DateTime? to, int page, int pageSize)
+    public async Task<PagedResult<ActivityLogDto>> GetAllActivity(List<string>? entityTypes, List<string>? actions, List<string>? performedBy, DateTime? from, DateTime? to, int page, int pageSize)
     {
         var query = _db.ActivityLog.AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(entityType))
-            query = query.Where(x => x.EntityType == entityType);
+        if (entityTypes != null && entityTypes.Any())
+            query = query.Where(x => entityTypes.Contains(x.EntityType));
 
-        if (!string.IsNullOrWhiteSpace(action))
-            query = query.Where(x => x.Action == action);
+        if (actions != null && actions.Any())
+            query = query.Where(x => actions.Contains(x.Action));
 
-        if (!string.IsNullOrWhiteSpace(performedBy))
-            query = query.Where(x => x.PerformedBy == performedBy);
+        if (performedBy != null && performedBy.Any())
+            query = query.Where(x => performedBy.Contains(x.PerformedBy));
 
         if (from.HasValue)
             query = query.Where(x => x.CreatedAtUtc >= from.Value);

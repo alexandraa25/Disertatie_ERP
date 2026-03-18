@@ -1,4 +1,5 @@
 ﻿using ERPSystem.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using QuestPDF.Helpers;
 using Route = ERPSystem.Utils.Constants.General.Route.General;
 namespace ERPSystem.Shared.ActivityLogs
@@ -14,8 +15,8 @@ namespace ERPSystem.Shared.ActivityLogs
                .WithDefaultApiSettings("GetActivity", "Istoric generic entitate", "GET", false);
 
             group.MapGet(Route.ACTIVITY_ALL,
-                async (string? entity,  string? action, string? performedBy, DateTime ? from, DateTime? to, int page, int pageSize, ActivityLogService activityLogService)
-                    => await activityLogService.GetAllActivity(entity, action,  performedBy, from, to, page, pageSize))
+                async ([FromQuery] string[]? entity, [FromQuery] string[]? action, [FromQuery] string[]? performedBy, DateTime ? from, DateTime? to, int page, int pageSize, ActivityLogService activityLogService)
+                    => await activityLogService.GetAllActivity(entity?.ToList(), action?.ToList(), performedBy?.ToList(), from, to, page, pageSize))
                .WithDefaultApiSettings("GetAllActivity", "Istoric activitati", "GET", false);
 
             group.MapGet(Route.FILLTER_OPTIONS,

@@ -3,18 +3,83 @@
     <h2>Audit general</h2>
 
     <!-- FILTERS -->
-    <div class="filters"> <!-- ENTITY --> <select [(ngModel)]="filters.entity">
-            <option value="">Toate entitățile</option>
-            <option *ngFor="let e of entities" [value]="e"> {{ e }} </option>
-        </select> <!-- ACTION --> <select [(ngModel)]="filters.action">
-            <option value="">Toate acțiunile</option>
-            <option *ngFor="let a of actions" [value]="a"> {{ a }} </option>
-        </select> <!-- USER --> <select [(ngModel)]="filters.performedBy">
-            <option value="">Toți utilizatorii</option>
-            <option *ngFor="let u of users" [value]="u"> {{ u }} </option>
-        </select> <!-- DATE FROM --> <input type="date" [(ngModel)]="filters.from"> <!-- DATE TO --> <input type="date"
-            [(ngModel)]="filters.to"> <button (click)="loadLogs()">Filtrează</button> </div>
+  
 
+    <div class="filters">
+
+  <div class="filter-group">
+    <label>Entitate</label>
+     <ng-select
+  [items]="entities"
+  [(ngModel)]="filters.entity"
+  [multiple]="true"
+  [placeholder]="filters.entity?.length ? '' : 'Toate entitățile'"
+  [searchable]="true"
+  [clearable]="true"
+  (change)="loadLogs()">
+</ng-select>
+  </div>
+
+  <div class="filter-group">
+    <label>Acțiune</label>
+   <ng-select
+  [items]="actions"
+  [(ngModel)]="filters.action"
+  [multiple]="true"
+  [placeholder]="filters.action?.length ? '' : 'Toate acțiunile'"
+  [searchable]="true"
+  [clearable]="true"
+  (change)="loadLogs()">
+</ng-select>
+  </div>
+
+  <div class="filter-group">
+    <label>Utilizator</label>
+    <ng-select
+  [items]="users"
+  [(ngModel)]="filters.performedBy"
+  [multiple]="true"
+  [placeholder]="filters.performedBy?.length ? '' :'Toți utilizatorii'"
+  [searchable]="true"
+  [clearable]="true"
+  (change)="loadLogs()">
+</ng-select>
+  </div>
+
+<div class="filter-group">
+  <label>Perioadă</label>
+
+  <div class="date-wrapper">
+
+    <mat-form-field appearance="outline" class="date-field">
+      <mat-date-range-input [rangePicker]="picker">
+        <input matStartDate [(ngModel)]="filters.from" (dateChange)="loadLogs()" placeholder="De la">
+        <input matEndDate [(ngModel)]="filters.to" (dateChange)="loadLogs()" placeholder="Până la">
+      </mat-date-range-input>
+
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-date-range-picker #picker></mat-date-range-picker>
+    </mat-form-field>
+
+    <!-- ❌ în dreapta -->
+    <button class="clear-date" *ngIf="filters.from || filters.to" (click)="clearDate()">
+      ✕
+    </button>
+
+    <!-- <div class="date-presets">
+
+  <button (click)="setPreset('today')">Azi</button>
+  <button (click)="setPreset('yesterday')">Ieri</button>
+  <button (click)="setPreset('week')">Ultima săptămână</button>
+  <button (click)="setPreset('month')">Ultima lună</button>
+
+</div> -->
+
+  </div>
+</div>
+
+
+</div>
     <!-- LOADING -->
     <div *ngIf="loading" class="loading">
         Se încarcă...
