@@ -21,7 +21,9 @@ export const routes: Routes = [
   { path: 'contracts/:id', loadComponent: () => import('./pages/financiar/contract-details/contract-details.component').then(m => m.ContractDetailsComponent) },
   { path: 'admin/users', loadComponent: () => import('./pages/admin-users/admin-users.component').then(m => m.AdminUsersComponent) },
   { path: 'sign-contract/:token', loadComponent: () => import('./pages/financiar/sign-contract/sign-contract.component') .then(m => m.SignContractComponent) },
-  { path: 'company', loadComponent: () => import('./pages/admin/company/company.component') .then(m => m.CompanyComponent) }
+  { path: 'company', loadComponent: () => import('./pages/admin/company/company.component') .then(m => m.CompanyComponent) }, 
+  { path: 'log-activity', loadComponent: () => import('./pages/admin/admin-activity/admin-activity.component') .then(m => m.AdminActivityComponent) }
+
 
 ];
 

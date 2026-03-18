@@ -14,20 +14,14 @@ public class StudentsService
     private readonly ApplicationDbContext _db;
     private readonly ILogger<StudentsService> _logger;
 
+
     public StudentsService(ApplicationDbContext db, ILogger<StudentsService> logger)
     {
         _db = db;
         _logger = logger;
     }
 
-    public async Task<PublicResponse> GetStudentsAsync(
-        string? q,
-        int page,
-        int pageSize,
-        string? sortBy,
-        string? sortDir,
-        int? recentDays,
-        bool? onlyRecent)
+    public async Task<PublicResponse> GetStudentsAsync(  string? q,  int page,   int pageSize,  string? sortBy,  string? sortDir,  int? recentDays,  bool? onlyRecent)
     {
         var response = new PublicResponse(true);
 
@@ -166,12 +160,10 @@ public class StudentsService
                 UpdatedAtUtc = DateTime.UtcNow
             };
 
-            // 🔥 REGULA MINOR
             if (s.IsMinor && (dto.Guardians == null || dto.Guardians.Count == 0))
                 return response.SetError(ErrorCodes.InvalidParameters,
                     "Student minor trebuie să aibă cel puțin un părinte.");
 
-            // 🔥 Validare un singur primary
             if (dto.Guardians != null && dto.Guardians.Count(g => g.IsPrimaryContact) > 1)
                 return response.SetError(ErrorCodes.InvalidParameters,
                     "Poate exista un singur contact principal.");
@@ -182,7 +174,6 @@ public class StudentsService
                 {
                     var email = g.Email.Trim();
 
-                    // 🔥 REUTILIZARE GUARDIAN EXISTENT
                     var guardian = await _db.Guardians
                         .FirstOrDefaultAsync(x => x.Email == email);
 
@@ -238,6 +229,13 @@ public class StudentsService
             if (s is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
 
+            // 🔥 salvăm tutorii vechi (pentru comparație)
+            var oldGuardians = s.StudentGuardians
+                .Select(x => x.Guardian.Email)
+                .OrderBy(x => x)
+                .ToList();
+
+            // 🔥 UPDATE
             s.FullName = dto.FullName.Trim();
             s.FirstName = string.IsNullOrWhiteSpace(dto.FirstName) ? null : dto.FirstName.Trim();
             s.LastName = string.IsNullOrWhiteSpace(dto.LastName) ? null : dto.LastName.Trim();
@@ -253,20 +251,20 @@ public class StudentsService
                 return response.SetError(ErrorCodes.InvalidParameters,
                     "Student minor trebuie să aibă cel puțin un părinte.");
 
+            List<string> newGuardians = new();
+
             if (dto.Guardians != null)
             {
-                // 🔥 Validare un singur primary
                 if (dto.Guardians.Count(g => g.IsPrimaryContact) > 1)
                     return response.SetError(ErrorCodes.InvalidParameters,
                         "Poate exista un singur contact principal.");
 
-                // 🔥 Ștergem relațiile vechi
                 _db.StudentGuardians.RemoveRange(s.StudentGuardians);
 
-                // 🔥 Re-adăugăm lista nouă
                 foreach (var g in dto.Guardians)
                 {
                     var email = g.Email.Trim();
+                    newGuardians.Add(email);
 
                     var guardian = await _db.Guardians
                         .FirstOrDefaultAsync(x => x.Email == email);
@@ -295,7 +293,44 @@ public class StudentsService
                 }
             }
 
+            // 🔥 detectăm schimbare tutori
+            newGuardians = newGuardians.OrderBy(x => x).ToList();
+            var guardiansChanged = !oldGuardians.SequenceEqual(newGuardians);
+
+            // 🔥 SAVE (audit automat)
             await _db.SaveChangesAsync();
+
+            // 🔥 log user-friendly DOAR dacă s-au schimbat tutorii
+            if (guardiansChanged)
+            {
+                var added = newGuardians.Except(oldGuardians).ToList();
+                var removed = oldGuardians.Except(newGuardians).ToList();
+
+                var description = "Tutorii elevului au fost actualizați";
+
+                if (added.Any() || removed.Any())
+                {
+                    description += ". ";
+
+                    if (added.Any())
+                        description += $"Adăugați: {string.Join(", ", added)}. ";
+
+                    if (removed.Any())
+                        description += $"Eliminați: {string.Join(", ", removed)}.";
+                }
+
+                _db.ActivityLog.Add(new ActivityLog
+                {
+                    EntityType = "Student",
+                    EntityId = s.Id,
+                    Action = "UpdateGuardians",
+                    Description = description.Trim(),
+                    CreatedAtUtc = DateTime.UtcNow,
+                    PerformedBy = "system"
+                });
+
+                await _db.SaveChangesAsync();
+            }
 
             return response.SetSuccess(true);
         }
@@ -421,9 +456,7 @@ public class StudentsService
         return response.SetSuccess(guardian); // poate fi null
     }
 
-    public async Task<List<AvailableCourseDto>> GetAvailableCoursesForStudentAsync(
-    int studentId,
-    string? q)
+    public async Task<List<AvailableCourseDto>> GetAvailableCoursesForStudentAsync(  int studentId,  string? q)
     {
         var query = _db.CourseSessions
             .Include(x => x.Course)

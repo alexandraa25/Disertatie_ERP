@@ -1,0 +1,54 @@
+<div class="card">
+
+    <h2>Audit general</h2>
+
+    <!-- FILTERS -->
+    <div class="filters"> <!-- ENTITY --> <select [(ngModel)]="filters.entity">
+            <option value="">Toate entitățile</option>
+            <option *ngFor="let e of entities" [value]="e"> {{ e }} </option>
+        </select> <!-- ACTION --> <select [(ngModel)]="filters.action">
+            <option value="">Toate acțiunile</option>
+            <option *ngFor="let a of actions" [value]="a"> {{ a }} </option>
+        </select> <!-- USER --> <select [(ngModel)]="filters.performedBy">
+            <option value="">Toți utilizatorii</option>
+            <option *ngFor="let u of users" [value]="u"> {{ u }} </option>
+        </select> <!-- DATE FROM --> <input type="date" [(ngModel)]="filters.from"> <!-- DATE TO --> <input type="date"
+            [(ngModel)]="filters.to"> <button (click)="loadLogs()">Filtrează</button> </div>
+
+    <!-- LOADING -->
+    <div *ngIf="loading" class="loading">
+        Se încarcă...
+    </div>
+
+    <!-- EMPTY -->
+    <div *ngIf="!loading && groupedLogs.length === 0">
+        Nu există activitate.
+    </div>
+
+    <!-- GROUPS -->
+    <div *ngFor="let group of groupedLogs" class="log-group">
+
+        <div class="group-title">
+            {{ group.label }}
+        </div>
+
+        <div *ngFor="let log of group.logs" class="log-item" [ngClass]="{
+           'log-create': log.action === 'Create',
+           'log-update': log.action === 'Update',
+           'log-delete': log.action === 'Delete'
+         }">
+
+            <div class="log-meta">
+                {{ log.createdAtUtc | date:'HH:mm' }} |
+                <span>{{ log.entityType }} #{{ log.entityId }}</span>
+            </div>
+
+            <div class="log-text">
+                {{ log.description || log.action }}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

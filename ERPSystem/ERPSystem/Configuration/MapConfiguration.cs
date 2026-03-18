@@ -6,6 +6,7 @@ using ERPSystem.Modules.Courses;
 using ERPSystem.Modules.Employees;
 using ERPSystem.Modules.Students;
 using ERPSystem.Modules.UserProfile;
+using ERPSystem.Shared.ActivityLogs;
 
 namespace ERPSystem.Configuration
 {
@@ -23,6 +24,16 @@ namespace ERPSystem.Configuration
             AuthenticationEndpoints.Map(authGroup);
 
 
+            var generalGroup = app.CreateApiGroup(
+               route: "/",
+               tag: "General",
+               requireAuth: false,
+               description: "Audit"
+           );
+
+            ActivityLogEndpoint.Map(generalGroup);
+
+
             // ✅ GROUP pentru profil (necesită autentificare)
             var meGroup = app.CreateApiGroup(
                 route: "/me",
@@ -33,7 +44,6 @@ namespace ERPSystem.Configuration
 
             UserProfileEndpoints.Map(meGroup);
 
-            // ✅ GROUP pentru profil (necesită autentificare)
             var adminGroup = app.CreateApiGroup(
                 route: "/admin",
                 tag: "Admin",
@@ -41,6 +51,8 @@ namespace ERPSystem.Configuration
                 description: "Admin dashboard"
             );
             AdminEndpoints.Map(adminGroup);
+         
+
 
             var employeeGroup = app.CreateApiGroup(
                 route: "/employee",

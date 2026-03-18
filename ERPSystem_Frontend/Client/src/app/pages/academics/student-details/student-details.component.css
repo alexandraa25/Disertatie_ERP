@@ -503,3 +503,86 @@ button {
     gap: 10px;
   }
 }
+
+
+/* LOG ITEM */
+.log-item {
+  position: relative;
+  padding: 12px 16px 12px 20px;
+  margin-bottom: 12px;
+  border-left: 3px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+/* hover subtle */
+.log-item:hover {
+  background: #f3f4f6;
+  transform: translateX(2px);
+}
+
+/* DATA */
+.log-date {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+/* TEXT */
+.log-text {
+  font-size: 14px;
+  color: #111827;
+  line-height: 1.4;
+}
+
+/* ACTION (fallback) */
+.log-action {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+/* CHANGE ITEMS */
+.log-item div b {
+  color: #374151;
+}
+
+/* EMPTY STATE */
+.card div:empty::after {
+  content: "Nu există activitate.";
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* CREATE */
+.log-create {
+  border-left-color: #10b981;
+}
+
+/* UPDATE */
+.log-update {
+  border-left-color: #3b82f6;
+}
+
+/* DELETE */
+.log-delete {
+  border-left-color: #ef4444;
+}
+
+.log-enroll{
+  border-left-color: #eb3bdc;
+}
+
+.log-item::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: 16px;
+  width: 10px; 
+  height: 10px;
+  background: #d1d5db;
+  border-radius: 50%;
+}
+
+
+

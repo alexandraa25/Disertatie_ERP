@@ -1,5 +1,6 @@
 ﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
+using ERPSystem.Shared.ActivityLogs;
 using ERPSystem.Modules.Course.Models;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Response;
@@ -153,6 +154,46 @@ public class CoursesService
             _db.Courses.Add(c);
             await _db.SaveChangesAsync();
 
+            // 🔥 luăm profesorii pentru sesiuni
+            var teacherIds = c.Sessions
+                .Select(s => s.TeacherUserId)
+                .Distinct()
+                .ToList();
+
+            var teachers = await _db.Users
+                .Where(u => teacherIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id, u => u.UserName ?? u.Email ?? u.Id);
+
+            // 🔥 construim lista de sesiuni
+            var sessionDescriptions = c.Sessions.Select(s =>
+            {
+                var teacherName = teachers.ContainsKey(s.TeacherUserId)
+                    ? teachers[s.TeacherUserId]
+                    : s.TeacherUserId;
+
+                return $"- {s.DayOfWeek} {s.StartTime:HH:mm}-{s.EndTime:HH:mm} ({teacherName})";
+            }).ToList();
+
+            // 🔥 description final
+            var description = $"Cursul '{c.Name}' a fost creat";
+
+            if (sessionDescriptions.Any())
+            {
+                description += "\nSesiuni:\n" + string.Join("\n", sessionDescriptions);
+            }
+
+            // 🔥 log user-friendly
+            _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+            {
+                EntityType = "Course",
+                EntityId = c.Id,
+                Action = "Create",
+                Description = description,
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
+
             return response.SetCreated(new { id = c.Id });
         }
         catch (Exception ex)
@@ -161,7 +202,6 @@ public class CoursesService
             return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
         }
     }
-
 
     public async Task<PublicResponse> UpdateAsync(int id, UpdateCourseDto dto)
     {
@@ -172,7 +212,7 @@ public class CoursesService
             var validation = ValidateUpdate(dto);
             if (validation is not null)
                 return response.SetError(ErrorCodes.InvalidParameters, validation);
-           
+
             if (HasTeacherOverlap(dto.Sessions))
                 return response.SetError(
                     ErrorCodes.InvalidParameters,
@@ -186,6 +226,7 @@ public class CoursesService
                     "Profesorul are deja o sesiune suprapusă în alt curs."
                 );
             }
+
             var c = await _db.Courses
                 .Include(x => x.Sessions)
                 .FirstOrDefaultAsync(x => x.Id == id);
@@ -193,16 +234,32 @@ public class CoursesService
             if (c is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Cursul nu a fost gasit.");
 
+            // 🔥 OLD VALUES
+            var oldName = c.Name;
+            var oldIsActive = c.IsActive;
+
+            var oldSessions = c.Sessions.ToDictionary(
+                s => s.Id,
+                s => new
+                {
+                    s.DayOfWeek,
+                    s.StartTime,
+                    s.EndTime,
+                    s.TeacherUserId,
+                    s.Capacity
+                });
+
+            // 🔥 UPDATE COURSE
             c.Name = dto.Name.Trim();
             c.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
             c.IsActive = dto.IsActive;
+
             if (!dto.IsActive)
             {
                 foreach (var session in c.Sessions)
-                {
                     session.IsActive = false;
-                }
             }
+
             c.UpdatedAtUtc = DateTime.UtcNow;
 
             var incomingIds = dto.Sessions
@@ -210,22 +267,33 @@ public class CoursesService
                 .Select(x => x.Id!.Value)
                 .ToHashSet();
 
+            // 🔥 detectăm ștergeri
+            var removedSessions = c.Sessions
+                .Where(s => !incomingIds.Contains(s.Id))
+                .ToList();
+
             c.Sessions.RemoveAll(s => !incomingIds.Contains(s.Id));
+
+            // 🔥 detectăm adăugări
+            var addedSessions = new List<CourseSession>();
 
             foreach (var sDto in dto.Sessions)
             {
                 if (sDto.Id is null)
                 {
-                    c.Sessions.Add(new CourseSession
+                    var newSession = new CourseSession
                     {
                         DayOfWeek = sDto.DayOfWeek,
                         StartTime = ParseTime(sDto.StartTime),
                         EndTime = ParseTime(sDto.EndTime),
                         Capacity = sDto.Capacity,
-                        TeacherUserId = sDto.TeacherUserId ,
+                        TeacherUserId = sDto.TeacherUserId,
                         Fee = sDto.Fee,
                         Title = $"{dto.Name} - {sDto.DayOfWeek}"
-                    });
+                    };
+
+                    c.Sessions.Add(newSession);
+                    addedSessions.Add(newSession);
                 }
                 else
                 {
@@ -241,7 +309,129 @@ public class CoursesService
                 }
             }
 
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(); // 🔥 audit automat
+
+            // 🔥 luăm profesori (pentru nume)
+            var teacherIds = dto.Sessions
+                .Select(x => x.TeacherUserId)
+                .Concat(oldSessions.Values.Select(x => x.TeacherUserId))
+                .Distinct()
+                .ToList();
+
+            var teachers = await _db.Users
+                .Where(u => teacherIds.Contains(u.Id))
+                .ToDictionaryAsync(u => u.Id, u => u.UserName ?? u.Email ?? u.Id);
+
+            var changes = new List<string>();
+
+            // 🔥 schimbări simple
+            if (oldName != c.Name)
+                changes.Add($"Nume: '{oldName}' → '{c.Name}'");
+
+            if (oldIsActive != c.IsActive)
+                changes.Add(c.IsActive ? "Curs activat" : "Curs dezactivat");
+
+            // 🔥 sesiuni adăugate
+            if (addedSessions.Any())
+            {
+                var added = addedSessions.Select(s =>
+                {
+                    var teacherName = teachers.ContainsKey(s.TeacherUserId)
+                        ? teachers[s.TeacherUserId]
+                        : s.TeacherUserId;
+
+                    return $"{s.DayOfWeek} {s.StartTime:HH:mm}-{s.EndTime:HH:mm} ({teacherName})";
+                });
+
+                changes.Add("Sesiuni adăugate: " + string.Join(", ", added));
+            }
+
+            // 🔥 sesiuni șterse
+            if (removedSessions.Any())
+            {
+                var removed = removedSessions.Select(s =>
+                {
+                    var teacherName = teachers.ContainsKey(s.TeacherUserId)
+                        ? teachers[s.TeacherUserId]
+                        : s.TeacherUserId;
+
+                    return $"{s.DayOfWeek} {s.StartTime:HH:mm}-{s.EndTime:HH:mm} ({teacherName})";
+                });
+
+                changes.Add("Sesiuni eliminate: " + string.Join(", ", removed));
+            }
+
+            // 🔥 sesiuni modificate
+            var updatedSessions = new List<string>();
+
+            foreach (var sDto in dto.Sessions)
+            {
+                if (sDto.Id is null) continue;
+
+                var idSession = sDto.Id.Value;
+                if (!oldSessions.ContainsKey(idSession)) continue;
+
+                var old = oldSessions[idSession];
+
+                var newStart = ParseTime(sDto.StartTime);
+                var newEnd = ParseTime(sDto.EndTime);
+
+                var sessionChanges = new List<string>();
+
+                if (old.StartTime != newStart || old.EndTime != newEnd)
+                {
+                    sessionChanges.Add(
+                        $"Ora: {old.StartTime:HH:mm}-{old.EndTime:HH:mm} → {newStart:HH:mm}-{newEnd:HH:mm}"
+                    );
+                }
+
+                if (old.DayOfWeek != sDto.DayOfWeek)
+                {
+                    sessionChanges.Add($"Zi: {old.DayOfWeek} → {sDto.DayOfWeek}");
+                }
+
+                if (old.TeacherUserId != sDto.TeacherUserId)
+                {
+                    var oldTeacher = teachers.ContainsKey(old.TeacherUserId) ? teachers[old.TeacherUserId] : old.TeacherUserId;
+                    var newTeacher = teachers.ContainsKey(sDto.TeacherUserId) ? teachers[sDto.TeacherUserId] : sDto.TeacherUserId;
+
+                    sessionChanges.Add($"Profesor: {oldTeacher} → {newTeacher}");
+                }
+
+                if (old.Capacity != sDto.Capacity)
+                {
+                    sessionChanges.Add($"Capacitate: {old.Capacity} → {sDto.Capacity}");
+                }
+
+                if (sessionChanges.Any())
+                {
+                    updatedSessions.Add(
+                        $"{old.DayOfWeek} {old.StartTime:HH:mm}: {string.Join(", ", sessionChanges)}"
+                    );
+                }
+            }
+
+            if (updatedSessions.Any())
+            {
+                changes.Add("Sesiuni modificate:");
+                changes.AddRange(updatedSessions.Select(x => "- " + x));
+            }
+
+            // 🔥 LOG FINAL
+            if (changes.Any())
+            {
+                _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+                {
+                    EntityType = "Course",
+                    EntityId = c.Id,
+                    Action = "Update",
+                    Description = $"Curs actualizat:\n{string.Join("\n", changes)}",
+                    CreatedAtUtc = DateTime.UtcNow,
+                    PerformedBy = "system"
+                });
+
+                await _db.SaveChangesAsync();
+            }
 
             return response.SetSuccess(true);
         }
@@ -252,7 +442,7 @@ public class CoursesService
         }
     }
 
- 
+
     public async Task<PublicResponse> DeleteAsync(int id)
     {
         var response = new PublicResponse(true);
@@ -316,15 +506,15 @@ public class CoursesService
 
         try
         {
-            var courseExists = await _db.Courses.AnyAsync(x => x.Id == courseId);
-            if (!courseExists)
+            var course = await _db.Courses.FindAsync(courseId);
+            if (course is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Course not found");
 
-            var studentExists = await _db.Students.AnyAsync(x => x.Id == studentId);
-            if (!studentExists)
+            var student = await _db.Students.FindAsync(studentId);
+            if (student is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
 
-            var session = await _db.CourseSessions.AsNoTracking()
+            var session = await _db.CourseSessions
                 .FirstOrDefaultAsync(s => s.Id == sessionId && s.CourseId == courseId);
 
             if (session is null)
@@ -342,7 +532,9 @@ public class CoursesService
             var existing = await _db.CourseEnrollments
                 .FirstOrDefaultAsync(x => x.CourseSessionId == sessionId && x.StudentId == studentId);
 
-            if (existing is null)
+            bool isNew = existing is null;
+
+            if (isNew)
             {
                 _db.CourseEnrollments.Add(new CourseEnrollment
                 {
@@ -359,7 +551,36 @@ public class CoursesService
                 existing.EnrolledAtUtc = DateTime.UtcNow;
             }
 
+            var sessionInfo = $"{session.DayOfWeek} {session.StartTime:HH:mm}";
+
+            var description = isNew
+                ? $"Studentul {student.FullName} a fost înscris la cursul {course.Name} ({sessionInfo})"
+                : $"Studentul {student.FullName} a fost reactivat la cursul {course.Name} ({sessionInfo})";
+
+            // 🔥 LOG STUDENT
+            _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+            {
+                EntityType = "Student",
+                EntityId = studentId,
+                Action = isNew ? "Enroll" : "ReEnroll",
+                Description = description,
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
+            // 🔥 LOG COURSE
+            _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+            {
+                EntityType = "Course",
+                EntityId = courseId,
+                Action = isNew ? "EnrollStudent" : "ReEnrollStudent",
+                Description = description,
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
             await _db.SaveChangesAsync();
+
             return response.SetSuccess(true);
         }
         catch (Exception ex)
@@ -376,12 +597,47 @@ public class CoursesService
         try
         {
             var existing = await _db.CourseEnrollments
-    .FirstOrDefaultAsync(x => x.CourseId == courseId && x.CourseSessionId == sessionId && x.StudentId == studentId);
+                .FirstOrDefaultAsync(x => x.CourseId == courseId && x.CourseSessionId == sessionId && x.StudentId == studentId);
 
             if (existing is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Enrollment not found");
 
+            var student = await _db.Students.FindAsync(studentId);
+            var course = await _db.Courses.FindAsync(courseId);
+            var session = await _db.CourseSessions.FindAsync(sessionId);
+
             existing.IsActive = isActive;
+
+            await _db.SaveChangesAsync(); // audit automat
+
+            var sessionInfo = $"{session.DayOfWeek} {session.StartTime:HH:mm}";
+
+            var description = isActive
+                ? $"Studentul {student!.FullName} a fost reactivat în cursul {course!.Name} ({sessionInfo})"
+                : $"Studentul {student!.FullName} a fost eliminat din cursul {course!.Name} ({sessionInfo})";
+
+            // 🔥 STUDENT LOG
+            _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+            {
+                EntityType = "Student",
+                EntityId = studentId,
+                Action = isActive ? "EnrollActivate" : "EnrollDeactivate",
+                Description = description,
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
+            // 🔥 COURSE LOG
+            _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+            {
+                EntityType = "Course",
+                EntityId = courseId,
+                Action = isActive ? "StudentActivated" : "StudentRemoved",
+                Description = description,
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
             await _db.SaveChangesAsync();
 
             return response.SetSuccess(true);

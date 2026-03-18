@@ -1,0 +1,139 @@
+/* CARD GENERAL */
+.card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 50px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
+  margin-top: 100px;
+  margin-left: 60px;
+  margin-right: 60px;
+  margin-bottom: 20px;
+  
+}
+
+/* TITLE */
+h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* FILTERS */
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.filters select,
+.filters button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.filters button {
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: white;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.filters button:hover {
+  opacity: 0.9;
+}
+
+/* GROUP */
+.log-group {
+  margin-bottom: 32px;
+}
+
+/* GROUP TITLE */
+.group-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #6b7280;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+/* TIMELINE CONTAINER */
+.log-group {
+  position: relative;
+  padding-left: 20px;
+}
+
+/* VERTICAL LINE */
+.log-group::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #e5e7eb;
+}
+
+/* LOG ITEM */
+.log-item {
+  position: relative;
+  margin-bottom: 18px;
+  padding: 18px 18px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+  transition: all 0.2s ease;
+}
+
+.log-item:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  transform: translateY(-1px);
+}
+
+/* DOT */
+.log-item::before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 22px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #9ca3af;
+}
+
+/* COLORS BY ACTION */
+.log-create::before { background: #10b981; }
+.log-update::before { background: #3b82f6; }
+.log-delete::before { background: #ef4444; }
+
+/* META LINE */
+.log-meta {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+/* ENTITY */
+.log-meta span {
+font-size: 14px;
+  font-weight: 600;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* TEXT */
+.log-text {
+  font-size: 16px;
+  color: #111827;
+  line-height: 1.6;
+}
+
+/* EMPTY STATE */
+.loading,
+.empty {
+  color: #9ca3af;
+  font-style: italic;
+}

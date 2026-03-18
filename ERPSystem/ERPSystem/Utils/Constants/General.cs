@@ -13,19 +13,28 @@
             public const string FORGOT_PASSWORD = "forgot-password";
             public const string RESET_PASSWORD = "reset-password";
             public const string GET_ROLES = "/roles";
-            public const string CHANGE_PASSWORD = "change-password"; 
+            public const string CHANGE_PASSWORD = "change-password";
+
+            public static class General
+            {
+                public const string ACTIVITY = "/activity";
+                public const string ACTIVITY_ALL = "/activity/all";
+                public const string FILLTER_OPTIONS = "/fillter";
+            }
 
             public static class Profile
             {
                 public const string PROFILE = "/profile";
                 public const string NOTIFICATION_SETTINGS = "/notification-settings";
-               
+                
+                
+
             }
 
             public static class Admin
             {
                 public const string USERS = "/users";
-
+               
             }
 
             public static class Company

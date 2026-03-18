@@ -1,3 +1,5 @@
+import { ActivityLog } from "./activity-log.model";
+
 export interface GuardianDto {
   id: number;
   firstName: string;
@@ -24,7 +26,7 @@ export interface StudentDetailsDto extends StudentListItemDto {
   guardians: GuardianDto[];
  
   invoices?: InvoiceDto[] | null;
-  activityLogs?: ActivityLogDto[] | null;
+  activityLogs?: ActivityLog[] | null;
 }
 
 
@@ -37,11 +39,7 @@ export interface InvoiceDto {
   paid: boolean;
 }
 
-export interface ActivityLogDto {
-  id: number;  
-  date: string; // ISO
-  action: string;
-}
+
 
 export interface StudentCourseDetailsDto {
   courseId: number;

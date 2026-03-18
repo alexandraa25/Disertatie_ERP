@@ -8,6 +8,8 @@ import { StudentFormComponent } from '../student-form/student-form.component';
 import { MatDialog } from '@angular/material/dialog';
 import { EnrollStudentsComponent } from '../enroll-students/enroll-students.component';
 import { AdminSignatureModalComponent } from '../../financiar/admin-signature-modal/admin-signature-modal.component';
+import { ActivityLog } from '../../models/activity-log.model';
+import { ActivityLogService } from '../../services/activity-log.service';
 
 @Component({
   selector: 'app-student-details',
@@ -29,12 +31,17 @@ export class StudentDetailsComponent implements OnInit {
   coursesLoaded = false;
   contract: any = null;
 
+  activityLogs: ActivityLog[] = [];
+
+   objectKeys = Object.keys;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private students: StudentsService,
     private contracts: ContractsService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private activityService: ActivityLogService
   ) { }
 
   ngOnInit(): void {
@@ -48,6 +55,8 @@ export class StudentDetailsComponent implements OnInit {
         if (this.student?.id) {
           this.loadContract(); 
         }
+
+         this.loadActivity();
       },
       error: () => {
         this.loading = false;
@@ -343,5 +352,15 @@ get daysLeft(): number {
     });
 
   }
+loadActivity() {
+  if (!this.student?.id) return;
+
+  this.activityService
+    .getActivity('Student', this.student.id)
+    .subscribe((res: ActivityLog[]) => {
+      this.activityLogs = res;
+    });
+}
+
 }
 

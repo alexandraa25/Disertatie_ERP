@@ -1,9 +1,12 @@
-﻿using ERPSystem.Data.Entities;
+﻿using ERPSystem.Data.Audit;
+using ERPSystem.Data.Entities;
 //using ERPSystem.Data.TypeConfigurations;
 using ERPSystem.Modules.UserProfile.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
+using System.Text.Json;
 
 namespace ERPSystem.Data.Context
 {
@@ -11,7 +14,7 @@ namespace ERPSystem.Data.Context
     {
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
         public DbSet<UserNotificationSetting> UserNotificationSettings { get; set; }
-        public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<ActivityLog> ActivityLog { get; set; }
         public DbSet<Student> Students => Set<Student>();
         public DbSet<Guardian> Guardians => Set<Guardian>();
         public DbSet<StudentGuardian> StudentGuardians => Set<StudentGuardian>();
@@ -38,15 +41,11 @@ namespace ERPSystem.Data.Context
         {
             base.OnModelCreating(modelBuilder);
 
-           
-
             modelBuilder.Entity<UserNotificationSetting>(entity =>
             {
-                // 🔐 Unicitate pe user + event + channel
                 entity.HasIndex(x => new { x.UserId, x.EventType, x.Channel })
                       .IsUnique();
 
-                // 🔄 Enum → string în DB
                 entity.Property(x => x.Channel)
                       .HasConversion<string>();
 
@@ -54,15 +53,14 @@ namespace ERPSystem.Data.Context
                       .HasConversion<string>();
             });
 
-            // (opțional) index pentru audit
-            modelBuilder.Entity<AuditLog>()
-                .HasIndex(x => new { x.UserId, x.TimestampUtc });
+            modelBuilder.Entity<ActivityLog>()
+               .HasIndex(x => new { x.EntityType, x.EntityId });
 
             modelBuilder.Entity<Student>()
                 .HasIndex(x => x.FullName);
 
             modelBuilder.Entity<StudentGuardian>()
-         .HasKey(sg => new { sg.StudentId, sg.GuardianId });
+                .HasKey(sg => new { sg.StudentId, sg.GuardianId });
 
             modelBuilder.Entity<StudentGuardian>()
                 .HasOne(sg => sg.Student)
@@ -75,9 +73,7 @@ namespace ERPSystem.Data.Context
                 .WithMany(g => g.StudentGuardians)
                 .HasForeignKey(sg => sg.GuardianId)
                 .OnDelete(DeleteBehavior.Cascade);
-
            
-
             modelBuilder.Entity<CourseSession>()
                 .HasOne(x => x.Course)
                 .WithMany(x => x.Sessions)
@@ -94,16 +90,15 @@ namespace ERPSystem.Data.Context
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<CourseSession>()
-    .Property(x => x.Fee)
-    .HasPrecision(18, 2);
+                .Property(x => x.Fee)
+                .HasPrecision(18, 2);
 
             modelBuilder.Entity<CourseEnrollment>()
                 .HasOne(e => e.Session)
                 .WithMany(x => x.Enrollments)
                 .HasForeignKey(e => e.CourseSessionId)
-               .OnDelete(DeleteBehavior.Restrict); // sau Restrict
+               .OnDelete(DeleteBehavior.Restrict); 
 
-            // StudentContract
             modelBuilder.Entity<StudentContract>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -151,7 +146,7 @@ namespace ERPSystem.Data.Context
                     .HasForeignKey(e => e.GuardianId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
-            // ContractCourse
+           
             modelBuilder.Entity<ContractCourse>(entity =>
             {
                 entity.HasKey(e => e.Id);
@@ -184,39 +179,148 @@ namespace ERPSystem.Data.Context
 
 
             modelBuilder.Entity<Employee>()
-    .HasOne(e => e.User)
-    .WithOne(u => u.Employee)
-    .HasForeignKey<Employee>(e => e.UserId)
-    .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(e => e.User)
+                .WithOne(u => u.Employee)
+                .HasForeignKey<Employee>(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Employee>()
-    .HasIndex(x => new { x.UserId, x.EmploymentStatus });
+                .HasIndex(x => new { x.UserId, x.EmploymentStatus });
 
             modelBuilder.Entity<Employee>()
-    .Property(x => x.Salary)
-    .HasPrecision(18, 2);
-
+               .Property(x => x.Salary)
+               .HasPrecision(18, 2);
+             
             modelBuilder.Entity<EmployeeContract>()
-    .HasOne(x => x.Employee)
-    .WithMany(x => x.Contracts)
-    .HasForeignKey(x => x.EmployeeId)
-    .OnDelete(DeleteBehavior.Cascade);
+               .HasOne(x => x.Employee)
+               .WithMany(x => x.Contracts)
+               .HasForeignKey(x => x.EmployeeId)
+               .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<EmployeeLeave>()
-    .HasOne(x => x.Employee)
-    .WithMany(x => x.Leaves)
-    .HasForeignKey(x => x.EmployeeId)
-    .OnDelete(DeleteBehavior.Cascade);
+               .HasOne(x => x.Employee)
+               .WithMany(x => x.Leaves)
+               .HasForeignKey(x => x.EmployeeId)
+               .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<EmployeeDocument>()
-    .HasOne(x => x.Employee)
-    .WithMany(x => x.Documents)
-    .HasForeignKey(x => x.EmployeeId)
-    .OnDelete(DeleteBehavior.Cascade);
+               .HasOne(x => x.Employee)
+               .WithMany(x => x.Documents)
+               .HasForeignKey(x => x.EmployeeId)
+               .OnDelete(DeleteBehavior.Cascade);
 
         }
 
 
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var auditEntries = OnBeforeSaveChanges();
 
+            var result = await base.SaveChangesAsync(cancellationToken);
+
+            await OnAfterSaveChanges(auditEntries);
+
+            return result;
+        }
+
+        private List<AuditEntry> OnBeforeSaveChanges()
+        {
+            ChangeTracker.DetectChanges();
+
+            var auditEntries = new List<AuditEntry>();
+
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.Entity is ActivityLog ||
+                    entry.State == EntityState.Detached ||
+                    entry.State == EntityState.Unchanged)
+                    continue;
+
+                var auditEntry = new AuditEntry(entry)
+                {
+                    EntityType = entry.Entity.GetType().Name,
+                    Action = entry.State switch
+                    {
+                        EntityState.Added => "Create",
+                        EntityState.Deleted => "Delete",
+                        EntityState.Modified => "Update",
+                        _ => "Unknown"
+                    }
+                };
+
+                foreach (var property in entry.Properties)
+                {
+                    var propName = property.Metadata.Name;
+
+                    // 🔥 IGNORE
+                    if (propName == "UpdatedAtUtc")
+                        continue;
+
+                    if (property.Metadata.IsForeignKey())
+                        continue;
+
+                    // 🔑 PRIMARY KEY
+                    if (property.Metadata.IsPrimaryKey())
+                    {
+                        auditEntry.KeyValues[propName] = property.CurrentValue!;
+                        continue;
+                    }
+
+                    switch (entry.State)
+                    {
+                        case EntityState.Added:
+                            auditEntry.NewValues[propName] = property.CurrentValue;
+                            break;
+
+                        case EntityState.Deleted:
+                            auditEntry.OldValues[propName] = property.OriginalValue;
+                            break;
+
+                        case EntityState.Modified:
+                            if (property.IsModified)
+                            {
+                                auditEntry.OldValues[propName] = property.OriginalValue;
+                                auditEntry.NewValues[propName] = property.CurrentValue;
+                            }
+                            break;
+                    }
+                }
+
+                if (auditEntry.HasChanges)
+                    auditEntries.Add(auditEntry);
+            }
+
+            return auditEntries;
+        }
+
+        private async Task OnAfterSaveChanges(List<AuditEntry> auditEntries)
+        {
+            if (auditEntries.Count == 0)
+                return;
+
+            foreach (var entry in auditEntries)
+            {
+                // 🔥 IMPORTANT: actualizează ID după save (pentru Create)
+                entry.UpdateKeyValues();
+
+                var log = new ActivityLog
+                {
+                    EntityType = entry.EntityType,
+                    EntityId = entry.GetEntityId(),
+                    Action = entry.Action,
+                    Changes = JsonSerializer.Serialize(new
+                    {
+                        Old = entry.OldValues,
+                        New = entry.NewValues
+                    }),
+                    CreatedAtUtc = DateTime.UtcNow,
+                    PerformedBy = "system" // 🔥 schimbă ulterior cu user real
+                };
+
+                Set<ActivityLog>().Add(log);
+            }
+
+            await base.SaveChangesAsync();
+        }
     }
 }

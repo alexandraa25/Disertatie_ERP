@@ -210,12 +210,12 @@
             </div>
 
             <div class="contract-meta">
-      <span>📅 Start: {{ contract?.startDate | date:'dd.MM.yyyy' }}</span>
+              <span>📅 Start: {{ contract?.startDate | date:'dd.MM.yyyy' }}</span>
 
-      <span *ngIf="contract?.endDate">
-        ⏳ Final: {{ contract?.endDate | date:'dd.MM.yyyy' }}
-      </span>
-    </div>
+              <span *ngIf="contract?.endDate">
+                ⏳ Final: {{ contract?.endDate | date:'dd.MM.yyyy' }}
+              </span>
+            </div>
           </div>
 
           <div class="contract-actions">
@@ -224,8 +224,8 @@
               {{ getContractButtonText() }}
             </button>
 
-            <button class="secondary" *ngIf="contract.status === 'Active'" (click)="downloadPdf()"  [disabled]="loading">
-               <span *ngIf="!loading">📄 Descarcă PDF</span>
+            <button class="secondary" *ngIf="contract.status === 'Active'" (click)="downloadPdf()" [disabled]="loading">
+              <span *ngIf="!loading">📄 Descarcă PDF</span>
               <span *ngIf="loading">Se descarcă...</span>
             </button>
 
@@ -252,17 +252,44 @@
         </div>
       </div>
 
+
       <!-- ISTORIC -->
       <div *ngIf="activeTab === 'Istoric'" class="card">
         <h3>Istoric activitate</h3>
 
-        <div *ngFor="let log of student.activityLogs ?? []" class="log-item">
-          <div class="log-date">
-            {{ log.date | date:'dd.MM.yyyy HH:mm' }}
-          </div>
-          <div>{{ log.action }}</div>
+        <div *ngIf="activityLogs?.length === 0">
+          Nu există activitate.
         </div>
 
+        <div *ngFor="let log of activityLogs" class="log-item" [ngClass]="{
+            'log-create': log.action === 'Create',
+            'log-update': log.action === 'Update',
+            'log-delete': log.action === 'Delete',
+            'log-enroll': log.action === 'Enroll'
+            }">
+
+          <div class="log-date">
+            {{ log.createdAtUtc | date:'dd.MM.yyyy HH:mm' }}
+          </div>
+
+          <!-- description -->
+          <div *ngIf="log.description; else fallback">
+            {{ log.description }}
+          </div>
+
+          <!-- fallback -->
+          <ng-template #fallback>
+
+            <div><b>{{ log.action }}</b></div>
+
+            <div *ngFor="let key of objectKeys(log.newValues)">
+              <b>{{ key }}</b>:
+              {{ log.oldValues[key] ?? '-' }} → {{ log.newValues[key] ?? '-' }}
+            </div>
+
+          </ng-template>
+
+        </div>
       </div>
 
     </div>
