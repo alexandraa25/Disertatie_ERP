@@ -1,119 +1,95 @@
 <div class="card">
 
-    <h2>Audit general</h2>
+  <h2>Audit general</h2>
 
-    <!-- FILTERS -->
-  
-
-    <div class="filters">
-
-  <div class="filter-group">
-    <label>Entitate</label>
-     <ng-select
-  [items]="entities"
-  [(ngModel)]="filters.entity"
-  [multiple]="true"
-  [placeholder]="filters.entity?.length ? '' : 'Toate entitățile'"
-  [searchable]="true"
-  [clearable]="true"
-  (change)="loadLogs()">
-</ng-select>
-  </div>
-
-  <div class="filter-group">
-    <label>Acțiune</label>
-   <ng-select
-  [items]="actions"
-  [(ngModel)]="filters.action"
-  [multiple]="true"
-  [placeholder]="filters.action?.length ? '' : 'Toate acțiunile'"
-  [searchable]="true"
-  [clearable]="true"
-  (change)="loadLogs()">
-</ng-select>
-  </div>
-
-  <div class="filter-group">
-    <label>Utilizator</label>
-    <ng-select
-  [items]="users"
-  [(ngModel)]="filters.performedBy"
-  [multiple]="true"
-  [placeholder]="filters.performedBy?.length ? '' :'Toți utilizatorii'"
-  [searchable]="true"
-  [clearable]="true"
-  (change)="loadLogs()">
-</ng-select>
-  </div>
-
-<div class="filter-group">
-  <label>Perioadă</label>
-
-  <div class="date-wrapper">
-
-    <mat-form-field appearance="outline" class="date-field">
-      <mat-date-range-input [rangePicker]="picker">
-        <input matStartDate [(ngModel)]="filters.from" (dateChange)="loadLogs()" placeholder="De la">
-        <input matEndDate [(ngModel)]="filters.to" (dateChange)="loadLogs()" placeholder="Până la">
-      </mat-date-range-input>
-
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-date-range-picker #picker></mat-date-range-picker>
-    </mat-form-field>
-
-    <!-- ❌ în dreapta -->
-    <button class="clear-date" *ngIf="filters.from || filters.to" (click)="clearDate()">
-      ✕
-    </button>
-
-    <!-- <div class="date-presets">
-
-  <button (click)="setPreset('today')">Azi</button>
-  <button (click)="setPreset('yesterday')">Ieri</button>
-  <button (click)="setPreset('week')">Ultima săptămână</button>
-  <button (click)="setPreset('month')">Ultima lună</button>
-
-</div> -->
-
-  </div>
-</div>
+  <!-- FILTERS -->
 
 
-</div>
-    <!-- LOADING -->
-    <div *ngIf="loading" class="loading">
-        Se încarcă...
+  <div class="filters">
+
+    <div class="filter-group">
+      <label>Entitate</label>
+      <ng-select [items]="entities" [(ngModel)]="filters.entity" [multiple]="true"
+        [placeholder]="filters.entity?.length ? '' : 'Toate entitățile'" [searchable]="true" [clearable]="true"
+        (change)="onFilterChange()">
+      </ng-select>
     </div>
 
-    <!-- EMPTY -->
-    <div *ngIf="!loading && groupedLogs.length === 0">
-        Nu există activitate.
+    <div class="filter-group">
+      <label>Acțiune</label>
+      <ng-select [items]="actions" [(ngModel)]="filters.action" [multiple]="true"
+        [placeholder]="filters.action?.length ? '' : 'Toate acțiunile'" [searchable]="true" [clearable]="true"
+        (change)="onFilterChange()">
+      </ng-select>
     </div>
 
-    <!-- GROUPS -->
-    <div *ngFor="let group of groupedLogs" class="log-group">
+    <div class="filter-group">
+      <label>Utilizator</label>
+      <ng-select [items]="users" [(ngModel)]="filters.performedBy" [multiple]="true"
+        [placeholder]="filters.performedBy?.length ? '' :'Toți utilizatorii'" [searchable]="true" [clearable]="true"
+        (change)="onFilterChange()">
+      </ng-select>
+    </div>
 
-        <div class="group-title">
-            {{ group.label }}
-        </div>
+    <div class="filter-group">
+      <label>Perioadă</label>
+      <app-date-range-picker [from]="filters.from" [to]="filters.to" (rangeChange)="onDateChange($event)">
+      </app-date-range-picker>
+    </div>
 
-        <div *ngFor="let log of group.logs" class="log-item" [ngClass]="{
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="loading">
+    Se încarcă...
+  </div>
+
+  <!-- EMPTY -->
+  <div *ngIf="!loading && groupedLogs.length === 0">
+    Nu există activitate.
+  </div>
+
+  <!-- GROUPS -->
+  <div *ngFor="let group of groupedLogs" class="log-group">
+
+    <div class="group-title">
+      {{ group.label }}
+    </div>
+
+    <div *ngFor="let log of group.logs" class="log-item" [ngClass]="{
            'log-create': log.action === 'Create',
            'log-update': log.action === 'Update',
            'log-delete': log.action === 'Delete'
          }">
 
-            <div class="log-meta">
-                {{ log.createdAtUtc | date:'HH:mm' }} |
-                <span>{{ log.entityType }} #{{ log.entityId }}</span>
-            </div>
+      <div class="log-meta">
+        {{ log.createdAtUtc | date:'HH:mm' }} |
+        <span>{{ log.entityType }} #{{ log.entityId }}</span>
+      </div>
 
-            <div class="log-text">
-                {{ log.description || log.action }}
-            </div>
-
-        </div>
+      <div class="log-text">
+        {{ log.description || log.action }}
+      </div>
 
     </div>
+
+  </div>
+
+  <div class="pagination" *ngIf="totalPages >= 1">
+
+    <button (click)="prevPage()" [disabled]="filters.page === 1">
+      ← Previous
+    </button>
+
+    <span>
+      Page {{ filters.page }} of {{ totalPages }}
+    </span>
+
+    <button (click)="nextPage()" [disabled]="filters.page === totalPages">
+      Next →
+    </button>
+
+  </div>
+
 
 </div>

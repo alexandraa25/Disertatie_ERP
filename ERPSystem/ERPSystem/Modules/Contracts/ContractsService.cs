@@ -6,8 +6,11 @@ using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Enums;
 using ERPSystem.Utils.Response;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using static ERPSystem.Utils.Constants.General.Route;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ERPSystem.Modules.Contracts;
 
@@ -53,18 +56,39 @@ public class ContractsService
 
             if (students.Count != dto.StudentIds.Count)
                 return response.SetError(ErrorCodes.InvalidParameters, "Invalid students");
-     
+
+            var blockingStatuses = new[]
+{
+    ContractStatus.Draft,
+    ContractStatus.Finalized,
+    ContractStatus.SentToClient,
+    ContractStatus.SignedByClient,
+    ContractStatus.Active
+};
             var hasActiveContract = await _db.StudentContracts
-                .Include(c => c.Parties)
-                .AnyAsync(c =>
-                   c.Status == ContractStatus.Active  &&
-                    c.Parties.Any(p =>
-                        p.StudentId.HasValue && dto.StudentIds.Contains(p.StudentId.Value)));
+    .AnyAsync(c =>
+        blockingStatuses.Contains(c.Status) &&
+        c.Parties.Any(p =>
+            p.StudentId.HasValue &&
+            dto.StudentIds.Contains(p.StudentId.Value)));
 
             if (hasActiveContract)
-                return response.SetError(
-                    ErrorCodes.InvalidParameters,
-                    "Student already has an active contract");
+            {
+                var existing = await _db.StudentContracts
+                    .Where(c =>
+                        blockingStatuses.Contains(c.Status) &&
+                        c.Parties.Any(p =>
+                            p.StudentId.HasValue &&
+                            dto.StudentIds.Contains(p.StudentId.Value)))
+                    .OrderByDescending(c => c.CreatedAtUtc)
+                    .Select(c => new { c.Id })
+                    .FirstAsync();
+
+                return response.SetSuccess(new
+                {
+                    existingContractId = existing.Id
+                });
+            }
 
             Guardian? guardian = null;
 
@@ -107,7 +131,7 @@ public class ContractsService
             {
                 ContractNumber = GenerateContractNumber(),
                 StartDate = dto.StartDate,
-                EndDate = dto.EndDate,
+                EndDate = dto.IsUnlimited ? null : dto.EndDate,
                 IsUnlimited = dto.IsUnlimited,
                 Installments = dto.Installments <= 0 ? 1 : dto.Installments,
                 Status = ContractStatus.Draft,
@@ -186,29 +210,43 @@ public class ContractsService
             }
 
             contract.TotalAmount = CalculateTotal(contract);
+            
+            if (contract.Installments > 1)
+            {
+                var baseAmount = Math.Floor((contract.TotalAmount / contract.Installments) * 100) / 100;
 
-            // =============================
-            // GENERATE INSTALLMENTS
-            // =============================
-            //if (contract.Installments > 1)
-            //{
-            //    var installmentAmount = Math.Round(
-            //        contract.TotalAmount / contract.Installments, 2);
+                var totalAssigned = baseAmount * contract.Installments;
+                var remainder = contract.TotalAmount - totalAssigned;
 
-            //    for (int i = 0; i < contract.Installments; i++)
-            //    {
-            //        contract.InstallmentsList.Add(new ContractInstallment
-            //        {
-            //            DueDate = contract.StartDate.AddMonths(i),
-            //            Amount = installmentAmount,
-            //            IsPaid = false
-            //        });
-            //    }
-            //}
+                for (int i = 0; i < contract.Installments; i++)
+                {
+                    var amount = baseAmount;
 
-          
+                    if (i == contract.Installments - 1)
+                    {
+                        amount += remainder;
+                    }
+
+                    contract.InstallmentsList.Add(new ContractInstallment
+                    {
+                        DueDate = contract.StartDate.AddMonths(i),
+                        Amount = amount,
+                        IsPaid = false
+                    });
+                }
+            }
+            else
+            {
+                contract.InstallmentsList.Add(new ContractInstallment
+                {
+                    DueDate = contract.StartDate,
+                    Amount = contract.TotalAmount,
+                    IsPaid = false
+                });
+            }
+
             contract.ContractBody = await GenerateContractBody(contract, guardian, students);
-
+            contract.IsBodyCustomized = false;
 
             _db.StudentContracts.Add(contract);
             await _db.SaveChangesAsync();
@@ -235,6 +273,8 @@ public class ContractsService
         var contract = await _db.StudentContracts
             .Include(c => c.Courses)
             .Include(c => c.Discounts)
+            .Include(c => c.Parties)
+            .Include(c => c.InstallmentsList)
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (contract is null)
@@ -243,14 +283,187 @@ public class ContractsService
         if (contract.Status != ContractStatus.Draft)
             return response.SetError(ErrorCodes.InvalidParameters, "Only draft editable");
 
+        if (!dto.CourseSessionIds.Any())
+            return response.SetError(ErrorCodes.InvalidParameters, "No courses selected");
+
+        if (!dto.IsUnlimited && dto.EndDate == null)
+            return response.SetError(ErrorCodes.InvalidParameters, "EndDate required");
+
+        if (!dto.IsUnlimited && dto.EndDate < dto.StartDate)
+            return response.SetError(ErrorCodes.InvalidParameters, "Invalid period");
+
+        // =========================
+        // LOAD EXISTING PARTIES
+        // =========================
+        var guardian = contract.Parties
+            .FirstOrDefault(p => p.Role == ContractPartyRole.Guardian)?.Guardian;
+
+        var studentIds = contract.Parties
+            .Where(p => p.StudentId.HasValue)
+            .Select(p => p.StudentId!.Value)
+            .ToList();
+
+        var students = await _db.Students
+            .Where(s => studentIds.Contains(s.Id))
+            .ToListAsync();
+
+        // =========================
+        // LOAD SESSIONS
+        // =========================
+        var sessions = await _db.CourseSessions
+            .Include(x => x.Course)
+            .Where(x => dto.CourseSessionIds.Contains(x.Id))
+            .ToListAsync();
+
+        if (sessions.Count != dto.CourseSessionIds.Count)
+            return response.SetError(ErrorCodes.InvalidParameters, "Invalid sessions");
+
+        // =========================
+        // UPDATE BASIC FIELDS
+        // =========================
         contract.StartDate = dto.StartDate;
-        contract.EndDate = dto.EndDate;
+        contract.EndDate = dto.IsUnlimited ? null : dto.EndDate;
         contract.IsUnlimited = dto.IsUnlimited;
-        contract.Installments = dto.Installments;
+        contract.Installments = dto.Installments <= 0 ? 1 : dto.Installments;
         contract.UpdatedAtUtc = DateTime.UtcNow;
 
+        // =========================
+        // CLEAR
+        // =========================
         contract.Courses.Clear();
         contract.Discounts.Clear();
+
+        // =========================
+        // ADD COURSES
+        // =========================
+        foreach (var session in sessions)
+        {
+            contract.Courses.Add(new ContractCourse
+            {
+                CourseSessionId = session.Id,
+                CourseNameSnapshot = session.Course.Name,
+                SessionNameSnapshot = session.Title,
+                PriceSnapshot = session.Fee
+            });
+        }
+
+        // =========================
+        // ADD DISCOUNTS
+        // =========================
+        if (dto.Discounts != null)
+        {
+            foreach (var d in dto.Discounts)
+            {
+                contract.Discounts.Add(new ContractDiscount
+                {
+                    Type = Enum.Parse<DiscountType>(d.Type),
+                    Value = d.Value,
+                    Reason = d.Reason
+                });
+            }
+        }
+
+        // =========================
+        // RECALCULATE
+        // =========================
+        contract.TotalAmount = CalculateTotal(contract);
+
+        // =========================
+        // INSTALLMENTS
+        // =========================
+        contract.InstallmentsList.Clear();
+
+        if (contract.Installments > 1)
+        {
+            var baseAmount = Math.Floor((contract.TotalAmount / contract.Installments) * 100) / 100;
+            var totalAssigned = baseAmount * contract.Installments;
+            var remainder = contract.TotalAmount - totalAssigned;
+
+            for (int i = 0; i < contract.Installments; i++)
+            {
+                var amount = baseAmount;
+
+                if (i == contract.Installments - 1)
+                    amount += remainder;
+
+                contract.InstallmentsList.Add(new ContractInstallment
+                {
+                    DueDate = contract.StartDate.AddMonths(i),
+                    Amount = amount,
+                    IsPaid = false
+                });
+            }
+        }
+        else
+        {
+            contract.InstallmentsList.Add(new ContractInstallment
+            {
+                DueDate = contract.StartDate,
+                Amount = contract.TotalAmount,
+                IsPaid = false
+            });
+        }
+
+        // =========================
+        // BODY (respectă manual edit)
+        // =========================
+        if (!contract.IsBodyCustomized)
+        {
+            contract.ContractBody = await GenerateContractBody(contract, guardian, students);
+        }
+
+        await _db.SaveChangesAsync();
+
+        return response.SetSuccess(new { contract.Id });
+    }
+
+    public async Task<PublicResponse> UpdateBodyAsync(int id, string body)
+    {
+        var response = new PublicResponse(true);
+
+        var contract = await _db.StudentContracts.FindAsync(id);
+
+        if (contract is null)
+            return response.SetError(ErrorCodes.InvalidParameters, "Not found");
+
+        if (contract.Status != ContractStatus.Draft)
+            return response.SetError(ErrorCodes.InvalidParameters, "Only draft editable");
+
+        if (string.IsNullOrWhiteSpace(body))
+            return response.SetError(ErrorCodes.InvalidParameters, "Body cannot be empty");
+
+        contract.ContractBody = body;
+        contract.IsBodyCustomized = true; // 🔥 LOCK
+        contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync();
+
+        return response.SetSuccess(true);
+    }
+
+    public async Task<PublicResponse> ResetBodyAsync(int id)
+    {
+        var response = new PublicResponse(true);
+        var contract = await _db.StudentContracts
+            .Include(c => c.Parties)
+            .Include(c => c.Courses)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (contract == null)
+            return response.SetError(ErrorCodes.InvalidParameters, "Not found");
+
+        var guardian = contract.Parties
+            .FirstOrDefault(p => p.Role == ContractPartyRole.Guardian)?.Guardian;
+
+        var students = await _db.Students
+            .Where(s => contract.Parties
+                .Where(p => p.StudentId.HasValue)
+                .Select(p => p.StudentId!.Value)
+                .Contains(s.Id))
+            .ToListAsync();
+
+        contract.ContractBody = await GenerateContractBody(contract, guardian, students);
+        contract.IsBodyCustomized = false;
 
         await _db.SaveChangesAsync();
 
@@ -689,27 +902,7 @@ public class ContractsService
 
         return template;
     }
-    public async Task<PublicResponse> UpdateBodyAsync(int id, UpdateContractBodyDto dto)
-    {
-        var response = new PublicResponse(true);
-
-        var contract = await _db.StudentContracts.FindAsync(id);
-
-        if (contract is null)
-            return response.SetError(ErrorCodes.InvalidParameters, "Contract not found");
-
-        if (contract.Status != ContractStatus.Draft)
-            return response.SetError(ErrorCodes.InvalidParameters,
-                "Contract can be edited only in Draft");
-
-        contract.ContractBody = dto.ContractBody;
-        contract.UpdatedAtUtc = DateTime.UtcNow;
-
-        await _db.SaveChangesAsync();
-
-        return response.SetSuccess(true);
-    }
-
+   
     public async Task<PublicResponse> CancelAsync(int id)
     {
         var response = new PublicResponse(true);
@@ -726,8 +919,6 @@ public class ContractsService
 
         return response.SetSuccess(true);
     }
-
-    
 
     public async Task<PublicResponse> CompleteAsync(int id)
     {
@@ -847,7 +1038,7 @@ public class ContractsService
                 p.Role == ContractPartyRole.Student &&
                 p.StudentId.HasValue &&
                 p.StudentId.Value == studentId))
-            .OrderByDescending(c => c.CreatedAtUtc)
+            .OrderByDescending(c => c.CreatedAtUtc) 
             .Select(c => new
             {
                 c.Id,

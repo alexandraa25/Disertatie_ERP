@@ -1,0 +1,99 @@
+<div class="picker-container">
+
+    <!-- TRIGGER -->
+    <div class="trigger" (click)="toggle()">
+        {{ from ? (from | date:'shortDate') : 'Start' }}
+        -
+        {{ to ? (to | date:'shortDate') : 'End' }}
+    </div>
+
+    <!-- DROPDOWN -->
+    <div class="dropdown" *ngIf="isOpen">
+
+        <mat-tab-group>
+
+            <!-- DATE RANGE -->
+            <mat-tab label="Date range">
+                <div class="content">
+
+                    <div class="presets">
+                        <button *ngFor="let p of presets" [class.active]="selectedPreset === p.key"
+                            (click)="selectPreset(p.key)">
+                            {{ p.label }}
+                        </button>
+                    </div>
+
+                    <mat-form-field appearance="outline">
+                        <mat-date-range-input [rangePicker]="picker" [max]="today">
+                            <input matStartDate [(ngModel)]="tempFrom" (dateChange)="onManualChange()">
+                            <input matEndDate [(ngModel)]="tempTo" (dateChange)="onManualChange()">
+                        </mat-date-range-input>
+
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-date-range-picker #picker></mat-date-range-picker>
+                    </mat-form-field>
+
+                </div>
+            </mat-tab>
+
+            <!-- REALTIME -->
+            <mat-tab label="Realtime">
+                <div class="content">
+
+                    <div class="presets">
+                        <button [class.active]="selectedPreset === 'rt-0'" (click)="selectRealtimePreset(0)">
+                            Now
+                        </button>
+
+                        <button [class.active]="selectedPreset === 'rt-60'" (click)="selectRealtimePreset(60)">
+                            Last Hour
+                        </button>
+
+                        <button [class.active]="selectedPreset === 'rt-180'" (click)="selectRealtimePreset(180)">
+                            Last 3 Hours
+                        </button>
+
+                        <!-- 🔥 CUSTOM -->
+                        <button [class.active]="isCustomMode" (click)="activateCustom()">
+                            Custom
+                        </button>
+                    </div>
+
+                    <div class="custom" *ngIf="isCustomMode">
+
+                        <span>Last</span>
+
+                        <input type="number" [(ngModel)]="customValue">
+
+                        <select [(ngModel)]="customUnit">
+                            <option value="minutes">Minutes</option>
+                            <option value="hours">Hours</option>
+                        </select>
+
+                        <button class="secondary" (click)="applyRealtime()">Set</button>
+
+                    </div>
+
+                    <div class="preview" *ngIf="tempFrom && tempTo">
+                        ⏱ {{ tempFrom | date:'shortTime' }} → {{ tempTo | date:'shortTime' }}
+                    </div>
+
+                </div>
+            </mat-tab>
+
+        </mat-tab-group>
+
+        <!-- ACTIONS -->
+        <div class="actions">
+            <button class="cancel" (click)="cancel()">Cancel</button>
+
+            <button class="clear"  *ngIf="from || to" (click)="clear()">Clear</button>
+
+            <button class="apply" [disabled]="!tempFrom || !tempTo" (click)="apply()">
+                Apply Range
+            </button>
+        </div>
+
+    </div>
+
+</div>

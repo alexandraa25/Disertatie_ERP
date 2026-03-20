@@ -80,19 +80,21 @@
             {
                 public const string CONTRACTS = "";
                 public const string CONTRACT_BY_ID = "/{id:int}";
-                public const string CONTRACT_ACTIVATE = "/contracts/{id:int}/activate";
-                public const string STUDENT_CONTRACTS = "/students/{id:int}/contracts";
+                public const string CONTRACT_ACTIVATE = "/{id:int}/activate";
+                public const string STUDENT_CONTRACTS = "/students/{id:int}";
                 public const string CONTRACT_FINALIZE = "/{id}/finalize";
                 public const string CONTRACT_SIGN = "/{id}/sign";
                 public const string CONTRACT_CANCEL = "/{id}/cancel";
                 public const string CONTRACT_UPDATE_BODY = "/{id}/body";
+                public const string CONTRACT_UPDATE = "/{id}";
+                public const string RESET_BODY = "/{id}/reset-body";
                 public const string CONTRACT_GENERATE_PDF = "/{id}/generate-pdf";
                 public const string CONTRACT_GET_LATEST_BY_STUDENT ="/latest-by-student/{studentId:int}";
                 public const string CONTRACT_SEND_TO_CLIENT = "{id}/send";
                 public const string CONTRACT_CLIENT_SIGN = "/client-sign";
                 public const string CONTRACT_GET_FOR_SIGNING = "/sign/{token}";
-                public const string CONTRACT_ADMIN_SIGN = "/contracts/{id}/admin-sign";
-                public const string CONTRACT_DOWNLOAD = "/contracts/{id}/download";
+                public const string CONTRACT_ADMIN_SIGN = "/{id}/admin-sign";
+                public const string CONTRACT_DOWNLOAD = "/{id}/download";
 
 
 

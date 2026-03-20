@@ -20,13 +20,20 @@ export class ContractsService {
 
 
   listByStudent(studentId: number): Observable<any> {
-    return this.http.get<any>(`${this.baseUrl}/students/${studentId}/contracts`);
+    return this.http.get<any>(`${this.baseUrl}/students/${studentId}`);
   }
 
+   update(id: number, dto: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/${id}`, dto);
+  }
 
   updateBody(id: number, dto: any): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/${id}/body`, dto);
   }
+
+ resetBody(id: number): Observable<any> {
+  return this.http.put<any>(`${this.baseUrl}/${id}/reset-body`, {});
+}
 
 
   finalize(id: number) {
@@ -52,7 +59,7 @@ export class ContractsService {
 
 
   activate(id: number) {
-    return this.http.put<any>(`${this.baseUrl}/contracts/${id}/activate`, {});
+    return this.http.put<any>(`${this.baseUrl}/${id}/activate`, {});
   }
 
 
@@ -74,14 +81,14 @@ export class ContractsService {
 
   adminSign(id: number, signature: string) {
 
-    return this.http.post(`${this.baseUrl}/contracts/${id}/admin-sign`, {
+    return this.http.post(`${this.baseUrl}/${id}/admin-sign`, {
       signature: signature
     });
 
   }
 
   download(id: number) {
-    return this.http.get(`${this.baseUrl}/contracts/${id}/download`, {
+    return this.http.get(`${this.baseUrl}/${id}/download`, {
       responseType: 'blob'
     });
   }

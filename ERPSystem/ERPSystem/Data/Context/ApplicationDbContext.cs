@@ -27,7 +27,9 @@ namespace ERPSystem.Data.Context
         public DbSet<ContractCourse> ContractCourses { get; set; }
         public DbSet<ContractParty> ContractParties { get; set; }
         public DbSet<ContractDiscount> ContractDiscounts { get; set; }
+        public DbSet<ContractInstallment> ContractInstallments { get; set; }
         public DbSet<ContractSigningToken> ContractSigningTokens { get; set; }
+       
         public DbSet<Employee> Employees { get; set; }
         public DbSet<EmployeeContract> EmployeeContracts { get; set; }
         public DbSet<EmployeeLeave> EmployeeLeaves { get; set; }
@@ -116,6 +118,9 @@ namespace ERPSystem.Data.Context
                 entity.Property(e => e.ContractBody)
                     .HasColumnType("nvarchar(max)");
 
+                entity.Property(e => e.PdfPath)
+    .HasMaxLength(500);
+
                 entity.HasMany(e => e.Parties)
                     .WithOne(p => p.Contract)
                     .HasForeignKey(p => p.ContractId)
@@ -131,6 +136,21 @@ namespace ERPSystem.Data.Context
                     .HasForeignKey(d => d.ContractId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+
+            modelBuilder.Entity<StudentContract>()
+    .Property(c => c.Status)
+    .HasConversion<string>();
+
+
+            modelBuilder.Entity<StudentContract>()
+    .HasIndex(c => c.Status);
+
+            modelBuilder.Entity<StudentContract>()
+                .HasIndex(c => c.CreatedAtUtc);
+
+            modelBuilder.Entity<StudentContract>()
+                .HasIndex(c => c.StartDate);
 
             modelBuilder.Entity<ContractParty>(entity =>
             {
@@ -175,6 +195,22 @@ namespace ERPSystem.Data.Context
 
                 entity.Property(e => e.Reason)
                     .HasMaxLength(300);
+            });
+
+            modelBuilder.Entity<ContractInstallment>()
+    .HasOne(i => i.Contract)
+    .WithMany(c => c.InstallmentsList)
+    .HasForeignKey(i => i.ContractId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ContractInstallment>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Amount)
+                    .HasPrecision(18, 2);
+
+                entity.HasIndex(e => e.ContractId);
             });
 
 

@@ -194,7 +194,9 @@ ng-select {
   border-color: #fecaca;
 }
 
-
+.date-wrapper {
+  position: relative;
+}
 
 .date-presets {
   display: flex;
@@ -217,6 +219,31 @@ ng-select {
   border-color: #6366f1;
   color: #6366f1;
   background: #eef2ff;
+}
+
+/* trigger-ul intern */
+.date-picker .trigger {
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.date-picker .trigger:hover {
+  border-color: #6366f1;
+}
+
+/* icon mai clean */
+.date-picker .trigger::after {
+  content: "📅";
+  font-size: 14px;
+  opacity: 0.6;
 }
 /* =======================
    TIMELINE / LOGS
@@ -303,4 +330,36 @@ ng-select {
 .empty {
   color: #9ca3af;
   font-style: italic;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  border-color: #6366f1;
+  color: #6366f1;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 14px;
+  color: #374151;
 }

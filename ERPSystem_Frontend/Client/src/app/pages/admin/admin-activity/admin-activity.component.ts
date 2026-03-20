@@ -2,18 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivityLogService } from '../../services/activity-log.service';
-import { ActivityFilters, ActivityLog,  } from '../../models/activity-log.model';
+import { ActivityFilters, ActivityLog, } from '../../models/activity-log.model';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
+import { DateRangePickerComponent } from '../../../components/date-range-picker/date-range-picker.component';
 
 
 @Component({
   selector: 'app-admin-activity',
   standalone: true,
-   imports: [CommonModule, FormsModule, NgSelectModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatNativeDateModule],
+  imports: [CommonModule, FormsModule, NgSelectModule, MatDatepickerModule, MatFormFieldModule, MatInputModule, MatNativeDateModule, DateRangePickerComponent],
   templateUrl: './admin-activity.component.html',
   styleUrls: ['./admin-activity.component.scss']
 })
@@ -23,22 +24,25 @@ export class AdminActivityComponent implements OnInit {
   groupedLogs: { label: string; logs: ActivityLog[] }[] = [];
 
   entities: string[] = [];
-actions: string[] = [];
-users: string[] = [];
+  actions: string[] = [];
+  users: string[] = [];
 
- filters: ActivityFilters = {
-  entity: [],        // 🔥 array
-  action: [],
-  performedBy: [],
-  from: '',
-  to: '',
-  page: 1,
-  pageSize: 20
-};
+  filters: ActivityFilters = {
+    entity: [],
+    action: [],
+    performedBy: [],
+    from: null as Date | null,   // 🔥 schimbat
+    to: null as Date | null,     // 🔥 schimbat
+    page: 1,
+    pageSize: 10
+  };
 
   loading = false;
 
-  constructor(private activityService: ActivityLogService) {}
+  totalCount = 0;
+  totalPages = 0;
+
+  constructor(private activityService: ActivityLogService) { }
 
   ngOnInit(): void {
     this.loadLogs();
@@ -48,17 +52,27 @@ users: string[] = [];
   loadLogs() {
     this.loading = true;
 
-    this.activityService.getAllActivity(this.filters)
+    const payload = {
+      ...this.filters,
+      from: this.filters.from ? this.filters.from.toISOString() : null,
+      to: this.filters.to ? this.filters.to.toISOString() : null
+    };
+
+    this.activityService.getAllActivity(payload)
       .subscribe({
         next: (res: any) => {
           this.activityLogs = res.items;
+
+          this.totalCount = res.total;
+          this.totalPages = Math.ceil(this.totalCount / this.filters.pageSize);
+          console.log('Pages:', res.total)
+          console.log('totalPages:', this.totalPages);
           this.groupLogs(this.activityLogs);
           this.loading = false;
         },
         error: () => this.loading = false
       });
   }
-
   groupLogs(logs: ActivityLog[]) {
     const groups: { [key: string]: ActivityLog[] } = {};
 
@@ -95,57 +109,48 @@ users: string[] = [];
   }
 
   loadFilters() {
-  this.activityService.getFilters().subscribe(res => {
-    this.entities = res.entities;
-    this.actions = res.actions;
-    this.users = res.users;
-  });
-
-  
-}
-
-clearDate() {
-  this.filters.from = '';
-  this.filters.to = '';
-  this.loadLogs();
-}
+    this.activityService.getFilters().subscribe(res => {
+      this.entities = res.entities;
+      this.actions = res.actions;
+      this.users = res.users;
+    });
 
 
-// setPreset(type: string) {
-//   const today = new Date();
+  }
+  onFilterChange() {
+    this.filters.page = 1;
+    this.loadLogs();
+  }
+  clearDate() {
+    this.filters.from = null;
+    this.filters.to = null;
+    this.loadLogs();
+  }
+  onDateChange(range: any) {
+    this.filters.from = range.from;
+    this.filters.to = range.to;
+    this.filters.page = 1;
+    this.loadLogs();
+  }
 
-//   let from: Date;
-//   let to: Date = new Date(today);
 
-//   switch (type) {
-//     case 'today':
-//       from = new Date(today);
-//       break;
+  nextPage() {
+    if (this.filters.page < this.totalPages) {
+      this.filters.page++;
+      this.loadLogs();
+    }
+  }
 
-//     case 'yesterday':
-//       from = new Date(today);
-//       from.setDate(today.getDate() - 1);
-//       to = new Date(from);
-//       break;
+  prevPage() {
+    if (this.filters.page > 1) {
+      this.filters.page--;
+      this.loadLogs();
+    }
+  }
 
-//     case 'week':
-//       from = new Date(today);
-//       from.setDate(today.getDate() - 7);
-//       break;
-
-//     case 'month':
-//       from = new Date(today);
-//       from.setMonth(today.getMonth() - 1);
-//       break;
-
-//     default:
-//       return;
-//   }
-
-//   this.filters.from = from.toISOString();
-//   this.filters.to = to.toISOString();
-
-//   this.loadLogs();
-// }
+  goToPage(page: number) {
+    this.filters.page = page;
+    this.loadLogs();
+  }
 }
 

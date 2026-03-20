@@ -44,11 +44,31 @@ public static class ContractsEndpoints
 
         group.MapPut(Route.CONTRACT_UPDATE_BODY,
     async (int id, UpdateContractBodyDto dto, ContractsService service)
-        => await service.UpdateBodyAsync(id, dto))
+        => await service.UpdateBodyAsync(id, dto.ContractBody))
     .WithDefaultApiSettings(
         "UpdateContractBody",
         "Editare conținut contract",
         "UPDATE_BODY",
+        false
+    );
+
+        group.MapPut(Route.CONTRACT_UPDATE,
+    async (int id, UpdateContractDto dto, ContractsService service)
+        => await service.UpdateAsync(id, dto))
+    .WithDefaultApiSettings(
+        "UpdateContract",
+        "Actualizare contract (Draft)",
+        "UPDATE",
+        false
+    );
+
+        group.MapPut(Route.RESET_BODY,
+    async (int id, ContractsService service)
+        => await service.ResetBodyAsync(id))
+    .WithDefaultApiSettings(
+        "ResetContractBody",
+        "Reset contract la template",
+        "UPDATE",
         false
     );
 
@@ -62,15 +82,6 @@ public static class ContractsEndpoints
         false
     );
 
-    //    group.MapPost(Route.CONTRACT_GENERATE_PDF,
-    //async (int id, ContractsService service)
-    //    => await service.GeneratePdfAsync(id))
-    //.WithDefaultApiSettings(
-    //    "GenerateContractPdf",
-    //    "Generare PDF contract",
-    //    "GENERATE_PDF",
-    //    false
-    //);
 
      
 

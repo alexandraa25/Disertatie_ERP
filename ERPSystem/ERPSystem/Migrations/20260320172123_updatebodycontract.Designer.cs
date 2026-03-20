@@ -4,6 +4,7 @@ using ERPSystem.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERPSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260320172123_updatebodycontract")]
+    partial class updatebodycontract
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -283,34 +286,6 @@ namespace ERPSystem.Migrations
                     b.HasIndex("ContractId");
 
                     b.ToTable("ContractDiscounts");
-                });
-
-            modelBuilder.Entity("ERPSystem.Data.Entities.ContractInstallment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("ContractId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsPaid")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContractId");
-
-                    b.ToTable("ContractInstallments");
                 });
 
             modelBuilder.Entity("ERPSystem.Data.Entities.ContractParty", b =>
@@ -886,6 +861,7 @@ namespace ERPSystem.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContractBody")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ContractNumber")
@@ -905,22 +881,20 @@ namespace ERPSystem.Migrations
                     b.Property<int>("Installments")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsBodyCustomized")
+                    b.Property<bool?>("IsBodyCustomized")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsUnlimited")
                         .HasColumnType("bit");
 
                     b.Property<string>("PdfPath")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("TotalAmount")
                         .HasPrecision(18, 2)
@@ -933,12 +907,6 @@ namespace ERPSystem.Migrations
 
                     b.HasIndex("ContractNumber")
                         .IsUnique();
-
-                    b.HasIndex("CreatedAtUtc");
-
-                    b.HasIndex("StartDate");
-
-                    b.HasIndex("Status");
 
                     b.ToTable("StudentContracts");
                 });
@@ -1161,17 +1129,6 @@ namespace ERPSystem.Migrations
                 {
                     b.HasOne("ERPSystem.Data.Entities.StudentContract", "Contract")
                         .WithMany("Discounts")
-                        .HasForeignKey("ContractId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contract");
-                });
-
-            modelBuilder.Entity("ERPSystem.Data.Entities.ContractInstallment", b =>
-                {
-                    b.HasOne("ERPSystem.Data.Entities.StudentContract", "Contract")
-                        .WithMany("InstallmentsList")
                         .HasForeignKey("ContractId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1415,8 +1372,6 @@ namespace ERPSystem.Migrations
                     b.Navigation("Courses");
 
                     b.Navigation("Discounts");
-
-                    b.Navigation("InstallmentsList");
 
                     b.Navigation("Parties");
                 });

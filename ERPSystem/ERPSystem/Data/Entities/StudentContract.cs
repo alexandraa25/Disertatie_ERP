@@ -16,13 +16,15 @@ public class StudentContract
 
     public decimal TotalAmount { get; set; }
 
-    public int Installments { get; set; }
+    public int Installments { get; set; } = 1;
 
     public ContractStatus Status { get; set; }
 
-    public string ContractBody { get; set; }
+    public string? ContractBody { get; set; }
 
     public string? PdfPath { get; set; }
+
+    public bool IsBodyCustomized { get; set; }
 
     // =========================
     // CLIENT SIGNATURE
@@ -95,4 +97,6 @@ public class StudentContract
     public ICollection<ContractCourse> Courses { get; set; } = new List<ContractCourse>();
 
     public ICollection<ContractDiscount> Discounts { get; set; } = new List<ContractDiscount>();
+
+    public ICollection<ContractInstallment> InstallmentsList { get; set; } = new List<ContractInstallment>();
 }

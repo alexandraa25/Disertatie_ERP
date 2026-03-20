@@ -18,8 +18,8 @@ export interface ActivityFilters {
   entity: string[];
   action: string[];
   performedBy: string[];
-  from: string;
-  to: string;
+  from: Date | null;
+  to: Date | null;
   page: number;
   pageSize: number;
 }
