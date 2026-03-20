@@ -23,7 +23,7 @@ export class ContractsService {
     return this.http.get<any>(`${this.baseUrl}/students/${studentId}`);
   }
 
-   update(id: number, dto: any): Observable<any> {
+  update(id: number, dto: any): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/${id}`, dto);
   }
 
@@ -31,9 +31,9 @@ export class ContractsService {
     return this.http.put<any>(`${this.baseUrl}/${id}/body`, dto);
   }
 
- resetBody(id: number): Observable<any> {
-  return this.http.put<any>(`${this.baseUrl}/${id}/reset-body`, {});
-}
+  resetBody(id: number): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/${id}/reset-body`, {});
+  }
 
 
   finalize(id: number) {
@@ -93,4 +93,16 @@ export class ContractsService {
     });
   }
 
+
+  suspend(id: number) {
+    return this.http.put(`${this.baseUrl}/${id}/suspend`, {});
+  }
+
+  resume(id: number) {
+    return this.http.put(`${this.baseUrl}/${id}/resume`, {});
+  }
+
+  complete(id: number) {
+    return this.http.put(`${this.baseUrl}/${id}/complete`, {});
+  }
 }

@@ -155,6 +155,39 @@ public static class ContractsEndpoints
     false
 );
 
+        group.MapPut(Route.CONTRACT_SUSPEND,
+    async (int id, ContractsService service)
+        => await service.SuspendAsync(id))
+.WithDefaultApiSettings(
+    "SuspendContract",
+    "Suspendă contractul",
+    "UPDATE",
+    false
+);
+
+
+        group.MapPut(Route.CONTRACT_COMPLETE,
+    async (int id, ContractsService service)
+        => await service.CompleteAsync(id))
+.WithDefaultApiSettings(
+    "CompleteContract",
+    "Finalizează contractul (normal)",
+    "UPDATE",
+    false
+);
+
+        group.MapPost(Route.CONTRACT_EXPIRE,
+     async (ContractsService service) =>
+     {
+         await service.ExpireContractsAsync();
+         return Results.Ok();
+     })
+ .WithDefaultApiSettings(
+     "ExpireContractsJob",
+     "Rulează expirarea contractelor",
+     "SYSTEM",
+     false
+ );
     }
 
 

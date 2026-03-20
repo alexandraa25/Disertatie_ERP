@@ -14,5 +14,9 @@ public class CourseEnrollment
     public Student Student { get; set; } = null!;
 
     public DateTime EnrolledAtUtc { get; set; } = DateTime.UtcNow;
+    public DateTime? EndedAtUtc { get; set; }
     public bool IsActive { get; set; } = true;
+
+    public int? ContractId { get; set; }
+    public StudentContract Contract { get; set; } = null!;
 }

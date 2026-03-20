@@ -6,30 +6,40 @@
 
   <div class="contract-container">
 
-    <div class="contract-body">
-      {{ contract?.contractBody }}
+    <div class="contract-body"
+       [innerHTML]="contract?.contractBody">
     </div>
 
   </div>
 
 
-  <h3 class="signature-title">Semnătura dvs.</h3>
+<h3 class="signature-title" *ngIf="!signed">Semnătura dvs.</h3>
 
-  <canvas #canvas width="600" height="200" (mousedown)="startDrawing($event)" (mousemove)="draw($event)"
-    (mouseup)="stopDrawing()" (mouseleave)="stopDrawing()"></canvas>
+<canvas *ngIf="!signed"
+        #canvas
+        width="600"
+        height="200"
+        (mousedown)="startDrawing($event)"
+        (mousemove)="draw($event)"
+        (mouseup)="stopDrawing()"
+        (mouseleave)="stopDrawing()">
+</canvas>
 
-  <div class="buttons">
+<div class="buttons" *ngIf="!signed">
 
-    <button (click)="clear()">Șterge</button>
+  <button class="btn-secondary" (click)="clear()">
+    🗑 Șterge
+  </button>
 
-    <button (click)="sign()" [disabled]="loading">
-      Semnează contractul
-    </button>
+  <button class="btn-primary" (click)="sign()" [disabled]="loading">
+    ✍️ Semnează contractul
+  </button>
 
-  </div>
+</div>
 
-  <div *ngIf="signed" class="success">
-    Contract semnat cu succes!
-  </div>
+<!-- SUCCESS -->
+<div *ngIf="signed" class="success">
+  ✅ Contract semnat cu succes!
+</div>
 
 </div>

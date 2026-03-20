@@ -9,6 +9,7 @@ using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+
 using static ERPSystem.Utils.Constants.General.Route;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -170,10 +171,15 @@ public class ContractsService
 
             if (guardian != null)
             {
+                var student = students.First();
                 contract.BeneficiaryNameSnapshot = $"{guardian.FirstName} {guardian.LastName}";
                 contract.BeneficiaryEmailSnapshot = guardian.Email;
                 contract.BeneficiaryPhoneSnapshot = guardian.Phone;
-                contract.BeneficiaryAddressSnapshot = guardian.Address;
+                // 🔥 fallback adresă
+                contract.BeneficiaryAddressSnapshot =
+                    !string.IsNullOrWhiteSpace(guardian.Address)
+                        ? guardian.Address
+                        : student.Address;
             }
             else
             {
@@ -292,9 +298,7 @@ public class ContractsService
         if (!dto.IsUnlimited && dto.EndDate < dto.StartDate)
             return response.SetError(ErrorCodes.InvalidParameters, "Invalid period");
 
-        // =========================
-        // LOAD EXISTING PARTIES
-        // =========================
+
         var guardian = contract.Parties
             .FirstOrDefault(p => p.Role == ContractPartyRole.Guardian)?.Guardian;
 
@@ -307,9 +311,7 @@ public class ContractsService
             .Where(s => studentIds.Contains(s.Id))
             .ToListAsync();
 
-        // =========================
-        // LOAD SESSIONS
-        // =========================
+
         var sessions = await _db.CourseSessions
             .Include(x => x.Course)
             .Where(x => dto.CourseSessionIds.Contains(x.Id))
@@ -318,24 +320,18 @@ public class ContractsService
         if (sessions.Count != dto.CourseSessionIds.Count)
             return response.SetError(ErrorCodes.InvalidParameters, "Invalid sessions");
 
-        // =========================
-        // UPDATE BASIC FIELDS
-        // =========================
+
         contract.StartDate = dto.StartDate;
         contract.EndDate = dto.IsUnlimited ? null : dto.EndDate;
         contract.IsUnlimited = dto.IsUnlimited;
         contract.Installments = dto.Installments <= 0 ? 1 : dto.Installments;
         contract.UpdatedAtUtc = DateTime.UtcNow;
 
-        // =========================
-        // CLEAR
-        // =========================
+
         contract.Courses.Clear();
         contract.Discounts.Clear();
 
-        // =========================
-        // ADD COURSES
-        // =========================
+
         foreach (var session in sessions)
         {
             contract.Courses.Add(new ContractCourse
@@ -347,9 +343,7 @@ public class ContractsService
             });
         }
 
-        // =========================
-        // ADD DISCOUNTS
-        // =========================
+  
         if (dto.Discounts != null)
         {
             foreach (var d in dto.Discounts)
@@ -363,14 +357,9 @@ public class ContractsService
             }
         }
 
-        // =========================
-        // RECALCULATE
-        // =========================
+     
         contract.TotalAmount = CalculateTotal(contract);
-
-        // =========================
-        // INSTALLMENTS
-        // =========================
+  
         contract.InstallmentsList.Clear();
 
         if (contract.Installments > 1)
@@ -404,9 +393,7 @@ public class ContractsService
             });
         }
 
-        // =========================
-        // BODY (respectă manual edit)
-        // =========================
+      
         if (!contract.IsBodyCustomized)
         {
             contract.ContractBody = await GenerateContractBody(contract, guardian, students);
@@ -454,13 +441,16 @@ public class ContractsService
 
         var guardian = contract.Parties
             .FirstOrDefault(p => p.Role == ContractPartyRole.Guardian)?.Guardian;
+        var studentIds = contract.Parties
+    .Where(p => p.StudentId != null)
+    .Select(p => p.StudentId.Value)
+    .ToList();
 
         var students = await _db.Students
-            .Where(s => contract.Parties
-                .Where(p => p.StudentId.HasValue)
-                .Select(p => p.StudentId!.Value)
-                .Contains(s.Id))
+            .Where(s => studentIds.Contains(s.Id))
             .ToListAsync();
+
+       
 
         contract.ContractBody = await GenerateContractBody(contract, guardian, students);
         contract.IsBodyCustomized = false;
@@ -497,6 +487,15 @@ public class ContractsService
         contract.Status = ContractStatus.Finalized;
         contract.FinalizedAtUtc = DateTime.UtcNow;
         contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        _db.ActivityLog.Add(new ActivityLog
+        {
+            EntityType = nameof(StudentContract),
+            EntityId = contract.Id,
+            Action = "Finalize",
+            Description = $"Contractul {contract.ContractNumber} a fost finalizat",
+            CreatedAtUtc = DateTime.UtcNow
+        });
 
         await _db.SaveChangesAsync();
 
@@ -580,11 +579,18 @@ public class ContractsService
                 link
             );
 
-            if (!emailResponse.IsSuccess)
-                return emailResponse;
-
             contract.Status = ContractStatus.SentToClient;
             contract.UpdatedAtUtc = DateTime.UtcNow;
+
+
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = nameof(StudentContract),
+                EntityId = contract.Id,
+                Action = "Send",
+                Description = $"Contract trimis către {email}",
+                CreatedAtUtc = DateTime.UtcNow
+            });
 
             await _db.SaveChangesAsync();
 
@@ -630,6 +636,15 @@ public class ContractsService
         contract.Status = ContractStatus.SignedByClient;
 
         signingToken.IsUsed = true;
+
+        _db.ActivityLog.Add(new ActivityLog
+        {
+            EntityType = nameof(StudentContract),
+            EntityId = contract.Id,
+            Action = "SignClient",
+            Description = "Clientul a semnat contractul",
+            CreatedAtUtc = DateTime.UtcNow
+        });
 
         await _db.SaveChangesAsync();
 
@@ -691,6 +706,15 @@ public class ContractsService
         var pdfName = _pdfService.GenerateContractPdf(contract);
 
         contract.PdfPath = pdfName;
+
+        _db.ActivityLog.Add(new ActivityLog
+        {
+            EntityType = nameof(StudentContract),
+            EntityId = contract.Id,
+            Action = "SignAdmin",
+            Description = "Administratorul a semnat contractul",
+            CreatedAtUtc = DateTime.UtcNow
+        });
 
         await _db.SaveChangesAsync();
 
@@ -902,18 +926,52 @@ public class ContractsService
 
         return template;
     }
-   
+
     public async Task<PublicResponse> CancelAsync(int id)
     {
         var response = new PublicResponse(true);
 
-        var contract = await _db.StudentContracts.FindAsync(id);
+        var contract = await _db.StudentContracts
+            .FirstOrDefaultAsync(c => c.Id == id);
 
         if (contract is null)
             return response.SetError(ErrorCodes.InvalidParameters, "Not found");
 
         contract.Status = ContractStatus.Cancelled;
         contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        // 🔥 LOG CONTRACT
+        _db.ActivityLog.Add(new ActivityLog
+        {
+            EntityType = nameof(StudentContract),
+            EntityId = contract.Id,
+            Action = "Cancelled",
+            Description = $"Contract {contract.ContractNumber} a fost anulat",
+            CreatedAtUtc = DateTime.UtcNow
+        });
+
+        // 🔥 STOP ENROLLMENTS
+        var enrollments = await _db.CourseEnrollments
+            .Include(e => e.Student)
+            .Include(e => e.Session)
+            .Where(e => e.ContractId == contract.Id && e.IsActive)
+            .ToListAsync();
+
+        foreach (var e in enrollments)
+        {
+            e.IsActive = false;
+            e.EndedAtUtc = DateTime.UtcNow;
+
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = nameof(CourseEnrollment),
+                EntityId = e.Id,
+                Action = "EnrollmentCancelled",
+                Description =
+                    $"Student {e.Student.FirstName} {e.Student.LastName} eliminat din {e.Session.Title} (contract anulat)",
+                CreatedAtUtc = DateTime.UtcNow
+            });
+        }
 
         await _db.SaveChangesAsync();
 
@@ -924,7 +982,8 @@ public class ContractsService
     {
         var response = new PublicResponse(true);
 
-        var contract = await _db.StudentContracts.FindAsync(id);
+        var contract = await _db.StudentContracts
+            .FirstOrDefaultAsync(c => c.Id == id);
 
         if (contract is null)
             return response.SetError(ErrorCodes.InvalidParameters, "Not found");
@@ -935,6 +994,39 @@ public class ContractsService
 
         contract.Status = ContractStatus.Completed;
         contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        // 🔥 LOG CONTRACT
+        _db.ActivityLog.Add(new ActivityLog
+        {
+            EntityType = nameof(StudentContract),
+            EntityId = contract.Id,
+            Action = "Completed",
+            Description = $"Contract {contract.ContractNumber} finalizat",
+            CreatedAtUtc = DateTime.UtcNow
+        });
+
+        // 🔥 STOP ENROLLMENTS (final natural)
+        var enrollments = await _db.CourseEnrollments
+            .Include(e => e.Student)
+            .Include(e => e.Session)
+            .Where(e => e.ContractId == contract.Id && e.IsActive)
+            .ToListAsync();
+
+        foreach (var e in enrollments)
+        {
+            e.IsActive = false;
+            e.EndedAtUtc = contract.EndDate ?? DateTime.UtcNow;
+
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = nameof(CourseEnrollment),
+                EntityId = e.Id,
+                Action = "EnrollmentCompleted",
+                Description =
+                    $"Student {e.Student.FirstName} {e.Student.LastName} a finalizat {e.Session.Title}",
+                CreatedAtUtc = DateTime.UtcNow
+            });
+        }
 
         await _db.SaveChangesAsync();
 
@@ -954,6 +1046,40 @@ public class ContractsService
         {
             contract.Status = ContractStatus.Expired;
             contract.UpdatedAtUtc = DateTime.UtcNow;
+
+            // 🔥 log contract
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = nameof(StudentContract),
+                EntityId = contract.Id,
+                Action = "Expired",
+                Description = $"Contract {contract.ContractNumber} a expirat",
+                CreatedAtUtc = DateTime.UtcNow
+            });
+
+            // 🔥 enrollments pentru contract
+            var enrollments = await _db.CourseEnrollments
+                .Include(e => e.Student)
+                .Include(e => e.Session)
+                .Where(e => e.ContractId == contract.Id && e.IsActive)
+                .ToListAsync();
+
+            foreach (var e in enrollments)
+            {
+                e.IsActive = false;
+                e.EndedAtUtc = DateTime.UtcNow;
+
+                // 🔥 log per enrollment (FOARTE util în UI)
+                _db.ActivityLog.Add(new ActivityLog
+                {
+                    EntityType = nameof(CourseEnrollment),
+                    EntityId = e.Id,
+                    Action = "EnrollmentEnded",
+                    Description =
+                        $"Student {e.Student.FirstName} {e.Student.LastName} a fost scos din sesiunea {e.Session.Title} (contract expirat)",
+                    CreatedAtUtc = DateTime.UtcNow
+                });
+            }
         }
 
         await _db.SaveChangesAsync();
@@ -963,7 +1089,8 @@ public class ContractsService
     {
         var response = new PublicResponse(true);
 
-        var contract = await _db.StudentContracts.FindAsync(id);
+        var contract = await _db.StudentContracts
+            .FirstOrDefaultAsync(c => c.Id == id);
 
         if (contract is null)
             return response.SetError(ErrorCodes.InvalidParameters, "Not found");
@@ -974,6 +1101,40 @@ public class ContractsService
 
         contract.Status = ContractStatus.Suspended;
         contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        // 🔥 LOG CONTRACT
+        _db.ActivityLog.Add(new ActivityLog
+        {
+            EntityType = nameof(StudentContract),
+            EntityId = contract.Id,
+            Action = "Suspended",
+            Description = $"Contract {contract.ContractNumber} a fost suspendat",
+            CreatedAtUtc = DateTime.UtcNow
+        });
+
+        // 🔥 PAUSE ENROLLMENTS (nu terminate!)
+        var enrollments = await _db.CourseEnrollments
+            .Include(e => e.Student)
+            .Include(e => e.Session)
+            .Where(e => e.ContractId == contract.Id && e.IsActive)
+            .ToListAsync();
+
+        foreach (var e in enrollments)
+        {
+            e.IsActive = false;
+
+            // ⚠️ NU setăm EndedAtUtc → nu e final
+
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = nameof(CourseEnrollment),
+                EntityId = e.Id,
+                Action = "EnrollmentSuspended",
+                Description =
+                    $"Student {e.Student.FirstName} {e.Student.LastName} suspendat din {e.Session.Title}",
+                CreatedAtUtc = DateTime.UtcNow
+            });
+        }
 
         await _db.SaveChangesAsync();
 
@@ -995,6 +1156,37 @@ public class ContractsService
 
         contract.Status = ContractStatus.Active;
         contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        // 🔥 REACTIVARE ENROLLMENTS
+        var enrollments = await _db.CourseEnrollments
+            .Include(e => e.Student)
+            .Include(e => e.Session)
+            .Where(e => e.ContractId == contract.Id && !e.IsActive && e.EndedAtUtc == null)
+            .ToListAsync();
+
+        foreach (var e in enrollments)
+        {
+            e.IsActive = true;
+
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = nameof(CourseEnrollment),
+                EntityId = e.Id,
+                Action = "EnrollmentResumed",
+                Description = $"Student {e.Student.FirstName} {e.Student.LastName} reluat în {e.Session.Title}",
+                CreatedAtUtc = DateTime.UtcNow
+            });
+        }
+
+        // 🔥 LOG CONTRACT
+        _db.ActivityLog.Add(new ActivityLog
+        {
+            EntityType = nameof(StudentContract),
+            EntityId = contract.Id,
+            Action = "Resumed",
+            Description = $"Contract {contract.ContractNumber} a fost reluat",
+            CreatedAtUtc = DateTime.UtcNow
+        });
 
         await _db.SaveChangesAsync();
 
@@ -1018,7 +1210,7 @@ public class ContractsService
             await _db.SaveChangesAsync();
         }
 
-        var bytes = await File.ReadAllBytesAsync(contract.PdfPath);
+        var bytes = _pdfService.GenerateContractPdfBytes(contract);
 
         return Results.File(
             bytes,

@@ -585,4 +585,31 @@ button {
 }
 
 
+.empty-contract {
+  text-align: center;
+  padding: 40px;
+  border: 2px dashed #ddd;
+  border-radius: 12px;
+  background: #fafafa;
+}
 
+.empty-contract h2 {
+  margin-bottom: 10px;
+  color: #444;
+}
+
+.empty-contract p {
+  color: #777;
+  margin-bottom: 20px;
+}
+
+
+.success {
+  background: #22c55e;
+  color: white;
+}
+
+.danger {
+  background: #ef4444;
+  color: white;
+}

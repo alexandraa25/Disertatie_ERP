@@ -41,6 +41,7 @@ export class SignContractComponent implements OnInit {
 
     });
 
+    
 }
 
   ngAfterViewInit() {
@@ -81,31 +82,28 @@ export class SignContractComponent implements OnInit {
 
   sign() {
 
-    const canvas = this.canvas.nativeElement;
+  
 
-    const signature = canvas.toDataURL();
+  const canvas = this.canvas.nativeElement;
+  const signature = canvas.toDataURL();
 
-    this.loading = true;
+  this.loading = true;
 
-    this.contracts.signClient({
-      token: this.token,
-      signature: signature
-    }).subscribe({
+  this.contracts.signClient({
+    token: this.token,
+    signature: signature
+  }).subscribe({
 
-      next: () => {
+    next: () => {
+      this.signed = true;
+      this.loading = false;
+    },
 
-        this.signed = true;
-        this.loading = false;
+    error: () => {
+      this.loading = false;
+    }
 
-      },
-      error: () => {
-
-        this.loading = false;
-
-      }
-
-    });
-
-  }
+  });
+}
 
 }

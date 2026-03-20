@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './components/auth-guard';
+import { unsavedChangesGuard } from './components/guards/unsaved-changes.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'register', pathMatch: 'full' },
@@ -18,7 +19,7 @@ export const routes: Routes = [
   { path: 'courses', loadComponent: () => import('./pages/academics/courses/courses.component').then(m => m.CoursesComponent) },
   { path: 'courses/:id', loadComponent: () => import('./pages/academics/course-details/course-details.component').then(m => m.CourseDetailsComponent) },
   { path: 'create-contract', loadComponent: () => import('./pages/financiar/create-contract/create-contract.component').then(m => m.CreateContractComponent) },
-  { path: 'contracts/:id', loadComponent: () => import('./pages/financiar/contract-details/contract-details.component').then(m => m.ContractDetailsComponent) },
+  { path: 'contracts/:id', loadComponent: () => import('./pages/financiar/contract-details/contract-details.component').then(m => m.ContractDetailsComponent), canDeactivate: [unsavedChangesGuard] },
   { path: 'admin/users', loadComponent: () => import('./pages/admin-users/admin-users.component').then(m => m.AdminUsersComponent) },
   { path: 'sign-contract/:token', loadComponent: () => import('./pages/financiar/sign-contract/sign-contract.component') .then(m => m.SignContractComponent) },
   { path: 'company', loadComponent: () => import('./pages/admin/company/company.component') .then(m => m.CompanyComponent) }, 

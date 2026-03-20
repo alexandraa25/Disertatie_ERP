@@ -29,7 +29,9 @@ namespace ERPSystem.Data.Context
         public DbSet<ContractDiscount> ContractDiscounts { get; set; }
         public DbSet<ContractInstallment> ContractInstallments { get; set; }
         public DbSet<ContractSigningToken> ContractSigningTokens { get; set; }
-       
+
+        public DbSet<ContractAdditionalAct> ContractAdditionalAct { get; set; }
+
         public DbSet<Employee> Employees { get; set; }
         public DbSet<EmployeeContract> EmployeeContracts { get; set; }
         public DbSet<EmployeeLeave> EmployeeLeaves { get; set; }
@@ -213,6 +215,31 @@ namespace ERPSystem.Data.Context
                 entity.HasIndex(e => e.ContractId);
             });
 
+            modelBuilder.Entity<ContractAdditionalAct>()
+    .HasOne(a => a.Contract)
+    .WithMany(c => c.AdditionalActs)
+    .HasForeignKey(a => a.ContractId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+
+            modelBuilder.Entity<ContractAdditionalAct>(entity =>
+            {
+                entity.Property(x => x.ActNumber)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(x => x.Description)
+                    .HasMaxLength(500);
+
+                entity.Property(x => x.Body)
+                    .HasColumnType("nvarchar(max)");
+
+                entity.Property(x => x.Status)
+                    .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<ContractAdditionalAct>()
+    .HasIndex(a => a.ContractId);
 
             modelBuilder.Entity<Employee>()
                 .HasOne(e => e.User)

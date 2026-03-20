@@ -4,7 +4,8 @@ import { ContractsService } from '../../services/contracts.service';
 
 @Component({
   selector: 'app-admin-signature-modal',
-  templateUrl: './admin-signature-modal.component.html'
+  templateUrl: './admin-signature-modal.component.html',
+  styleUrls: ['./admin-signature-modal.component.css']
 })
 export class AdminSignatureModalComponent implements AfterViewInit {
 
@@ -21,15 +22,16 @@ export class AdminSignatureModalComponent implements AfterViewInit {
     @Inject(MAT_DIALOG_DATA) public contractId: number
   ) {}
 
-  ngAfterViewInit() {
+ ngAfterViewInit() {
+  const canvas = this.canvas.nativeElement;
 
-    const canvas = this.canvas.nativeElement;
+  canvas.width = canvas.offsetWidth;
+  canvas.height = 220;
 
-    this.ctx = canvas.getContext('2d')!;
-
-    this.ctx.lineWidth = 2;
-    this.ctx.lineCap = 'round';
-  }
+  this.ctx = canvas.getContext('2d')!;
+  this.ctx.lineWidth = 2;
+  this.ctx.lineCap = 'round';
+}
 
   startDrawing(event: MouseEvent) {
     this.drawing = true;

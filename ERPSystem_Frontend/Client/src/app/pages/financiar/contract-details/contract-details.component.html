@@ -5,128 +5,165 @@
 <div class="section contract-section">
 
   <div *ngIf="isEditingBody" class="warning">
-  ⚠️ Nu modifica valorile generate automat (preț, cursuri, etc)
-</div>
+    ⚠️ Nu modifica valorile generate automat (preț, cursuri, etc)
+  </div>
   <div class="section-header">
-    <h3>📄 Conținut Contract</h3>
+    <div class="header-left">
+    <button class="back-btn" (click)="goBack()">
+      ← Înapoi
+    </button>
 
-    <button *ngIf="contract.status === 'Draft' && !isEditingBody"
-            class="edit-btn"
-            type="button"
-            (click)="startEditBody()">
+    <h3>📄 Conținut Contract</h3>
+  </div>
+
+    <button *ngIf="contract.status === 'Draft' && !isEditingBody" class="edit-btn" type="button"
+      (click)="startEditBody()">
       ✏️ Editează
     </button>
   </div>
 
   <!-- VIEW -->
   <div *ngIf="!isEditingBody">
-    <div class="contract-body"
-     [innerHTML]="formatContractBody(contract.contractBody)">
-</div>
+    <div class="contract-body" [innerHTML]="contract.contractBody">
+    </div>
   </div>
 
 
 
-  <div class="section signatures-section" *ngIf="contract">
+  <div class="section signatures-section" *ngIf="contract && !isEditingBody">
 
-  <div class="section-header">
-    <h3>✍️ Semnături</h3>
-  </div>
-
-  <div class="signatures-grid">
-
-    <!-- CLIENT -->
-    <div class="signature-box">
-      <h4>Client</h4>
-
-      <img *ngIf="contract.clientSignature"
-           [src]="contract.clientSignature"
-           class="signature-img" />
-
-      <div *ngIf="!contract.clientSignature" class="no-sign">
-        Nesemnat
-      </div>
-
-      <div class="sign-date" *ngIf="contract.clientSignedAtUtc">
-        Semnat la:
-        {{ contract.clientSignedAtUtc | date:'dd.MM.yyyy HH:mm' }}
-      </div>
+    <div class="section-header">
+      <h3>✍️ Semnături</h3>
     </div>
 
-    <!-- ADMIN -->
-    <div class="signature-box">
-      <h4>Administrator</h4>
+    <div class="signatures-grid">
 
-      <img *ngIf="contract.adminSignature"
-           [src]="contract.adminSignature"
-           class="signature-img" />
+      <!-- CLIENT -->
+      <div class="signature-box">
+        <h4>Client</h4>
 
-      <div *ngIf="!contract.adminSignature" class="no-sign">
-        Nesemnat
+        <img *ngIf="contract.clientSignature" [src]="contract.clientSignature" class="signature-img" />
+
+        <div *ngIf="!contract.clientSignature" class="no-sign">
+          Nesemnat
+        </div>
+
+        <div class="sign-date" *ngIf="contract.clientSignedAtUtc">
+          Semnat la:
+          {{ contract.clientSignedAtUtc | date:'dd.MM.yyyy HH:mm' }}
+        </div>
       </div>
 
-      <div class="sign-date" *ngIf="contract.adminSignedAtUtc">
-        Semnat la:
-        {{ contract.adminSignedAtUtc | date:'dd.MM.yyyy HH:mm' }}
+      <!-- ADMIN -->
+      <div class="signature-box">
+        <h4>Administrator</h4>
+
+        <img *ngIf="contract.adminSignature" [src]="contract.adminSignature" class="signature-img" />
+
+        <div *ngIf="!contract.adminSignature" class="no-sign">
+          Nesemnat
+        </div>
+
+        <div class="sign-date" *ngIf="contract.adminSignedAtUtc">
+          Semnat la:
+          {{ contract.adminSignedAtUtc | date:'dd.MM.yyyy HH:mm' }}
+        </div>
       </div>
+
     </div>
-
   </div>
-</div>
 
   <!-- EDIT -->
   <div *ngIf="isEditingBody" class="body-edit">
 
-  <quill-editor
-    [(ngModel)]="editedBody"
-    [modules]="quillConfig"
-    class="editor">
-  </quill-editor>
+    <quill-editor [(ngModel)]="editedBody" (ngModelChange)="hasUnsavedChanges = true" [modules]="quillConfig"
+      theme="snow" class="editor">
+    </quill-editor>
 
-  <button *ngIf="contract.status === 'Draft'" (click)="resetBody()">
-    🔄 Reset
+    <button *ngIf="contract.status === 'Draft'" (click)="resetBody()">
+      🔄 Reset → Revino la versiunea automată
+    </button>
+
+    <div class="edit-actions">
+      <button class="primary" (click)="saveBody()">💾 Salvează</button>
+      <button class="secondary" (click)="cancelEditBody()">❌ Anulează</button>
+    </div>
+
+  </div>
+
+  <div *ngIf="showPreview && !isEditingBody" class="pdf-preview">
+
+    <div #pdfContent class="pdf-content" [innerHTML]="contract.contractBody">
+    </div>
+
+    <div class="preview-actions">
+      <button class="primary" (click)="previewPdf()">
+        ⬇️ Descarcă PDF
+      </button>
+
+      <button class="secondary" (click)="showPreview = false">
+        ❌ Închide
+      </button>
+    </div>
+
+
+  </div>
+
+  <!-- WORKFLOW BUTTONS -->
+
+  <div class="actions" *ngIf="!isEditingBody">
+
+  <!-- DRAFT -->
+  <button *ngIf="contract.status === 'Draft'" (click)="finalize()">
+    ✔ Finalizează
   </button>
 
-  <div class="edit-actions">
-    <button class="primary" (click)="saveBody()">💾 Salvează</button>
-    <button class="secondary" (click)="cancelEditBody()">❌ Anulează</button>
-  </div>
+  <button *ngIf="contract.status === 'Draft'" (click)="showPreview = true">
+    👁 Preview PDF
+  </button>
+
+  <!-- FINALIZED -->
+  <button *ngIf="contract.status === 'Finalized'" (click)="sendToClient()">
+    📤 Trimite clientului
+  </button>
+
+  <!-- SIGNED BY CLIENT -->
+  <button *ngIf="contract.status === 'SignedByClient'" (click)="activate()">
+    ✍️ Semnează (Admin)
+  </button>
+
+  <!-- ACTIVE -->
+  <ng-container *ngIf="contract.status === 'Active'">
+
+    <button class="secondary" (click)="suspend()">
+      ⏸ Suspendă
+    </button>
+
+    <button class="success" (click)="complete()">
+      ✅ Finalizat
+    </button>
+
+    <button class="danger" (click)="cancel()">
+      ❌ Anulează
+    </button>
+
+    <button (click)="downloadPdf()">
+      📄 PDF
+    </button>
+
+  </ng-container>
+
+  <!-- SUSPENDED -->
+  <ng-container *ngIf="contract.status === 'Suspended'">
+
+    <button class="primary" (click)="resume()">
+      ▶️ Reia contract
+    </button>
+
+    <button class="danger" (click)="cancel()">
+      ❌ Anulează
+    </button>
+
+  </ng-container>
 
 </div>
-
-<div class="pdf-preview">
-  <h4>Preview PDF</h4>
-
-  <div #pdfContent class="pdf-content"
-       [innerHTML]="formatContractBody(contract.contractBody)">
-  </div>
-</div>
-
-<!-- WORKFLOW BUTTONS -->
-
-<div class="actions">
-
- <button *ngIf="contract.status === 'Draft'" (click)="finalize()">
-  ✔ Finalizează
-</button>
-
-<button *ngIf="contract.status === 'Draft'" (click)="previewPdf()">
- 👁 Preview PDF
-</button>
-
-<button *ngIf="contract.status === 'Finalized'" (click)="sendToClient()">
-  📤 Trimite clientului
-</button>
-
-<button *ngIf="contract.status === 'SignedByClient'" (click)="activate()">
-  ✍️ Semnează (Admin)
-</button>
-
-
-
-<button *ngIf="contract.status === 'Active'" (click)="downloadPdf()">
-  📄 PDF
-</button>
-
-</div>
-

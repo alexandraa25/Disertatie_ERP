@@ -246,17 +246,9 @@ export class StudentDetailsComponent implements OnInit {
 
   }
 
-  finalizeContract() {
-
-    this.contracts.finalize(this.contract.id)
-      .subscribe(() => {
-        this.loadContract();
-      });
-
-  }
+  
 
   sendContract() {
-
     this.contracts.send(this.contract.id)
       .subscribe(() => {
         this.loadContract();

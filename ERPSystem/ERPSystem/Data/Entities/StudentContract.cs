@@ -99,4 +99,6 @@ public class StudentContract
     public ICollection<ContractDiscount> Discounts { get; set; } = new List<ContractDiscount>();
 
     public ICollection<ContractInstallment> InstallmentsList { get; set; } = new List<ContractInstallment>();
+
+    public ICollection<ContractAdditionalAct> AdditionalActs { get; set; } = new List<ContractAdditionalAct>();
 }

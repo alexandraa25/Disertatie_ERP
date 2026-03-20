@@ -1,3 +1,5 @@
+
+
 /* ========================= */
 /* PAGE WRAPPER */
 /* ========================= */
@@ -20,6 +22,9 @@
   flex-direction: column;
   gap: 24px;
   transition: 0.2s ease;
+   max-width: 94%;
+  width: 100%;
+  margin-top: 100px;
 }
 
 /* ========================= */
@@ -63,13 +68,22 @@
   background: #f8fafc;
   padding: 28px;
   border-radius: 14px;
-  white-space: pre-wrap;
   font-family: "Courier New", monospace;
   font-size: 14px;
   line-height: 1.7;
   border: 1px solid #e2e8f0;
   max-height: 500px;
   overflow-y: auto;
+   white-space: normal; /* 🔥 IMPORTANT */
+  line-height: 1.6;
+   max-width: 800px;
+   margin: 0 auto;
+  padding: 30px;
+
+  background: #fff;
+  border-radius: 12px;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
 /* ========================= */
@@ -126,24 +140,25 @@
 /* ========================= */
 
 .actions {
-  margin-top: 30px;
   display: flex;
-  gap: 12px;
   flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 25px;
 }
 
 .actions button {
-  padding: 10px 18px;
+  padding: 10px 16px;
   border-radius: 10px;
-  font-weight: 500;
   border: none;
+  font-weight: 500;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: 0.2s;
 }
 
 .actions button:hover {
   transform: translateY(-2px);
 }
+
 
 /* Workflow */
 
@@ -221,4 +236,168 @@
   border: 1px solid #ffeeba;
 
   pointer-events: none;
+}
+
+
+.pdf-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pdf-content {
+  width: 210mm;
+  min-height: 297mm;
+
+  background: white;
+  padding: 25mm;
+  margin: 0 auto;
+
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  border-radius: 6px;
+
+  font-family: "Times New Roman", serif;
+  font-size: 14px;
+  line-height: 1.6;
+
+  white-space: pre-wrap;
+}
+
+.pdf-content,
+.contract-body {
+  margin: 0 0 8px 0;
+    line-height: 1.5;
+  font-family: "Times New Roman", serif;
+   word-break: break-word;
+  overflow-wrap: break-word;
+}
+.contract-body p:empty,
+.pdf-content p:empty {
+  display: none;       /* 🔥 elimină <p>&nbsp;</p> */
+}
+
+
+
+.ql-container {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+
+  background: white;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+}
+
+
+.ql-editor {
+  padding: 25mm;
+  font-family: "Times New Roman", serif;
+  font-size: 14px;
+  line-height: 1.9; /* 🔥 mai aerisit */
+}
+
+.ql-editor p {
+  margin-bottom: 12px;
+}
+
+hr {
+  margin: 20px 0;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+.ql-toolbar {
+  width: 210mm;
+  margin: 0 auto;
+  border-radius: 10px 10px 0 0;
+}
+
+.body-edit {
+  display: block;
+  flex-direction: column;
+  align-items: center;
+}
+
+.primary {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(99,102,241,0.3);
+}
+
+.secondary {
+  background: #f1f5f9;
+  color: #334155;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.secondary:hover {
+  background: #e2e8f0;
+}
+
+button {
+  font-family: inherit;
+}
+
+button:not(.primary):not(.secondary) {
+  background: #e2e8f0;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+
+.preview-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.preview-actions button {
+  min-width: 160px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.back-btn {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+
+  padding: 6px 12px;
+  border-radius: 8px;
+
+  font-size: 13px;
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.back-btn:hover {
+  background: #e2e8f0;
+  transform: translateY(-1px);
+}
+
+.success {
+  background: #22c55e;
+  color: white;
+}
+
+.danger {
+  background: #ef4444;
+  color: white;
 }

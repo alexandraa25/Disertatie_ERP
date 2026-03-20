@@ -1,36 +1,41 @@
-<div class="signature-container">
+<div class="signature-modal">
 
-  <h2>Semnătura administratorului</h2>
+  <div class="signature-card">
 
-  <canvas
-    #canvas
-    width="500"
-    height="220"
-    class="signature-canvas"
-    (mousedown)="startDrawing($event)"
-    (mousemove)="draw($event)"
-    (mouseup)="stopDrawing()"
-    (mouseleave)="stopDrawing()">
-  </canvas>
+    <!-- 🔴 buton închidere -->
+    <!--<button class="close-btn" (click)="close()">✖</button>-->
 
-  <div class="signature-hint">
-    Desenați semnătura în zona de mai sus
-  </div>
+    <h2>✍️ Semnătura administratorului</h2>
 
-  <div class="actions">
+    <!-- 🔥 IMPORTANT: scoatem width/height -->
+    <canvas
+      #canvas
+      class="signature-canvas"
+      (mousedown)="startDrawing($event)"
+      (mousemove)="draw($event)"
+      (mouseup)="stopDrawing()"
+      (mouseleave)="stopDrawing()">
+    </canvas>
 
-    <button
-      class="btn-clear"
-      (click)="clear()">
-      Șterge
-    </button>
+    <div class="signature-hint">
+      Desenați semnătura în zona de mai sus
+    </div>
 
-    <button
-      class="btn-sign"
-      [disabled]="loading"
-      (click)="sign()">
-      Semnează
-    </button>
+    <div class="signature-actions">
+      <button class="btn-clear" (click)="clear()">🗑 Șterge</button>
+
+      <button
+        class="btn-sign"
+        [disabled]="loading"
+        (click)="sign()">
+        ✍️ Semnează
+      </button>
+    </div>
+
+    <!-- ✅ mesaj succes -->
+    <div *ngIf="signed" class="signature-success">
+      ✔ Semnătură salvată cu succes!
+    </div>
 
   </div>
 

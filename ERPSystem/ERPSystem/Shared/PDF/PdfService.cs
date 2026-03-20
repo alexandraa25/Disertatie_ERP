@@ -50,7 +50,8 @@ public class PdfService
                     col.Spacing(6);
 
                     // 🔹 BODY (din template)
-                    var paragraphs = SplitText(contract.ContractBody);
+                    var cleanText = CleanHtml(contract.ContractBody);
+                    var paragraphs = SplitText(cleanText);
 
                     foreach (var p in paragraphs)
                     {
@@ -134,5 +135,30 @@ public class PdfService
             .Split("\n")
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .ToList();
+    }
+
+    private string CleanHtml(string html)
+    {
+        if (string.IsNullOrWhiteSpace(html))
+            return "";
+
+        // scoate tag-uri HTML
+        var text = Regex.Replace(html, "<.*?>", string.Empty);
+
+        // decode html entities (&nbsp;)
+        text = System.Net.WebUtility.HtmlDecode(text);
+
+        return text;
+    }
+
+    public byte[] GenerateContractPdfBytes(StudentContract contract)
+    {
+        return Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                // ...
+            });
+        }).GeneratePdf();
     }
 }

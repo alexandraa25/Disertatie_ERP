@@ -192,10 +192,12 @@
 
       <!-- FINANCIAR -->
       <div *ngIf="activeTab === 'Financiar'" class="card">
-        <div class="contract-card">
+
+        <!-- 🟢 EXISTĂ CONTRACT -->
+        <div *ngIf="contract; else noContract" class="contract-card">
 
           <div class="contract-left">
-            <h2>Contract #{{ contract?.contractNumber || '—' }}</h2>
+            <h2>Contract #{{ contract.contractNumber }}</h2>
 
             <span class="status-badge" [ngClass]="contract.status">
               {{ contract.status }}
@@ -210,10 +212,10 @@
             </div>
 
             <div class="contract-meta">
-              <span>📅 Start: {{ contract?.startDate | date:'dd.MM.yyyy' }}</span>
+              <span>📅 Start: {{ contract.startDate | date:'dd.MM.yyyy' }}</span>
 
-              <span *ngIf="contract?.endDate">
-                ⏳ Final: {{ contract?.endDate | date:'dd.MM.yyyy' }}
+              <span *ngIf="contract.endDate">
+                ⏳ Final: {{ contract.endDate | date:'dd.MM.yyyy' }}
               </span>
             </div>
           </div>
@@ -224,18 +226,38 @@
               {{ getContractButtonText() }}
             </button>
 
+            <button class="secondary" *ngIf="contract && contract.status !== 'Draft' && contract.status !== 'Active'"
+              (click)="openContract(contract.id)">
+              📄 Vizualizează
+            </button>
+
             <button class="secondary" *ngIf="contract.status === 'Active'" (click)="downloadPdf()" [disabled]="loading">
               <span *ngIf="!loading">📄 Descarcă PDF</span>
               <span *ngIf="loading">Se descarcă...</span>
             </button>
 
-            <!-- <button class="btn-danger" *ngIf="contract.status !== 'Cancelled'" (click)="cancelContract()">
-              ❌
-            </button> -->
-
           </div>
 
         </div>
+
+        <!-- 🔴 NU EXISTĂ CONTRACT -->
+        <ng-template #noContract>
+          <div class="empty-contract">
+
+            <h2>📄 Nu există contract</h2>
+
+            <p>
+              Acest client nu are încă un contract asociat.
+            </p>
+
+            <button class="primary" (click)="createContract()">
+              ➕ Creează contract
+            </button>
+
+          </div>
+        </ng-template>
+
+
         <div *ngFor="let f of student.invoices ?? []" class="invoice-item">
           <div>
             <strong>{{ f.number }}</strong>

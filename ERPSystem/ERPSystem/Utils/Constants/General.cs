@@ -94,7 +94,11 @@
                 public const string CONTRACT_CLIENT_SIGN = "/client-sign";
                 public const string CONTRACT_GET_FOR_SIGNING = "/sign/{token}";
                 public const string CONTRACT_ADMIN_SIGN = "/{id}/admin-sign";
+                public const string CONTRACT_SUSPEND = "/{id}/suspend";
+                public const string CONTRACT_COMPLETE = "/{id}/complete";
+                public const string CONTRACT_EXPIRE= "/expire-all";
                 public const string CONTRACT_DOWNLOAD = "/{id}/download";
+
 
 
 

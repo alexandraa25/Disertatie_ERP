@@ -34,18 +34,15 @@
 
 }
 
-.contract-body{
-
-  white-space:pre-wrap;
-
-  line-height:1.6;
-
-  font-size:16px;
-
-  font-family:"Times New Roman", serif;
-
+.contract-body {
+  font-family: "Times New Roman", serif;
+  line-height: 1.6;
+  white-space: normal;
 }
 
+.contract-body p {
+  margin: 0 0 8px 0; 
+}
 .signature-title{
 
   margin-top:40px;
@@ -60,4 +57,63 @@ canvas{
 
   margin-top:10px;
 
+}
+
+.buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* BUTON PRINCIPAL */
+.btn-primary {
+  background: #2563eb;
+  color: white;
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+   box-shadow: 0 6px 18px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:hover {
+  background: #1e40af;
+  transform: translateY(-2px);
+}
+
+/* BUTON SECONDAR */
+.btn-secondary {
+  background: #f1f5f9;
+  color: #334155;
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+  transform: translateY(-2px);
+}
+
+/* DISABLED */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.success {
+  margin-top: 30px;
+  padding: 20px;
+  background: #dcfce7;
+  border: 1px solid #22c55e;
+  color: #166534;
+  border-radius: 12px;
+  font-weight: 600;
+  text-align: center;
 }
