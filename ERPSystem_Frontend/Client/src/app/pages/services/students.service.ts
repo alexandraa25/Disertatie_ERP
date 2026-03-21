@@ -93,4 +93,9 @@ getAvailableCoursesForStudent(studentId: number, q: string = '') {
 
   return this.http.get<any>(url);
 }
+
+
+getStudentCoursesByContract(contractId: number) {
+  return this.http.get<any>(`${this.baseUrl}/by-contract/${contractId}`);
+}
 }

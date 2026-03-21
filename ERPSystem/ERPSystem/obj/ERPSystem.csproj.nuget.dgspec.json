@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Disertatie_ERP\\ERPSystem\\ERPSystem\\ERPSystem.csproj": {}
+    "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\ERPSystem.csproj": {}
   },
   "projects": {
-    "C:\\Disertatie_ERP\\ERPSystem\\ERPSystem\\ERPSystem.csproj": {
+    "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\ERPSystem.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Disertatie_ERP\\ERPSystem\\ERPSystem\\ERPSystem.csproj",
+        "projectUniqueName": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\ERPSystem.csproj",
         "projectName": "ERPSystem",
-        "projectPath": "C:\\Disertatie_ERP\\ERPSystem\\ERPSystem\\ERPSystem.csproj",
+        "projectPath": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\ERPSystem.csproj",
         "packagesPath": "C:\\Users\\Alexandra\\.nuget\\packages\\",
-        "outputPath": "C:\\Disertatie_ERP\\ERPSystem\\ERPSystem\\obj\\",
+        "outputPath": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

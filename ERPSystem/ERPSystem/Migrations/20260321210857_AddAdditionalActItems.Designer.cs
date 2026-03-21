@@ -4,6 +4,7 @@ using ERPSystem.Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERPSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260321210857_AddAdditionalActItems")]
+    partial class AddAdditionalActItems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -254,6 +257,9 @@ namespace ERPSystem.Migrations
                     b.Property<bool>("IsSignedByStudent")
                         .HasColumnType("bit");
 
+                    b.Property<decimal?>("PriceDifference")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -261,6 +267,9 @@ namespace ERPSystem.Migrations
 
                     b.Property<DateTime?>("StudentSignedAtUtc")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -280,6 +289,10 @@ namespace ERPSystem.Migrations
                     b.Property<int>("ActId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ChangeType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("CourseSessionId")
                         .HasColumnType("int");
 
@@ -291,10 +304,6 @@ namespace ERPSystem.Migrations
 
                     b.Property<int?>("StudentId")
                         .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

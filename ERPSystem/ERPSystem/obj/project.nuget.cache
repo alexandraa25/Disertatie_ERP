@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "tD43q6xJVJE=",
+  "dgSpecHash": "2xTn7gMhMC4=",
   "success": true,
-  "projectFilePath": "C:\\Disertatie_ERP\\ERPSystem\\ERPSystem\\ERPSystem.csproj",
+  "projectFilePath": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\ERPSystem.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Alexandra\\.nuget\\packages\\azure.core\\1.47.1\\azure.core.1.47.1.nupkg.sha512",
     "C:\\Users\\Alexandra\\.nuget\\packages\\azure.identity\\1.14.2\\azure.identity.1.14.2.nupkg.sha512",

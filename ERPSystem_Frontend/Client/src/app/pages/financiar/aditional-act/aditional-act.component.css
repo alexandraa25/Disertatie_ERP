@@ -1,6 +1,6 @@
 .act-page {
   max-width: 800px;
-  margin: 40px auto;
+  margin: 100px auto;
 }
 
 .header {
@@ -55,4 +55,34 @@
   background: #e5e7eb;
   padding: 10px 18px;
   border-radius: 8px;
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sub-form {
+  margin-left: 25px;
+  margin-top: 5px;
+}
+
+label {
+  font-weight: 500;
+}
+
+.empty-message {
+  margin-top: 5px;
+  color: #888;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.current-value {
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  background: #f5f7ff;
+  border-left: 3px solid #4a6cf7;
+  font-size: 14px;
 }

@@ -3,9 +3,7 @@
     public enum AdditionalActType
     {
         AddCourse,
-        RemoveCourse,
-        AddStudent,
-        RemoveStudent,
+        RemoveCourse,     
         ExtendPeriod,
         ChangePrice
     }

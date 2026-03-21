@@ -32,6 +32,8 @@ namespace ERPSystem.Data.Context
 
         public DbSet<ContractAdditionalAct> ContractAdditionalAct { get; set; }
 
+        public DbSet<ContractAdditionalActItem> ContractAdditionalActItem { get; set; }
+
         public DbSet<Employee> Employees { get; set; }
         public DbSet<EmployeeContract> EmployeeContracts { get; set; }
         public DbSet<EmployeeLeave> EmployeeLeaves { get; set; }
@@ -121,7 +123,7 @@ namespace ERPSystem.Data.Context
                     .HasColumnType("nvarchar(max)");
 
                 entity.Property(e => e.PdfPath)
-    .HasMaxLength(500);
+                   .HasMaxLength(500);
 
                 entity.HasMany(e => e.Parties)
                     .WithOne(p => p.Contract)
@@ -140,13 +142,12 @@ namespace ERPSystem.Data.Context
             });
 
 
-            modelBuilder.Entity<StudentContract>()
-    .Property(c => c.Status)
-    .HasConversion<string>();
+               modelBuilder.Entity<StudentContract>()
+                   .Property(c => c.Status)
+                   .HasConversion<string>();
 
-
             modelBuilder.Entity<StudentContract>()
-    .HasIndex(c => c.Status);
+                   .HasIndex(c => c.Status);
 
             modelBuilder.Entity<StudentContract>()
                 .HasIndex(c => c.CreatedAtUtc);
@@ -200,10 +201,10 @@ namespace ERPSystem.Data.Context
             });
 
             modelBuilder.Entity<ContractInstallment>()
-    .HasOne(i => i.Contract)
-    .WithMany(c => c.InstallmentsList)
-    .HasForeignKey(i => i.ContractId)
-    .OnDelete(DeleteBehavior.Cascade);
+                  .HasOne(i => i.Contract)
+                  .WithMany(c => c.InstallmentsList)
+                  .HasForeignKey(i => i.ContractId)
+                  .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ContractInstallment>(entity =>
             {
@@ -216,11 +217,11 @@ namespace ERPSystem.Data.Context
             });
 
             modelBuilder.Entity<ContractAdditionalAct>()
-    .HasOne(a => a.Contract)
-    .WithMany(c => c.AdditionalActs)
-    .HasForeignKey(a => a.ContractId)
-    .OnDelete(DeleteBehavior.Cascade);
-
+               .HasOne(a => a.Contract)
+               .WithMany(c => c.AdditionalActs)
+               .HasForeignKey(a => a.ContractId)
+               .OnDelete(DeleteBehavior.Cascade);
+             
 
             modelBuilder.Entity<ContractAdditionalAct>(entity =>
             {
@@ -239,7 +240,21 @@ namespace ERPSystem.Data.Context
             });
 
             modelBuilder.Entity<ContractAdditionalAct>()
-    .HasIndex(a => a.ContractId);
+               .HasIndex(a => a.ContractId);
+
+            modelBuilder.Entity<ContractAdditionalActItem>()
+                 .HasOne(i => i.Act)
+                 .WithMany(a => a.Items)
+                 .HasForeignKey(i => i.ActId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ContractAdditionalAct>()
+                .Property(x => x.Status)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<ContractAdditionalActItem>()
+                .Property(x => x.Type)
+                .HasConversion<string>();
 
             modelBuilder.Entity<Employee>()
                 .HasOne(e => e.User)

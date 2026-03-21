@@ -10,21 +10,21 @@ namespace ERPSystem.Data.Entities
         public StudentContract Contract { get; set; }
 
         public string ActNumber { get; set; } = null!;
-
         public string Description { get; set; } = null!;
-
-        public decimal? PriceDifference { get; set; }
 
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 
-        public string Status { get; set; } = "Draft"; // Draft, Finalized
+        public AdditionalActStatus Status { get; set; }
 
         public string? Body { get; set; }
 
-        public bool IsSigned { get; set; }
+        public bool IsSignedByStudent { get; set; }
+        public bool IsSignedByCompany { get; set; }
 
-        public AdditionalActType Type { get; set; }
+        public DateTime? StudentSignedAtUtc { get; set; }
+        public DateTime? CompanySignedAtUtc { get; set; }
 
-        public ICollection<ContractAdditionalAct> AdditionalActs { get; set; }
+        
+        public ICollection<ContractAdditionalActItem> Items { get; set; } = new List<ContractAdditionalActItem>();
     }
 }

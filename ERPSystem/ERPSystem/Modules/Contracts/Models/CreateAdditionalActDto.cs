@@ -4,14 +4,17 @@ namespace ERPSystem.Modules.Contracts.Models
 {
     public class CreateAdditionalActDto
     {
-        public AdditionalActType Type { get; set; }
-        public string Description { get; set; } = "";
+        public List<AdditionalActType> Types { get; set; } = new();
 
-        public List<int>? CourseSessionIds { get; set; }
-        public List<int>? StudentIds { get; set; }
+        public List<int> CourseSessionIds { get; set; }
+
+        public int? StudentId { get; set; }
 
         public DateTime? NewEndDate { get; set; }
-        public decimal? PriceDifference { get; set; }
+
+        public decimal? NewPrice { get; set; }
+
+        public string Description { get; set; }
     }
 
     public record AdditionalActDto(
@@ -19,7 +22,7 @@ namespace ERPSystem.Modules.Contracts.Models
     string ActNumber,
     string Type,
     string Description,
-    string Status,
+
     DateTime CreatedAtUtc
 );
 }

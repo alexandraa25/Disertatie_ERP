@@ -63,6 +63,7 @@
                 public const string STUDENT_COURSES = "/{id}/courses";
                 public const string GUARDIAN_OPTIONS = "/{id}/primary-guardian";
                 public const string STUDENTS_AVAILABLE_COURSE = "{id}/available-courses";
+                public const string STUDENTS_COURSES_BY_CONTRACT = "by-contract/{contractId}";
 
             }
             public static class Courses

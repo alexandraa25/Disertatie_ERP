@@ -1,4 +1,5 @@
 ﻿using ERPSystem.Extensions;
+using ERPSystem.Modules.Contracts;
 using ERPSystem.Modules.Student;
 using ERPSystem.Modules.Student.Models;
 using ERPSystem.Shared.BusinessLogic;
@@ -45,7 +46,7 @@ namespace ERPSystem.Modules.Students
                  async (int id, StudentsService studentsService)
                      => await studentsService.GetStudentCoursesAsync(id))
                 .WithDefaultApiSettings("GetStudentCourses", "Lista cursuri si sesiuni asociate elevului", "GET_STUDENT_COURSES",   false  );
-        
+            
             group.MapGet(Route.GUARDIAN_OPTIONS,
                  async (int id, StudentsService studentsService)
                      => await studentsService.GetPrimaryGuardianAsync(id))
@@ -55,6 +56,11 @@ namespace ERPSystem.Modules.Students
                  async (int id, string? q, StudentsService service)
                      => await service.GetAvailableCoursesForStudentAsync(id, q))
                  .WithDefaultApiSettings("GetAvailableCoursesForStudent", "Lista cursurilor disponibile pentru student", "AVAILABLE_COURSES_LIST", false );
+
+            group.MapGet(Route.STUDENTS_COURSES_BY_CONTRACT,
+                async (int contractId, StudentsService service)
+                    => await service.GetStudentCoursesByContractAsync(contractId))
+               .WithDefaultApiSettings("GetStudentCoursesByContract", "Lista cursuri si sesiuni asociate elevului pentru contract", "GET_STUDENT_COURSES_BY_CONTRACT", false);
         }
     }
 }

@@ -441,6 +441,30 @@ public class StudentsService
         }
     }
 
+    public async Task<PublicResponse> GetStudentCoursesByContractAsync(int contractId)
+    {
+        var response = new PublicResponse(true);
+
+        var contract = await _db.StudentContracts
+            .Include(c => c.Parties)
+            .FirstOrDefaultAsync(c => c.Id == contractId);
+
+        if (contract == null)
+            return response.SetError(ErrorCodes.InvalidParameters, "Contract not found");
+
+        var studentId = contract.Parties
+            .Where(p => p.StudentId != null)
+            .Select(p => p.StudentId.Value)
+            .FirstOrDefault();
+
+        if (studentId == 0)
+            return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+
+        // 🔥 reutilizezi metoda ta existentă
+        return await GetStudentCoursesAsync(studentId);
+    }
+
+
     public async Task<PublicResponse> GetPrimaryGuardianAsync(int studentId)
     {
         var response = new PublicResponse(true);

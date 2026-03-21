@@ -1,4 +1,4 @@
- <!-- <div class="act-page">
+<div class="act-page">
 
   <div class="header">
     <button class="back" (click)="goBack()">← Înapoi</button>
@@ -7,56 +7,116 @@
 
   <div class="card">
 
-  
+    <!-- TIP ACT -->
     <div class="form-group">
-      <label>Motiv</label>
+      <label>Tip modificare</label>
 
-      <select [(ngModel)]="selectedType" (change)="onTypeChange()">
-        <option value="">Selectează</option>
-        <option value="AddCourse">Adăugare curs</option>
-        <option value="RemoveCourse">Eliminare curs</option>
-        <option value="AddStudent">Adăugare cursant</option>
-        <option value="RemoveStudent">Eliminare cursant</option>
-        <option value="ExtendPeriod">Prelungire contract</option>
-        <option value="ChangePrice">Modificare preț</option>
-      </select>
+      <div class="checkbox-list">
+
+        <!-- ADD COURSE -->
+        <label>
+          <input type="checkbox" [disabled]="availableCourses.length === 0"
+            [checked]="selectedTypes.includes('AddCourse')" (change)="toggleType('AddCourse')" />
+          Adăugare curs
+        </label>
+
+        <div *ngIf="selectedTypes.includes('AddCourse')" class="sub-form">
+
+          <ng-container *ngIf="availableCourses.length > 0; else noAvailableCourses">
+
+            <select [(ngModel)]="selectedCourseId">
+              <option *ngFor="let c of availableCourses" [value]="c.sessionId">
+                {{ c.courseName }}
+              </option>
+            </select>
+
+          </ng-container>
+
+          <ng-template #noAvailableCourses>
+            <div class="empty-message">
+              ⚠️ Nu există cursuri disponibile pentru adăugare
+            </div>
+          </ng-template>
+
+        </div>
+
+        <!-- REMOVE COURSE -->
+        <label>
+          <input type="checkbox" [disabled]="availableCourses.length === 0"
+            [checked]="selectedTypes.includes('RemoveCourse')" (change)="toggleType('RemoveCourse')" />
+          Eliminare curs
+        </label>
+
+        <div *ngIf="selectedTypes.includes('RemoveCourse')" class="sub-form">
+
+          <ng-container *ngIf="inactiveCourses.length > 0; else noInactiveCourses">
+
+            <select [(ngModel)]="selectedCourseId">
+              <option *ngFor="let c of inactiveCourses" [value]="c.sessionId">
+                {{ c.courseName }}
+              </option>
+            </select>
+
+          </ng-container>
+
+          <ng-template #noInactiveCourses>
+            <div class="empty-message">
+              ⚠️ Nu există cursuri în contract pentru eliminare
+            </div>
+          </ng-template>
+
+        </div>
+
+        <!-- EXTEND -->
+        <label> <input type="checkbox" [checked]="selectedTypes.includes('ExtendPeriod')"
+            (change)="toggleType('ExtendPeriod')" /> Prelungire contract </label>
+        <div *ngIf="selectedTypes.includes('ExtendPeriod')" class="sub-form">
+
+          <div class="current-value">
+            📅 Durată actuală:
+            <strong>
+              <ng-container *ngIf="contract?.isUnlimited; else limited">
+                Nelimitată
+              </ng-container>
+
+              <ng-template #limited>
+                până la {{ contract?.endDate | date:'dd.MM.yyyy' }}
+              </ng-template>
+            </strong>
+          </div>
+
+          <label>Noua dată</label>
+          <input type="date" [(ngModel)]="newEndDate" />
+
+        </div>
+
+        <!-- PRICE -->
+        <label> <input type="checkbox" [checked]="selectedTypes.includes('ChangePrice')"
+            (change)="toggleType('ChangePrice')" /> Modificare preț </label>
+        <div *ngIf="selectedTypes.includes('ChangePrice')" class="sub-form">
+
+          <div class="current-value">
+            💰 Preț actual:
+            <strong>{{ contract?.totalAmount }} RON</strong>
+          </div>
+
+          <label>Preț nou</label>
+          <input type="number" [(ngModel)]="newPrice" />
+
+          <div *ngIf="priceDiff !== null">
+            Diferență:
+            <strong [style.color]="priceDiff > 0 ? 'green' : 'red'">
+              {{ priceDiff > 0 ? '+' : '' }}{{ priceDiff }} RON
+            </strong>
+          </div>
+
+        </div>
+
+      </div>
     </div>
 
-    
-    <div *ngIf="selectedType === 'AddCourse'" class="form-group">
-      <label>Curs de adăugat</label>
 
-      <select [(ngModel)]="selectedCourseId">
-        <option *ngFor="let c of availableCourses" [value]="c.id">
-          {{ c.name }}
-        </option>
-      </select>
-    </div>
-
-    
-    <div *ngIf="selectedType === 'RemoveCourse'" class="form-group">
-      <label>Curs de eliminat</label>
-
-      <select [(ngModel)]="selectedCourseId">
-        <option *ngFor="let c of studentCourses" [value]="c.id">
-          {{ c.name }}
-        </option>
-      </select>
-    </div>
-
-    
-    <div *ngIf="selectedType === 'ExtendPeriod'" class="form-group">
-      <label>Noua dată final</label>
-      <input type="date" [(ngModel)]="newEndDate" />
-    </div>
-
-    
-    <div *ngIf="selectedType === 'ChangePrice'" class="form-group">
-      <label>Diferență preț</label>
-      <input type="number" [(ngModel)]="priceDifference" />
-    </div>
-
-   
+    <!-- ACTIONS -->
     <div class="actions">
       <button class="secondary" (click)="goBack()">Anulează</button>
       <button class="primary" (click)="save()">✔ Creează act</button>
@@ -64,4 +124,4 @@
 
   </div>
 
-</div>  -->
+</div>
