@@ -196,7 +196,10 @@ export class CreateContractComponent implements OnInit {
     // 2️⃣ courses
     this.studentsService.getStudentCourses(studentId).subscribe(res => {
 
-      this.studentCourses = res.items ?? [];
+      const all = res.items ?? [];
+
+      // 🟢 DOAR ACTIVE
+      this.studentCourses = all.filter(x => x.isActive && !x.contractId);
 
       if (!this.studentCourses.length) {
         alert('Elevul nu are cursuri asignate');

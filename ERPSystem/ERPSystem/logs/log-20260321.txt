@@ -152,3 +152,481 @@ Error Number:515,State:2,Class:16
 [2026-03-21 01:09:02 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
 [2026-03-21 01:09:16 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
 [2026-03-21 01:09:16 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 17:37:34 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 17:37:34 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 17:37:47 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[2026-03-21 19:50:30 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 19:50:30 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 20:22:48 WRN] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-03-21 20:22:48 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[2026-03-21 20:23:55 ERR] Email send failed: "Unauthorized" - {"errors":[{"message":"Maximum credits exceeded","field":null,"help":null}]}
+[2026-03-21 20:35:18 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 20:35:18 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 20:35:35 WRN] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-03-21 20:35:36 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[2026-03-21 20:36:10 ERR] Email send failed: "Unauthorized" - {"errors":[{"message":"Maximum credits exceeded","field":null,"help":null}]}
+[2026-03-21 20:36:28 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[2026-03-21 20:41:09 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 20:41:09 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:05:00 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:05:00 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:05:28 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[2026-03-21 21:05:35 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[2026-03-21 21:08:24 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:08:24 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:08:31 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[2026-03-21 21:10:40 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:10:40 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:10:47 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[2026-03-21 21:13:11 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:13:11 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:13:34 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[2026-03-21 21:14:02 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[2026-03-21 21:17:35 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:17:35 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:21:10 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:21:10 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:21:27 ERR] An unhandled exception has occurred while executing the request.
+System.ArgumentNullException: Value cannot be null. (Parameter 'path')
+   at System.ArgumentNullException.Throw(String paramName)
+   at System.ArgumentNullException.ThrowIfNull(Object argument, String paramName)
+   at System.ArgumentException.ThrowNullOrEmptyException(String argument, String paramName)
+   at System.IO.Strategies.FileStreamHelpers.ValidateArguments(String path, FileMode mode, FileAccess access, FileShare share, Int32 bufferSize, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.OpenHandle(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize)
+   at System.IO.File.ReadAllBytesAsync(String path, CancellationToken cancellationToken)
+   at ERPSystem.Modules.Contracts.ContractsService.DownloadContractAsync(Int32 id) in C:\Disertatie_ERP\ERPSystem\ERPSystem\Modules\Contracts\ContractsService.cs:line 1242
+   at ERPSystem.Modules.Contracts.ContractsEndpoints.<>c.<<Map>b__0_13>d.MoveNext() in C:\Disertatie_ERP\ERPSystem\ERPSystem\Modules\Contracts\ContractsEndpoints.cs:line 78
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Http.RequestDelegateFactory.ExecuteTaskResult[T](Task`1 task, HttpContext httpContext)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2026-03-21 21:22:10 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:22:10 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:22:14 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[2026-03-21 21:23:20 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:23:20 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:47:46 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:47:46 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:48:50 ERR] An unhandled exception has occurred while executing the request.
+QuestPDF.Drawing.Exceptions.DocumentLayoutException: The provided document content contains conflicting size constraints. For example, some elements may require more space than is available. 
+
+The layout issue is likely present in the following part of the document: 
+
+-> Document
+
+-> Page
+
+-> Page
+
+-> Content
+
+-> Content
+
+-> In method:   c =>
+                            {
+                                if (adminSignature != null)
+                                    c.Image(adminSignature);
+                            }
+   Called from: GeneratePdf
+   Source path: C:\Disertatie_ERP\ERPSystem\ERPSystem\Shared\BusinessLogic\PdfService.cs
+   Line number: 181
+
+
+
+To learn more, please analyse the document measurement of the problematic location: 
+
+🚨 AspectRatio 🚨
+==================
+Available Space: (Width: 257.500, Height: 60.000)
+Space Plan: Wrap
+Wrap Reason: To preserve the target aspect ratio, the content requires more vertical space than available.
+------------------
+Content Direction: LeftToRight
+Ratio: 2.3909092
+Option: FitWidth
+
+
+   ⚪️ Image
+   =========
+   Document Image: QuestPDF.Infrastructure.Image
+
+
+Legend: 
+🚨 - Element that is likely the root cause of the layout issue based on library heuristics and prediction. 
+🔴 - Element that cannot be drawn due to the provided layout constraints. This element likely causes the layout issue, or one of its descendant children is responsible for the problem. 
+🟡 - Element that can be partially drawn on the page and will also be rendered on the consecutive page. In more complex layouts, this element may also cause issues or contain a child that is the actual root cause.
+🟢 - Element that is successfully and completely drawn on the page.
+⚪️ - Element that has not been drawn on the faulty page. Its children are omitted.
+
+
+This detailed information is generated because you run the application with a debugger attached or with the QuestPDF.Settings.EnableDebugging flag set to true. 
+   at QuestPDF.Drawing.DocumentGenerator.<RenderPass>g__ThrowLayoutException|12_2(<>c__DisplayClass12_0&)
+   at QuestPDF.Drawing.DocumentGenerator.RenderPass(PageContext pageContext, IDocumentCanvas canvas, ContainerElement content)
+   at QuestPDF.Drawing.DocumentGenerator.RenderDocument(IDocumentCanvas canvas, IDocument document, DocumentSettings settings)
+   at QuestPDF.Drawing.DocumentGenerator.GeneratePdf(SkWriteStream stream, IDocument document)
+   at QuestPDF.Fluent.GenerateExtensions.GeneratePdf(IDocument document, Stream stream)
+   at QuestPDF.Fluent.GenerateExtensions.GeneratePdf(IDocument document, String filePath)
+   at PdfService.GeneratePdf(PdfDocumentModel model, String filePrefix) in C:\Disertatie_ERP\ERPSystem\ERPSystem\Shared\BusinessLogic\PdfService.cs:line 132
+   at ERPSystem.Modules.Contracts.ContractsService.DownloadContractAsync(Int32 id) in C:\Disertatie_ERP\ERPSystem\ERPSystem\Modules\Contracts\ContractsService.cs:line 1254
+   at ERPSystem.Modules.Contracts.ContractsEndpoints.<>c.<<Map>b__0_13>d.MoveNext() in C:\Disertatie_ERP\ERPSystem\ERPSystem\Modules\Contracts\ContractsEndpoints.cs:line 78
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Http.RequestDelegateFactory.ExecuteTaskResult[T](Task`1 task, HttpContext httpContext)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2026-03-21 21:49:35 WRN] No store type was specified for the decimal property 'PriceDifference' on entity type 'ContractAdditionalAct'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:49:36 WRN] No store type was specified for the decimal property 'Salary' on entity type 'EmployeeContract'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+[2026-03-21 21:49:57 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[2026-03-21 21:50:33 WRN] The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2026-03-21 21:51:43 ERR] Email send failed: "Unauthorized" - {"errors":[{"message":"Maximum credits exceeded","field":null,"help":null}]}
+[2026-03-21 21:52:46 WRN] Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+[2026-03-21 21:52:46 ERR] An unhandled exception has occurred while executing the request.
+QuestPDF.Drawing.Exceptions.DocumentLayoutException: The provided document content contains conflicting size constraints. For example, some elements may require more space than is available. 
+
+The layout issue is likely present in the following part of the document: 
+
+-> Document
+
+-> Page
+
+-> Page
+
+-> Content
+
+-> Content
+
+-> In method:   c =>
+                            {
+                                if (adminSignature != null)
+                                    c.Image(adminSignature);
+                            }
+   Called from: GeneratePdf
+   Source path: C:\Disertatie_ERP\ERPSystem\ERPSystem\Shared\BusinessLogic\PdfService.cs
+   Line number: 181
+
+
+
+To learn more, please analyse the document measurement of the problematic location: 
+
+🚨 AspectRatio 🚨
+==================
+Available Space: (Width: 257.500, Height: 60.000)
+Space Plan: Wrap
+Wrap Reason: To preserve the target aspect ratio, the content requires more vertical space than available.
+------------------
+Content Direction: LeftToRight
+Ratio: 2.3909092
+Option: FitWidth
+
+
+   ⚪️ Image
+   =========
+   Document Image: QuestPDF.Infrastructure.Image
+
+
+Legend: 
+🚨 - Element that is likely the root cause of the layout issue based on library heuristics and prediction. 
+🔴 - Element that cannot be drawn due to the provided layout constraints. This element likely causes the layout issue, or one of its descendant children is responsible for the problem. 
+🟡 - Element that can be partially drawn on the page and will also be rendered on the consecutive page. In more complex layouts, this element may also cause issues or contain a child that is the actual root cause.
+🟢 - Element that is successfully and completely drawn on the page.
+⚪️ - Element that has not been drawn on the faulty page. Its children are omitted.
+
+
+This detailed information is generated because you run the application with a debugger attached or with the QuestPDF.Settings.EnableDebugging flag set to true. 
+   at QuestPDF.Drawing.DocumentGenerator.<RenderPass>g__ThrowLayoutException|12_2(<>c__DisplayClass12_0&)
+   at QuestPDF.Drawing.DocumentGenerator.RenderPass(PageContext pageContext, IDocumentCanvas canvas, ContainerElement content)
+   at QuestPDF.Drawing.DocumentGenerator.RenderDocument(IDocumentCanvas canvas, IDocument document, DocumentSettings settings)
+   at QuestPDF.Drawing.DocumentGenerator.GeneratePdf(SkWriteStream stream, IDocument document)
+   at QuestPDF.Fluent.GenerateExtensions.GeneratePdf(IDocument document, Stream stream)
+   at QuestPDF.Fluent.GenerateExtensions.GeneratePdf(IDocument document, String filePath)
+   at PdfService.GeneratePdf(PdfDocumentModel model, String filePrefix) in C:\Disertatie_ERP\ERPSystem\ERPSystem\Shared\BusinessLogic\PdfService.cs:line 132
+   at ERPSystem.Modules.Contracts.ContractsService.SignByAdminAsync(Int32 id, String signature) in C:\Disertatie_ERP\ERPSystem\ERPSystem\Modules\Contracts\ContractsService.cs:line 737
+   at ERPSystem.Modules.Contracts.ContractsEndpoints.<>c.<<Map>b__0_12>d.MoveNext() in C:\Disertatie_ERP\ERPSystem\ERPSystem\Modules\Contracts\ContractsEndpoints.cs:line 73
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Http.RequestDelegateFactory.<ExecuteTaskOfT>g__ExecuteAwaited|134_0[T](Task`1 task, HttpContext httpContext, JsonTypeInfo`1 jsonTypeInfo)
+   at Microsoft.AspNetCore.Http.RequestDelegateFactory.<>c__DisplayClass102_2.<<HandleRequestBodyAndCompileRequestDelegateForJson>b__2>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2026-03-21 21:53:31 ERR] An unhandled exception has occurred while executing the request.
+QuestPDF.Drawing.Exceptions.DocumentLayoutException: The provided document content contains conflicting size constraints. For example, some elements may require more space than is available. 
+
+The layout issue is likely present in the following part of the document: 
+
+-> Document
+
+-> Page
+
+-> Page
+
+-> Content
+
+-> Content
+
+-> In method:   c =>
+                            {
+                                if (adminSignature != null)
+                                    c.Image(adminSignature);
+                            }
+   Called from: GeneratePdf
+   Source path: C:\Disertatie_ERP\ERPSystem\ERPSystem\Shared\BusinessLogic\PdfService.cs
+   Line number: 181
+
+
+
+To learn more, please analyse the document measurement of the problematic location: 
+
+🚨 AspectRatio 🚨
+==================
+Available Space: (Width: 257.500, Height: 60.000)
+Space Plan: Wrap
+Wrap Reason: To preserve the target aspect ratio, the content requires more vertical space than available.
+------------------
+Content Direction: LeftToRight
+Ratio: 2.3909092
+Option: FitWidth
+
+
+   ⚪️ Image
+   =========
+   Document Image: QuestPDF.Infrastructure.Image
+
+
+Legend: 
+🚨 - Element that is likely the root cause of the layout issue based on library heuristics and prediction. 
+🔴 - Element that cannot be drawn due to the provided layout constraints. This element likely causes the layout issue, or one of its descendant children is responsible for the problem. 
+🟡 - Element that can be partially drawn on the page and will also be rendered on the consecutive page. In more complex layouts, this element may also cause issues or contain a child that is the actual root cause.
+🟢 - Element that is successfully and completely drawn on the page.
+⚪️ - Element that has not been drawn on the faulty page. Its children are omitted.
+
+
+This detailed information is generated because you run the application with a debugger attached or with the QuestPDF.Settings.EnableDebugging flag set to true. 
+   at QuestPDF.Drawing.DocumentGenerator.<RenderPass>g__ThrowLayoutException|12_2(<>c__DisplayClass12_0&)
+   at QuestPDF.Drawing.DocumentGenerator.RenderPass(PageContext pageContext, IDocumentCanvas canvas, ContainerElement content)
+   at QuestPDF.Drawing.DocumentGenerator.RenderDocument(IDocumentCanvas canvas, IDocument document, DocumentSettings settings)
+   at QuestPDF.Drawing.DocumentGenerator.GeneratePdf(SkWriteStream stream, IDocument document)
+   at QuestPDF.Fluent.GenerateExtensions.GeneratePdf(IDocument document, Stream stream)
+   at QuestPDF.Fluent.GenerateExtensions.GeneratePdf(IDocument document, String filePath)
+   at PdfService.GeneratePdf(PdfDocumentModel model, String filePrefix) in C:\Disertatie_ERP\ERPSystem\ERPSystem\Shared\BusinessLogic\PdfService.cs:line 132
+   at ERPSystem.Modules.Contracts.ContractsService.SignByAdminAsync(Int32 id, String signature) in C:\Disertatie_ERP\ERPSystem\ERPSystem\Modules\Contracts\ContractsService.cs:line 737
+   at ERPSystem.Modules.Contracts.ContractsEndpoints.<>c.<<Map>b__0_12>d.MoveNext() in C:\Disertatie_ERP\ERPSystem\ERPSystem\Modules\Contracts\ContractsEndpoints.cs:line 73
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Http.RequestDelegateFactory.<ExecuteTaskOfT>g__ExecuteAwaited|134_0[T](Task`1 task, HttpContext httpContext, JsonTypeInfo`1 jsonTypeInfo)
+   at Microsoft.AspNetCore.Http.RequestDelegateFactory.<>c__DisplayClass102_2.<<HandleRequestBodyAndCompileRequestDelegateForJson>b__2>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2026-03-21 21:54:11 ERR] An unhandled exception has occurred while executing the request.
+QuestPDF.Drawing.Exceptions.DocumentLayoutException: The provided document content contains conflicting size constraints. For example, some elements may require more space than is available. 
+
+The layout issue is likely present in the following part of the document: 
+
+-> Document
+
+-> Page
+
+-> Page
+
+-> Content
+
+-> Content
+
+-> In method:   c =>
+                            {
+                                if (adminSignature != null)
+                                    c.Image(adminSignature);
+                            }
+   Called from: GeneratePdf
+   Source path: C:\Disertatie_ERP\ERPSystem\ERPSystem\Shared\BusinessLogic\PdfService.cs
+   Line number: 181
+
+
+
+To learn more, please analyse the document measurement of the problematic location: 
+
+🚨 AspectRatio 🚨
+==================
+Available Space: (Width: 257.500, Height: 60.000)
+Space Plan: Wrap
+Wrap Reason: To preserve the target aspect ratio, the content requires more vertical space than available.
+------------------
+Content Direction: LeftToRight
+Ratio: 2.3909092
+Option: FitWidth
+
+
+   ⚪️ Image
+   =========
+   Document Image: QuestPDF.Infrastructure.Image
+
+
+Legend: 
+🚨 - Element that is likely the root cause of the layout issue based on library heuristics and prediction. 
+🔴 - Element that cannot be drawn due to the provided layout constraints. This element likely causes the layout issue, or one of its descendant children is responsible for the problem. 
+🟡 - Element that can be partially drawn on the page and will also be rendered on the consecutive page. In more complex layouts, this element may also cause issues or contain a child that is the actual root cause.
+🟢 - Element that is successfully and completely drawn on the page.
+⚪️ - Element that has not been drawn on the faulty page. Its children are omitted.
+
+
+This detailed information is generated because you run the application with a debugger attached or with the QuestPDF.Settings.EnableDebugging flag set to true. 
+   at QuestPDF.Drawing.DocumentGenerator.<RenderPass>g__ThrowLayoutException|12_2(<>c__DisplayClass12_0&)
+   at QuestPDF.Drawing.DocumentGenerator.RenderPass(PageContext pageContext, IDocumentCanvas canvas, ContainerElement content)
+   at QuestPDF.Drawing.DocumentGenerator.RenderDocument(IDocumentCanvas canvas, IDocument document, DocumentSettings settings)
+   at QuestPDF.Drawing.DocumentGenerator.GeneratePdf(SkWriteStream stream, IDocument document)
+   at QuestPDF.Fluent.GenerateExtensions.GeneratePdf(IDocument document, Stream stream)
+   at QuestPDF.Fluent.GenerateExtensions.GeneratePdf(IDocument document, String filePath)
+   at PdfService.GeneratePdf(PdfDocumentModel model, String filePrefix) in C:\Disertatie_ERP\ERPSystem\ERPSystem\Shared\BusinessLogic\PdfService.cs:line 132
+   at ERPSystem.Modules.Contracts.ContractsService.SignByAdminAsync(Int32 id, String signature) in C:\Disertatie_ERP\ERPSystem\ERPSystem\Modules\Contracts\ContractsService.cs:line 737
+   at ERPSystem.Modules.Contracts.ContractsEndpoints.<>c.<<Map>b__0_12>d.MoveNext() in C:\Disertatie_ERP\ERPSystem\ERPSystem\Modules\Contracts\ContractsEndpoints.cs:line 73
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Http.RequestDelegateFactory.<ExecuteTaskOfT>g__ExecuteAwaited|134_0[T](Task`1 task, HttpContext httpContext, JsonTypeInfo`1 jsonTypeInfo)
+   at Microsoft.AspNetCore.Http.RequestDelegateFactory.<>c__DisplayClass102_2.<<HandleRequestBodyAndCompileRequestDelegateForJson>b__2>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+[2026-03-21 21:56:52 ERR] PDF generation failed
+QuestPDF.Drawing.Exceptions.DocumentLayoutException: The provided document content contains conflicting size constraints. For example, some elements may require more space than is available. 
+
+The layout issue is likely present in the following part of the document: 
+
+-> Document
+
+-> Page
+
+-> Page
+
+-> Content
+
+-> Content
+
+-> In method:   c =>
+                            {
+                                if (adminSignature != null)
+                                    c.Image(adminSignature);
+                            }
+   Called from: GeneratePdf
+   Source path: C:\Disertatie_ERP\ERPSystem\ERPSystem\Shared\BusinessLogic\PdfService.cs
+   Line number: 181
+
+
+
+To learn more, please analyse the document measurement of the problematic location: 
+
+🚨 AspectRatio 🚨
+==================
+Available Space: (Width: 257.500, Height: 60.000)
+Space Plan: Wrap
+Wrap Reason: To preserve the target aspect ratio, the content requires more vertical space than available.
+------------------
+Content Direction: LeftToRight
+Ratio: 2.3909092
+Option: FitWidth
+
+
+   ⚪️ Image
+   =========
+   Document Image: QuestPDF.Infrastructure.Image
+
+
+Legend: 
+🚨 - Element that is likely the root cause of the layout issue based on library heuristics and prediction. 
+🔴 - Element that cannot be drawn due to the provided layout constraints. This element likely causes the layout issue, or one of its descendant children is responsible for the problem. 
+🟡 - Element that can be partially drawn on the page and will also be rendered on the consecutive page. In more complex layouts, this element may also cause issues or contain a child that is the actual root cause.
+🟢 - Element that is successfully and completely drawn on the page.
+⚪️ - Element that has not been drawn on the faulty page. Its children are omitted.
+
+
+This detailed information is generated because you run the application with a debugger attached or with the QuestPDF.Settings.EnableDebugging flag set to true. 
+   at QuestPDF.Drawing.DocumentGenerator.<RenderPass>g__ThrowLayoutException|12_2(<>c__DisplayClass12_0&)
+   at QuestPDF.Drawing.DocumentGenerator.RenderPass(PageContext pageContext, IDocumentCanvas canvas, ContainerElement content)
+   at QuestPDF.Drawing.DocumentGenerator.RenderDocument(IDocumentCanvas canvas, IDocument document, DocumentSettings settings)
+   at QuestPDF.Drawing.DocumentGenerator.GeneratePdf(SkWriteStream stream, IDocument document)
+   at QuestPDF.Fluent.GenerateExtensions.GeneratePdf(IDocument document, Stream stream)
+   at QuestPDF.Fluent.GenerateExtensions.GeneratePdf(IDocument document, String filePath)
+   at PdfService.GeneratePdf(PdfDocumentModel model, String filePrefix)
+   at ERPSystem.Modules.Contracts.ContractsService.SignByAdminAsync(Int32 id, String signature)
+[2026-03-21 21:56:52 ERR] An unhandled exception has occurred while executing the request.
+QuestPDF.Drawing.Exceptions.DocumentLayoutException: The provided document content contains conflicting size constraints. For example, some elements may require more space than is available. 
+
+The layout issue is likely present in the following part of the document: 
+
+-> Document
+
+-> Page
+
+-> Page
+
+-> Content
+
+-> Content
+
+-> In method:   c =>
+                            {
+                                if (adminSignature != null)
+                                    c.Image(adminSignature);
+                            }
+   Called from: GeneratePdf
+   Source path: C:\Disertatie_ERP\ERPSystem\ERPSystem\Shared\BusinessLogic\PdfService.cs
+   Line number: 181
+
+
+
+To learn more, please analyse the document measurement of the problematic location: 
+
+🚨 AspectRatio 🚨
+==================
+Available Space: (Width: 257.500, Height: 60.000)
+Space Plan: Wrap
+Wrap Reason: To preserve the target aspect ratio, the content requires more vertical space than available.
+------------------
+Content Direction: LeftToRight
+Ratio: 2.3909092
+Option: FitWidth
+
+
+   ⚪️ Image
+   =========
+   Document Image: QuestPDF.Infrastructure.Image
+
+
+Legend: 
+🚨 - Element that is likely the root cause of the layout issue based on library heuristics and prediction. 
+🔴 - Element that cannot be drawn due to the provided layout constraints. This element likely causes the layout issue, or one of its descendant children is responsible for the problem. 
+🟡 - Element that can be partially drawn on the page and will also be rendered on the consecutive page. In more complex layouts, this element may also cause issues or contain a child that is the actual root cause.
+🟢 - Element that is successfully and completely drawn on the page.
+⚪️ - Element that has not been drawn on the faulty page. Its children are omitted.
+
+
+This detailed information is generated because you run the application with a debugger attached or with the QuestPDF.Settings.EnableDebugging flag set to true. 
+   at QuestPDF.Drawing.DocumentGenerator.<RenderPass>g__ThrowLayoutException|12_2(<>c__DisplayClass12_0&)
+   at QuestPDF.Drawing.DocumentGenerator.RenderPass(PageContext pageContext, IDocumentCanvas canvas, ContainerElement content)
+   at QuestPDF.Drawing.DocumentGenerator.RenderDocument(IDocumentCanvas canvas, IDocument document, DocumentSettings settings)
+   at QuestPDF.Drawing.DocumentGenerator.GeneratePdf(SkWriteStream stream, IDocument document)
+   at QuestPDF.Fluent.GenerateExtensions.GeneratePdf(IDocument document, Stream stream)
+   at QuestPDF.Fluent.GenerateExtensions.GeneratePdf(IDocument document, String filePath)
+   at PdfService.GeneratePdf(PdfDocumentModel model, String filePrefix)
+   at ERPSystem.Modules.Contracts.ContractsService.SignByAdminAsync(Int32 id, String signature)
+   at ERPSystem.Modules.Contracts.ContractsEndpoints.<>c.<<Map>b__0_12>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Http.RequestDelegateFactory.<ExecuteTaskOfT>g__ExecuteAwaited|134_0[T](Task`1 task, HttpContext httpContext, JsonTypeInfo`1 jsonTypeInfo)
+   at Microsoft.AspNetCore.Http.RequestDelegateFactory.<>c__DisplayClass102_2.<<HandleRequestBodyAndCompileRequestDelegateForJson>b__2>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)

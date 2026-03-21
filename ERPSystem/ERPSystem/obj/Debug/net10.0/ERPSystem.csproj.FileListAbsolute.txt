@@ -233,6 +233,7 @@ D:\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\ERPSystem.genruntimeconf
 D:\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\ref\ERPSystem.dll
 C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\appsettings.Development.json
 C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\appsettings.json
+C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\ERPSystem.staticwebassets.runtime.json
 C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\ERPSystem.staticwebassets.endpoints.json
 C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\LatoFont\Lato-Black.ttf
 C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\LatoFont\Lato-BlackItalic.ttf
@@ -253,7 +254,6 @@ C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\LatoFont\Lato-SemiBoldIt
 C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\LatoFont\Lato-Thin.ttf
 C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\LatoFont\Lato-ThinItalic.ttf
 C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\LatoFont\OFL.txt
-C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\ERPSystem.staticwebassets.runtime.json
 C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\ERPSystem.exe
 C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\ERPSystem.deps.json
 C:\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\ERPSystem.runtimeconfig.json
@@ -448,10 +448,6 @@ C:\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\rjimswa.dswa.cache.json
 C:\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\rjsmrazor.dswa.cache.json
 C:\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\rjsmcshtml.dswa.cache.json
 C:\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\scopedcss\bundle\ERPSystem.styles.css
-C:\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\compressed\p1ghetrclu-{0}-4zw8qzc6cn-4zw8qzc6cn.gz
-C:\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\compressed\dbxp32lyse-{0}-dcgx0lk9wl-dcgx0lk9wl.gz
-C:\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\compressed\4b3ewjzxnz-{0}-iqg4mu40sq-iqg4mu40sq.gz
-C:\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\compressed\nucks4bkkl-{0}-d0xw639ddp-d0xw639ddp.gz
 C:\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\staticwebassets.build.json
 C:\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\staticwebassets.build.json.cache
 C:\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\staticwebassets.development.json

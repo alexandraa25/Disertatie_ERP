@@ -83,7 +83,6 @@ loadEnrollments(sessionId: number) {
 }
 
 toggleEnrollment(sessionId: number, enrollment: any) {
-
   this.courses.setEnrollmentActive(
     this.course.id,
     sessionId,
@@ -91,7 +90,7 @@ toggleEnrollment(sessionId: number, enrollment: any) {
     !enrollment.isActive
   ).subscribe({
     next: () => {
-      enrollment.isActive = !enrollment.isActive;
+      this.loadEnrollments(sessionId); // 🔥 reîncarci lista din backend
     },
     error: () => alert('Eroare la actualizare.')
   });

@@ -10,6 +10,7 @@ import { EnrollStudentsComponent } from '../enroll-students/enroll-students.comp
 import { AdminSignatureModalComponent } from '../../financiar/admin-signature-modal/admin-signature-modal.component';
 import { ActivityLog } from '../../models/activity-log.model';
 import { ActivityLogService } from '../../services/activity-log.service';
+import { CoursesService } from '../../services/courses.service';
 
 @Component({
   selector: 'app-student-details',
@@ -27,6 +28,7 @@ export class StudentDetailsComponent implements OnInit {
   activeTab = 'Informații';
 
   courses: StudentCourseDetailsDto[] = [];
+  inactiveCourses: StudentCourseDetailsDto[] = [];
   totalAmount = 0;
   coursesLoaded = false;
   contract: any = null;
@@ -39,6 +41,7 @@ export class StudentDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private students: StudentsService,
+    private course: CoursesService,
     private contracts: ContractsService,
     private dialog: MatDialog,
     private activityService: ActivityLogService
@@ -79,13 +82,21 @@ export class StudentDetailsComponent implements OnInit {
   }
 
   loadCourses() {
-    this.students.getStudentCourses(this.student.id)
-      .subscribe(res => {
-        this.courses = res.items;
-        this.totalAmount = res.totalAmount;
-        this.coursesLoaded = true;
-      });
-  }
+  this.students.getStudentCourses(this.student.id)
+    .subscribe(res => {
+
+      const all = res.items;
+
+      // 🟢 ACTIVE (ce aveai înainte)
+      this.courses = all.filter(x => x.isActive);
+
+      // 🔴 INACTIVE (noi)
+      this.inactiveCourses = all.filter(x => !x.isActive);
+
+      this.totalAmount = res.totalAmount;
+      this.coursesLoaded = true;
+    });
+}
 
   getRomanianDay(day: any): string {
 
@@ -118,6 +129,20 @@ export class StudentDetailsComponent implements OnInit {
     return mapByName[normalized] ?? day;
   }
 
+deactivateEnrollment(course: any) {
+
+  if (!confirm(`Elimini studentul din cursul "${course.courseName}"?`)) return;
+
+ this.course.setEnrollmentActive(
+  course.courseId,
+  course.sessionId,
+  this.student.id,
+  false
+).subscribe({
+  next: () => this.loadCourses(),
+  error: () => alert('Eroare la scoaterea din curs.')
+});
+} 
 
   loadContract() {
     this.contracts.getLatestByStudent(this.student.id)
@@ -128,7 +153,7 @@ export class StudentDetailsComponent implements OnInit {
      
   }
 
-  get contractAction(): string {
+ get contractAction(): string {
 
   if (!this.contract) return 'create';
 
@@ -149,6 +174,11 @@ export class StudentDetailsComponent implements OnInit {
     case 'Active':
       return 'view';
 
+    case 'Suspended':
+      return 'resume';
+
+    case 'Completed':
+    case 'Expired':
     case 'Cancelled':
       return 'create';
 
@@ -157,7 +187,7 @@ export class StudentDetailsComponent implements OnInit {
   }
 }
 
-  getContractButtonText(): string {
+ getContractButtonText(): string {
 
   switch (this.contractAction) {
 
@@ -177,7 +207,10 @@ export class StudentDetailsComponent implements OnInit {
       return '✍️ Semnează (Admin)';
 
     case 'view':
-      return '📄 Vizualizeaza PDF';
+      return '📄 Vizualizează';
+
+    case 'resume':
+      return '▶️ Reia contract';
 
     default:
       return '➕ Creează contract';
@@ -289,6 +322,34 @@ isExpiringSoon(): boolean {
   return diff > 0 && diff <= 7; // 7 zile
 }
 
+
+suspend() {
+  if (!confirm('Suspendăm contractul?')) return;
+
+  this.contract.suspend(this.contract.id)
+    .subscribe(() => this.loadContract());
+}
+
+resume() {
+  this.contract.resume(this.contract.id)
+    .subscribe(() => this.loadContract());
+}
+
+complete() {
+  if (!confirm('Finalizezi contractul?')) return;
+
+  this.contract.complete(this.contract.id)
+    .subscribe(() => this.loadContract());
+}
+
+cancelContract() {
+  if (!confirm('Anulezi contractul?')) return;
+
+  this.contract.cancel(this.contract.id)
+    .subscribe(() => this.loadContract());
+}
+
+
 get daysLeft(): number {
   if (!this.contract?.endDate) return 0;
 
@@ -353,6 +414,11 @@ loadActivity() {
       this.activityLogs = res;
     });
 }
+
+  createAct() {
+  this.router.navigate([`/contracts/${this.contract.id}/additional-act`]);
+}
+
 
 }
 

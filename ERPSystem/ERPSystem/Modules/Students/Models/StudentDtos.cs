@@ -79,6 +79,10 @@
         public TimeOnly EndTime { get; set; }
 
         public string TeacherName { get; set; } = default!;
+
+        public bool IsActive { get; set; }
+        public DateTime? EndedAtUtc { get; set; }
+        public int? ContractId { get; set; }
     }
 
     public record PagedResult<T>(

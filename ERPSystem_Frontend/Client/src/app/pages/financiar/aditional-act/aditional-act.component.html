@@ -1,0 +1,67 @@
+ <!-- <div class="act-page">
+
+  <div class="header">
+    <button class="back" (click)="goBack()">← Înapoi</button>
+    <h2>➕ Act adițional</h2>
+  </div>
+
+  <div class="card">
+
+  
+    <div class="form-group">
+      <label>Motiv</label>
+
+      <select [(ngModel)]="selectedType" (change)="onTypeChange()">
+        <option value="">Selectează</option>
+        <option value="AddCourse">Adăugare curs</option>
+        <option value="RemoveCourse">Eliminare curs</option>
+        <option value="AddStudent">Adăugare cursant</option>
+        <option value="RemoveStudent">Eliminare cursant</option>
+        <option value="ExtendPeriod">Prelungire contract</option>
+        <option value="ChangePrice">Modificare preț</option>
+      </select>
+    </div>
+
+    
+    <div *ngIf="selectedType === 'AddCourse'" class="form-group">
+      <label>Curs de adăugat</label>
+
+      <select [(ngModel)]="selectedCourseId">
+        <option *ngFor="let c of availableCourses" [value]="c.id">
+          {{ c.name }}
+        </option>
+      </select>
+    </div>
+
+    
+    <div *ngIf="selectedType === 'RemoveCourse'" class="form-group">
+      <label>Curs de eliminat</label>
+
+      <select [(ngModel)]="selectedCourseId">
+        <option *ngFor="let c of studentCourses" [value]="c.id">
+          {{ c.name }}
+        </option>
+      </select>
+    </div>
+
+    
+    <div *ngIf="selectedType === 'ExtendPeriod'" class="form-group">
+      <label>Noua dată final</label>
+      <input type="date" [(ngModel)]="newEndDate" />
+    </div>
+
+    
+    <div *ngIf="selectedType === 'ChangePrice'" class="form-group">
+      <label>Diferență preț</label>
+      <input type="number" [(ngModel)]="priceDifference" />
+    </div>
+
+   
+    <div class="actions">
+      <button class="secondary" (click)="goBack()">Anulează</button>
+      <button class="primary" (click)="save()">✔ Creează act</button>
+    </div>
+
+  </div>
+
+</div>  -->

@@ -19,9 +19,10 @@ export const routes: Routes = [
   { path: 'courses', loadComponent: () => import('./pages/academics/courses/courses.component').then(m => m.CoursesComponent) },
   { path: 'courses/:id', loadComponent: () => import('./pages/academics/course-details/course-details.component').then(m => m.CourseDetailsComponent) },
   { path: 'create-contract', loadComponent: () => import('./pages/financiar/create-contract/create-contract.component').then(m => m.CreateContractComponent) },
-  { path: 'contracts/:id', loadComponent: () => import('./pages/financiar/contract-details/contract-details.component').then(m => m.ContractDetailsComponent), canDeactivate: [unsavedChangesGuard] },
-  { path: 'admin/users', loadComponent: () => import('./pages/admin-users/admin-users.component').then(m => m.AdminUsersComponent) },
   { path: 'sign-contract/:token', loadComponent: () => import('./pages/financiar/sign-contract/sign-contract.component') .then(m => m.SignContractComponent) },
+  { path: 'contracts/:id', loadComponent: () => import('./pages/financiar/contract-details/contract-details.component').then(m => m.ContractDetailsComponent), canDeactivate: [unsavedChangesGuard] },
+  { path: 'contracts/:id/additional-act', loadComponent: () => import('./pages/financiar/aditional-act/aditional-act.component') .then(m => m.AditionalActComponent) }, 
+  { path: 'admin/users', loadComponent: () => import('./pages/admin-users/admin-users.component').then(m => m.AdminUsersComponent) },
   { path: 'company', loadComponent: () => import('./pages/admin/company/company.component') .then(m => m.CompanyComponent) }, 
   { path: 'log-activity', loadComponent: () => import('./pages/admin/admin-activity/admin-activity.component') .then(m => m.AdminActivityComponent) }
 

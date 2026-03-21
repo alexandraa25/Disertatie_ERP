@@ -105,4 +105,16 @@ export class ContractsService {
   complete(id: number) {
     return this.http.put(`${this.baseUrl}/${id}/complete`, {});
   }
+
+createAct(contractId: number, dto: any) {
+  return this.http.post(`${this.baseUrl}/${contractId}/additional-act`, dto);
+}
+
+finalizeAct(id: number) {
+  return this.http.put(`${this.baseUrl}/additional-acts/${id}/finalize`, {});
+}
+
+getActs(contractId: number) {
+  return this.http.get(`${this.baseUrl}/${contractId}/additional-acts`);
+}
 }

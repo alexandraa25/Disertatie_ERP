@@ -129,7 +129,6 @@
 
         <div class="courses-header">
 
-          <!-- LEFT -->
           <div class="courses-left">
             <h3>Cursuri înscrise</h3>
             <span class="courses-count">
@@ -137,7 +136,6 @@
             </span>
           </div>
 
-          <!-- RIGHT -->
           <div class="courses-right">
 
             <div class="total-box" *ngIf="courses.length">
@@ -153,6 +151,7 @@
 
         </div>
 
+        <!-- 🟢 ACTIVE -->
         <div *ngIf="courses.length; else noCourses">
 
           <div *ngFor="let c of courses" class="course-card">
@@ -160,7 +159,7 @@
             <div class="course-main">
               <div class="course-title-row">
                 <h4>{{ c.courseName }}</h4>
-                <span class="day-badge"> {{ getRomanianDay(c.dayOfWeek) }}</span>
+                <span class="day-badge">{{ getRomanianDay(c.dayOfWeek) }}</span>
               </div>
 
               <div class="course-meta">
@@ -174,14 +173,55 @@
               </div>
             </div>
 
+
             <div class="course-price">
-              {{ c.price }} RON
+              <div class="price-value">
+                {{ c.price }} RON
+              </div>
+
+              <button class="btn-remove" (click)="deactivateEnrollment(c)">
+                ❌ Scoate
+              </button>
             </div>
 
           </div>
 
         </div>
 
+        <!-- 🔴 INACTIVE -->
+        <div *ngIf="inactiveCourses?.length">
+
+          <h3 class="section-title">Cursuri încheiate</h3>
+
+          <div *ngFor="let c of inactiveCourses" class="course-card inactive">
+
+            <div class="course-main">
+              <span class="badge inactive">Încheiat</span>
+              <div class="course-title-row">
+                <h4>{{ c.courseName }}</h4>
+                <span class="day-badge">{{ getRomanianDay(c.dayOfWeek) }}</span>
+              </div>
+
+              <div class="course-meta">
+                <span class="time">
+                  {{ c.startTime }} - {{ c.endTime }}
+                </span>
+
+                <span class="teacher">
+                  👨‍🏫 {{ c.teacherName }}
+                </span>
+              </div>
+            </div>
+
+            <div class="ended">
+              Scos la: {{ c.endedAtUtc | date:'dd.MM.yyyy' }}
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- EMPTY -->
         <ng-template #noCourses>
           <div class="empty-state">
             Elevul nu este înscris la niciun curs.
@@ -222,19 +262,50 @@
 
           <div class="contract-actions">
 
+            <!-- BUTON PRINCIPAL -->
             <button class="primary" (click)="handleContractAction()" [disabled]="contractAction === 'waiting'">
               {{ getContractButtonText() }}
             </button>
 
-            <button class="secondary" *ngIf="contract && contract.status !== 'Draft' && contract.status !== 'Active'"
+            <!-- VIEW -->
+            <!-- <button class="secondary" *ngIf="contract && contract.status !== 'Draft' "
               (click)="openContract(contract.id)">
               📄 Vizualizează
-            </button>
+            </button>-->
 
-            <button class="secondary" *ngIf="contract.status === 'Active'" (click)="downloadPdf()" [disabled]="loading">
-              <span *ngIf="!loading">📄 Descarcă PDF</span>
-              <span *ngIf="loading">Se descarcă...</span>
-            </button>
+            <!-- ACTIVE ACTIONS -->
+            <ng-container *ngIf="contract.status === 'Active'">
+
+              <button class="secondary" (click)="suspend()">
+                ⏸ Suspendă
+              </button>
+
+              <button class="success" (click)="complete()">
+                ✅ Finalizează
+              </button>
+
+              <button class="danger" (click)="cancelContract()">
+                ❌ Anulează
+              </button>
+
+              <button class="secondary" (click)="downloadPdf()" [disabled]="loading">
+                📄 PDF
+              </button>
+
+            </ng-container>
+
+            <!-- SUSPENDED -->
+            <ng-container *ngIf="contract.status === 'Suspended'">
+
+              <button class="primary" (click)="resume()">
+                ▶️ Reia
+              </button>
+
+              <button class="danger" (click)="cancelContract()">
+                ❌ Anulează
+              </button>
+
+            </ng-container>
 
           </div>
 
@@ -256,6 +327,32 @@
 
           </div>
         </ng-template>
+
+        <div class="additional-acts" *ngIf="contract?.status === 'Active'">
+
+          <h3>📎 Acte adiționale</h3>
+
+          <!-- <button class="primary" (click)="openActModal()">➕ Act adițional</button>
+
+           <div *ngFor="let act of acts" class="act-card">
+
+            <div>
+              <strong>{{ act.actNumber }}</strong>
+            </div>
+
+            <div>{{ act.type }}</div>
+
+            <div>{{ act.description }}</div>
+
+            <div class="status">{{ act.status }}</div>
+
+            <button *ngIf="act.status === 'Draft'" (click)="finalizeAct(act.id)">
+              ✔ Finalizează
+            </button>
+
+          </div> -->
+
+        </div>
 
 
         <div *ngFor="let f of student.invoices ?? []" class="invoice-item">

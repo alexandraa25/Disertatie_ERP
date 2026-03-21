@@ -50,6 +50,9 @@ export interface StudentCourseDetailsDto {
   startTime: string;
   endTime: string;
   teacherName: string;
+  isActive: boolean;
+  contractId : number;
+  endedAtUtc :string;
 }
 
 export interface StudentCoursesResponse {

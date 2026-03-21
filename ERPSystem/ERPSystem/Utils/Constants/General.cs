@@ -57,7 +57,7 @@
 
             public static class Students
             {
-                public const string STUDENTS = "";          // list + create
+                public const string STUDENTS = "";          
                 public const string STUDENT_BY_ID = "/{id:int}";
                 public const string STUDENT_OPTIONS = "/students/options";
                 public const string STUDENT_COURSES = "/{id}/courses";
@@ -98,8 +98,10 @@
                 public const string CONTRACT_COMPLETE = "/{id}/complete";
                 public const string CONTRACT_EXPIRE= "/expire-all";
                 public const string CONTRACT_DOWNLOAD = "/{id}/download";
-
-
+                //Act Aditional
+                public const string CREATE_ACT = "/{id}/additional-act";
+                public const string FINALIZE_ACT = "/additional-acts/{id}/finalize";
+                public const string LIST_ACT = "/{id}/additional-acts";
 
 
 

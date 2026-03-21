@@ -2,6 +2,7 @@
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Contracts.Models;
 using ERPSystem.Shared.BusinessLogic;
+using ERPSystem.Shared.DTOs.PDF;
 using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Enums;
@@ -684,7 +685,10 @@ public class ContractsService
                 ErrorCodes.InvalidParameters,
                 "Signature missing");
 
-        var contract = await _db.StudentContracts.FindAsync(id);
+        var contract = await _db.StudentContracts
+    .Include(c => c.Parties)
+    .Include(c => c.Courses)
+    .FirstOrDefaultAsync(c => c.Id == id);
 
         if (contract is null)
             return response.SetError(ErrorCodes.InvalidParameters, "Contract not found");
@@ -702,10 +706,54 @@ public class ContractsService
         contract.ActivatedAtUtc = DateTime.UtcNow;
         contract.UpdatedAtUtc = DateTime.UtcNow;
 
-        // generăm PDF final cu ambele semnături
-        var pdfName = _pdfService.GenerateContractPdf(contract);
+        // 🔥 ia studentii din contract
+        var studentIds = contract.Parties
+            .Where(p => p.StudentId.HasValue && p.Role == ContractPartyRole.Student)
+            .Select(p => p.StudentId!.Value)
+            .ToList();
 
-        contract.PdfPath = pdfName;
+        // 🔥 ia sesiunile din contract
+        var sessionIds = contract.Courses
+            .Select(c => c.CourseSessionId)
+            .ToList();
+
+        // 🔥 ia enrollments existente
+        var enrollments = await _db.CourseEnrollments
+            .Where(e =>
+                studentIds.Contains(e.StudentId) &&
+                sessionIds.Contains(e.CourseSessionId) &&
+                e.IsActive)
+            .ToListAsync();
+
+        // 🔥 leaga de contract
+        foreach (var e in enrollments)
+        {
+            if (e.ContractId == null)
+                e.ContractId = contract.Id;
+        }
+
+        try
+        {
+            // generăm PDF final cu ambele semnături
+            var pdfName = _pdfService.GeneratePdf(new PdfDocumentModel
+            {
+                Title = "CONTRACT DE PRESTĂRI SERVICII",
+                Number = contract.ContractNumber,
+                Body = contract.ContractBody,
+                CompanyName = contract.CompanyNameSnapshot,
+                BeneficiaryName = contract.BeneficiaryNameSnapshot,
+                AdminSignature = contract.AdminSignature,
+                ClientSignature = contract.ClientSignature,
+                AdminSignedAt = contract.AdminSignedAtUtc,
+                ClientSignedAt = contract.ClientSignedAtUtc
+            }, "CTR");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "PDF generation failed");
+            throw;
+        }
+        //contract.PdfPath = pdfName;
 
         _db.ActivityLog.Add(new ActivityLog
         {
@@ -1201,16 +1249,36 @@ public class ContractsService
         if (contract == null)
             return Results.NotFound();
 
-        // 🔥 generează dacă nu există
-        if (string.IsNullOrEmpty(contract.PdfPath) || !File.Exists(contract.PdfPath))
-        {
-            var fileName = _pdfService.GenerateContractPdf(contract);
+        if (string.IsNullOrEmpty(contract.PdfPath))
+            return Results.BadRequest("PDF not generated");
 
-            contract.PdfPath = Path.Combine("wwwroot", "contracts", fileName);
+        var filePath = Path.Combine("wwwroot", "contracts", contract.PdfPath);
+
+        if (!File.Exists(filePath))
+        {
+            // 🔥 regenerează dacă lipsește
+            var fileName = _pdfService.GeneratePdf(new PdfDocumentModel
+            {
+                Title = "CONTRACT DE PRESTĂRI SERVICII",
+                Number = contract.ContractNumber,
+                Body = contract.ContractBody,
+                CompanyName = contract.CompanyNameSnapshot,
+                BeneficiaryName = contract.BeneficiaryNameSnapshot,
+                AdminSignature = contract.AdminSignature,
+                ClientSignature = contract.ClientSignature,
+                AdminSignedAt = contract.AdminSignedAtUtc,
+                ClientSignedAt = contract.ClientSignedAtUtc
+            }, "CTR");
+
+            contract.PdfPath = fileName;
             await _db.SaveChangesAsync();
+
+            filePath = Path.Combine("wwwroot", "contracts", fileName);
         }
 
-        var bytes = _pdfService.GenerateContractPdfBytes(contract);
+       
+
+        var bytes = await File.ReadAllBytesAsync(filePath);
 
         return Results.File(
             bytes,
@@ -1244,4 +1312,160 @@ public class ContractsService
 
         return response.SetSuccess(contract);
     }
+
+
+    //ADITIONAL ACT
+    public async Task<PublicResponse> CreateAdditionalActAsync(int contractId, CreateAdditionalActDto dto)
+    {
+        var response = new PublicResponse(true);
+
+        var contract = await _db.StudentContracts
+            .Include(c => c.Courses)
+            .FirstOrDefaultAsync(c => c.Id == contractId);
+
+        if (contract == null)
+            return response.SetError(ErrorCodes.InvalidParameters, "Contract not found");
+
+        if (contract.Status != ContractStatus.Active)
+            return response.SetError(ErrorCodes.InvalidParameters, "Only active contracts can have additional acts");
+
+       
+        var act = new ContractAdditionalAct
+        {
+            ContractId = contract.Id,
+            ActNumber = GenerateActNumber(),
+            Type = dto.Type,
+            Description = dto.Description,
+            Status = "Draft",
+            CreatedAtUtc = DateTime.UtcNow
+        };
+
+        if (dto.Type == AdditionalActType.AddCourse)
+        {
+            var sessionId = dto.CourseSessionIds.First();
+
+            // găsești enrollment existent
+            var enrollment = await _db.CourseEnrollments
+                .FirstOrDefaultAsync(e =>
+                    e.CourseSessionId == sessionId &&
+                    e.StudentId == contract.Parties
+                        .Where(p => p.StudentId != null)
+                        .Select(p => p.StudentId.Value)
+                        .First() &&
+                    e.IsActive);
+
+            if (enrollment == null)
+                return response.SetError(ErrorCodes.InvalidParameters, "Enrollment not found");
+
+            // 🔥 LEGI DE CONTRACT
+            enrollment.ContractId = contract.Id;
+
+            var session = await _db.CourseSessions
+                .Include(x => x.Course)
+                .FirstAsync(x => x.Id == sessionId);
+
+            act.Description = $"Adăugat curs: {session.Course.Name} ({session.Title})";
+        }
+
+        if (dto.Type == AdditionalActType.RemoveCourse && dto.CourseSessionIds?.Any() == true)
+        {
+            var sessionId = dto.CourseSessionIds.First();
+
+            var enrollment = await _db.CourseEnrollments
+                .Include(e => e.Session)
+                    .ThenInclude(s => s.Course)
+                .FirstOrDefaultAsync(e =>
+                    e.CourseSessionId == sessionId &&
+                    e.ContractId == contract.Id);
+
+            if (enrollment == null)
+                return response.SetError(ErrorCodes.InvalidParameters, "Enrollment not found");
+
+            // 🔥 VALIDARE IMPORTANTĂ
+            if (enrollment.IsActive)
+                return response.SetError(ErrorCodes.InvalidParameters,
+                    "Cursul trebuie scos înainte de act");
+
+            act.Description = $"Eliminat curs: {enrollment.Session.Course.Name} ({enrollment.Session.Title})";
+        }
+
+
+        _db.ContractAdditionalAct.Add(act);
+        await _db.SaveChangesAsync();
+
+        return response.SetSuccess(new { act.Id });
+    }
+
+    private string GenerateActNumber()
+    {
+        return $"AA-{DateTime.UtcNow:yyyy}-{DateTime.UtcNow.Ticks.ToString()[^5..]}";
+    }
+
+    public async Task<PublicResponse> FinalizeAdditionalActAsync(int id)
+    {
+        var response = new PublicResponse(true);
+
+        var act = await _db.ContractAdditionalAct
+            .Include(a => a.Contract)
+                .ThenInclude(c => c.Courses)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (act == null)
+            return response.SetError(ErrorCodes.InvalidParameters, "Act not found");
+
+        if (act.Status != "Draft")
+            return response.SetError(ErrorCodes.InvalidParameters, "Already finalized");
+
+        var contract = act.Contract;
+
+        switch (act.Type)
+        {
+            case AdditionalActType.AddCourse:
+                // TODO: adaugi curs (ex din DTO salvat separat)
+                break;
+
+            case AdditionalActType.RemoveCourse:
+                // dezactivezi enrollment
+                break;
+
+            case AdditionalActType.ExtendPeriod:
+                contract.EndDate = contract.EndDate?.AddMonths(1);
+                break;
+
+            case AdditionalActType.ChangePrice:
+                contract.TotalAmount += act.PriceDifference ?? 0;
+                break;
+        }
+
+        contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        act.Status = "Finalized";
+
+        await _db.SaveChangesAsync();
+
+        return response.SetSuccess(true);
+    }
+
+    public async Task<PublicResponse> ListAdditionalActsAsync(int contractId)
+    {
+        var response = new PublicResponse(true);
+
+        var acts = await _db.ContractAdditionalAct
+            .Where(a => a.ContractId == contractId)
+            .OrderByDescending(a => a.CreatedAtUtc)
+            .Select(a => new AdditionalActDto(
+                a.Id,
+                a.ActNumber,
+                a.Type.ToString(),
+                a.Description,
+                a.Status,
+                a.CreatedAtUtc
+            ))
+            .ToListAsync();
+
+        return response.SetSuccess(acts);
+    }
+
+
+
 }

@@ -396,32 +396,41 @@ public class StudentsService
 
         try
         {
-            var courses = await _db.CourseEnrollments
-    .AsNoTracking()
-    .Where(e => e.StudentId == studentId && e.IsActive)
-    .Select(e => new StudentCourseDetailsDto
-    {
-        CourseId = e.CourseId,
-        CourseName = e.Course.Name,
+            var enrollments = await _db.CourseEnrollments
+                .AsNoTracking()
+                .Include(e => e.Session)
+                    .ThenInclude(s => s.Course)
+                .Include(e => e.Session.Teacher)
+                .Where(e => e.StudentId == studentId)
+                .Select(e => new StudentCourseDetailsDto
+                {
+                    CourseId = e.CourseId,
+                    CourseName = e.Session.Course.Name,
 
-        // 🔥 PREȚUL VINE DIN SESIUNE
-        Price = e.Session.Fee,
+                    Price = e.Session.Fee,
 
-        SessionId = e.CourseSessionId,
-        DayOfWeek = e.Session.DayOfWeek.ToString(),
-        StartTime = e.Session.StartTime,
-        EndTime = e.Session.EndTime,
+                    SessionId = e.CourseSessionId,
+                    DayOfWeek = e.Session.DayOfWeek.ToString(),
+                    StartTime = e.Session.StartTime,
+                    EndTime = e.Session.EndTime,
 
-        TeacherName = e.Session.Teacher.FirstName + " " +
-                      e.Session.Teacher.LastName
-    })
-    .ToListAsync();
+                    TeacherName = e.Session.Teacher.FirstName + " " +
+                                  e.Session.Teacher.LastName,
 
-            var total = courses.Sum(c => c.Price);
+                    // 🔥 NOU
+                    IsActive = e.IsActive,
+                    EndedAtUtc = e.EndedAtUtc,
+                    ContractId = e.ContractId
+                })
+                .ToListAsync();
+
+            var total = enrollments
+                .Where(x => x.IsActive) // 🔥 doar active în total
+                .Sum(c => c.Price);
 
             return response.SetSuccess(new
             {
-                items = courses,
+                items = enrollments,
                 totalAmount = total
             });
         }

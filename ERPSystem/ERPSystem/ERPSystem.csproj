@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <Folder Include="Data\TypeConfigurations\" />
+    <Folder Include="wwwroot\contracts\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="https://www.schemastore.org/aspire-8.0.json" /></VisualStudio></ProjectExtensions>

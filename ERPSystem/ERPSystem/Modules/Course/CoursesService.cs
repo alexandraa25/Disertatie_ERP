@@ -529,40 +529,34 @@ public class CoursesService
                     return response.SetError(ErrorCodes.InvalidParameters, "Sesiunea a atins limita de cursanți.");
             }
 
-            var existing = await _db.CourseEnrollments
-                .FirstOrDefaultAsync(x => x.CourseSessionId == sessionId && x.StudentId == studentId);
+            var alreadyActive = await _db.CourseEnrollments
+     .AnyAsync(x => x.CourseSessionId == sessionId && x.StudentId == studentId && x.IsActive);
 
-            bool isNew = existing is null;
+            if (alreadyActive)
+                return response.SetError(ErrorCodes.InvalidParameters, "Student already active");
 
-            if (isNew)
+            _db.CourseEnrollments.Add(new CourseEnrollment
             {
-                _db.CourseEnrollments.Add(new CourseEnrollment
-                {
-                    CourseId = courseId,
-                    CourseSessionId = sessionId,
-                    StudentId = studentId,
-                    EnrolledAtUtc = DateTime.UtcNow,
-                    IsActive = true
-                });
-            }
-            else
-            {
-                existing.IsActive = true;
-                existing.EnrolledAtUtc = DateTime.UtcNow;
-            }
+                CourseId = courseId,
+                CourseSessionId = sessionId,
+                StudentId = studentId,
+                EnrolledAtUtc = DateTime.UtcNow,
+                IsActive = true
+            });
+
+            
 
             var sessionInfo = $"{session.DayOfWeek} {session.StartTime:HH:mm}";
 
-            var description = isNew
-                ? $"Studentul {student.FullName} a fost înscris la cursul {course.Name} ({sessionInfo})"
-                : $"Studentul {student.FullName} a fost reactivat la cursul {course.Name} ({sessionInfo})";
+            var description = $"Studentul {student.FullName} a fost înscris la cursul {course.Name} ({sessionInfo})";
+              
 
             // 🔥 LOG STUDENT
             _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
             {
                 EntityType = "Student",
                 EntityId = studentId,
-                Action = isNew ? "Enroll" : "ReEnroll",
+                Action =  "Enroll",
                 Description = description,
                 CreatedAtUtc = DateTime.UtcNow,
                 PerformedBy = "system"
@@ -573,7 +567,7 @@ public class CoursesService
             {
                 EntityType = "Course",
                 EntityId = courseId,
-                Action = isNew ? "EnrollStudent" : "ReEnrollStudent",
+                Action =  "EnrollStudent",
                 Description = description,
                 CreatedAtUtc = DateTime.UtcNow,
                 PerformedBy = "system"
@@ -595,52 +589,61 @@ public class CoursesService
         var response = new PublicResponse(true);
 
         try
-        {
+        {     
             var existing = await _db.CourseEnrollments
-                .FirstOrDefaultAsync(x => x.CourseId == courseId && x.CourseSessionId == sessionId && x.StudentId == studentId);
+     .FirstOrDefaultAsync(x => x.CourseId == courseId && x.CourseSessionId == sessionId && x.StudentId == studentId);
 
-            if (existing is null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Enrollment not found");
-
-            var student = await _db.Students.FindAsync(studentId);
-            var course = await _db.Courses.FindAsync(courseId);
-            var session = await _db.CourseSessions.FindAsync(sessionId);
-
-            existing.IsActive = isActive;
-
-            await _db.SaveChangesAsync(); // audit automat
-
-            var sessionInfo = $"{session.DayOfWeek} {session.StartTime:HH:mm}";
-
-            var description = isActive
-                ? $"Studentul {student!.FullName} a fost reactivat în cursul {course!.Name} ({sessionInfo})"
-                : $"Studentul {student!.FullName} a fost eliminat din cursul {course!.Name} ({sessionInfo})";
-
-            // 🔥 STUDENT LOG
-            _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+            if (!isActive)
             {
-                EntityType = "Student",
-                EntityId = studentId,
-                Action = isActive ? "EnrollActivate" : "EnrollDeactivate",
-                Description = description,
-                CreatedAtUtc = DateTime.UtcNow,
-                PerformedBy = "system"
-            });
+                if (existing is null)
+                    return response.SetError(ErrorCodes.InvalidParameters, "Enrollment not found");
 
-            // 🔥 COURSE LOG
-            _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+                existing.IsActive = false;
+                existing.EndedAtUtc = DateTime.UtcNow;
+
+                var student = await _db.Students.FindAsync(studentId);
+                var course = await _db.Courses.FindAsync(courseId);
+                var session = await _db.CourseSessions.FindAsync(sessionId);
+
+
+
+
+                var sessionInfo = $"{session.DayOfWeek} {session.StartTime:HH:mm}";
+
+                var description = $"Studentul {student!.FullName} a fost eliminat din cursul {course!.Name} ({sessionInfo})";
+
+                // 🔥 STUDENT LOG
+                _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+                {
+                    EntityType = "Student",
+                    EntityId = studentId,
+                    Action = "EnrollDeactivate",
+                    Description = description,
+                    CreatedAtUtc = DateTime.UtcNow,
+                    PerformedBy = "system"
+                });
+
+                // 🔥 COURSE LOG
+                _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+                {
+                    EntityType = "Course",
+                    EntityId = courseId,
+                    Action = "StudentRemoved",
+                    Description = description,
+                    CreatedAtUtc = DateTime.UtcNow,
+                    PerformedBy = "system"
+                });
+
+                await _db.SaveChangesAsync();
+                return response.SetSuccess(true); // 🔥 FIX
+
+            }
+            else
             {
-                EntityType = "Course",
-                EntityId = courseId,
-                Action = isActive ? "StudentActivated" : "StudentRemoved",
-                Description = description,
-                CreatedAtUtc = DateTime.UtcNow,
-                PerformedBy = "system"
-            });
+                return await EnrollStudentAsync(courseId, studentId, sessionId);
+            }
 
-            await _db.SaveChangesAsync();
-
-            return response.SetSuccess(true);
+           
         }
         catch (Exception ex)
         {
