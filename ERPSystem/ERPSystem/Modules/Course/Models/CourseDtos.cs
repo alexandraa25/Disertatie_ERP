@@ -1,57 +1,81 @@
-﻿namespace ERPSystem.Modules.Course.Models;
+﻿using ERPSystem.Data.Entities;
 
-public record CourseListItemDto(
-    int Id,
-    string Name,
-    bool IsActive,
-    DateTime CreatedAtUtc
-);
+namespace ERPSystem.Modules.Course.Models;
 
-public record CourseDetailsDto(
-    int Id,
-    string Name,
-    string? Description,
-    bool IsActive,
-    DateTime CreatedAtUtc,
-    List<CourseSessionDto> Sessions
-);
+public class CourseListItemDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreatedAtUtc { get; set; }
+}
 
-public record CreateCourseDto(
-    string Name,
-    string? Description,
-    List<CourseSessionUpsertDto> Sessions
-);
+public class CourseDetailsDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string? Description { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreatedAtUtc { get; set; }
 
-public record UpdateCourseDto(
-    string Name,
-    string? Description,
-    bool IsActive,
-    List<CourseSessionUpsertDto> Sessions
-);
+    public List<CourseSessionDto> Sessions { get; set; } = new();
+}
 
-public record CourseSessionDto(
-    int Id,
-    int DayOfWeek,
-    string StartTime,
-    string EndTime,
-    int? Capacity,
-    int EnrolledActiveCount,
-    string TeacherUserId,
-    string TeacherName,
-    decimal Fee
-);
+public class CreateCourseDto
+{
+    public string Name { get; set; }
+    public string? Description { get; set; }
 
-public record CourseSessionUpsertDto(
-    int? Id,
-    int DayOfWeek,
-    string StartTime,
-    string EndTime,
-    int? Capacity,
-    string TeacherUserId,
-    decimal Fee
+    public List<CourseSessionUpsertDto> Sessions { get; set; } = new();
+}
+
+public class UpdateCourseDto
+{
+    public string Name { get; set; }
+    public string? Description { get; set; }
+    public bool IsActive { get; set; }
+
+    public List<CourseSessionUpsertDto> Sessions { get; set; } = new();
+}
+
+public class CourseSessionUpsertDto
+{
+    public int? Id { get; set; }
+
+    public int DayOfWeek { get; set; }
+    public string StartTime { get; set; }
+    public string EndTime { get; set; }
+
+    public int? Capacity { get; set; }
+    public string TeacherUserId { get; set; }
+
+    // 🔥 pricing
+    public CourseFeeType FeeType { get; set; }
+    public decimal Fee { get; set; }
+
+    public int? TotalSessions { get; set; }
+}
+public class CourseSessionDto
+{
+    public int Id { get; set; }
+
+    public int DayOfWeek { get; set; }
+    public string StartTime { get; set; }
+    public string EndTime { get; set; }
+
+    public int? Capacity { get; set; }
+    public int EnrolledActiveCount { get; set; }
+
+    public string TeacherUserId { get; set; }
+    public string TeacherName { get; set; }
+
+    // 🔥 IMPORTANT pt UI
+    public CourseFeeType FeeType { get; set; }
+    public decimal Fee { get; set; }
+    public int? TotalSessions { get; set; }
+}
 
 
-);
 public record EnrollmentDto(
     int StudentId,
     string StudentName,

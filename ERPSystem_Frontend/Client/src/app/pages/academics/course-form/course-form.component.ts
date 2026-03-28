@@ -3,7 +3,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CoursesService } from '../../services/courses.service';
-import { TeacherOptionDto, CreateCourseDto, UpdateCourseDto, CourseSessionUpsertDto } from '../../models/course.model';
+import { TeacherOptionDto, CreateCourseDto, UpdateCourseDto, CourseSessionUpsertDto, CourseSessionFormModel } from '../../models/course.model';
 
 @Component({
   selector: 'app-course-form',
@@ -91,7 +91,10 @@ export class CourseFormComponent implements OnInit {
             endTime: s.endTime,
             teacherUserId: s.teacherUserId,
             capacity: s.capacity,
-            fee: s.fee
+            fee: s.fee,
+            feeType: Number(s.feeType) as 1 | 2,
+            totalSessions: s.totalSessions, 
+            enrolledActiveCount: s.enrolledActiveCount
           }));
         }
 
@@ -111,19 +114,28 @@ export class CourseFormComponent implements OnInit {
     return this.form.get('sessions') as FormArray;
   }
 
-  createSessionGroup(data?: Partial<CourseSessionUpsertDto>): FormGroup {
+  createSessionGroup(data?: CourseSessionFormModel): FormGroup {
     return this.fb.group({
       id: [data?.id ?? null],
+
       dayOfWeek: [
         data?.dayOfWeek ?? 1,
         [Validators.required, Validators.min(1), Validators.max(7)]
       ],
+
       startTime: [data?.startTime ?? '18:00', Validators.required],
       endTime: [data?.endTime ?? '19:00', Validators.required],
+
       teacherUserId: [data?.teacherUserId ?? '', Validators.required],
+
       fee: [data?.fee ?? 0, [Validators.required, Validators.min(0)]],
+
+      feeType: [data?.feeType ?? 1, Validators.required],
+      totalSessions: [data?.totalSessions ?? null],
+
       capacity: [data?.capacity ?? null],
-      unlimited: [data?.capacity == null]
+      unlimited: [data?.capacity == null], 
+      enrolledActiveCount: [data?.enrolledActiveCount ?? 0]
     });
   }
 
@@ -131,10 +143,19 @@ export class CourseFormComponent implements OnInit {
     this.sessions.push(this.createSessionGroup());
   }
 
-  removeSession(index: number): void {
-    if (this.sessions.length <= 1) return;
-    this.sessions.removeAt(index);
+ removeSession(index: number): void {
+
+  if (this.sessions.length <= 1) return;
+
+  const session = this.sessions.at(index).value;
+
+  if (session.enrolledActiveCount > 0) {
+    alert('Nu poți șterge sesiunea. Există cursanți activi.');
+    return;
   }
+
+  this.sessions.removeAt(index);
+}
 
   save(): void {
 
@@ -142,6 +163,8 @@ export class CourseFormComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
+
+    const sessions = this.sessions.value;
 
     for (const g of this.sessions.controls) {
       const start = g.value.startTime as string;
@@ -163,18 +186,48 @@ export class CourseFormComponent implements OnInit {
       return;
     }
 
+    for (const s of sessions) {
+
+      if (s.fee <= 0) {
+        alert('Prețul trebuie să fie mai mare decât 0.');
+        return;
+      }
+
+      if (s.feeType === 1) {
+        if (!s.totalSessions || s.totalSessions <= 0) {
+          alert('Completează numărul de ședințe pentru pachet fix.');
+          return;
+        }
+      }
+
+      if (s.feeType === 2 && s.totalSessions) {
+        alert('Abonamentul nu trebuie să aibă număr de ședințe.');
+        return;
+      }
+    }
+
     this.saving = true;
 
-    const sessionsPayload: CourseSessionUpsertDto[] =
-      this.sessions.value.map((x: any) => ({
-        id: x.id ?? null,
-        dayOfWeek: Number(x.dayOfWeek),
-        startTime: x.startTime,
-        endTime: x.endTime,
-        teacherUserId: x.teacherUserId,
-        fee: Number(x.fee),
-        capacity: x.unlimited ? null : Number(x.capacity)
-      }));
+    const sessionsPayload: CourseSessionUpsertDto[] = sessions.map((x: any) => ({
+
+      id: x.id ?? null,
+      dayOfWeek: Number(x.dayOfWeek),
+      startTime: x.startTime,
+      endTime: x.endTime,
+      teacherUserId: x.teacherUserId,
+
+      fee: Number(x.fee),
+
+      feeType: Number(x.feeType),
+
+      totalSessions: x.feeType === 1
+        ? Number(x.totalSessions)
+        : null,
+
+      capacity: x.unlimited
+        ? null
+        : (x.capacity ? Number(x.capacity) : null)
+    }));
 
     if (!this.isEdit) {
 
@@ -189,17 +242,7 @@ export class CourseFormComponent implements OnInit {
           this.saving = false;
           this.dialogRef.close(true);
         },
-        error: (err) => {
-          this.saving = false;
-
-          const message = err?.error?.message ?? '';
-
-          if (message.includes('suprapus')) {
-            alert('Profesorul este deja programat în alt curs la același interval.');
-          } else {
-            alert('Eroare la creare curs.');
-          }
-        }
+        error: (err) => this.handleError(err)
       });
 
     } else {
@@ -210,23 +253,13 @@ export class CourseFormComponent implements OnInit {
         isActive: !!this.form.value.isActive,
         sessions: sessionsPayload
       };
-
+      console.log(JSON.stringify(dto, null, 2));
       this.courses.update(this.courseId!, dto).subscribe({
         next: () => {
           this.saving = false;
           this.dialogRef.close(true);
         },
-        error: (err) => {
-          this.saving = false;
-
-          const message = err?.error?.message ?? '';
-
-          if (message.includes('suprapus')) {
-            alert('Profesorul este deja programat în alt curs la același interval.');
-          } else {
-            alert('Eroare la actualizare curs.');
-          }
-        }
+        error: (err) => this.handleError(err)
       });
     }
   }
@@ -294,6 +327,18 @@ export class CourseFormComponent implements OnInit {
       group.patchValue({ capacity: null });
     } else {
       group.patchValue({ capacity: 1 });
+    }
+  }
+
+  private handleError(err: any) {
+    this.saving = false;
+
+    const message = err?.error?.message ?? '';
+
+    if (message.includes('suprapus')) {
+      alert('Profesorul este deja programat în alt curs la același interval.');
+    } else {
+      alert('Eroare la salvare curs.');
     }
   }
 }

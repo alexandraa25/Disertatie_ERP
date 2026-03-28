@@ -30,3 +30,11 @@ export interface HrDashboard {
 
   newHiresThisMonth: number
 }
+
+export interface SimpleUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  roles: string[];
+}

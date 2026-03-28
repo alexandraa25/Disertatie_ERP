@@ -1,5 +1,5 @@
 <div class="company-container">
-  <h2>Date companie</h2> <!-- Dacă există date -->
+  <h2>Date companie</h2> 
   <div *ngIf="company?.name; else noCompany">
     <div class="company-info">
       <div class="row"> <span>Denumire</span> <strong>{{ company.name }}</strong> </div>
@@ -26,7 +26,7 @@
 </div>
     <button class="edit-btn" (click)="openModal()">Editează </button>
   </div>
-   <!-- Dacă nu există companie --> <ng-template #noCompany>
+    <ng-template #noCompany>
     <div class="empty-state">
       <p>Nu există date companie</p> <button class="add-btn" (click)="openModal()"> Adaugă companie </button>
     </div>

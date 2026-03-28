@@ -1,4 +1,6 @@
-﻿using ERPSystem.Extensions;
+﻿using ERPSystem.Data.Entities;
+using ERPSystem.Extensions;
+using ERPSystem.Modules.AdditionalAct.Models;
 using ERPSystem.Modules.Contracts.Models;
 using Route = ERPSystem.Utils.Constants.General.Route.Contracts;
 
@@ -48,29 +50,24 @@ public static class ContractsEndpoints
                  => await service.CancelAsync(id))
              .WithDefaultApiSettings( "CancelContract","Anulare contract", "CANCEL",false );
 
-        group.MapGet(Route.CONTRACT_GET_LATEST_BY_STUDENT,
-             async (int studentId, ContractsService service)
-                 => await service.GetLatestByStudentAsync(studentId))
-             .WithDefaultApiSettings( "GetLatestContractByStudent", "Returnează ultimul contract al cursantului", "READ", false);
-
         group.MapPost(Route.CONTRACT_SEND_TO_CLIENT,
              async (int id, ContractsService service)
-                 => await service.SendToClientAsync(id))
+                 => await service.SendToClientAsync(SigningEntityType.Contract, id))
             .WithDefaultApiSettings("SendContractToClient","Trimite contractul către client pentru semnare","UPDATE", false);
 
-        group.MapPost(Route.CONTRACT_CLIENT_SIGN,
+        group.MapPost(Route.DOCUMENT_CLIENT_SIGN,
             async (SignContractDto dto, ContractsService service)
                  => await service.SignByClientAsync(dto.Token, dto.Signature))
             .WithDefaultApiSettings( "ClientSignContract", "Semnarea contractului de către client","UPDATE",false);
 
-        group.MapGet(Route.CONTRACT_GET_FOR_SIGNING,
+        group.MapGet(Route.DOCUMENT_GET_FOR_SIGNING,
             async (string token, ContractsService service)
                  => await service.GetContractForSigningAsync(token))
             .WithDefaultApiSettings( "GetContractForSigning","Returnează contractul pentru semnare","READ", true);
 
         group.MapPost(Route.CONTRACT_ADMIN_SIGN,
             async (int id, AdminSignContractDto dto, ContractsService service)
-                => await service.SignByAdminAsync(id, dto.Signature))
+                => await service.SignByAdminAsync(SigningEntityType.Contract, id, dto.Signature))
            .WithDefaultApiSettings("AdminSignContract", "Semnarea contractului de către administrator", "UPDATE",false);
 
         group.MapGet(Route.CONTRACT_DOWNLOAD,
@@ -93,22 +90,9 @@ public static class ContractsEndpoints
                 =>{await service.ExpireContractsAsync(); return Results.Ok();})
           .WithDefaultApiSettings( "ExpireContractsJob", "Rulează expirarea contractelor","SYSTEM",false);
 
-        //ADITIONAL ACT
+   
 
-        group.MapPost(Route.CREATE_ACT,
-           async (int id, CreateAdditionalActDto dto, ContractsService service)
-                 => await service.CreateAdditionalActAsync(id, dto))
-           .WithDefaultApiSettings("CreateAdditionalAct", "Creare act aditional", "CREATE", false);
-
-        group.MapPut(Route.FINALIZE_ACT,
-           async (int id, ContractsService service)
-                 => await service.FinalizeAdditionalActAsync(id))
-           .WithDefaultApiSettings("FinalizeAdditionalAct", "Finalizare act aditional", "FINALIZE", false);
-
-        group.MapGet(Route.LIST_ACT,
-            async (int id, ContractsService service)
-                 => await service.ListAdditionalActsAsync(id))
-            .WithDefaultApiSettings("ListAdditionalActs", "Lista acte aditionale pe contract", "GET", false);
+       
     }
 
 }

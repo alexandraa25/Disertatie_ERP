@@ -11,9 +11,9 @@ namespace ERPSystem.Data.Entities
 
         public Employee Employee { get; set; }
 
-        public string DocumentType { get; set; } // CV / Contract / Diploma
-
-        public string FileUrl { get; set; }
+        public string FileName { get; set; }
+        public string FilePath { get; set; }
+        public string ContentType { get; set; }
 
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 

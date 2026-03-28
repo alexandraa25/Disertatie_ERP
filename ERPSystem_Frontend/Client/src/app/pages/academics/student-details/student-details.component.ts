@@ -11,11 +11,17 @@ import { AdminSignatureModalComponent } from '../../financiar/admin-signature-mo
 import { ActivityLog } from '../../models/activity-log.model';
 import { ActivityLogService } from '../../services/activity-log.service';
 import { CoursesService } from '../../services/courses.service';
+import { AdditionalActService } from '../../services/additional-act.service';
+import { AdditionalActListDto } from '../../models/additional-act.model';
+import { PaymentsService } from '../../services/payments.service';
+import { ConfirmService } from '../../services/confirm.service';
+import { PayModalComponent } from '../../financiar/pay-modal/pay-modal.component';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-student-details',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,  FormsModule],
   templateUrl: './student-details.component.html',
   styleUrls: ['./student-details.component.css']
 })
@@ -31,11 +37,21 @@ export class StudentDetailsComponent implements OnInit {
   inactiveCourses: StudentCourseDetailsDto[] = [];
   totalAmount = 0;
   coursesLoaded = false;
-  contract: any = null;
+  contractsList: any[] = [];
+  contract: any;
+
+  acts: AdditionalActListDto[] = [];
 
   activityLogs: ActivityLog[] = [];
 
-   objectKeys = Object.keys;
+  installments: any[] = [];
+  payments: any[] = [];
+
+  total = 0;
+  paid = 0;
+  remaining = 0;
+
+  objectKeys = Object.keys;
 
   constructor(
     private route: ActivatedRoute,
@@ -43,8 +59,11 @@ export class StudentDetailsComponent implements OnInit {
     private students: StudentsService,
     private course: CoursesService,
     private contracts: ContractsService,
+    private payment: PaymentsService,
+    private additionalActService: AdditionalActService,
     private dialog: MatDialog,
-    private activityService: ActivityLogService
+    private activityService: ActivityLogService, 
+    private confirmService: ConfirmService
   ) { }
 
   ngOnInit(): void {
@@ -56,10 +75,12 @@ export class StudentDetailsComponent implements OnInit {
         this.loading = false;
 
         if (this.student?.id) {
-          this.loadContract(); 
+          this.loadContractsList();
         }
 
-         this.loadActivity();
+           if (this.contractsList?.length && !this.contract) {
+    this.contract = this.contractsList[0];
+  }
       },
       error: () => {
         this.loading = false;
@@ -82,21 +103,19 @@ export class StudentDetailsComponent implements OnInit {
   }
 
   loadCourses() {
-  this.students.getStudentCourses(this.student.id)
-    .subscribe(res => {
+    this.students.getStudentCourses(this.student.id)
+      .subscribe(res => {
 
-      const all = res.items;
+        const all = res.items;
 
-      // 🟢 ACTIVE (ce aveai înainte)
-      this.courses = all.filter(x => x.isActive);
+        this.courses = all.filter(x => x.isActive);
 
-      // 🔴 INACTIVE (noi)
-      this.inactiveCourses = all.filter(x => !x.isActive);
+        this.inactiveCourses = all.filter(x => !x.isActive);
 
-      this.totalAmount = res.totalAmount;
-      this.coursesLoaded = true;
-    });
-}
+        this.totalAmount = res.totalAmount;
+        this.coursesLoaded = true;
+      });
+  }
 
   getRomanianDay(day: any): string {
 
@@ -129,124 +148,200 @@ export class StudentDetailsComponent implements OnInit {
     return mapByName[normalized] ?? day;
   }
 
-deactivateEnrollment(course: any) {
+  openEnrollModal() {
 
-  if (!confirm(`Elimini studentul din cursul "${course.courseName}"?`)) return;
+    const ref = this.dialog.open(EnrollStudentsComponent, {
+      width: '600px',
+      data: {
+        studentId: this.student.id
+      }
+    });
 
- this.course.setEnrollmentActive(
-  course.courseId,
-  course.sessionId,
-  this.student.id,
-  false
-).subscribe({
-  next: () => this.loadCourses(),
-  error: () => alert('Eroare la scoaterea din curs.')
-});
-} 
+    ref.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadCourses();
+      }
+    });
 
-  loadContract() {
-    this.contracts.getLatestByStudent(this.student.id)
-      .subscribe((res: { value: null; }) => {
-        this.contract = res?.value ?? null;
-        console.log(this.contract);
+  }
+
+  async deactivateEnrollment(course: any) {
+
+  const ok = await this.confirmService.confirm(
+    `Elimini studentul din cursul "${course.courseName}"?`
+  );
+
+  if (!ok) return;
+
+  this.course.setEnrollmentActive(
+    course.courseId,
+    course.sessionId,
+    this.student.id,
+    false
+  ).subscribe({
+    next: () => this.loadCourses(),
+    error: () => alert('Eroare la scoaterea din curs.')
+  });
+}
+
+  loadContractsList() {
+    this.contracts.listContracts(this.student.id)
+      .subscribe((res: any) => {
+
+        this.contractsList = res?.value ?? [];
+
+        // 🔥 select automat contract
+        this.contract =
+          this.contractsList.find(c => c.status === 'Active') ||
+          this.contractsList[0] ||
+          null;
+
+        if (this.contract?.id) {
+          this.loadContractDetails(this.contract.id);
+        }
       });
-     
   }
 
- get contractAction(): string {
+  loadContractDetails(id: number) {
+    this.contracts.getById(id)
+      .subscribe((res: any) => {
 
-  if (!this.contract) return 'create';
+        this.contract = res?.value ?? null;
 
-  switch (this.contract.status) {
+        if (this.contract?.id) {
+          this.loadActs();
+          this.loadFinancial();
+        }
+      });
+  }
 
-    case 'Draft':
-      return 'edit';
+  selectContract(c: any) {
+    this.contract = c; // instant UI
+    this.loadContractDetails(c.id); // refresh real
+  }
 
-    case 'Finalized':
-      return 'send';
 
-    case 'SentToClient':
-      return 'waiting';
-
-    case 'SignedByClient':
-      return 'sign-admin';
-
-    case 'Active':
-      return 'view';
-
-    case 'Suspended':
-      return 'resume';
-
-    case 'Completed':
-    case 'Expired':
-    case 'Cancelled':
-      return 'create';
-
-    default:
-      return 'create';
+  onSelectContract(contractId: number) {
+  const selected = this.contractsList.find(c => c.id == contractId);
+  if (selected) {
+    this.selectContract(selected);
   }
 }
+  get sortedContracts() {
+  if (!this.contractsList) return [];
 
- getContractButtonText(): string {
-
-  switch (this.contractAction) {
-
-    case 'create':
-      return '➕ Creează contract';
-
-    case 'edit':
-      return '✏️ Editează / Finalizează';
-
-    case 'send':
-      return '📤 Trimite clientului';
-
-    case 'waiting':
-      return '⏳ Așteaptă semnarea';
-
-    case 'sign-admin':
-      return '✍️ Semnează (Admin)';
-
-    case 'view':
-      return '📄 Vizualizează';
-
-    case 'resume':
-      return '▶️ Reia contract';
-
-    default:
-      return '➕ Creează contract';
-  }
+  return [
+    this.contract,
+    ...this.contractsList.filter(c => c.id !== this.contract?.id)
+  ];
 }
 
- handleContractAction(): void {
-
-  switch (this.contractAction) {
-
-    case 'create':
-      this.createContract();
-      break;
-
-    case 'edit':
-      this.openContract(this.contract.id); // sau edit
-      break;
-
-    case 'send':
-      this.sendContract();
-      break;
-
-    case 'sign-admin':
-      this.activateContract();
-      break;
-
-    case 'view':
-      this.openContract(this.contract.id);
-      break;
-
-    case 'waiting':
-      // nu face nimic sau show mesaj
-      alert('Contractul a fost trimis și așteaptă semnarea clientului');
-      break;
+  get activeContracts() {
+    return this.contractsList.filter(c =>
+      ['Active', 'Draft', 'Finalized'].includes(c.status)
+    );
   }
-}
+
+  get inactiveContracts() {
+    return this.contractsList.filter(c =>
+      ['Expired', 'Cancelled', 'Completed'].includes(c.status)
+    );
+  }
+
+  get contractAction(): string {
+
+    if (!this.contract) return 'create';
+
+    switch (this.contract.status) {
+
+      case 'Draft':
+        return 'edit';
+
+      case 'Finalized':
+        return 'send';
+
+      case 'SentToClient':
+        return 'waiting';
+
+      case 'SignedByClient':
+        return 'sign-admin';
+
+      case 'Active':
+        return 'view';
+
+      case 'Suspended':
+        return 'resume';
+
+      case 'Completed':
+      case 'Expired':
+      case 'Cancelled':
+        return 'create';
+
+      default:
+        return 'create';
+    }
+  }
+
+  getContractButtonText(): string {
+
+    switch (this.contractAction) {
+
+      case 'create':
+        return '➕ Creează contract';
+
+      case 'edit':
+        return '✏️ Editează / Finalizează';
+
+      case 'send':
+        return '📤 Trimite clientului';
+
+      case 'waiting':
+        return '⏳ Așteaptă semnarea';
+
+      case 'sign-admin':
+        return '✍️ Semnează (Admin)';
+
+      case 'view':
+        return '📄 Vizualizează';
+
+      case 'resume':
+        return '▶️ Reia contract';
+
+      default:
+        return '➕ Creează contract';
+    }
+  }
+
+  handleContractAction(): void {
+
+    switch (this.contractAction) {
+
+      case 'create':
+        this.createContract();
+        break;
+
+      case 'edit':
+        this.openContract(this.contract.id); // sau edit
+        break;
+
+      case 'send':
+        this.sendContract();
+        break;
+
+      case 'sign-admin':
+        this.activateContract();
+        break;
+
+      case 'view':
+        this.openContract(this.contract.id);
+        break;
+
+      case 'waiting':
+        // nu face nimic sau show mesaj
+        alert('Contractul a fost trimis și așteaptă semnarea clientului');
+        break;
+    }
+  }
 
   createContract() {
     this.router.navigate(['/create-contract'], {
@@ -268,23 +363,21 @@ deactivateEnrollment(course: any) {
       width: '720px',
       maxWidth: '92vw',
       panelClass: 'student-dialog',
-      data: { id }  
+      data: { id }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadContract();
+        this.loadContractsList();
       }
     });
 
   }
 
-  
-
   sendContract() {
     this.contracts.send(this.contract.id)
       .subscribe(() => {
-        this.loadContract();
+        this.loadContractsList();
       });
 
   }
@@ -299,7 +392,7 @@ deactivateEnrollment(course: any) {
     dialogRef.afterClosed().subscribe(result => {
 
       if (result) {
-        this.loadContract();
+        this.loadContractsList();
       }
 
     });
@@ -307,121 +400,189 @@ deactivateEnrollment(course: any) {
   }
 
   isExpired(): boolean {
-  return !!this.contract?.endDate &&
-         new Date(this.contract.endDate) < new Date();
+    return !!this.contract?.endDate &&
+      new Date(this.contract.endDate) < new Date();
+  }
+
+  isExpiringSoon(): boolean {
+    if (!this.contract?.endDate) return false;
+
+    const end = new Date(this.contract.endDate);
+    const today = new Date();
+
+    const diff = (end.getTime() - today.getTime()) / (1000 * 3600 * 24);
+
+    return diff > 0 && diff <= 7; // 7 zile
+  }
+
+  get daysLeft(): number {
+    if (!this.contract?.endDate) return 0;
+
+    const end = new Date(this.contract.endDate);
+    const today = new Date();
+
+    return Math.ceil((end.getTime() - today.getTime()) / (1000 * 3600 * 24));
+  }
+
+  async suspend() {
+  if (!(await this.confirmService.confirm('Suspendăm contractul?'))) return;
+
+  this.contracts.suspend(this.contract.id)
+    .subscribe(() => this.loadContractsList());
 }
 
-isExpiringSoon(): boolean {
-  if (!this.contract?.endDate) return false;
+ async resume() {
+  if (!(await this.confirmService.confirm('Reluăm contractul?'))) return;
 
-  const end = new Date(this.contract.endDate);
-  const today = new Date();
-
-  const diff = (end.getTime() - today.getTime()) / (1000 * 3600 * 24);
-
-  return diff > 0 && diff <= 7; // 7 zile
+  this.contracts.resume(this.contract.id)
+    .subscribe(() => this.loadContractsList());
 }
 
+ async complete() {
+  if (!(await this.confirmService.confirm('Finalizăm contractul?'))) return;
 
-suspend() {
-  if (!confirm('Suspendăm contractul?')) return;
-
-  this.contract.suspend(this.contract.id)
-    .subscribe(() => this.loadContract());
+  this.contracts.complete(this.contract.id)
+    .subscribe(() => this.loadContractsList());
 }
 
-resume() {
-  this.contract.resume(this.contract.id)
-    .subscribe(() => this.loadContract());
+ async cancelContract() {
+  if (!(await this.confirmService.confirm('Anulăm contractul?'))) return;
+
+  this.contracts.cancel(this.contract.id)
+    .subscribe(() => this.loadContractsList());
 }
-
-complete() {
-  if (!confirm('Finalizezi contractul?')) return;
-
-  this.contract.complete(this.contract.id)
-    .subscribe(() => this.loadContract());
-}
-
-cancelContract() {
-  if (!confirm('Anulezi contractul?')) return;
-
-  this.contract.cancel(this.contract.id)
-    .subscribe(() => this.loadContract());
-}
-
-
-get daysLeft(): number {
-  if (!this.contract?.endDate) return 0;
-
-  const end = new Date(this.contract.endDate);
-  const today = new Date();
-
-  return Math.ceil((end.getTime() - today.getTime()) / (1000 * 3600 * 24));
-}
-
   downloadPdf(): void {
-  if (!this.contract?.id) return;
+    if (!this.contract?.id) return;
 
-  this.loading = true;
+    this.loading = true;
 
-  this.contracts.download(this.contract.id).subscribe({
-    next: (blob: Blob) => {
+    this.contracts.download(this.contract.id).subscribe({
+      next: (blob: Blob) => {
 
-      const url = window.URL.createObjectURL(blob);
+        const url = window.URL.createObjectURL(blob);
 
-      const fileName =
-        this.contract?.contractNumber
-          ? `contract_${this.contract.contractNumber}.pdf`
-          : 'contract.pdf';
+        const fileName =
+          this.contract?.contractNumber
+            ? `contract_${this.contract.contractNumber}.pdf`
+            : 'contract.pdf';
 
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      a.click();
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
 
-      window.URL.revokeObjectURL(url);
-      this.loading = false;
-    },
-    error: () => {
-      this.loading = false;
-      alert('Eroare la descărcare PDF');
-    }
+        window.URL.revokeObjectURL(url);
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        alert('Eroare la descărcare PDF');
+      }
+    });
+  }
+
+  createAct() {
+    this.router.navigate([`/contracts/${this.contract.id}/additional-act`]);
+  }
+
+  loadActs() {
+    if (!this.contract?.id) return;
+
+    this.additionalActService.getByContract(this.contract.id)
+      .subscribe((res: any) => {
+        this.acts = res.value;
+      });
+  }
+  openAct(id: number) {
+    this.router.navigate(['/additional-act', id]);
+  }
+
+  loadFinancial() {
+    if (!this.contract) return;
+
+    this.payment.getInstallments(this.contract.id)
+      .subscribe((res: any) => {
+        this.installments = res;
+        this.calculateSummary();
+      });
+
+    this.payment.getPayments(this.contract.id)
+      .subscribe((res: any) => {
+        this.payments = res;
+      });
+  }
+
+  calculateSummary() {
+    this.total = this.installments.reduce((s, i) => s + i.amount, 0);
+    this.paid = this.installments.reduce((s, i) => s + i.paidAmount, 0);
+    this.remaining = this.total - this.paid;
+  }
+
+  getInstallmentStatus(i: any) {
+    if (i.paidAmount === 0) return 'Neplătit';
+    if (i.paidAmount < i.amount) return 'Parțial';
+    return 'Plătit';
+  }
+
+  openPayModal(i: any) {
+
+  const remaining = i.amount - i.paidAmount;
+
+  const dialogRef = this.dialog.open(PayModalComponent, {
+   width: '550px',
+  maxHeight: '90vh',
+  panelClass: 'custom-dialog',
+    data: { remaining }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (!result) return;
+
+    console.log(i);
+
+    console.log({
+  InstallmentId: i.id,
+  Amount: result.amount,
+  Method: result.method,
+  Notes: result.notes,
+  Reference: result.reference
+});
+
+    this.payment.payInstallment({
+      InstallmentId: i.id,
+  Amount: result.amount,
+  Method: result.method,
+  Notes: result.notes,
+  Reference: result.reference
+    }).subscribe({
+      next: () => this.loadFinancial(),
+      error: () => alert('Eroare la plată')
+    });
   });
 }
 
-  openEnrollModal() {
+  getInstallmentClass(i: any) {
 
-    const ref = this.dialog.open(EnrollStudentsComponent, {
-      width: '600px',
-      data: {
-        studentId: this.student.id
-      }
-    });
+    const overdue =
+      i.paidAmount < i.amount &&
+      new Date(i.dueDate) < new Date();
 
-    ref.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadCourses(); 
-      }
-    });
+    if (overdue) return 'danger';
 
+    if (i.paidAmount < i.amount) return 'warning';
+
+    return 'success';
   }
-loadActivity() {
-  if (!this.student?.id) return;
 
-  this.activityService
-    .getActivity('Student', this.student.id)
-    .subscribe((res: ActivityLog[]) => {
-      this.activityLogs = res;
-    });
-}
+  loadActivity() {
+    if (!this.student?.id) return;
 
-  createAct() {
-  this.router.navigate([`/contracts/${this.contract.id}/additional-act`]);
-}
-
-
-
-
+    this.activityService
+      .getActivity('Student', this.student.id)
+      .subscribe((res: ActivityLog[]) => {
+        this.activityLogs = res;
+      });
+  }
 
 }
 

@@ -1,0 +1,18 @@
+<div class="overlay" *ngIf="isOpen" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <h2>{{ title }}</h2>
+
+    <p>{{ message }}</p>
+
+    <div *ngIf="copyText" class="copy-box">
+      <input [value]="copyText" readonly />
+      <button (click)="copy()">📋</button>
+    </div>
+
+    <div class="actions">
+      <button (click)="close()">OK</button>
+    </div>
+
+  </div>
+</div>

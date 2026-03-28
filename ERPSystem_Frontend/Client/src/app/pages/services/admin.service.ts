@@ -14,7 +14,12 @@ export class AdminService {
 
   getUsers(): Observable<AdminUser[]> {
     return this.http.get<AdminUser[]>(`${this.apiUrl}/users`);
+    
   }
+
+  getEmployeesWithoutUser() {
+  return this.http.get<any[]>(`${this.apiUrl}/employees-without-user`);
+}
 
   getDashboard(): Observable<AdminDashboard> {
   return this.http.get<AdminDashboard>(`${this.apiUrl}/users`);

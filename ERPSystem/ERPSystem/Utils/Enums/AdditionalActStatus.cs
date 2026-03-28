@@ -4,10 +4,13 @@
     {
         Draft,          // creat, editabil
         Finalized,      // needitabil
-        PendingSign,    // trimis la semnat
-        Signed,         // semnat de ambele părți
-        Approved,       // aplicat în contract
-        Rejected,       // respins
-        Cancelled       // anulat manual
+        SentToClient,   // trimis la semnat
+        SignedByClient ,
+        Active,    
+        Applied,// semnat de ambele părți
+        Cancelled,       // anulat manual
+        Completed,
+        Expired,
+        Suspended
     }
 }

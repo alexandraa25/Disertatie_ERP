@@ -1,0 +1,170 @@
+/* 🔹 overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55); /* dark bluish */
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* 🔹 modal */
+.modal {
+  background: #ffffff;
+  padding: 28px;
+  border-radius: 16px;
+  width: 490px;
+  max-width: 95%;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  animation: scaleIn 0.2s ease;
+}
+
+/* 🔹 title */
+.modal h2 {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* 🔹 info text */
+.modal p {
+  margin-bottom: 20px;
+  color: #555;
+  font-size: 14px;
+}
+
+/* 🔹 label */
+.modal label {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 5px;
+  display: block;
+  color: #444;
+}
+
+/* 🔹 inputs */
+.modal input,
+.modal select {
+  width: 100%;
+  padding: 11px 12px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  background: #f8fafc;
+  transition: all 0.2s ease;
+}
+
+/* focus */
+.modal input:focus,
+.modal select:focus {
+  outline: none;
+  border-color: #6366f1;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+}
+
+/* 🔹 actions */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* cancel */
+.actions button:first-child {
+  background: #f1f5f9;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.actions button:first-child:hover {
+  background: #e2e8f0;
+}
+
+/* confirm */
+.actions button:last-child {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.actions button:last-child:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(99,102,241,0.4);
+}
+
+/* disabled */
+.actions button:disabled {
+  background: #cbd5f5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* 🔹 spacing între câmpuri */
+.field {
+  margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 🔹 box pentru sumă rămasă */
+.remaining-box {
+  background: #f1f5f9;
+  padding: 10px 12px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  font-size: 14px;
+}
+
+.remaining-box b {
+  color: #6366f1;
+}
+
+/* 🔹 pay all */
+.pay-all {
+  align-self: flex-end;
+  margin-top: 6px;
+  font-size: 12px;
+  background: none;
+  border: none;
+  color: #6366f1;
+  cursor: pointer;
+}
+
+.pay-all:hover {
+  text-decoration: underline;
+}
+
+/* 🔹 buttons separate */
+.btn-cancel {
+  background: #f1f5f9;
+}
+
+.btn-confirm {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: white;
+}
+
+/* 🔹 animation */
+@keyframes scaleIn {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

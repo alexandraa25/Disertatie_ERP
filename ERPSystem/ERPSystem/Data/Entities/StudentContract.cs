@@ -14,7 +14,9 @@ public class StudentContract
 
     public bool IsUnlimited { get; set; }
 
-    public decimal TotalAmount { get; set; }
+    public decimal? TotalAmount { get; set; }
+
+    public decimal MonthlyAmount { get; set; }
 
     public int Installments { get; set; } = 1;
 

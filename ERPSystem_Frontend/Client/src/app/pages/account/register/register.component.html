@@ -136,7 +136,7 @@
           <input type="text" formControlName="phoneNumber" placeholder="Phone Number">
         </div>
 
-      
+
 
         <!-- First Name -->
         <div class="form-group">
@@ -150,19 +150,23 @@
           <input type="text" formControlName="lastName" placeholder="Last Name">
         </div>
 
-       <!-- Role -->
-<div class="form-group">
-  <i class="fas fa-user-shield icon-inside"></i>
+        <!-- Role -->
+        <div class="form-group">
+          <i class="fas fa-user-shield icon-inside"></i>
 
-  <select formControlName="role" class="form-control">
-    <option value="" disabled>Select Role</option>
+          <select formControlName="role" class="form-control">
+            <option value="" disabled>Select Role</option>
 
-    <option *ngFor="let role of roles" [value]="role.name">
-      {{ role.name }}
-    </option>
+            <option *ngFor="let role of roles" [value]="role.name">
+              {{ role.name }}
+            </option>
 
-  </select>
-</div>
+          </select>
+
+          <div class="job-info" *ngIf="jobTitleFromQuery">
+            Funcție HR: <strong>{{jobTitleFromQuery}}</strong>
+          </div>
+        </div>
 
         <!-- Account Status -->
         <div class="form-group">
@@ -188,10 +192,4 @@
   <div class="spinner"></div>
 </div>
 
-<app-confirm-custom-modal
-  #successModal
-  [title]="successModal.title"
-  [message]="successModal.message"
-  [copyText]="successModal.copyText"
-  (confirmed)="onModalConfirmed($event)">
-</app-confirm-custom-modal>
+<app-info-modal></app-info-modal>

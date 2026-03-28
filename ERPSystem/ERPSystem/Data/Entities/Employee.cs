@@ -12,6 +12,11 @@ namespace ERPSystem.Data.Entities
 
         public ApplicationUser? User { get; set; }
 
+        // 🔥 date HR (obligatorii)
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string? Email { get; set; }
+
         [Required]
         public DateTime HireDate { get; set; }
 
@@ -41,5 +46,9 @@ namespace ERPSystem.Data.Entities
         public ICollection<EmployeeLeave>? Leaves { get; set; }
 
         public ICollection<EmployeeDocument>? Documents { get; set; }
+
+        public EmployeeAddress? Address { get; set; }
+        public EmployeeBank? Bank { get; set; }
+        public EmployeeContact? Contact { get; set; }
     }
 }

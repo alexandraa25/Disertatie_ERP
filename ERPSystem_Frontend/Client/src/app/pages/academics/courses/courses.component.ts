@@ -28,7 +28,7 @@ export class CoursesComponent implements OnInit {
 
   ngOnInit(): void {
   this.searchSubject.pipe(
-    startWith(''), // 🔥 emite automat la început
+    startWith(''), 
     debounceTime(300),
     distinctUntilChanged(),
     switchMap((term) => {
@@ -93,23 +93,38 @@ export class CoursesComponent implements OnInit {
 
   toggleCourse(course: any) {
 
-    const confirmMsg = course.isActive
-      ? 'Sigur vrei să dezactivezi cursul?'
-      : 'Sigur vrei să activezi cursul?';
+  // 🔥 verificăm doar la dezactivare
+  if (course.isActive) {
 
-    if (!confirm(confirmMsg)) return;
+    const hasActiveSessions = course.sessions?.some((s: any) => s.isActive);
 
-    const dto = {
-      name: course.name,
-      description: course.description,
-      price: course.price,
-      isActive: !course.isActive,
-      sessions: []
-    };
-
-    this.courses.update(course.id, dto).subscribe({
-      next: () => this.ngOnInit(),
-      error: () => alert('Eroare la actualizare')
-    });
+    if (hasActiveSessions) {
+      alert('Nu poți dezactiva cursul. Există sesiuni active.');
+      return;
+    }
   }
+
+  const confirmMsg = course.isActive
+    ? 'Sigur vrei să dezactivezi cursul?'
+    : 'Sigur vrei să activezi cursul?';
+
+  if (!confirm(confirmMsg)) return;
+
+  const dto = {
+    name: course.name,
+    description: course.description,
+    price: course.price,
+    isActive: !course.isActive,
+    sessions: []
+  };
+
+  this.courses.update(course.id, dto).subscribe({
+    next: () => this.ngOnInit(),
+    error: () => alert('Eroare la actualizare')
+  });
+}
+
+hasActiveSessions(course: any): boolean {
+  return course.sessions?.some((s: any) => s.isActive);
+}
 }

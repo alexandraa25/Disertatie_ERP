@@ -1,10 +1,12 @@
 ﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Student.Models;
+using ERPSystem.Modules.Students.Models;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
 using SendGrid.Helpers.Mail;
+using ClosedXML.Excel;
 
 
 namespace ERPSystem.Modules.Student;
@@ -21,69 +23,28 @@ public class StudentsService
         _logger = logger;
     }
 
-    public async Task<PublicResponse> GetStudentsAsync(  string? q,  int page,   int pageSize,  string? sortBy,  string? sortDir,  int? recentDays,  bool? onlyRecent)
+    public async Task<PublicResponse> GetStudentsAsync(  string? q,  int page,   int pageSize,  string? sortBy,  string? sortDir,  int? recentDays,  bool? onlyRecent, int? sessionId)
     {
         var response = new PublicResponse(true);
 
-        try
-        {
-            page = Math.Max(1, page);
-            pageSize = Math.Clamp(pageSize <= 0 ? 20 : pageSize, 5, 100);
+        var query = BuildStudentsQuery(q, sortBy, sortDir, onlyRecent, recentDays, sessionId);
 
-            var query = _db.Students.AsNoTracking();
+        var total = await query.CountAsync();
 
-            if (!string.IsNullOrWhiteSpace(q))
-            {
-                q = q.Trim();
-                query = query.Where(s =>
-                    s.FullName.Contains(q) ||
-                    (s.Email != null && s.Email.Contains(q)) ||
-                    (s.Phone != null && s.Phone.Contains(q)));
-            }
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(s => new StudentListItemDto(
+                s.Id,
+                s.FullName,
+                s.Email,
+                s.Phone,
+                s.IsActive,
+                s.CreatedAtUtc
+            ))
+            .ToListAsync();
 
-            if (onlyRecent == true)
-            {
-                var days = Math.Clamp(recentDays.GetValueOrDefault(30), 1, 3650);
-                var from = DateTime.UtcNow.AddDays(-days);
-                query = query.Where(s => s.CreatedAtUtc >= from);
-            }
-
-            var dirDesc = string.Equals(sortDir, "desc", StringComparison.OrdinalIgnoreCase);
-            sortBy = (sortBy ?? "createdAt").Trim().ToLowerInvariant();
-
-            query = sortBy switch
-            {
-                "fullname" => dirDesc ? query.OrderByDescending(s => s.FullName) : query.OrderBy(s => s.FullName),
-                "createdat" or "createdatutc" or "createdatdate" or "createdat" => dirDesc
-                    ? query.OrderByDescending(s => s.CreatedAtUtc)
-                    : query.OrderBy(s => s.CreatedAtUtc),
-                _ => query.OrderByDescending(s => s.CreatedAtUtc)
-            };
-
-            var total = await query.CountAsync();
-
-            var items = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(s => new StudentListItemDto(
-                    s.Id,
-                    s.FullName,
-                    s.Email,
-                    s.Phone,
-                    s.IsActive,
-                    s.CreatedAtUtc
-                ))
-                .ToListAsync();
-
-            var result = new PagedResult<StudentListItemDto>(page, pageSize, total, items);
-
-            return response.SetSuccess(result);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "GetStudentsAsync failed");
-            return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
-        }
+        return response.SetSuccess(new PagedResult<StudentListItemDto>(page, pageSize, total, items));
     }
 
     public async Task<PublicResponse> GetByIdAsync(int id)
@@ -516,6 +477,127 @@ public class StudentsService
                 Enrolled = x.Enrollments.Count()
             })
             .ToListAsync();
+    }
+
+    public async Task<PublicResponse> GetAllSessionsAsync()
+    {
+        var response = new PublicResponse(true);
+
+        try
+        {
+            var sessions = await _db.CourseSessions
+                .AsNoTracking()
+                .Include(s => s.Course)
+                .Include(s => s.Teacher)
+                .Select(s => new SessionDto
+                {
+                    Id = s.Id,
+
+                    CourseName = s.Course.Name,
+
+                    TeacherName = s.Teacher.FirstName + " " + s.Teacher.LastName,
+
+                    DayOfWeek = (DayOfWeek)s.DayOfWeek,
+                    StartTime = s.StartTime.ToString("HH:mm"),
+                    EndTime = s.EndTime.ToString("HH:mm"),
+
+                    Fee = s.Fee,
+                    IsActive = s.IsActive
+                })
+                .OrderBy(s => s.CourseName)
+                .ToListAsync();
+
+            return response.SetSuccess(sessions);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "GetAllSessionsAsync failed");
+            return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
+        }
+    }
+
+    public async Task<List<StudentListItemDto>> GetStudentsForExport( string? q, string? sortBy,  string? sortDir, bool? onlyRecent,  int? recentDays, int? sessionId)
+    {
+        var query = BuildStudentsQuery(q, sortBy, sortDir, onlyRecent, recentDays, sessionId);
+
+        return await query
+            .Select(s => new StudentListItemDto(
+                s.Id,
+                s.FullName,
+                s.Email,
+                s.Phone,
+                s.IsActive,
+                s.CreatedAtUtc
+            ))
+            .ToListAsync();
+    }
+   private IQueryable<ERPSystem.Data.Entities.Student> BuildStudentsQuery(string? q, string? sortBy, string? sortDir, bool? onlyRecent, int? recentDays, int? sessionId)
+    {
+        var query = _db.Students.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            q = q.Trim();
+            query = query.Where(s =>
+                s.FullName.Contains(q) ||
+                (s.Email != null && s.Email.Contains(q)) ||
+                (s.Phone != null && s.Phone.Contains(q)));
+        }
+
+        if (onlyRecent == true)
+        {
+            var days = Math.Clamp(recentDays ?? 30, 1, 3650);
+            var from = DateTime.UtcNow.AddDays(-days);
+            query = query.Where(s => s.CreatedAtUtc >= from);
+        }
+
+        if (sessionId.HasValue)
+        {
+            query = query.Where(s => _db.CourseEnrollments
+                .Any(e => e.StudentId == s.Id &&
+                          e.CourseSessionId == sessionId.Value &&
+                          e.IsActive));
+        }
+
+        var dirDesc = string.Equals(sortDir, "desc", StringComparison.OrdinalIgnoreCase);
+
+        query = (sortBy ?? "createdAt").ToLower() switch
+        {
+            "fullname" => dirDesc ? query.OrderByDescending(s => s.FullName) : query.OrderBy(s => s.FullName),
+            _ => dirDesc ? query.OrderByDescending(s => s.CreatedAtUtc) : query.OrderBy(s => s.CreatedAtUtc)
+        };
+
+        return query;
+    }
+
+    public async Task<byte[]> ExportStudentsExcel( string? q, string? sortBy, string? sortDir, bool? onlyRecent, int? recentDays, int? sessionId)
+    {
+        var data = await GetStudentsForExport(q, sortBy, sortDir, onlyRecent, recentDays, sessionId);
+
+        using var wb = new XLWorkbook();
+        var ws = wb.Worksheets.Add("Students");
+
+        ws.Cell(1, 1).Value = "Nume";
+        ws.Cell(1, 2).Value = "Email";
+        ws.Cell(1, 3).Value = "Telefon";
+        ws.Cell(1, 4).Value = "Status";
+        ws.Cell(1, 5).Value = "Data";
+
+        for (int i = 0; i < data.Count; i++)
+        {
+            var s = data[i];
+            ws.Cell(i + 2, 1).Value = s.FullName;
+            ws.Cell(i + 2, 2).Value = s.Email;
+            ws.Cell(i + 2, 3).Value = s.Phone;
+            ws.Cell(i + 2, 4).Value = s.IsActive ? "Activ" : "Inactiv";
+            ws.Cell(i + 2, 5).Value = s.CreatedAtUtc.ToString("dd.MM.yyyy");
+        }
+
+        ws.Columns().AdjustToContents();
+
+        using var ms = new MemoryStream();
+        wb.SaveAs(ms);
+        return ms.ToArray();
     }
 
 }

@@ -12,7 +12,7 @@ import { CreateStudentDto, UpdateStudentDto } from '../../models/student.model';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatDialogModule   // 🔥 ASTA LIPSEA
+    MatDialogModule   
   ],
   templateUrl: './student-form.component.html',
   styleUrls: ['./student-form.component.css']
@@ -69,7 +69,6 @@ export class StudentFormComponent implements OnInit {
             isActive: s.isActive ?? true
           });
 
-          // 🔥 1️⃣ Detectăm dacă este minor
           if (s.dateOfBirth) {
             const birth = new Date(s.dateOfBirth);
             const today = new Date();
@@ -83,7 +82,6 @@ export class StudentFormComponent implements OnInit {
             this.isMinor = age < 18;
           }
 
-          // 🔥 2️⃣ Încărcăm guardians dacă există
           if (s.guardians && s.guardians.length > 0) {
 
             this.guardians.clear(); // important la edit
@@ -142,18 +140,18 @@ export class StudentFormComponent implements OnInit {
 
   save(): void {
     if (this.isMinor && this.guardians.length === 0) {
-  alert('Elevul minor trebuie să aibă cel puțin un părinte.');
-  return;
-}
+      alert('Elevul minor trebuie să aibă cel puțin un părinte.');
+      return;
+    }
 
-const primaryCount = this.guardians.controls.filter(
-  g => g.value.isPrimaryContact
-).length;
+    const primaryCount = this.guardians.controls.filter(
+      g => g.value.isPrimaryContact
+    ).length;
 
-if (primaryCount > 1) {
-  alert('Poate exista un singur contact principal.');
-  return;
-}
+    if (primaryCount > 1) {
+      alert('Poate exista un singur contact principal.');
+      return;
+    }
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -163,14 +161,14 @@ if (primaryCount > 1) {
 
     if (!this.isEdit) {
       const dto: CreateStudentDto = {
-         fullName: this.form.value.fullName!,
-  firstName: this.form.value.firstName || null,
-  lastName: this.form.value.lastName || null,
-  email: this.form.value.email || null,
-  phone: this.form.value.phone || null,
-  address: this.form.value.address || null,
-  dateOfBirth: this.form.value.dateOfBirth || null,
-  guardians: this.isMinor ? this.guardians.value : null
+        fullName: this.form.value.fullName!,
+        firstName: this.form.value.firstName || null,
+        lastName: this.form.value.lastName || null,
+        email: this.form.value.email || null,
+        phone: this.form.value.phone || null,
+        address: this.form.value.address || null,
+        dateOfBirth: this.form.value.dateOfBirth || null,
+        guardians: this.isMinor ? this.guardians.value : null
       };
 
       this.students.create(dto).subscribe({
@@ -186,15 +184,15 @@ if (primaryCount > 1) {
 
     } else {
       const dto: UpdateStudentDto = {
-         fullName: this.form.value.fullName!,
-  firstName: this.form.value.firstName || null,
-  lastName: this.form.value.lastName || null,
-  email: this.form.value.email || null,
-  phone: this.form.value.phone || null,
-  address: this.form.value.address || null,
-  dateOfBirth: this.form.value.dateOfBirth || null,
-  isActive: !!this.form.value.isActive,
-  guardians: this.isMinor ? this.guardians.value : null
+        fullName: this.form.value.fullName!,
+        firstName: this.form.value.firstName || null,
+        lastName: this.form.value.lastName || null,
+        email: this.form.value.email || null,
+        phone: this.form.value.phone || null,
+        address: this.form.value.address || null,
+        dateOfBirth: this.form.value.dateOfBirth || null,
+        isActive: !!this.form.value.isActive,
+        guardians: this.isMinor ? this.guardians.value : null
       };
 
       this.students.update(this.studentId!, dto).subscribe({
@@ -217,6 +215,7 @@ if (primaryCount > 1) {
   get guardians(): FormArray {
     return this.form.get('guardians') as FormArray;
   }
+  
   addGuardian() {
     const group = this.fb.group({
       firstName: ['', Validators.required],

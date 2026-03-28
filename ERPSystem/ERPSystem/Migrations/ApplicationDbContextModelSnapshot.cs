@@ -231,10 +231,19 @@ namespace ERPSystem.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("AdminSignature")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("AdminSignedAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Body")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("CompanySignedAtUtc")
+                    b.Property<string>("ClientSignature")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ClientSignedAtUtc")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("ContractId")
@@ -248,19 +257,13 @@ namespace ERPSystem.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<bool>("IsSignedByCompany")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsSignedByStudent")
-                        .HasColumnType("bit");
+                    b.Property<string>("PdfPath")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("StudentSignedAtUtc")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -322,6 +325,9 @@ namespace ERPSystem.Migrations
                     b.Property<int>("CourseSessionId")
                         .HasColumnType("int");
 
+                    b.Property<int>("FeeType")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("PriceSnapshot")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -356,6 +362,9 @@ namespace ERPSystem.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
+                    b.Property<int>("Scope")
+                        .HasColumnType("int");
+
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -388,8 +397,12 @@ namespace ERPSystem.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsPaid")
-                        .HasColumnType("bit");
+                    b.Property<decimal>("PaidAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -427,37 +440,6 @@ namespace ERPSystem.Migrations
                     b.HasIndex("StudentId");
 
                     b.ToTable("ContractParties");
-                });
-
-            modelBuilder.Entity("ERPSystem.Data.Entities.ContractSigningToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ContractId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ExpiresAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsUsed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ContractId");
-
-                    b.ToTable("ContractSigningTokens");
                 });
 
             modelBuilder.Entity("ERPSystem.Data.Entities.ContractTemplate", b =>
@@ -584,6 +566,9 @@ namespace ERPSystem.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("FeeType")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -597,6 +582,9 @@ namespace ERPSystem.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TotalSessions")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -658,9 +646,16 @@ namespace ERPSystem.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("EmploymentStatus")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("HireDate")
                         .HasColumnType("datetime2");
@@ -669,6 +664,10 @@ namespace ERPSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -696,6 +695,90 @@ namespace ERPSystem.Migrations
                     b.HasIndex("UserId", "EmploymentStatus");
 
                     b.ToTable("Employees");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeAddress", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId")
+                        .IsUnique();
+
+                    b.ToTable("EmployeeAddress");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeBank", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("IBAN")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId")
+                        .IsUnique();
+
+                    b.ToTable("EmployeeBank");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeContact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EmergencyContactName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmergencyContactPhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId")
+                        .IsUnique();
+
+                    b.ToTable("EmployeeContact");
                 });
 
             modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeContract", b =>
@@ -739,14 +822,18 @@ namespace ERPSystem.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("DocumentType")
+                    b.Property<string>("ContentType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("FileUrl")
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -853,6 +940,90 @@ namespace ERPSystem.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Guardians");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ContractId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("InstallmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("PaidAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Reference")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Completed");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractId");
+
+                    b.HasIndex("InstallmentId");
+
+                    b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.SigningToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EntityType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SigningTokens");
                 });
 
             modelBuilder.Entity("ERPSystem.Data.Entities.Student", b =>
@@ -1004,6 +1175,9 @@ namespace ERPSystem.Migrations
                     b.Property<bool>("IsUnlimited")
                         .HasColumnType("bit");
 
+                    b.Property<decimal>("MonthlyAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("PdfPath")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -1015,7 +1189,7 @@ namespace ERPSystem.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<decimal>("TotalAmount")
+                    b.Property<decimal?>("TotalAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
@@ -1319,17 +1493,6 @@ namespace ERPSystem.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("ERPSystem.Data.Entities.ContractSigningToken", b =>
-                {
-                    b.HasOne("ERPSystem.Data.Entities.StudentContract", "Contract")
-                        .WithMany()
-                        .HasForeignKey("ContractId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contract");
-                });
-
             modelBuilder.Entity("ERPSystem.Data.Entities.CourseEnrollment", b =>
                 {
                     b.HasOne("ERPSystem.Data.Entities.StudentContract", "Contract")
@@ -1349,7 +1512,7 @@ namespace ERPSystem.Migrations
                         .IsRequired();
 
                     b.HasOne("ERPSystem.Data.Entities.Student", "Student")
-                        .WithMany()
+                        .WithMany("Enrollments")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1392,6 +1555,39 @@ namespace ERPSystem.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeAddress", b =>
+                {
+                    b.HasOne("ERPSystem.Data.Entities.Employee", "Employee")
+                        .WithOne("Address")
+                        .HasForeignKey("ERPSystem.Data.Entities.EmployeeAddress", "EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeBank", b =>
+                {
+                    b.HasOne("ERPSystem.Data.Entities.Employee", "Employee")
+                        .WithOne("Bank")
+                        .HasForeignKey("ERPSystem.Data.Entities.EmployeeBank", "EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeContact", b =>
+                {
+                    b.HasOne("ERPSystem.Data.Entities.Employee", "Employee")
+                        .WithOne("Contact")
+                        .HasForeignKey("ERPSystem.Data.Entities.EmployeeContact", "EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
             modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeContract", b =>
                 {
                     b.HasOne("ERPSystem.Data.Entities.Employee", "Employee")
@@ -1423,6 +1619,24 @@ namespace ERPSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.Payment", b =>
+                {
+                    b.HasOne("ERPSystem.Data.Entities.StudentContract", "Contract")
+                        .WithMany()
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ERPSystem.Data.Entities.ContractInstallment", "Installment")
+                        .WithMany()
+                        .HasForeignKey("InstallmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Contract");
+
+                    b.Navigation("Installment");
                 });
 
             modelBuilder.Entity("ERPSystem.Data.Entities.StudentGuardian", b =>
@@ -1519,6 +1733,12 @@ namespace ERPSystem.Migrations
 
             modelBuilder.Entity("ERPSystem.Data.Entities.Employee", b =>
                 {
+                    b.Navigation("Address");
+
+                    b.Navigation("Bank");
+
+                    b.Navigation("Contact");
+
                     b.Navigation("Contracts");
 
                     b.Navigation("Documents");
@@ -1533,6 +1753,8 @@ namespace ERPSystem.Migrations
 
             modelBuilder.Entity("ERPSystem.Data.Entities.Student", b =>
                 {
+                    b.Navigation("Enrollments");
+
                     b.Navigation("StudentGuardians");
                 });
 

@@ -1,9 +1,11 @@
 ﻿using ERPSystem.Extensions;
+using ERPSystem.Modules.AdditionalAct;
 using ERPSystem.Modules.Admin;
 using ERPSystem.Modules.Authentificate;
 using ERPSystem.Modules.Contracts;
 using ERPSystem.Modules.Courses;
 using ERPSystem.Modules.Employees;
+using ERPSystem.Modules.Payments;
 using ERPSystem.Modules.Students;
 using ERPSystem.Modules.UserProfile;
 using ERPSystem.Shared.ActivityLogs;
@@ -89,6 +91,24 @@ namespace ERPSystem.Configuration
             );
 
             ContractsEndpoints.Map(contractsGroup);
+
+            var additionalActGroup = app.CreateApiGroup(
+               route: "/additional-act",
+               tag: "AdditionalAct",
+               requireAuth: false, // temporar, ca la students
+               description: "AdditionalAct endpoints"
+            );
+
+            AdditionalActEndpoints.Map(additionalActGroup);
+
+            var paymentsGroup = app.CreateApiGroup(
+              route: "",
+              tag: "Payments",
+              requireAuth: false, // temporar, ca la students
+              description: "Payments endpoints"
+           );
+
+            PaymentsEndpoints.Map(paymentsGroup);
 
             var dashboardGroup = app.CreateApiGroup(
               route: "/dashboard",

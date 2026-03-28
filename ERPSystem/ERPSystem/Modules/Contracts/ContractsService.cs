@@ -1,5 +1,7 @@
 ﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
+using ERPSystem.Modules.AdditionalAct;
+
 using ERPSystem.Modules.Contracts.Models;
 using ERPSystem.Shared.BusinessLogic;
 using ERPSystem.Shared.DTOs.PDF;
@@ -22,18 +24,17 @@ public class ContractsService
     private readonly ILogger<ContractsService> _logger;
     private readonly PdfService _pdfService;
     private readonly EmailBusinessLogic _emailBusinessLogic;
+    private readonly AdditionalActService _additionalActService;
 
-    public ContractsService(  ApplicationDbContext db,  ILogger<ContractsService> logger, EmailBusinessLogic emailBusinessLogic, PdfService pdfService)
+    public ContractsService(  ApplicationDbContext db,  ILogger<ContractsService> logger, EmailBusinessLogic emailBusinessLogic, PdfService pdfService, AdditionalActService additionalActService)
     {
         _db = db;
         _logger = logger;
         _emailBusinessLogic = emailBusinessLogic;
         _pdfService = pdfService;
+        _additionalActService = additionalActService;
     }
 
-    // =========================
-    // CREATE CONTRACT
-    // =========================
     public async Task<PublicResponse> CreateAsync(CreateContractDto dto)
     {
         var response = new PublicResponse(true);
@@ -60,19 +61,19 @@ public class ContractsService
                 return response.SetError(ErrorCodes.InvalidParameters, "Invalid students");
 
             var blockingStatuses = new[]
-{
-    ContractStatus.Draft,
-    ContractStatus.Finalized,
-    ContractStatus.SentToClient,
-    ContractStatus.SignedByClient,
-    ContractStatus.Active
-};
+                {
+                    ContractStatus.Draft,
+                    ContractStatus.Finalized,
+                    ContractStatus.SentToClient,
+                    ContractStatus.SignedByClient,
+                    ContractStatus.Active
+                };
             var hasActiveContract = await _db.StudentContracts
-    .AnyAsync(c =>
-        blockingStatuses.Contains(c.Status) &&
-        c.Parties.Any(p =>
-            p.StudentId.HasValue &&
-            dto.StudentIds.Contains(p.StudentId.Value)));
+               .AnyAsync(c =>
+                  blockingStatuses.Contains(c.Status) &&
+                  c.Parties.Any(p =>
+                  p.StudentId.HasValue &&
+                  dto.StudentIds.Contains(p.StudentId.Value)));
 
             if (hasActiveContract)
             {
@@ -176,7 +177,6 @@ public class ContractsService
                 contract.BeneficiaryNameSnapshot = $"{guardian.FirstName} {guardian.LastName}";
                 contract.BeneficiaryEmailSnapshot = guardian.Email;
                 contract.BeneficiaryPhoneSnapshot = guardian.Phone;
-                // 🔥 fallback adresă
                 contract.BeneficiaryAddressSnapshot =
                     !string.IsNullOrWhiteSpace(guardian.Address)
                         ? guardian.Address
@@ -199,7 +199,8 @@ public class ContractsService
                     CourseSessionId = session.Id,
                     CourseNameSnapshot = session.Course.Name,
                     SessionNameSnapshot = session.Title,
-                    PriceSnapshot = session.Fee
+                    PriceSnapshot = session.Fee,
+                    FeeType = session.FeeType // 🔥 ADD
                 });
             }
 
@@ -216,44 +217,84 @@ public class ContractsService
                 }
             }
 
-            contract.TotalAmount = CalculateTotal(contract);
-            
-            if (contract.Installments > 1)
+            var pricing = CalculatePricing(sessions, contract);
+
+            contract.TotalAmount = pricing.Total;
+
+            var isSubscription = sessions.Any(s => s.FeeType == CourseFeeType.Monthly);
+            var isPackage = sessions.Any(s => s.FeeType == CourseFeeType.FixedPackage);
+
+
+            contract.InstallmentsList.Clear();
+
+            // detect
+            var hasSubscription = pricing.SubscriptionMonthly > 0;
+            var hasPackage = pricing.PackageTotal > 0;
+
+            // 🔥 mutat mai sus
+            var packageInstallments = dto.Installments <= 0 ? 1 : dto.Installments;
+
+            // luni
+            var months = pricing.SubscriptionMonths ?? packageInstallments;
+
+            // setezi pe contract
+            contract.Installments = packageInstallments;
+
+            if (contract.IsUnlimited)
             {
-                var baseAmount = Math.Floor((contract.TotalAmount / contract.Installments) * 100) / 100;
-
-                var totalAssigned = baseAmount * contract.Installments;
-                var remainder = contract.TotalAmount - totalAssigned;
-
-                for (int i = 0; i < contract.Installments; i++)
+                contract.InstallmentsList.Add(new ContractInstallment
                 {
-                    var amount = baseAmount;
+                    DueDate = contract.StartDate,
+                    Amount = Math.Round(pricing.SubscriptionMonthly, 2),
+                    PaidAmount = 0
+                });
+            }
+            else
+            {
+                
 
-                    if (i == contract.Installments - 1)
+                decimal packageInstallmentValue = 0;
+
+                if (hasPackage)
+                {
+                    packageInstallmentValue =
+                        Math.Floor((pricing.PackageTotal / packageInstallments) * 100) / 100;
+                }
+
+                var totalAssigned = packageInstallmentValue * packageInstallments;
+                var remainder = pricing.PackageTotal - totalAssigned;
+
+                for (int i = 0; i < months; i++)
+                {
+                    decimal amount = 0;
+
+                    if (hasSubscription)
                     {
-                        amount += remainder;
+                        amount += pricing.SubscriptionMonthly;
+                    }
+
+                    if (hasPackage && i < packageInstallments)
+                    {
+                        var pkgAmount = packageInstallmentValue;
+
+                        if (i == packageInstallments - 1)
+                            pkgAmount += remainder;
+
+                        amount += pkgAmount;
                     }
 
                     contract.InstallmentsList.Add(new ContractInstallment
                     {
                         DueDate = contract.StartDate.AddMonths(i),
-                        Amount = amount,
-                        IsPaid = false
+                        Amount = Math.Round(amount, 2),
+                        PaidAmount = 0
                     });
                 }
-            }
-            else
-            {
-                contract.InstallmentsList.Add(new ContractInstallment
-                {
-                    DueDate = contract.StartDate,
-                    Amount = contract.TotalAmount,
-                    IsPaid = false
-                });
             }
 
             contract.ContractBody = await GenerateContractBody(contract, guardian, students);
             contract.IsBodyCustomized = false;
+            
 
             _db.StudentContracts.Add(contract);
             await _db.SaveChangesAsync();
@@ -270,9 +311,6 @@ public class ContractsService
         }
     }
 
-    // =========================
-    // UPDATE (Draft only)
-    // =========================
     public async Task<PublicResponse> UpdateAsync(int id, UpdateContractDto dto)
     {
         var response = new PublicResponse(true);
@@ -290,15 +328,11 @@ public class ContractsService
         if (contract.Status != ContractStatus.Draft)
             return response.SetError(ErrorCodes.InvalidParameters, "Only draft editable");
 
-        if (!dto.CourseSessionIds.Any())
-            return response.SetError(ErrorCodes.InvalidParameters, "No courses selected");
-
         if (!dto.IsUnlimited && dto.EndDate == null)
             return response.SetError(ErrorCodes.InvalidParameters, "EndDate required");
 
         if (!dto.IsUnlimited && dto.EndDate < dto.StartDate)
             return response.SetError(ErrorCodes.InvalidParameters, "Invalid period");
-
 
         var guardian = contract.Parties
             .FirstOrDefault(p => p.Role == ContractPartyRole.Guardian)?.Guardian;
@@ -312,15 +346,17 @@ public class ContractsService
             .Where(s => studentIds.Contains(s.Id))
             .ToListAsync();
 
+        var existingSessionIds = contract.Courses
+            .Select(c => c.CourseSessionId)
+            .ToList();
 
         var sessions = await _db.CourseSessions
             .Include(x => x.Course)
-            .Where(x => dto.CourseSessionIds.Contains(x.Id))
+            .Where(x => existingSessionIds.Contains(x.Id))
             .ToListAsync();
 
-        if (sessions.Count != dto.CourseSessionIds.Count)
+        if (sessions.Count != existingSessionIds.Count)
             return response.SetError(ErrorCodes.InvalidParameters, "Invalid sessions");
-
 
         contract.StartDate = dto.StartDate;
         contract.EndDate = dto.IsUnlimited ? null : dto.EndDate;
@@ -328,23 +364,8 @@ public class ContractsService
         contract.Installments = dto.Installments <= 0 ? 1 : dto.Installments;
         contract.UpdatedAtUtc = DateTime.UtcNow;
 
-
-        contract.Courses.Clear();
         contract.Discounts.Clear();
 
-
-        foreach (var session in sessions)
-        {
-            contract.Courses.Add(new ContractCourse
-            {
-                CourseSessionId = session.Id,
-                CourseNameSnapshot = session.Course.Name,
-                SessionNameSnapshot = session.Title,
-                PriceSnapshot = session.Fee
-            });
-        }
-
-  
         if (dto.Discounts != null)
         {
             foreach (var d in dto.Discounts)
@@ -358,43 +379,77 @@ public class ContractsService
             }
         }
 
-     
-        contract.TotalAmount = CalculateTotal(contract);
-  
+        var pricing = CalculatePricing(sessions, contract);
+
+        contract.TotalAmount = pricing.Total;
+
         contract.InstallmentsList.Clear();
 
-        if (contract.Installments > 1)
-        {
-            var baseAmount = Math.Floor((contract.TotalAmount / contract.Installments) * 100) / 100;
-            var totalAssigned = baseAmount * contract.Installments;
-            var remainder = contract.TotalAmount - totalAssigned;
+        // detect
+        var hasSubscription = pricing.SubscriptionMonthly > 0;
+        var hasPackage = pricing.PackageTotal > 0;
 
-            for (int i = 0; i < contract.Installments; i++)
-            {
-                var amount = baseAmount;
+        // 🔥 mutat mai sus
+        var packageInstallments = dto.Installments <= 0 ? 1 : dto.Installments;
 
-                if (i == contract.Installments - 1)
-                    amount += remainder;
+        // luni
+        var months = pricing.SubscriptionMonths ?? packageInstallments;
 
-                contract.InstallmentsList.Add(new ContractInstallment
-                {
-                    DueDate = contract.StartDate.AddMonths(i),
-                    Amount = amount,
-                    IsPaid = false
-                });
-            }
-        }
-        else
+        // setezi pe contract
+        contract.Installments = packageInstallments;
+
+        if (contract.IsUnlimited)
         {
             contract.InstallmentsList.Add(new ContractInstallment
             {
                 DueDate = contract.StartDate,
-                Amount = contract.TotalAmount,
-                IsPaid = false
+                Amount = Math.Round(pricing.SubscriptionMonthly, 2),
+                PaidAmount = 0
             });
         }
+        else
+        {
+            
 
-      
+            decimal packageInstallmentValue = 0;
+
+            if (hasPackage)
+            {
+                packageInstallmentValue =
+                    Math.Floor((pricing.PackageTotal / packageInstallments) * 100) / 100;
+            }
+
+            var totalAssigned = packageInstallmentValue * packageInstallments;
+            var remainder = pricing.PackageTotal - totalAssigned;
+
+            for (int i = 0; i < months; i++)
+            {
+                decimal amount = 0;
+
+                if (hasSubscription)
+                {
+                    amount += pricing.SubscriptionMonthly;
+                }
+
+                if (hasPackage && i < packageInstallments)
+                {
+                    var pkgAmount = packageInstallmentValue;
+
+                    if (i == packageInstallments - 1)
+                        pkgAmount += remainder;
+
+                    amount += pkgAmount;
+                }
+
+                contract.InstallmentsList.Add(new ContractInstallment
+                {
+                    DueDate = contract.StartDate.AddMonths(i),
+                    Amount = Math.Round(amount, 2),
+                    PaidAmount = 0
+                });
+            }
+        }
+
         if (!contract.IsBodyCustomized)
         {
             contract.ContractBody = await GenerateContractBody(contract, guardian, students);
@@ -461,9 +516,6 @@ public class ContractsService
         return response.SetSuccess(true);
     }
 
-    // =========================
-    // FINALIZE
-    // =========================
     public async Task<PublicResponse> FinalizeAsync(int id)
     {
         var response = new PublicResponse(true);
@@ -503,120 +555,192 @@ public class ContractsService
         return response.SetSuccess(true);
     }
 
-
-    // =========================
-    // SEND TO CLIENT
-    // =========================
-    public async Task<PublicResponse> SendToClientAsync(int id)
+    public async Task<PublicResponse> SendToClientAsync(SigningEntityType type, int id)
     {
         var response = new PublicResponse(true);
 
         try
         {
-            var contract = await _db.StudentContracts
-    .Include(c => c.Parties)
-        .ThenInclude(p => p.Guardian)
-    .Include(c => c.Parties)
-        .ThenInclude(p => p.Student)
-    .FirstOrDefaultAsync(c => c.Id == id);
-
-            if (contract is null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Not found");
-
-            if (contract.Status != ContractStatus.Finalized)
-                return response.SetError(ErrorCodes.InvalidParameters, "Contract must be finalized");
-
-            var guardian = contract.Parties
-      .FirstOrDefault(p => p.Role == ContractPartyRole.Guardian)?.Guardian;
-
-            var student = contract.Parties
-                .FirstOrDefault(p => p.Role == ContractPartyRole.Student)?.Student;
-
             string clientName;
             string email;
+            string link;
+            string entityName;
+            int entityId;
 
-            if (guardian != null)
-            {
-                clientName = $"{guardian.FirstName} {guardian.LastName}";
-                email = guardian.Email;
-            }
-            else
-            {
-                clientName = $"{student.FirstName} {student.LastName}";
-                email = student.Email;
-            }
-
-            if (string.IsNullOrWhiteSpace(email))
-                return response.SetError(ErrorCodes.InvalidParameters, "Client email missing");
-
-            // generăm token pentru semnare
             var token = Guid.NewGuid().ToString();
 
-            var signingToken = new ContractSigningToken
+            switch (type)
             {
-                ContractId = contract.Id,
-                Token = token,
-                CreatedAtUtc = DateTime.UtcNow,
-                ExpiresAtUtc = DateTime.UtcNow.AddDays(7),
-                IsUsed = false
-            };
+                // ================= CONTRACT =================
+                case SigningEntityType.Contract:
+                    {
+                        var contract = await _db.StudentContracts
+                            .Include(c => c.Parties)
+                                .ThenInclude(p => p.Guardian)
+                            .Include(c => c.Parties)
+                                .ThenInclude(p => p.Student)
+                            .FirstOrDefaultAsync(c => c.Id == id);
 
-            _db.ContractSigningTokens.Add(signingToken);
+                        if (contract is null)
+                            return response.SetError(ErrorCodes.InvalidParameters, "Contract not found");
 
-            var link = $"http://localhost:4200/sign-contract/{token}";
+                        if (contract.Status != ContractStatus.Finalized &&
+                            contract.Status != ContractStatus.SentToClient)
+                            return response.SetError(ErrorCodes.InvalidParameters, "Invalid state");
 
-            var model = new ContractSignEmailModel
-            {
-                ClientName = clientName,
-                ContractNumber = contract.ContractNumber
-            };
+                        var guardian = contract.Parties
+                            .FirstOrDefault(p => p.Role == ContractPartyRole.Guardian)?.Guardian;
 
-            var to = new List<string> { email };
+                        var student = contract.Parties
+                            .FirstOrDefault(p => p.Role == ContractPartyRole.Student)?.Student;
 
-            var emailResponse = await _emailBusinessLogic.SendEmailTemplateAsync(
-                TemplateCode.CONTRACT_SIGN_REQUEST,
-                JsonConvert.SerializeObject(model),
-                to,
-                link
-            );
+                        if (guardian != null)
+                        {
+                            clientName = $"{guardian.FirstName} {guardian.LastName}";
+                            email = guardian.Email;
+                        }
+                        else
+                        {
+                            clientName = $"{student.FirstName} {student.LastName}";
+                            email = student.Email;
+                        }
 
-            contract.Status = ContractStatus.SentToClient;
-            contract.UpdatedAtUtc = DateTime.UtcNow;
+                        if (string.IsNullOrWhiteSpace(email))
+                            return response.SetError(ErrorCodes.InvalidParameters, "Client email missing");
 
+                        // TOKEN
+                        _db.SigningTokens.Add(new SigningToken
+                        {
+                            EntityType = SigningEntityType.Contract,
+                            EntityId = contract.Id,
+                            Token = token,
+                            CreatedAtUtc = DateTime.UtcNow,
+                            ExpiresAtUtc = DateTime.UtcNow.AddDays(7)
+                        });
 
+                        contract.Status = ContractStatus.SentToClient;
+                        contract.UpdatedAtUtc = DateTime.UtcNow;
+
+                        entityName = nameof(StudentContract);
+                        entityId = contract.Id;
+
+                        // EMAIL
+                        await _emailBusinessLogic.SendEmailTemplateAsync(
+                            TemplateCode.CONTRACT_SIGN_REQUEST,
+                            JsonConvert.SerializeObject(new
+                            {
+                                ClientName = clientName,
+                                ContractNumber = contract.ContractNumber
+                            }),
+                            new List<string> { email },
+                            $"http://localhost:4200/sign/{token}"
+                        );
+
+                        break;
+                    }
+
+                // ================= ACT ADITIONAL =================
+                case SigningEntityType.AdditionalAct:
+                    {
+                        var act = await _db.ContractAdditionalAct
+                            .Include(a => a.Contract)
+                                .ThenInclude(c => c.Parties)
+                                    .ThenInclude(p => p.Guardian)
+                            .Include(a => a.Contract)
+                                .ThenInclude(c => c.Parties)
+                                    .ThenInclude(p => p.Student)
+                            .FirstOrDefaultAsync(a => a.Id == id);
+
+                        if (act is null)
+                            return response.SetError(ErrorCodes.InvalidParameters, "Act not found");
+
+                        if (act.Status != AdditionalActStatus.Finalized &&
+                            act.Status != AdditionalActStatus.SentToClient)
+                            return response.SetError(ErrorCodes.InvalidParameters, "Invalid state");
+
+                        var guardian = act.Contract.Parties
+                            .FirstOrDefault(p => p.Role == ContractPartyRole.Guardian)?.Guardian;
+
+                        var student = act.Contract.Parties
+                            .FirstOrDefault(p => p.Role == ContractPartyRole.Student)?.Student;
+
+                        if (guardian != null)
+                        {
+                            clientName = $"{guardian.FirstName} {guardian.LastName}";
+                            email = guardian.Email;
+                        }
+                        else
+                        {
+                            clientName = $"{student.FirstName} {student.LastName}";
+                            email = student.Email;
+                        }
+
+                        if (string.IsNullOrWhiteSpace(email))
+                            return response.SetError(ErrorCodes.InvalidParameters, "Client email missing");
+
+                        // TOKEN
+                        _db.SigningTokens.Add(new SigningToken
+                        {
+                            EntityType = SigningEntityType.AdditionalAct,
+                            EntityId = act.Id,
+                            Token = token,
+                            CreatedAtUtc = DateTime.UtcNow,
+                            ExpiresAtUtc = DateTime.UtcNow.AddDays(7)
+                        });
+
+                        act.Status = AdditionalActStatus.SentToClient;
+
+                        entityName = nameof(ContractAdditionalAct);
+                        entityId = act.Id;
+
+                        // EMAIL
+                        await _emailBusinessLogic.SendEmailTemplateAsync(
+                            TemplateCode.ADDITIONAL_ACT_SIGN_REQUEST,
+                            JsonConvert.SerializeObject(new
+                            {
+                                ClientName = clientName,
+                                ActNumber = act.ActNumber
+                            }),
+                            new List<string> { email },
+                            $"http://localhost:4200/sign/{token}"
+                        );
+
+                        break;
+                    }
+
+                default:
+                    return response.SetError(ErrorCodes.InvalidParameters, "Unsupported entity");
+            }
+
+            // 🔥 LOG COMUN
             _db.ActivityLog.Add(new ActivityLog
             {
-                EntityType = nameof(StudentContract),
-                EntityId = contract.Id,
+                EntityType = entityName,
+                EntityId = entityId,
                 Action = "Send",
-                Description = $"Contract trimis către {email}",
+                Description = $"Document trimis către {email}",
                 CreatedAtUtc = DateTime.UtcNow
             });
 
             await _db.SaveChangesAsync();
 
-            return response.SetSuccess(new { link });
+            return response.SetSuccess(new { link = $"http://localhost:4200/sign/{token}" });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error sending contract email.");
+            _logger.LogError(ex, "Error sending document");
             return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
         }
     }
-    // =========================
-    // SIGN BY CLIENT
-    // =========================
+
     public async Task<PublicResponse> SignByClientAsync(string token, string signature)
     {
         var response = new PublicResponse(true);
 
         if (string.IsNullOrWhiteSpace(signature))
-            return response.SetError(
-                ErrorCodes.InvalidParameters,
-                "Signature missing");
+            return response.SetError(ErrorCodes.InvalidParameters, "Signature missing");
 
-        var signingToken = await _db.ContractSigningTokens
-            .Include(x => x.Contract)
+        var signingToken = await _db.SigningTokens
             .FirstOrDefaultAsync(x => x.Token == token);
 
         if (signingToken is null || signingToken.IsUsed)
@@ -625,27 +749,69 @@ public class ContractsService
         if (signingToken.ExpiresAtUtc < DateTime.UtcNow)
             return response.SetError(ErrorCodes.InvalidParameters, "Token expired");
 
-        var contract = signingToken.Contract;
+        switch (signingToken.EntityType)
+        {
+            // ================= CONTRACT =================
+            case SigningEntityType.Contract:
+                {
+                    var contract = await _db.StudentContracts
+                        .FirstOrDefaultAsync(c => c.Id == signingToken.EntityId);
 
-        if (contract.Status != ContractStatus.SentToClient)
-            return response.SetError(
-                ErrorCodes.InvalidParameters,
-                "Contract cannot be signed");
+                    if (contract == null)
+                        return response.SetError(ErrorCodes.InvalidParameters, "Contract not found");
 
-        contract.ClientSignature = signature;
-        contract.ClientSignedAtUtc = DateTime.UtcNow;
-        contract.Status = ContractStatus.SignedByClient;
+                    if (contract.Status != ContractStatus.SentToClient)
+                        return response.SetError(ErrorCodes.InvalidParameters, "Invalid state");
+
+                    contract.ClientSignature = signature;
+                    contract.ClientSignedAtUtc = DateTime.UtcNow;
+                    contract.Status = ContractStatus.SignedByClient;
+
+                    _db.ActivityLog.Add(new ActivityLog
+                    {
+                        EntityType = nameof(StudentContract),
+                        EntityId = contract.Id,
+                        Action = "SignClient",
+                        Description = "Clientul a semnat contractul",
+                        CreatedAtUtc = DateTime.UtcNow
+                    });
+
+                    break;
+                }
+
+            // ================= ACT ADITIONAL =================
+            case SigningEntityType.AdditionalAct:
+                {
+                    var act = await _db.ContractAdditionalAct
+                        .FirstOrDefaultAsync(a => a.Id == signingToken.EntityId);
+
+                    if (act == null)
+                        return response.SetError(ErrorCodes.InvalidParameters, "Act not found");
+
+                    if (act.Status != AdditionalActStatus.SentToClient)
+                        return response.SetError(ErrorCodes.InvalidParameters, "Invalid state");
+
+                    act.ClientSignature = signature;
+                    act.ClientSignedAtUtc = DateTime.UtcNow;
+                    act.Status = AdditionalActStatus.SignedByClient;
+
+                    _db.ActivityLog.Add(new ActivityLog
+                    {
+                        EntityType = nameof(ContractAdditionalAct),
+                        EntityId = act.Id,
+                        Action = "SignClient",
+                        Description = "Clientul a semnat actul adițional",
+                        CreatedAtUtc = DateTime.UtcNow
+                    });
+
+                    break;
+                }
+
+            default:
+                return response.SetError(ErrorCodes.InvalidParameters, "Unsupported entity");
+        }
 
         signingToken.IsUsed = true;
-
-        _db.ActivityLog.Add(new ActivityLog
-        {
-            EntityType = nameof(StudentContract),
-            EntityId = contract.Id,
-            Action = "SignClient",
-            Description = "Clientul a semnat contractul",
-            CreatedAtUtc = DateTime.UtcNow
-        });
 
         await _db.SaveChangesAsync();
 
@@ -656,322 +822,194 @@ public class ContractsService
     {
         var response = new PublicResponse(true);
 
-        var signingToken = await _db.ContractSigningTokens
-            .Include(x => x.Contract)
+        var signingToken = await _db.SigningTokens
             .FirstOrDefaultAsync(x => x.Token == token);
 
         if (signingToken == null || signingToken.IsUsed)
             return response.SetError(ErrorCodes.InvalidParameters, "Invalid token");
 
-        var contract = signingToken.Contract;
-
-        return response.SetSuccess(new
+        switch (signingToken.EntityType)
         {
-            contract.ContractNumber,
-            contract.ContractBody,
-            contract.PdfPath
-        });
+            case SigningEntityType.Contract:
+                {
+                    var contract = await _db.StudentContracts
+                        .FirstOrDefaultAsync(c => c.Id == signingToken.EntityId);
+
+                    if (contract == null)
+                        return response.SetError(ErrorCodes.InvalidParameters, "Contract not found");
+
+                    return response.SetSuccess(new
+                    {
+                        Type = "Contract",
+                        contract.ContractNumber,
+                        Body = contract.ContractBody,
+                        contract.PdfPath
+                    });
+                }
+
+            case SigningEntityType.AdditionalAct:
+                {
+                    var act = await _db.ContractAdditionalAct
+                        .FirstOrDefaultAsync(a => a.Id == signingToken.EntityId);
+
+                    if (act == null)
+                        return response.SetError(ErrorCodes.InvalidParameters, "Act not found");
+
+                    return response.SetSuccess(new
+                    {
+                        Type = "AdditionalAct",
+                        act.ActNumber,
+                        Body = act.Body,
+                        act.PdfPath
+                    });
+                }
+
+            default:
+                return response.SetError(ErrorCodes.InvalidParameters, "Unsupported entity");
+        }
     }
 
-    // =========================
-    // SIGN by admin
-    // =========================
-    public async Task<PublicResponse> SignByAdminAsync(int id, string signature)
+    public async Task<PublicResponse> SignByAdminAsync(SigningEntityType type, int id, string signature)
     {
         var response = new PublicResponse(true);
 
         if (string.IsNullOrWhiteSpace(signature))
-            return response.SetError(
-                ErrorCodes.InvalidParameters,
-                "Signature missing");
-
-        var contract = await _db.StudentContracts
-    .Include(c => c.Parties)
-    .Include(c => c.Courses)
-    .FirstOrDefaultAsync(c => c.Id == id);
-
-        if (contract is null)
-            return response.SetError(ErrorCodes.InvalidParameters, "Contract not found");
-
-        if (contract.Status != ContractStatus.SignedByClient)
-            return response.SetError(
-                ErrorCodes.InvalidParameters,
-                "Client must sign first");
-
-        contract.AdminSignature = signature;
-        contract.AdminSignedAtUtc = DateTime.UtcNow;
-
-        // activare automată
-        contract.Status = ContractStatus.Active;
-        contract.ActivatedAtUtc = DateTime.UtcNow;
-        contract.UpdatedAtUtc = DateTime.UtcNow;
-
-        // 🔥 ia studentii din contract
-        var studentIds = contract.Parties
-            .Where(p => p.StudentId.HasValue && p.Role == ContractPartyRole.Student)
-            .Select(p => p.StudentId!.Value)
-            .ToList();
-
-        // 🔥 ia sesiunile din contract
-        var sessionIds = contract.Courses
-            .Select(c => c.CourseSessionId)
-            .ToList();
-
-        // 🔥 ia enrollments existente
-        var enrollments = await _db.CourseEnrollments
-            .Where(e =>
-                studentIds.Contains(e.StudentId) &&
-                sessionIds.Contains(e.CourseSessionId) &&
-                e.IsActive)
-            .ToListAsync();
-
-        // 🔥 leaga de contract
-        foreach (var e in enrollments)
-        {
-            if (e.ContractId == null)
-                e.ContractId = contract.Id;
-        }
+            return response.SetError(ErrorCodes.InvalidParameters, "Signature missing");
 
         try
         {
-            // generăm PDF final cu ambele semnături
-            var pdfName = _pdfService.GeneratePdf(new PdfDocumentModel
+            switch (type)
             {
-                Title = "CONTRACT DE PRESTĂRI SERVICII",
-                Number = contract.ContractNumber,
-                Body = contract.ContractBody,
-                CompanyName = contract.CompanyNameSnapshot,
-                BeneficiaryName = contract.BeneficiaryNameSnapshot,
-                AdminSignature = contract.AdminSignature,
-                ClientSignature = contract.ClientSignature,
-                AdminSignedAt = contract.AdminSignedAtUtc,
-                ClientSignedAt = contract.ClientSignedAtUtc
-            }, "CTR");
-            contract.PdfPath = pdfName;
+                // ================= CONTRACT =================
+                case SigningEntityType.Contract:
+                    {
+                        var contract = await _db.StudentContracts
+                            .Include(c => c.Parties)
+                            .Include(c => c.Courses)
+                            .FirstOrDefaultAsync(c => c.Id == id);
+
+                        if (contract is null)
+                            return response.SetError(ErrorCodes.InvalidParameters, "Contract not found");
+
+                        if (contract.Status != ContractStatus.SignedByClient)
+                            return response.SetError(ErrorCodes.InvalidParameters, "Client must sign first");
+
+                        contract.AdminSignature = signature;
+                        contract.AdminSignedAtUtc = DateTime.UtcNow;
+
+                        contract.Status = ContractStatus.Active;
+                        contract.ActivatedAtUtc = DateTime.UtcNow;
+                        contract.UpdatedAtUtc = DateTime.UtcNow;
+
+                        // 🔥 ENROLLMENTS
+                        var studentIds = contract.Parties
+                            .Where(p => p.StudentId.HasValue && p.Role == ContractPartyRole.Student)
+                            .Select(p => p.StudentId!.Value)
+                            .ToList();
+
+                        var sessionIds = contract.Courses
+                            .Select(c => c.CourseSessionId)
+                            .ToList();
+
+                        var enrollments = await _db.CourseEnrollments
+                            .Where(e =>
+                                studentIds.Contains(e.StudentId) &&
+                                sessionIds.Contains(e.CourseSessionId) &&
+                                e.IsActive)
+                            .ToListAsync();
+
+                        foreach (var e in enrollments)
+                        {
+                            if (e.ContractId == null)
+                                e.ContractId = contract.Id;
+                        }
+
+                        // 🔥 PDF
+                        contract.PdfPath = _pdfService.GeneratePdf(new PdfDocumentModel
+                        {
+                            Title = "CONTRACT DE PRESTĂRI SERVICII",
+                            Number = contract.ContractNumber,
+                            Body = contract.ContractBody,
+                            CompanyName = contract.CompanyNameSnapshot,
+                            BeneficiaryName = contract.BeneficiaryNameSnapshot,
+                            AdminSignature = contract.AdminSignature,
+                            ClientSignature = contract.ClientSignature,
+                            AdminSignedAt = contract.AdminSignedAtUtc,
+                            ClientSignedAt = contract.ClientSignedAtUtc
+                        }, "CTR");
+
+                        _db.ActivityLog.Add(new ActivityLog
+                        {
+                            EntityType = nameof(StudentContract),
+                            EntityId = contract.Id,
+                            Action = "SignAdmin",
+                            Description = "Administratorul a semnat contractul",
+                            CreatedAtUtc = DateTime.UtcNow
+                        });
+
+                        break;
+                    }
+
+                // ================= ACT ADITIONAL =================
+                case SigningEntityType.AdditionalAct:
+                    {
+                        var act = await _db.ContractAdditionalAct
+                            .Include(a => a.Contract)
+                            .Include(a => a.Items)
+                            .FirstOrDefaultAsync(a => a.Id == id);
+
+                        if (act is null)
+                            return response.SetError(ErrorCodes.InvalidParameters, "Act not found");
+
+                        if (act.Status != AdditionalActStatus.SignedByClient)
+                            return response.SetError(ErrorCodes.InvalidParameters, "Client must sign first");
+
+                        act.AdminSignature = signature;
+                        act.AdminSignedAtUtc = DateTime.UtcNow;
+                        act.Status = AdditionalActStatus.Active;
+
+                        // 🔥 APPLY LOGIC REALĂ
+                        await _additionalActService.ApplyAdditionalActAsync(act.Id);
+
+                        // 🔥 PDF
+                        act.PdfPath = _pdfService.GeneratePdf(new PdfDocumentModel
+                        {
+                            Title = "ACT ADIȚIONAL",
+                            Number = act.ActNumber,
+                            Body = act.Body,
+                            CompanyName = act.Contract.CompanyNameSnapshot,
+                            BeneficiaryName = act.Contract.BeneficiaryNameSnapshot,
+                            AdminSignature = act.AdminSignature,
+                            ClientSignature = act.ClientSignature,
+                            AdminSignedAt = act.AdminSignedAtUtc,
+                            ClientSignedAt = act.ClientSignedAtUtc,
+                        }, "ACT");
+
+                        _db.ActivityLog.Add(new ActivityLog
+                        {
+                            EntityType = nameof(ContractAdditionalAct),
+                            EntityId = act.Id,
+                            Action = "SignAdmin",
+                            Description = "Administratorul a semnat actul adițional",
+                            CreatedAtUtc = DateTime.UtcNow
+                        });
+
+                        break;
+                    }
+
+                default:
+                    return response.SetError(ErrorCodes.InvalidParameters, "Unsupported entity");
+            }
+
+            await _db.SaveChangesAsync();
+
+            return response.SetSuccess(true);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "PDF generation failed");
-            throw;
+            _logger.LogError(ex, "Error signing document by admin");
+            return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
         }
-       
-
-        _db.ActivityLog.Add(new ActivityLog
-        {
-            EntityType = nameof(StudentContract),
-            EntityId = contract.Id,
-            Action = "SignAdmin",
-            Description = "Administratorul a semnat contractul",
-            CreatedAtUtc = DateTime.UtcNow
-        });
-
-        await _db.SaveChangesAsync();
-
-        return response.SetSuccess(true);
-    }
-
-    // =========================
-    // LIST BY STUDENT
-    // =========================
-    public async Task<PublicResponse> ListByStudentAsync(int studentId)
-    {
-        var response = new PublicResponse(true);
-
-        var contracts = await _db.StudentContracts
-     .AsNoTracking()
-     .Include(c => c.Parties)
-         .ThenInclude(p => p.Guardian)
-     .Where(c => c.Parties.Any(p =>
-         p.StudentId == studentId &&
-         p.Role == ContractPartyRole.Student))
-     .Select(c => new ContractListItemDto(
-         c.Id,
-         c.ContractNumber,
-         c.Parties
-             .Where(p => p.Role == ContractPartyRole.Guardian)
-             .Select(p => p.Guardian.FirstName + " " + p.Guardian.LastName)
-             .FirstOrDefault(),
-         c.StartDate,
-         c.EndDate,
-         c.TotalAmount,
-         c.Status.ToString(),
-         c.CreatedAtUtc
-     ))
-     .ToListAsync();
-
-        return response.SetSuccess(contracts);
-    }
-
-    // =========================
-    // GET BY ID
-    // =========================
-    public async Task<PublicResponse> GetByIdAsync(int id)
-    {
-        var response = new PublicResponse(true);
-
-        var contract = await _db.StudentContracts
-    .AsNoTracking()
-    .Include(c => c.Courses)
-    .Include(c => c.Discounts)
-    .Include(c => c.Parties)
-        .ThenInclude(p => p.Student)
-    .Include(c => c.Parties)
-        .ThenInclude(p => p.Guardian)
-    .FirstOrDefaultAsync(c => c.Id == id);
-
-        if (contract is null)
-            return response.SetError(ErrorCodes.InvalidParameters, "Not found");
-
-        var dto = new ContractDetailsDto(
-     contract.Id,
-     contract.ContractNumber,
-     contract.StartDate,
-     contract.EndDate,
-     contract.IsUnlimited,
-     contract.TotalAmount,
-     contract.Installments,
-     contract.Status.ToString(),
-     contract.CreatedAtUtc,
-     contract.FinalizedAtUtc,
-
-     // 🔥 SEMNĂTURI
-     contract.ClientSignature,
-     contract.ClientSignedAtUtc,
-     contract.AdminSignature,
-     contract.AdminSignedAtUtc,
-
-     // 🔥 COMPANY
-     contract.CompanyNameSnapshot,
-     contract.CompanyAddressSnapshot,
-     contract.CompanyCuiSnapshot,
-     contract.CompanyRegistrationSnapshot,
-     contract.CompanyIbanSnapshot,
-     contract.CompanyBankSnapshot,
-     contract.CompanyEmailSnapshot,
-     contract.CompanyPhoneSnapshot,
-
-     // 🔥 BENEFICIAR
-     contract.BeneficiaryNameSnapshot,
-     contract.BeneficiaryEmailSnapshot,
-     contract.BeneficiaryPhoneSnapshot,
-     contract.BeneficiaryAddressSnapshot,
-
-     contract.ContractBody,
-
-   contract.Parties.Select(p => new ContractPartyDto(
-    p.StudentId,
-    p.Student != null ? p.Student.FirstName + " " + p.Student.LastName : null,
-    p.GuardianId,
-    p.Guardian != null ? p.Guardian.FirstName + " " + p.Guardian.LastName : null,
-    p.Role.ToString()
-)).ToList(),
-
-     contract.Courses.Select(c => new ContractCourseDto(
-         c.CourseSessionId,
-         c.CourseNameSnapshot,
-         c.SessionNameSnapshot,
-         c.PriceSnapshot
-     )).ToList(),
-
-     contract.Discounts.Select(d => new ContractDiscountDto(
-         d.Type.ToString(),
-         d.Value,
-         d.Reason
-     )).ToList()
- );
-
-        return response.SetSuccess(dto);
-    }
-
-    // =========================
-    // HELPERS
-    // =========================
-    private decimal CalculateTotal(StudentContract contract)
-    {
-        var total = contract.Courses.Sum(c => c.PriceSnapshot);
-
-        foreach (var discount in contract.Discounts)
-        {
-            if (discount.Type == DiscountType.Percentage)
-                total -= total * (discount.Value / 100m);
-            else
-                total -= discount.Value;
-        }
-
-        return total < 0 ? 0 : total;
-    }
-
-    private string GenerateContractNumber()
-    {
-        return $"CTR-{DateTime.UtcNow:yyyy}-{DateTime.UtcNow.Ticks.ToString()[^6..]}";
-    }
-
-    private async Task<string> GenerateContractBody( StudentContract contract,    Guardian? guardian,    List<ERPSystem.Data.Entities.Student> students)
-    {
-        var template = await _db.ContractTemplates
-        .Where(x => x.IsActive && x.Name == "Default ERP Contract Template")
-        .Select(x => x.Body)
-        .FirstAsync();
-
-        var studentList = string.Join(", ", students.Select(s => s.FullName));
-
-        var coursesList = string.Join("\n",
-            contract.Courses.Select(c =>
-                $"- {c.CourseNameSnapshot} ({c.SessionNameSnapshot}) – {c.PriceSnapshot} RON"));
-
-        string beneficiaryName;
-        string beneficiaryEmail;
-        string beneficiaryPhone;
-        string beneficiaryAddress;
-
-        
-        var subtotal = contract.Courses.Sum(c => c.PriceSnapshot);
-        var discount = subtotal - contract.TotalAmount;
-
-        var period = contract.IsUnlimited
-            ? "Perioadă nedeterminată"
-            : $"{contract.StartDate:dd.MM.yyyy} - {contract.EndDate:dd.MM.yyyy}";
-
-        var values = new Dictionary<string, string>
-        {
-            ["ContractNumber"] = contract.ContractNumber,
-            ["Date"] = DateTime.UtcNow.ToString("dd.MM.yyyy"),
-
-            ["CompanyName"] = contract.CompanyNameSnapshot,
-            ["CompanyCui"] = contract.CompanyCuiSnapshot,
-            ["CompanyRegistration"] = contract.CompanyRegistrationSnapshot,
-            ["CompanyAddress"] = contract.CompanyAddressSnapshot,
-            ["CompanyIban"] = contract.CompanyIbanSnapshot,
-            ["CompanyBank"] = contract.CompanyBankSnapshot,
-            ["CompanyEmail"] = contract.CompanyEmailSnapshot,
-            ["CompanyPhone"] = contract.CompanyPhoneSnapshot,
-
-            ["BeneficiaryName"] = contract.BeneficiaryNameSnapshot,
-            ["BeneficiaryEmail"] = contract.BeneficiaryEmailSnapshot,
-            ["BeneficiaryPhone"] = contract.BeneficiaryPhoneSnapshot,
-            ["BeneficiaryAddress"] = contract.BeneficiaryAddressSnapshot,
-            ["Students"] = studentList,
-            ["Courses"] = coursesList,
-
-            ["ContractPeriod"] = period,
-
-            ["Subtotal"] = $"{subtotal:F2} RON",
-            ["Discount"] = $"{discount:F2} RON",
-            ["Total"] = $"{contract.TotalAmount:F2} RON"
-        };
-
-        return ApplyTemplate(template, values);
-    }
-
-
-    private string ApplyTemplate(string template, Dictionary<string, string> values)
-    {
-        foreach (var item in values)
-        {
-            template = template.Replace($"{{{{{item.Key}}}}}", item.Value ?? "");
-        }
-
-        return template;
     }
 
     public async Task<PublicResponse> CancelAsync(int id)
@@ -980,12 +1018,28 @@ public class ContractsService
 
         var contract = await _db.StudentContracts
             .FirstOrDefaultAsync(c => c.Id == id);
+        var acts = await _db.ContractAdditionalAct
+    .Where(a => a.ContractId == contract.Id)
+    .ToListAsync();
 
         if (contract is null)
             return response.SetError(ErrorCodes.InvalidParameters, "Not found");
 
         contract.Status = ContractStatus.Cancelled;
         contract.UpdatedAtUtc = DateTime.UtcNow;
+        foreach (var act in acts)
+        {
+            act.Status = AdditionalActStatus.Cancelled;
+        }
+
+        var installments = await _db.ContractInstallments
+    .Where(i => i.ContractId == contract.Id && !i.IsPaid)
+    .ToListAsync();
+
+        foreach (var i in installments)
+        {
+            i.Status = InstallmentStatus.Cancelled;
+        }
 
         // 🔥 LOG CONTRACT
         _db.ActivityLog.Add(new ActivityLog
@@ -1031,6 +1085,9 @@ public class ContractsService
 
         var contract = await _db.StudentContracts
             .FirstOrDefaultAsync(c => c.Id == id);
+        var acts = await _db.ContractAdditionalAct
+   .Where(a => a.ContractId == contract.Id)
+   .ToListAsync();
 
         if (contract is null)
             return response.SetError(ErrorCodes.InvalidParameters, "Not found");
@@ -1041,6 +1098,20 @@ public class ContractsService
 
         contract.Status = ContractStatus.Completed;
         contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        foreach (var act in acts)
+        {
+            act.Status = AdditionalActStatus.Completed;
+        }
+        var installments = await _db.ContractInstallments
+    .Where(i => i.ContractId == contract.Id && !i.IsPaid)
+    .ToListAsync();
+
+        foreach (var i in installments)
+        {
+            if (!i.IsPaid)
+                i.Status = InstallmentStatus.Cancelled;
+        }
 
         // 🔥 LOG CONTRACT
         _db.ActivityLog.Add(new ActivityLog
@@ -1089,13 +1160,22 @@ public class ContractsService
                 c.EndDate < DateTime.UtcNow)
             .ToListAsync();
 
+
         foreach (var contract in contracts)
         {
             contract.Status = ContractStatus.Expired;
             contract.UpdatedAtUtc = DateTime.UtcNow;
+            var acts = await _db.ContractAdditionalAct
+           .Where(a => a.ContractId == contract.Id &&
+                       a.Status == AdditionalActStatus.Active)
+           .ToListAsync();
+            foreach (var act in acts)
+            {
+                act.Status = AdditionalActStatus.Expired;
+            }
 
-            // 🔥 log contract
-            _db.ActivityLog.Add(new ActivityLog
+                // 🔥 log contract
+                _db.ActivityLog.Add(new ActivityLog
             {
                 EntityType = nameof(StudentContract),
                 EntityId = contract.Id,
@@ -1103,6 +1183,16 @@ public class ContractsService
                 Description = $"Contract {contract.ContractNumber} a expirat",
                 CreatedAtUtc = DateTime.UtcNow
             });
+
+            var installments = await _db.ContractInstallments
+    .Where(i => i.ContractId == contract.Id && !i.IsPaid)
+    .ToListAsync();
+
+            foreach (var i in installments)
+            {
+                if (!i.IsPaid)
+                    i.Status = InstallmentStatus.Expired;
+            }
 
             // 🔥 enrollments pentru contract
             var enrollments = await _db.CourseEnrollments
@@ -1145,9 +1235,28 @@ public class ContractsService
         if (contract.Status != ContractStatus.Active)
             return response.SetError(ErrorCodes.InvalidParameters,
                 "Only active contracts can be suspended");
+        var acts = await _db.ContractAdditionalAct
+    .Where(a => a.ContractId == contract.Id)
+    .ToListAsync();
 
         contract.Status = ContractStatus.Suspended;
         contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        foreach (var act in acts)
+        {
+            act.Status = AdditionalActStatus.Suspended;
+        }
+
+        var installments = await _db.ContractInstallments
+    .Where(i => i.ContractId == contract.Id && !i.IsPaid)
+    .ToListAsync();
+
+        foreach (var i in installments)
+        {
+            if (!i.IsPaid)
+                i.Status = InstallmentStatus.Suspended;
+        }
+
 
         // 🔥 LOG CONTRACT
         _db.ActivityLog.Add(new ActivityLog
@@ -1200,9 +1309,27 @@ public class ContractsService
         if (contract.Status != ContractStatus.Suspended)
             return response.SetError(ErrorCodes.InvalidParameters,
                 "Only suspended contracts can be resumed");
+        var acts = await _db.ContractAdditionalAct
+    .Where(a => a.ContractId == contract.Id)
+    .ToListAsync();
 
         contract.Status = ContractStatus.Active;
         contract.UpdatedAtUtc = DateTime.UtcNow;
+
+        foreach (var act in acts)
+        {
+            act.Status = AdditionalActStatus.Active;
+        }
+
+        var installments = await _db.ContractInstallments
+   .Where(i => i.ContractId == contract.Id && !i.IsPaid)
+   .ToListAsync();
+
+        foreach (var i in installments)
+        {
+            if (i.Status == InstallmentStatus.Suspended)
+                i.Status = InstallmentStatus.Pending;
+        }
 
         // 🔥 REACTIVARE ENROLLMENTS
         var enrollments = await _db.CourseEnrollments
@@ -1240,7 +1367,6 @@ public class ContractsService
         return response.SetSuccess(true);
     }
 
-
     public async Task<IResult> DownloadContractAsync(int id)
     {
         var contract = await _db.StudentContracts.FindAsync(id);
@@ -1250,355 +1376,367 @@ public class ContractsService
 
         if (string.IsNullOrEmpty(contract.PdfPath))
             return Results.BadRequest("PDF not generated");
-       
-            var filePath = Path.Combine("wwwroot", "contracts", contract.PdfPath);
 
-            if (!File.Exists(filePath))
-            {
-                // 🔥 regenerează dacă lipsește
-                var fileName = _pdfService.GeneratePdf(new PdfDocumentModel
-                {
-                    Title = "CONTRACT DE PRESTĂRI SERVICII",
-                    Number = contract.ContractNumber,
-                    Body = contract.ContractBody,
-                    CompanyName = contract.CompanyNameSnapshot,
-                    BeneficiaryName = contract.BeneficiaryNameSnapshot,
-                    AdminSignature = contract.AdminSignature,
-                    ClientSignature = contract.ClientSignature,
-                    AdminSignedAt = contract.AdminSignedAtUtc,
-                    ClientSignedAt = contract.ClientSignedAtUtc
-                }, "CTR");
+        var filePath = Path.Combine("wwwroot", "contracts", contract.PdfPath);
 
-                contract.PdfPath = fileName;
-                await _db.SaveChangesAsync();
-
-                filePath = Path.Combine("wwwroot", "contracts", fileName);
-            }
-
-
-
-            var bytes = await File.ReadAllBytesAsync(filePath);
-
-            return Results.File(
-                bytes,
-                "application/pdf",
-                $"Contract_{contract.ContractNumber}.pdf"
-            );
-       
-
-    }
-
-
-    public async Task<PublicResponse> GetLatestByStudentAsync(int studentId)
-    {
-        var response = new PublicResponse(true);
-
-        var contract = await _db.StudentContracts
-            .Include(c => c.Parties)
-            .Where(c => c.Parties.Any(p =>
-                p.Role == ContractPartyRole.Student &&
-                p.StudentId.HasValue &&
-                p.StudentId.Value == studentId))
-            .OrderByDescending(c => c.CreatedAtUtc) 
-            .Select(c => new
-            {
-                c.Id,
-                c.ContractNumber,
-                c.StartDate,
-                c.EndDate,
-                Status = c.Status.ToString()
-
-            })
-            .FirstOrDefaultAsync();
-
-        return response.SetSuccess(contract);
-    }
-
-
-    //ADITIONAL ACT
-    public async Task<PublicResponse> CreateAdditionalActAsync(int contractId, CreateAdditionalActDto dto)
-    {
-        var response = new PublicResponse(true);
-
-        var contract = await _db.StudentContracts
-            .Include(c => c.Parties)
-            .FirstOrDefaultAsync(c => c.Id == contractId);
-
-        if (contract == null)
-            return response.SetError(ErrorCodes.InvalidParameters, "Contract not found");
-
-        if (contract.Status != ContractStatus.Active)
-            return response.SetError(ErrorCodes.InvalidParameters, "Only active contracts can have additional acts");
-
-        if (dto.Types == null || !dto.Types.Any())
-            return response.SetError(ErrorCodes.InvalidParameters, "At least one type required");
-
-        var act = new ContractAdditionalAct
+        if (!File.Exists(filePath))
         {
-            ContractId = contract.Id,
-            ActNumber = GenerateActNumber(),
-            Status = AdditionalActStatus.Draft,
-            CreatedAtUtc = DateTime.UtcNow
-        };
-
-
-        _db.ContractAdditionalAct.Add(act);
-        await _db.SaveChangesAsync();
-
-        var descriptions = new List<string>();
-
-        var studentId = contract.Parties
-            .Where(p => p.StudentId != null)
-            .Select(p => p.StudentId.Value)
-            .FirstOrDefault();
-
-        foreach (var type in dto.Types)
-        {
-            var item = new ContractAdditionalActItem
+            // 🔥 regenerează dacă lipsește
+            var fileName = _pdfService.GeneratePdf(new PdfDocumentModel
             {
-                ActId = act.Id,
-                Type = type
-            };
+                Title = "CONTRACT DE PRESTĂRI SERVICII",
+                Number = contract.ContractNumber,
+                Body = contract.ContractBody,
+                CompanyName = contract.CompanyNameSnapshot,
+                BeneficiaryName = contract.BeneficiaryNameSnapshot,
+                AdminSignature = contract.AdminSignature,
+                ClientSignature = contract.ClientSignature,
+                AdminSignedAt = contract.AdminSignedAtUtc,
+                ClientSignedAt = contract.ClientSignedAtUtc
+            }, "CTR");
 
-            switch (type)
-            {
-                // 🔥 ADD COURSE
-                case AdditionalActType.AddCourse:
+            contract.PdfPath = fileName;
+            await _db.SaveChangesAsync();
 
-                    var sessionId = dto.CourseSessionIds?.FirstOrDefault();
-
-                    var enrollment = await _db.CourseEnrollments
-                        .Include(e => e.Session)
-                            .ThenInclude(s => s.Course)
-                        .FirstOrDefaultAsync(e =>
-                            e.CourseSessionId == sessionId &&
-                            e.StudentId == studentId &&
-                            e.IsActive);
-
-                    if (enrollment == null)
-                        return response.SetError(ErrorCodes.InvalidParameters, "Enrollment not found");
-
-                    if (enrollment.ContractId != null)
-                        return response.SetError(ErrorCodes.InvalidParameters, "Already in contract");
-
-                    item.CourseSessionId = sessionId;
-
-                    descriptions.Add($"Adăugat curs: {enrollment.Session.Course.Name}");
-                    break;
-
-                // 🔥 REMOVE COURSE
-                case AdditionalActType.RemoveCourse:
-
-                    var removeSessionId = dto.CourseSessionIds?.FirstOrDefault();
-
-                    var existingEnrollment = await _db.CourseEnrollments
-                        .Include(e => e.Session)
-                            .ThenInclude(s => s.Course)
-                        .FirstOrDefaultAsync(e =>
-                            e.CourseSessionId == removeSessionId &&
-                            e.ContractId == contract.Id);
-
-                    if (existingEnrollment == null)
-                        return response.SetError(ErrorCodes.InvalidParameters, "Course not in contract");
-
-                    item.CourseSessionId = removeSessionId;
-
-                    descriptions.Add($"Eliminat curs: {existingEnrollment.Session.Course.Name}");
-                    break;
-
-                // 📆 EXTEND
-                case AdditionalActType.ExtendPeriod:
-
-                    if (!dto.NewEndDate.HasValue)
-                        return response.SetError(ErrorCodes.InvalidParameters, "New date required");
-
-                    item.NewValue = dto.NewEndDate.Value.ToString("yyyy-MM-dd");
-
-                    descriptions.Add($"Extins până la {dto.NewEndDate.Value:dd.MM.yyyy}");
-                    break;
-
-                // 💰 PRICE
-                case AdditionalActType.ChangePrice:
-
-                    if (!dto.NewPrice.HasValue || dto.NewPrice <= 0)
-                        return response.SetError(ErrorCodes.InvalidParameters, "Invalid price");
-
-                    item.NewValue = dto.NewPrice.Value.ToString();
-
-                    descriptions.Add($"Preț modificat la {dto.NewPrice} RON");
-                    break;
-            }
-
-            act.Items.Add(item);
-            _db.ContractAdditionalActItem.Add(item);
+            filePath = Path.Combine("wwwroot", "contracts", fileName);
         }
 
-        
-        // 🔥 description
-        act.Description = string.Join(" | ", descriptions);
 
-        // 🔥 SALVEZI ITEMS
-        await _db.SaveChangesAsync();
 
-        // 🔥 STUDENȚI
-        var studentIds = contract.Parties
-            .Where(p => p.StudentId != null)
-            .Select(p => p.StudentId.Value)
+        var bytes = await File.ReadAllBytesAsync(filePath);
+
+        return Results.File(
+            bytes,
+            "application/pdf",
+            $"Contract_{contract.ContractNumber}.pdf"
+        );
+
+
+    }
+
+    public async Task<PublicResponse> ListByStudentAsync(int studentId)
+    {
+        var response = new PublicResponse(true);
+
+        var contracts = await _db.StudentContracts
+            .AsNoTracking()
+            .Include(c => c.Parties)
+                .ThenInclude(p => p.Guardian)
+            .Include(c => c.InstallmentsList) // 🔥 important
+            .Where(c => c.Parties.Any(p =>
+                p.StudentId == studentId &&
+                p.Role == ContractPartyRole.Student))
+            .Select(c => new ContractListItemDto
+            {
+                Id = c.Id,
+                ContractNumber = c.ContractNumber,
+
+                GuardianName = c.Parties
+                    .Where(p => p.Role == ContractPartyRole.Guardian)
+                    .Select(p => p.Guardian.FirstName + " " + p.Guardian.LastName)
+                    .FirstOrDefault(),
+
+                StartDate = c.StartDate,
+                EndDate = c.EndDate,
+
+                TotalAmount = c.TotalAmount,
+
+                // 🔥 display smart
+                DisplayTotal =
+                    c.TotalAmount.HasValue
+                        ? c.TotalAmount.Value.ToString("0.##") + " RON"
+                        : "Abonament lunar",
+
+                IsUnlimited = c.IsUnlimited,
+
+                // 🔥 lunar (primul installment)
+                MonthlyAmount = c.InstallmentsList
+                    .OrderBy(i => i.DueDate)
+                    .Select(i => i.Amount)
+                    .FirstOrDefault(),
+
+                Status = c.Status.ToString(),
+                CreatedAtUtc = c.CreatedAtUtc
+            })
+            .ToListAsync();
+
+        return response.SetSuccess(contracts);
+    }
+
+    public async Task<PublicResponse> GetByIdAsync(int id)
+    {
+        var response = new PublicResponse(true);
+
+        var contract = await _db.StudentContracts
+            .AsNoTracking()
+            .Include(c => c.Courses)
+            .Include(c => c.Discounts)
+            .Include(c => c.InstallmentsList) // 🔥 important
+            .Include(c => c.Parties)
+                .ThenInclude(p => p.Student)
+            .Include(c => c.Parties)
+                .ThenInclude(p => p.Guardian)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (contract is null)
+            return response.SetError(ErrorCodes.InvalidParameters, "Not found");
+
+        var monthlyAmount = contract.TotalAmount == null
+     ? contract.InstallmentsList.FirstOrDefault()?.Amount ?? 0
+     : 0;
+
+        var displayTotal = contract.TotalAmount.HasValue
+    ? $"{contract.TotalAmount.Value:F2} RON"
+    : $"{monthlyAmount:F2} RON / lună";
+
+        var dto = new ContractDetailsDto(
+            contract.Id,
+            contract.ContractNumber,
+            contract.StartDate,
+            contract.EndDate,
+            contract.IsUnlimited,
+            contract.TotalAmount,
+
+
+            displayTotal,
+            monthlyAmount,
+
+            contract.Installments,
+            contract.Status.ToString(),
+            contract.CreatedAtUtc,
+            contract.FinalizedAtUtc,
+
+            // semnături
+            contract.ClientSignature,
+            contract.ClientSignedAtUtc,
+            contract.AdminSignature,
+            contract.AdminSignedAtUtc,
+
+            // company
+            contract.CompanyNameSnapshot,
+            contract.CompanyAddressSnapshot,
+            contract.CompanyCuiSnapshot,
+            contract.CompanyRegistrationSnapshot,
+            contract.CompanyIbanSnapshot,
+            contract.CompanyBankSnapshot,
+            contract.CompanyEmailSnapshot,
+            contract.CompanyPhoneSnapshot,
+
+            // beneficiar
+            contract.BeneficiaryNameSnapshot,
+            contract.BeneficiaryEmailSnapshot,
+            contract.BeneficiaryPhoneSnapshot,
+            contract.BeneficiaryAddressSnapshot,
+
+            contract.ContractBody,
+
+            // parties
+            contract.Parties.Select(p => new ContractPartyDto(
+                p.StudentId,
+                p.Student != null ? p.Student.FirstName + " " + p.Student.LastName : null,
+                p.GuardianId,
+                p.Guardian != null ? p.Guardian.FirstName + " " + p.Guardian.LastName : null,
+                p.Role.ToString()
+            )).ToList(),
+
+            // courses
+            contract.Courses.Select(c => new ContractCourseDto(
+                  c.CourseSessionId,
+                  c.CourseNameSnapshot,
+                  c.SessionNameSnapshot,
+                  c.PriceSnapshot,
+                  (int)c.FeeType // 🔥 ADD
+              )).ToList(),
+
+            // discounts
+            contract.Discounts.Select(d => new ContractDiscountDto(
+                d.Type.ToString(),
+                d.Value,
+                d.Reason,
+                d.Scope.ToString() // 🔥 ADD
+            )).ToList(),
+
+            // 🔥 installments
+            contract.InstallmentsList
+                .OrderBy(i => i.DueDate)
+                .Select(i => new InstallmentDto
+                {
+                    DueDate = i.DueDate,
+                    Amount = i.Amount,
+                    PaidAmount = i.PaidAmount
+                })
+                .ToList()
+        );
+
+        return response.SetSuccess(dto);
+    }
+
+    private PricingResult CalculatePricing(  List<CourseSession> sessions,  StudentContract contract)
+    {
+        var result = new PricingResult();
+
+        // split types
+        var packageSessions = sessions
+            .Where(s => s.FeeType == CourseFeeType.FixedPackage)
             .ToList();
 
-        var students = await _db.Students
-            .Where(s => studentIds.Contains(s.Id))
-            .ToListAsync();
+        var subscriptionSessions = sessions
+            .Where(s => s.FeeType == CourseFeeType.Monthly)
+            .ToList();
 
-        // 🔥 GUARDIAN
-        var guardian = await _db.Guardians
-            .FirstOrDefaultAsync(g =>
-                contract.Parties.Any(p => p.GuardianId == g.Id));
+        result.PackageTotal = packageSessions.Sum(s => s.Fee);
 
-        // 🔥 BODY
-        act.Body = await GenerateAdditionalActBody(contract, act, guardian, students);
+        result.SubscriptionMonthly = subscriptionSessions.Sum(s => s.Fee);
 
-        await _db.SaveChangesAsync();
-
-        return response.SetSuccess(new { act.Id });
-    }
-
-  
-
-    public async Task<PublicResponse> FinalizeAdditionalActAsync(int id)
-    {
-        var response = new PublicResponse(true);
-
-        var act = await _db.ContractAdditionalAct
-            .Include(a => a.Contract)
-            .Include(a => a.Items)
-            .FirstOrDefaultAsync(a => a.Id == id);
-
-        if (act == null)
-            return response.SetError(ErrorCodes.InvalidParameters, "Act not found");
-
-        if (act.Status != AdditionalActStatus.Draft)
-            return response.SetError(ErrorCodes.InvalidParameters, "Already finalized");
-
-        var contract = act.Contract;
-
-        foreach (var item in act.Items)
+        if (!contract.IsUnlimited && subscriptionSessions.Any())
         {
-            switch (item.Type)
+            var months =
+                ((contract.EndDate!.Value.Year - contract.StartDate.Year) * 12) +
+                contract.EndDate.Value.Month - contract.StartDate.Month + 1;
+
+            result.SubscriptionMonths = months;
+            result.SubscriptionTotal = result.SubscriptionMonthly * months;
+        }
+        else
+        {
+            result.SubscriptionMonths = null;
+            result.SubscriptionTotal = null;
+        }
+
+        foreach (var d in contract.Discounts)
+        {
+            switch (d.Scope)
             {
-                case AdditionalActType.AddCourse:
-                    var enrollment = await _db.CourseEnrollments
-                        .FirstOrDefaultAsync(e => e.CourseSessionId == item.CourseSessionId);
+                case DiscountScope.Package:
+                    result.PackageTotal = ApplyDiscount(result.PackageTotal, d);
+                    break;
 
-                    if (enrollment != null)
-                        enrollment.ContractId = contract.Id;
+                case DiscountScope.Subscription:
+
+                    if (result.SubscriptionTotal.HasValue)
+                    {
+                        result.SubscriptionTotal =
+                            ApplyDiscount(result.SubscriptionTotal.Value, d);
+                    }
+                    else
+                    {
+                        // unlimited → aplic pe lunar
+                        result.SubscriptionMonthly =
+                            ApplyDiscount(result.SubscriptionMonthly, d);
+                    }
 
                     break;
 
-                case AdditionalActType.RemoveCourse:
-                    var enrollmentToRemove = await _db.CourseEnrollments
-                        .FirstOrDefaultAsync(e => e.CourseSessionId == item.CourseSessionId);
+                case DiscountScope.Total:
 
-                    if (enrollmentToRemove != null)
-                        enrollmentToRemove.IsActive = false;
+                    var currentTotal =
+                        result.PackageTotal +
+                        (result.SubscriptionTotal ?? 0);
 
-                    break;
+                    var discountedTotal =
+                        ApplyDiscount(currentTotal, d);
 
-                case AdditionalActType.ExtendPeriod:
-                    if (DateTime.TryParse(item.NewValue, out var newDate))
-                        contract.EndDate = newDate;
-                    break;
+                    if (currentTotal > 0)
+                    {
+                        var ratio = discountedTotal / currentTotal;
 
-                case AdditionalActType.ChangePrice:
-                    if (decimal.TryParse(item.NewValue, out var newPrice))
-                        contract.TotalAmount = newPrice;
+                        result.PackageTotal *= ratio;
+
+                        if (result.SubscriptionTotal.HasValue)
+                        {
+                            result.SubscriptionTotal *= ratio;
+                        }
+                    }
+
                     break;
             }
         }
 
-        contract.UpdatedAtUtc = DateTime.UtcNow;
+        if (result.SubscriptionTotal.HasValue)
+        {
+            result.Total = result.PackageTotal + result.SubscriptionTotal;
+        }
+        else if (subscriptionSessions.Any())
+        {
+            // unlimited subscription → total necunoscut
+            result.Total = null;
+        }
+        else
+        {
+            result.Total = result.PackageTotal;
+        }
 
-        act.Status = AdditionalActStatus.Approved;
-
-        await _db.SaveChangesAsync();
-
-        return response.SetSuccess(true);
+        return result;
     }
 
-    public async Task<PublicResponse> ListAdditionalActsAsync(int contractId)
+    private decimal ApplyDiscount(decimal amount, ContractDiscount d)
     {
-        var response = new PublicResponse(true);
+        decimal result = amount;
 
-        var acts = await _db.ContractAdditionalAct
-            .Where(a => a.ContractId == contractId)
-            .OrderByDescending(a => a.CreatedAtUtc)
-            .Select(a => new AdditionalActDto(
-                 a.Id,
-                 a.ActNumber,
-                 string.Join(", ", a.Items.Select(i => i.Type.ToString())),
-                 a.Description,
-                 a.CreatedAtUtc
-             ))
-            .ToListAsync();
+        if (d.Type == DiscountType.Percentage)
+        {
+            result -= amount * (d.Value / 100m);
+        }
+        else
+        {
+            result -= d.Value;
+        }
 
-        return response.SetSuccess(acts);
+        return Math.Max(0, Math.Round(result, 2));
     }
 
-    private string GenerateActNumber()
+    private string GenerateContractNumber()
     {
-        return $"AA-{DateTime.UtcNow:yyyy}-{DateTime.UtcNow.Ticks.ToString()[^5..]}";
+        return $"CTR-{DateTime.UtcNow:yyyy}-{DateTime.UtcNow.Ticks.ToString()[^6..]}";
     }
 
-    private async Task<string> GenerateAdditionalActBody(StudentContract contract, ContractAdditionalAct act, Guardian? guardian, List<Data.Entities.Student> students)
+    private async Task<string> GenerateContractBody( StudentContract contract, Guardian? guardian,  List<ERPSystem.Data.Entities.Student> students)
     {
         var template = await _db.ContractTemplates
-            .Where(x => x.IsActive && x.Name == "Default Additional Act Template")
+            .Where(x => x.IsActive && x.Name == "Default ERP Contract Template")
             .Select(x => x.Body)
             .FirstAsync();
 
-        var studentList = string.Join(", ", students.Select(s => s.FullName));
+        var studentList = string.Join("",
+            students.Select(s => $"<li>{s.FullName}</li>"));
 
-        var coursesList = string.Join("\n",
+        var coursesList = string.Join("",
             contract.Courses.Select(c =>
-                $"- {c.CourseNameSnapshot} ({c.SessionNameSnapshot}) – {c.PriceSnapshot} RON"));
+                $"<li>{c.CourseNameSnapshot} ({c.SessionNameSnapshot}) – {c.PriceSnapshot:F2} RON</li>"));
 
-        var effectiveDate = DateTime.UtcNow.ToString("dd.MM.yyyy");
+        var subtotal = contract.Courses.Sum(c => c.PriceSnapshot);
 
-        var sessionIds = act.Items
-    .Where(i => i.CourseSessionId.HasValue)
-    .Select(i => i.CourseSessionId.Value)
-    .ToList();
+        var totalDisplay = contract.TotalAmount.HasValue
+            ? $"{contract.TotalAmount.Value:F2} RON"
+            : "Plată lunară";
 
-        var sessions = await _db.CourseSessions
-            .Include(s => s.Course)
-            .Where(s => sessionIds.Contains(s.Id))
-            .ToDictionaryAsync(s => s.Id);
-        // 🔥 schimbări (logică în funcție de tip)
-        
-   var changes = string.Join("\n",
-    act.Items.Select(i =>
-    {
-        return i.Type switch
+        decimal discountValue = 0;
+
+        if (contract.TotalAmount.HasValue)
         {
-            AdditionalActType.AddCourse =>
-                $"• Curs adăugat: {sessions[i.CourseSessionId.Value].Course.Name}",
+            discountValue = subtotal - contract.TotalAmount.Value;
 
-            AdditionalActType.RemoveCourse =>
-                $"• Curs eliminat: {sessions[i.CourseSessionId.Value].Course.Name}",
+            if (discountValue < 0)
+                discountValue = 0;
+        }
 
-            AdditionalActType.ExtendPeriod =>
-                $"• Perioadă extinsă până la {i.NewValue}",
+        var discountDisplay = $"{discountValue:F2} RON";
 
-            AdditionalActType.ChangePrice =>
-                $"• Preț modificat la {i.NewValue} RON",
+        var monthly = contract.InstallmentsList
+            .OrderBy(i => i.DueDate)
+            .Select(i => i.Amount)
+            .FirstOrDefault();
 
-            _ => ""
-        };
-    }));
+        var monthlyDisplay = monthly > 0
+            ? $"{monthly:F2} RON / lună"
+            : "-";
+
+        var period = contract.IsUnlimited
+            ? "Perioadă nedeterminată"
+            : $"{contract.StartDate:dd.MM.yyyy} - {contract.EndDate:dd.MM.yyyy}";
 
         var values = new Dictionary<string, string>
         {
-            ["ActNumber"] = act.ActNumber,
             ["ContractNumber"] = contract.ContractNumber,
             ["Date"] = DateTime.UtcNow.ToString("dd.MM.yyyy"),
 
@@ -1619,15 +1757,74 @@ public class ContractsService
             ["Students"] = studentList,
             ["Courses"] = coursesList,
 
-            ["ActDescription"] = act.Description,
-            ["Changes"] = changes,
-            ["EffectiveDate"] = effectiveDate,
+            ["ContractPeriod"] = period,
 
-            ["AdminSignDate"] = contract.AdminSignedAtUtc?.ToString("dd.MM.yyyy") ?? "",
-            ["ClientSignDate"] = contract.ClientSignedAtUtc?.ToString("dd.MM.yyyy") ?? ""
+            ["Subtotal"] = $"{subtotal:F2} RON",
+            ["Discount"] = discountDisplay,
+            ["Total"] = totalDisplay,
+
+            ["MonthlyAmount"] = monthlyDisplay,
+            ["Installments"] = contract.Installments.ToString()
         };
 
         return ApplyTemplate(template, values);
     }
+
+    private string ApplyTemplate(string template, Dictionary<string, string> values)
+    {
+        foreach (var item in values)
+        {
+            template = template.Replace($"{{{{{item.Key}}}}}", item.Value ?? "");
+        }
+
+        return template;
+    }
+
+    public async Task GenerateMonthlyInstallments()
+    {
+        var today = DateTime.UtcNow.Date;
+
+        var contracts = await _db.StudentContracts
+            .Where(c => c.IsUnlimited && c.Status == ContractStatus.Active)
+            .Include(c => c.InstallmentsList)
+            .ToListAsync();
+
+        foreach (var contract in contracts)
+        {
+            var lastInstallment = contract.InstallmentsList
+                .OrderByDescending(i => i.DueDate)
+                .FirstOrDefault();
+
+            if (lastInstallment == null)
+                continue;
+
+            var nextDueDate = lastInstallment.DueDate.AddMonths(1);
+
+            // 🔥 deja există?
+            var exists = contract.InstallmentsList
+                .Any(i => i.DueDate.Date == nextDueDate.Date);
+
+            if (exists)
+                continue;
+
+            // 🔥 doar dacă a trecut data
+            if (nextDueDate > today)
+                continue;
+
+            // 🔥 calculează suma (IMPORTANT)
+            var amount = contract.MonthlyAmount; // sau recalcul din courses
+
+            contract.InstallmentsList.Add(new ContractInstallment
+            {
+                DueDate = nextDueDate,
+                Amount = amount,
+                PaidAmount = 0
+            });
+        }
+
+        await _db.SaveChangesAsync();
+    }
+
+
 
 }

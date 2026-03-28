@@ -18,7 +18,12 @@ namespace ERPSystem.Modules.UserProfile.Models
     DateTime CreatedAt,
     DateTime? LastLoginAt,
     string? AvatarUrl,
-    int UnreadNotifications
+    int UnreadNotifications,
+        string? jobTitle,
+DateTime? hireDate,
+decimal? salary,
+string? contractType,
+string? employmentStatus
     );
 
     public record UpdateUserProfileDto(

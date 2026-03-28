@@ -1,12 +1,12 @@
 import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 import { ViewChild } from '@angular/core';
-import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
+import { InfoModalComponent } from '../../../components/info-modal/info-modal.component';
 
 
 type Vec2 = { x: number; y: number };
@@ -16,8 +16,8 @@ type Vec2 = { x: number; y: number };
   standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [CommonModule, ReactiveFormsModule, MatSnackBarModule,  ConfirmCustomModalComponent ]
-  
+  imports: [CommonModule, ReactiveFormsModule, MatSnackBarModule, InfoModalComponent]
+
 })
 export class RegisterComponent implements OnInit, OnDestroy {
   registerForm!: FormGroup;
@@ -25,13 +25,16 @@ export class RegisterComponent implements OnInit, OnDestroy {
   isLoading = false;
   errorAnim = false;
   roles: any[] = [];
-  @ViewChild(ConfirmCustomModalComponent, { static: false })
-successModal!: ConfirmCustomModalComponent;
+  @ViewChild(InfoModalComponent, { static: false })
+  infoModal!: InfoModalComponent;
+
+  jobTitleFromQuery: string | null = null;
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private customSnackBarService: SnackbarService
   ) { }
 
@@ -76,7 +79,24 @@ successModal!: ConfirmCustomModalComponent;
       isActive: [true],
 
     });
-     this.loadRoles();
+
+    this.route.queryParams.subscribe(params => {
+
+  if (params['email']) {
+
+    this.registerForm.patchValue({
+      firstName: params['firstName'],
+      lastName: params['lastName'],
+      emailAddress: params['email'],
+      username: params['email'],
+      phoneNumber: params['phoneNumber'] // 🔥 TELEFONUL
+    });
+     this.jobTitleFromQuery = params['jobTitle'];
+
+  }
+  });
+
+    this.loadRoles();
     this.recalcCenter();
     this.startBlinking();
     this.loop();
@@ -84,15 +104,15 @@ successModal!: ConfirmCustomModalComponent;
   }
 
   loadRoles() {
-  this.authService.getRoles().subscribe({
-    next: (data) => {
-      this.roles = data;
-    },
-    error: (err) => {
-      console.error('Error loading roles', err);
-    }
-  });
-}
+    this.authService.getRoles().subscribe({
+      next: (data) => {
+        this.roles = data;
+      },
+      error: (err) => {
+        console.error('Error loading roles', err);
+      }
+    });
+  }
   ngOnDestroy(): void {
     cancelAnimationFrame(this.raf);
     this.blinkTimers.forEach(t => clearTimeout(t));
@@ -129,51 +149,52 @@ successModal!: ConfirmCustomModalComponent;
   }
 
   processRegistration(): void {
-  this.isLoading = true;
-  const randomPassword = this.generateRandomPassword();
+    this.isLoading = true;
+    const randomPassword = this.generateRandomPassword();
 
-  const userData = {
-    username: this.registerForm.value.username,
-    email: this.registerForm.value.emailAddress,
-    password: randomPassword,
-    firstName: this.registerForm.value.firstName,
-    lastName: this.registerForm.value.lastName,
-    phoneNumber: this.registerForm.value.phoneNumber,
-    role: this.registerForm.value.role,
-    isActive: this.registerForm.value.isActive,
-  };
+    const userData = {
+      username: this.registerForm.value.username,
+      email: this.registerForm.value.emailAddress,
+      password: randomPassword,
+      firstName: this.registerForm.value.firstName,
+      lastName: this.registerForm.value.lastName,
+      phoneNumber: this.registerForm.value.phoneNumber,
+      role: this.registerForm.value.role,
+      isActive: this.registerForm.value.isActive,
+      employeeId: this.route.snapshot.queryParams['employeeId']
+    };
 
-  this.authService.register(userData).subscribe({
-    next: () => {
+    this.authService.register(userData).subscribe({
+      next: () => {
 
-      this.isLoading = false;
+        this.isLoading = false;
 
-      // 🔥 AICI DESCHIDEM POPUP-UL
-      const tempPassword = randomPassword;
+        // 🔥 AICI DESCHIDEM POPUP-UL
+        this.infoModal.open(
+          'Utilizator creat cu succes',
+          'Parola temporară a fost generată',
+          randomPassword
+        );
 
-      this.successModal.title = 'Utilizator creat cu succes';
-      this.successModal.message = 'Parola temporara a fost generata';
-      this.successModal.copyText = tempPassword;
+        this.infoModal.closed.subscribe(() => {
+          this.onModalConfirmed(true);
+        });
 
-      this.successModal.open();
+      },
+      error: () => {
+        this.isLoading = false;
+        this.customSnackBarService.showError(
+          'Registration failed. Please try again.',
+          1500
+        );
+      }
+    });
+  }
 
-      this.successModal.confirmed.pipe().subscribe();
-
-    },
-    error: () => {
-      this.isLoading = false;
-      this.customSnackBarService.showError(
-        'Registration failed. Please try again.',
-        1500
-      );
-    }
-  });
-}
-
-onModalConfirmed(event: boolean) {
-  this.registerForm.reset();
-  this.router.navigate(['/login']);
-}
+  onModalConfirmed(event: boolean) {
+    this.registerForm.reset();
+    this.router.navigate(['/login']);
+  }
   // ===== EVENTS =====
   @HostListener('window:resize')
   onResize() {

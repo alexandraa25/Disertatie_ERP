@@ -7,5 +7,6 @@
         public const string FORGOT_PASSWORD = "FORGOT_PASSWORD";
         public const string EMAIL_USER_CREDENTIALS = "EMAIL_USER_CREDENTIALS";
         public const string CONTRACT_SIGN_REQUEST = "CONTRACT_SIGN_REQUEST";
+        public const string ADDITIONAL_ACT_SIGN_REQUEST = "ADDITIONAL_ACT_SIGN_REQUEST"; 
     }
 }

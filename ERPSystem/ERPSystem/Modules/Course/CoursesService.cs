@@ -1,11 +1,12 @@
 ﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
-using ERPSystem.Shared.ActivityLogs;
 using ERPSystem.Modules.Course.Models;
+using ERPSystem.Shared.ActivityLogs;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
 
 namespace ERPSystem.Shared.BusinessLogic;
 
@@ -39,7 +40,13 @@ public class CoursesService
             var items = await query
                 .OrderByDescending(x => x.IsActive)
                 .ThenBy(x => x.Name)
-                .Select(x => new CourseListItemDto(x.Id, x.Name, x.IsActive, x.CreatedAtUtc))
+                .Select(x => new CourseListItemDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    IsActive = x.IsActive,
+                    CreatedAtUtc = x.CreatedAtUtc
+                })
                 .ToListAsync();
 
             return response.SetSuccess(items);
@@ -74,27 +81,32 @@ public class CoursesService
             var sessions = c.Sessions
                 .OrderBy(s => s.DayOfWeek)
                 .ThenBy(s => s.StartTime)
-                .Select(s => new CourseSessionDto(
-                    s.Id,
-                    s.DayOfWeek,
-                    s.StartTime.ToString("HH:mm"),
-                    s.EndTime.ToString("HH:mm"),
-                    s.Capacity,
-                    sessionCounts.TryGetValue(s.Id, out var cnt) ? cnt : 0,
-                    s.TeacherUserId,
-                    s.Teacher.UserName ?? s.Teacher.Email ?? s.TeacherUserId, 
-                    s.Fee
-                ))
+                .Select(s => new CourseSessionDto
+                {
+                    Id = s.Id,
+                    DayOfWeek = s.DayOfWeek,
+                    StartTime = s.StartTime.ToString("HH:mm"),
+                    EndTime = s.EndTime.ToString("HH:mm"),
+                    Capacity = s.Capacity,
+                    EnrolledActiveCount = sessionCounts.TryGetValue(s.Id, out var cnt) ? cnt : 0,
+                    TeacherUserId = s.TeacherUserId,
+                    TeacherName = s.Teacher.UserName ?? s.Teacher.Email ?? s.TeacherUserId,
+
+                    Fee = s.Fee,
+                    FeeType = s.FeeType,              
+                    TotalSessions = s.TotalSessions   
+                })
                 .ToList();
 
-            var dto = new CourseDetailsDto(
-                c.Id,
-                c.Name,
-                c.Description,
-                c.IsActive,
-                c.CreatedAtUtc,
-                sessions
-            );
+            var dto = new CourseDetailsDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description,
+                IsActive = c.IsActive,
+                CreatedAtUtc = c.CreatedAtUtc,
+                Sessions = sessions
+            };
 
             return response.SetSuccess(dto);
         }
@@ -146,7 +158,11 @@ public class CoursesService
                     EndTime = ParseTime(s.EndTime),
                     Capacity = s.Capacity,
                     TeacherUserId = s.TeacherUserId,
+
+                    FeeType = s.FeeType,
                     Fee = s.Fee,
+                    TotalSessions = s.FeeType == CourseFeeType.FixedPackage  ? s.TotalSessions : null,
+
                     Title = $"{dto.Name} - {s.DayOfWeek}"
                 });
             }
@@ -154,7 +170,6 @@ public class CoursesService
             _db.Courses.Add(c);
             await _db.SaveChangesAsync();
 
-            // 🔥 luăm profesorii pentru sesiuni
             var teacherIds = c.Sessions
                 .Select(s => s.TeacherUserId)
                 .Distinct()
@@ -164,7 +179,6 @@ public class CoursesService
                 .Where(u => teacherIds.Contains(u.Id))
                 .ToDictionaryAsync(u => u.Id, u => u.UserName ?? u.Email ?? u.Id);
 
-            // 🔥 construim lista de sesiuni
             var sessionDescriptions = c.Sessions.Select(s =>
             {
                 var teacherName = teachers.ContainsKey(s.TeacherUserId)
@@ -174,7 +188,6 @@ public class CoursesService
                 return $"- {s.DayOfWeek} {s.StartTime:HH:mm}-{s.EndTime:HH:mm} ({teacherName})";
             }).ToList();
 
-            // 🔥 description final
             var description = $"Cursul '{c.Name}' a fost creat";
 
             if (sessionDescriptions.Any())
@@ -182,7 +195,6 @@ public class CoursesService
                 description += "\nSesiuni:\n" + string.Join("\n", sessionDescriptions);
             }
 
-            // 🔥 log user-friendly
             _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
             {
                 EntityType = "Course",
@@ -239,15 +251,18 @@ public class CoursesService
             var oldIsActive = c.IsActive;
 
             var oldSessions = c.Sessions.ToDictionary(
-                s => s.Id,
-                s => new
-                {
-                    s.DayOfWeek,
-                    s.StartTime,
-                    s.EndTime,
-                    s.TeacherUserId,
-                    s.Capacity
-                });
+                  s => s.Id,
+                  s => new
+                  {
+                      s.DayOfWeek,
+                      s.StartTime,
+                      s.EndTime,
+                      s.TeacherUserId,
+                      s.Capacity,
+                      s.Fee,
+                      s.FeeType,
+                      s.TotalSessions
+                  });
 
             // 🔥 UPDATE COURSE
             c.Name = dto.Name.Trim();
@@ -289,6 +304,8 @@ public class CoursesService
                         Capacity = sDto.Capacity,
                         TeacherUserId = sDto.TeacherUserId,
                         Fee = sDto.Fee,
+                        FeeType = sDto.FeeType,
+                        TotalSessions = sDto.FeeType == CourseFeeType.FixedPackage  ? sDto.TotalSessions : null,
                         Title = $"{dto.Name} - {sDto.DayOfWeek}"
                     };
 
@@ -306,7 +323,13 @@ public class CoursesService
                     existing.Capacity = sDto.Capacity;
                     existing.TeacherUserId = sDto.TeacherUserId;
                     existing.Fee = sDto.Fee;
+                    existing.FeeType = sDto.FeeType;
+                    existing.TotalSessions = sDto.FeeType == CourseFeeType.FixedPackage
+                        ? sDto.TotalSessions
+                        : null;
                 }
+
+
             }
 
             await _db.SaveChangesAsync(); // 🔥 audit automat
@@ -331,6 +354,7 @@ public class CoursesService
             if (oldIsActive != c.IsActive)
                 changes.Add(c.IsActive ? "Curs activat" : "Curs dezactivat");
 
+            
             // 🔥 sesiuni adăugate
             if (addedSessions.Any())
             {
@@ -409,6 +433,22 @@ public class CoursesService
                         $"{old.DayOfWeek} {old.StartTime:HH:mm}: {string.Join(", ", sessionChanges)}"
                     );
                 }
+
+                if (old.Fee != sDto.Fee)
+                {
+                    sessionChanges.Add($"Preț: {old.Fee} → {sDto.Fee}");
+                }
+
+                if (old.FeeType != sDto.FeeType)
+                {
+                    sessionChanges.Add($"Tip: {old.FeeType} → {sDto.FeeType}");
+                }
+
+                if (old.TotalSessions != sDto.TotalSessions)
+                {
+                    sessionChanges.Add($"Ședințe: {old.TotalSessions} → {sDto.TotalSessions}");
+                }
+
             }
 
             if (updatedSessions.Any())
@@ -705,8 +745,20 @@ public class CoursesService
         }
         foreach (var s in dto.Sessions)
         {
+            if (s.FeeType == CourseFeeType.FixedPackage)
+            {
+                if (!s.TotalSessions.HasValue || s.TotalSessions <= 0)
+                    return "TotalSessions este obligatoriu pentru pachet fix.";
+            }
+
+            if (s.FeeType == CourseFeeType.Monthly)
+            {
+                if (s.TotalSessions != null)
+                    return "TotalSessions nu este permis pentru abonament.";
+            }
+
             if (s.Fee <= 0)
-                return "Session fee must be greater than 0";
+                return "Fee trebuie să fie mai mare decât 0.";
         }
 
         return null;
@@ -727,8 +779,20 @@ public class CoursesService
         }
         foreach (var s in dto.Sessions)
         {
+            if (s.FeeType == CourseFeeType.FixedPackage)
+            {
+                if (!s.TotalSessions.HasValue || s.TotalSessions <= 0)
+                    return "TotalSessions este obligatoriu pentru pachet fix.";
+            }
+
+            if (s.FeeType == CourseFeeType.Monthly)
+            {
+                if (s.TotalSessions != null)
+                    return "TotalSessions nu este permis pentru abonament.";
+            }
+
             if (s.Fee <= 0)
-                return "Session fee must be greater than 0";
+                return "Fee trebuie să fie mai mare decât 0.";
         }
 
         return null;

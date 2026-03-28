@@ -7,35 +7,39 @@ import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { StudentFormComponent } from '../student-form/student-form.component';
 import { Router } from '@angular/router';
+import { RomanianDayPipe } from '../../../components/pipes/romanian-day.pipe';
+
 
 @Component({
   selector: 'app-students',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, RomanianDayPipe ],
   templateUrl: './students.component.html',
   styleUrls: ['./students.component.css']
 })
+
 export class StudentsComponent implements OnInit {
   q = '';
   loading = true;
-
   page = 1;
   pageSize = 20;
   total = 0;
-
   sortBy: 'createdAt' | 'fullName' = 'createdAt';
   sortDir: 'asc' | 'desc' = 'desc';
-
   onlyRecent = false;
   recentDays = 30;
-
   items: StudentListItemDto[] = [];
+  searchTimeout: any;
 
-
+  sessions: any[] = [];
+selectedSessionId: number | null = null;
+  
   constructor(private students: StudentsService, private dialog: MatDialog, private router: Router) { }
 
   ngOnInit(): void {
+    this.loadSessions();
     this.load();
+    
   }
 
   next(): void {
@@ -53,7 +57,17 @@ export class StudentsComponent implements OnInit {
   get totalPages(): number {
     return Math.max(1, Math.ceil(this.total / this.pageSize));
   }
-  // elev “NEW” = înscris în ultimele 7 zile (poți schimba în 30 dacă vrei)
+
+
+onSearchChange() {
+  clearTimeout(this.searchTimeout);
+
+  this.searchTimeout = setTimeout(() => {
+    this.page = 1;
+    this.load();
+  }, 400); // 🔥 debounce
+}
+
   isNew(createdAtUtc: string): boolean {
     const created = new Date(createdAtUtc).getTime();
     const now = Date.now();
@@ -63,10 +77,10 @@ export class StudentsComponent implements OnInit {
 
   load(): void {
     this.loading = true;
-    this.students.list(this.q, this.page, this.pageSize, this.sortBy, this.sortDir, this.onlyRecent, this.recentDays)
+    this.students.list(this.q, this.page, this.pageSize, this.sortBy, this.sortDir, this.onlyRecent, this.recentDays, this.selectedSessionId  )
       .subscribe({
         next: (res: any) => {
-          const data = res?.value ?? res?.data ?? res; // prioritate: value
+          const data = res?.value ?? res?.data ?? res;
           this.items = data?.items ?? [];
           this.total = data?.total ?? 0;
           this.loading = false;
@@ -76,7 +90,7 @@ export class StudentsComponent implements OnInit {
   }
 
   export(): void {
-    this.students.exportExcel(this.q, this.sortBy, this.sortDir, this.onlyRecent, this.recentDays)
+    this.students.exportExcel(this.q, this.sortBy, this.sortDir, this.onlyRecent, this.recentDays,  this.selectedSessionId)
       .subscribe({
         next: (blob) => {
           const url = window.URL.createObjectURL(blob);
@@ -89,17 +103,17 @@ export class StudentsComponent implements OnInit {
         error: () => alert('Eroare export Excel')
       });
   }
+
   toggleSortDirection(): void {
     this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
     this.page = 1;
     this.load();
   }
+
   setSort(field: 'fullName' | 'createdAt'): void {
     if (this.sortBy === field) {
-      // toggle asc/desc dacă dai click pe aceeași coloană
       this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
     } else {
-      // dacă schimbi coloana, începi cu asc (sau desc, cum vrei)
       this.sortBy = field;
       this.sortDir = 'asc';
     }
@@ -113,42 +127,44 @@ export class StudentsComponent implements OnInit {
     return this.sortDir === 'asc' ? '↑' : '↓';
   }
 
+  loadSessions() {
+  this.students.getSessions().subscribe((res: any) => {
+    this.sessions = res?.value ?? res ?? [];
+  });
+}
+
   openCreate() {
 
-  const dialogRef = this.dialog.open(StudentFormComponent, {
-    width: '720px',
-  maxWidth: '92vw',
-  panelClass: 'student-dialog'
-    
-  });
+    const dialogRef = this.dialog.open(StudentFormComponent, {
+      width: '720px',
+      maxWidth: '92vw',
+      panelClass: 'student-dialog'
 
-  
-}
+    });
+  }
 
   openEdit(id: number) {
 
-  if (this.dialog.openDialogs.length > 0) {
-    return;
+    if (this.dialog.openDialogs.length > 0) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(StudentFormComponent, {
+      width: '720px',
+      maxWidth: '92vw',
+      panelClass: 'student-dialog',
+      data: { id }   
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.load();
+      }
+    });
   }
 
-  const dialogRef = this.dialog.open(StudentFormComponent, {
-    width: '720px',
-    maxWidth: '92vw',
-    panelClass: 'student-dialog',
-    data: { id }   // 🔥 AICI ERA PROBLEMA
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-    if (result) {
-      this.load();
-    }
-  });
-
-  
-}
-
-openDetails(id: number) {
-  this.router.navigate(['/students', id]);
-}
+  openDetails(id: number) {
+    this.router.navigate(['/students', id]);
+  }
 
 }

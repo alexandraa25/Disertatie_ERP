@@ -1,1 +1,137 @@
-<p>add-employees works!</p>
+<div class="modal-overlay">
+
+    <div class="modal large" (click)="$event.stopPropagation()">
+
+        <div class="modal-header">
+            <h2>Create Employee</h2>
+            <button class="close-btn" (click)="closeModal()">✕</button>
+        </div>
+
+        <!-- 🔥 STEP INDICATOR -->
+        <div class="stepper">
+            <div *ngFor="let step of steps; let i = index" [class.active]="i === currentStep"
+                [class.done]="i < currentStep">
+                {{step}}
+            </div>
+        </div>
+
+        <form [formGroup]="createForm" (ngSubmit)="saveEmployee()">
+
+            <!-- STEP 1: USER -->
+            <div *ngIf="currentStep === 0">
+
+                <div class="switch">
+                    <button type="button" (click)="setMode('existing')"
+                        [class.active]="mode==='existing'">Existing</button>
+                    <button type="button" (click)="setMode('new')" [class.active]="mode==='new'">New</button>
+                </div>
+
+                <div *ngIf="mode==='existing'">
+                    <select formControlName="userId">
+                        <option value="">Select user</option>
+                        <option *ngFor="let u of users" [value]="u.id">
+                            {{u.firstName}} {{u.lastName}}
+                        </option>
+                    </select>
+
+                    <div class="error" *ngIf="submitted && !createForm.value.userId">
+                        User is required
+                    </div>
+                </div>
+                <div *ngIf="selectedUser" class="user-preview">
+
+                    <div class="user-name">
+                        {{selectedUser.firstName}} {{selectedUser.lastName}}
+                    </div>
+
+                    <div class="user-email">
+                        {{selectedUser.email}}
+                    </div>
+
+                    <div class="roles">
+                        <span *ngFor="let role of selectedUser.roles" class="role">
+                            {{role}}
+                        </span>
+                    </div>
+
+                </div>
+
+                <div *ngIf="mode==='new'" class="grid">
+                    <input placeholder="First Name" formControlName="firstName">
+                    <input placeholder="Last Name" formControlName="lastName">
+                    <input placeholder="Email" formControlName="email">
+
+                    <div class="error" *ngIf="submitted && !createForm.value.firstName">Required</div>
+                </div>
+
+            </div>
+
+            <!-- STEP 2: JOB -->
+            <div *ngIf="currentStep === 1" class="grid">
+                <input placeholder="Job Title" formControlName="jobTitle">
+                <input type="date" formControlName="hireDate">
+                <input type="number" placeholder="Salary" formControlName="salary">
+
+                <select formControlName="contractType">
+                    <option value="">Select contract</option>
+                    <option value="FullTime">Full Time</option>
+                    <option value="PartTime">Part Time</option>
+                    <option value="Collaboration">Collaboration</option>
+                </select>
+
+                <textarea placeholder="Notes" formControlName="notes"></textarea>
+            </div>
+
+            <!-- STEP 3: CONTACT -->
+            <div *ngIf="currentStep === 2" class="grid">
+                <input placeholder="Phone Number" formControlName="phoneNumber">
+                <input placeholder="Emergency Name" formControlName="emergencyContactName">
+                <input placeholder="Emergency Phone" formControlName="emergencyContactPhone">
+            </div>
+
+            <!-- STEP 4: ADDRESS -->
+            <div *ngIf="currentStep === 3" class="grid">
+                <input placeholder="Street" formControlName="street">
+                <input placeholder="City" formControlName="city">
+                <input placeholder="Country" formControlName="country">
+                <input placeholder="Postal Code" formControlName="postalCode">
+            </div>
+
+            <!-- STEP 5: BANK -->
+            <div *ngIf="currentStep === 4" class="grid">
+                <input placeholder="IBAN" formControlName="iban">
+                <input placeholder="Bank Name" formControlName="bankName">
+            </div>
+
+            <!-- STEP 6: DOCUMENTS -->
+            <div *ngIf="currentStep === 5" class="grid">
+
+                <input type="file" multiple (change)="onFileSelected($event)" />
+
+                <div class="file-list">
+                    <div *ngFor="let file of selectedFiles; let i = index">
+                        {{file.name}}
+                        <button type="button" (click)="removeFile(i)">❌</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 🔥 ACTIONS -->
+            <div class="actions">
+                <button type="button" (click)="prev()" [disabled]="currentStep===0">Back</button>
+
+                <button type="button" *ngIf="currentStep < steps.length - 1" (click)="next()">
+                    Next
+                </button>
+
+                <button type="submit" *ngIf="currentStep === steps.length - 1">
+                    Create
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

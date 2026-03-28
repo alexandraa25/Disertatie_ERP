@@ -16,6 +16,7 @@ import {
   NotificationChannel, 
   DigestMode 
 } from '../../models/user-profile.model';
+import { LeaveService } from '../../services/leave.service';
 
 @Component({
   selector: 'app-profil-user',
@@ -26,7 +27,7 @@ import {
 })
 export class ProfilUserComponent implements OnInit {
 
-  activeTab: 'info' | 'password' | 'notifications' = 'info';
+  activeTab: 'info' | 'password' | 'notifications' | 'leaves' = 'info';
 
   loading = true;
   saving = false;
@@ -44,9 +45,14 @@ export class ProfilUserComponent implements OnInit {
 
   originalData!: UserProfileDto;
 
+  leaveForm!: FormGroup;
+  leaves: any[] = [];
+  openForm = false;
+
   constructor(
     private fb: FormBuilder,
-    private userProfileService: UserProfileService
+    private userProfileService: UserProfileService, 
+    private leaveService: LeaveService
   ) {}
 
  ngOnInit(): void {
@@ -77,6 +83,14 @@ export class ProfilUserComponent implements OnInit {
   newPassword: ['', Validators.required],
   confirmPassword: ['', Validators.required]
 })
+
+this.leaveForm = this.fb.group({
+  startDate: ['', Validators.required],
+  endDate: ['', Validators.required],
+  reason: ['']
+});
+
+this.loadLeaves();
 }
   // ================= PROFILE =================
 
@@ -130,6 +144,25 @@ cancelEdit() {
 
     avatarUrl: this.originalData.avatarUrl
   });
+}
+
+
+loadLeaves() {
+  this.leaveService.getMyLeaves().subscribe(res => {
+    this.leaves = res;
+  });
+}
+
+submitLeave() {
+
+  if (this.leaveForm.invalid) return;
+
+  this.leaveService.createLeave(this.leaveForm.value).subscribe(() => {
+    this.openForm = false;
+    this.leaveForm.reset();
+    this.loadLeaves();
+  });
+
 }
 
 save() {

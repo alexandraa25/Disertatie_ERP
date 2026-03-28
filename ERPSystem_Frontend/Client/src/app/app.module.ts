@@ -4,10 +4,12 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { routes } from './app.routes';
 import { AppComponent } from './app.component';
+import { RomanianDayPipe } from './components/pipes/romanian-day.pipe';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent, 
+    RomanianDayPipe
   ],
   imports: [
     BrowserModule,

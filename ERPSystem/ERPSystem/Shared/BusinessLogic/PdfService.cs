@@ -50,14 +50,7 @@ public class PdfService
                 {
                     col.Spacing(6);
 
-                    // 🔹 BODY (din template)
-                    var cleanText = CleanHtml(contract.ContractBody);
-                    var paragraphs = SplitText(cleanText);
-
-                    foreach (var p in paragraphs)
-                    {
-                        col.Item().Text(p).LineHeight(1.4f);
-                    }
+                    RenderHtml(col, contract.ContractBody);
 
                     // 🔹 SPACING
                     col.Item().PaddingTop(30);
@@ -228,7 +221,35 @@ public class PdfService
 
 
     // ================= HELPERS =================
+    private void RenderHtml(ColumnDescriptor col, string html)
+    {
+        if (string.IsNullOrWhiteSpace(html))
+            return;
 
+        var h3Matches = Regex.Matches(html, "<h3>(.*?)</h3>", RegexOptions.IgnoreCase);
+
+        foreach (Match h in h3Matches)
+        {
+            col.Item().PaddingTop(10).Text(h.Groups[1].Value)
+                .Bold().FontSize(13);
+        }
+
+        var paragraphs = Regex.Matches(html, "<p>(.*?)</p>", RegexOptions.IgnoreCase);
+
+        foreach (Match p in paragraphs)
+        {
+            var text = System.Net.WebUtility.HtmlDecode(p.Groups[1].Value);
+            col.Item().Text(text).LineHeight(1.4f);
+        }
+
+        var liMatches = Regex.Matches(html, "<li>(.*?)</li>", RegexOptions.IgnoreCase);
+
+        foreach (Match li in liMatches)
+        {
+            var text = System.Net.WebUtility.HtmlDecode(li.Groups[1].Value);
+            col.Item().Text("• " + text);
+        }
+    }
     private byte[]? GetImage(string? base64)
     {
         if (string.IsNullOrWhiteSpace(base64))

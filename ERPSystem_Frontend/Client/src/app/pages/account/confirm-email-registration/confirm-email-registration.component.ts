@@ -44,7 +44,6 @@ export class ConfirmEmailRegistrationComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        // Dacă back-end-ul trimite mesaj → se folosește acel mesaj
         const msg =  err?.error?.message || "Email confirmation failed. The link may be invalid or expired.";
         this.customSnackBarService.showError(msg);
       }

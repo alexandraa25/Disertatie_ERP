@@ -28,13 +28,18 @@ namespace ERPSystem.Data.Context
         public DbSet<ContractParty> ContractParties { get; set; }
         public DbSet<ContractDiscount> ContractDiscounts { get; set; }
         public DbSet<ContractInstallment> ContractInstallments { get; set; }
-        public DbSet<ContractSigningToken> ContractSigningTokens { get; set; }
-
+        public DbSet<SigningToken> SigningTokens { get; set; }
         public DbSet<ContractAdditionalAct> ContractAdditionalAct { get; set; }
-
         public DbSet<ContractAdditionalActItem> ContractAdditionalActItem { get; set; }
-
+        public DbSet<Payment> Payments { get; set; }
         public DbSet<Employee> Employees { get; set; }
+
+        public DbSet<EmployeeContact> EmployeeContact { get; set; }
+
+        public DbSet<EmployeeAddress> EmployeeAddress { get; set; }
+
+        public DbSet<EmployeeBank> EmployeeBank { get; set; }
+
         public DbSet<EmployeeContract> EmployeeContracts { get; set; }
         public DbSet<EmployeeLeave> EmployeeLeaves { get; set; }
         public DbSet<EmployeeDocument> EmployeeDocuments { get; set; }
@@ -212,6 +217,8 @@ namespace ERPSystem.Data.Context
 
                 entity.Property(e => e.Amount)
                     .HasPrecision(18, 2);
+                entity.Property(e => e.PaidAmount)
+                    .HasPrecision(18, 2);
 
                 entity.HasIndex(e => e.ContractId);
             });
@@ -256,6 +263,33 @@ namespace ERPSystem.Data.Context
                 .Property(x => x.Type)
                 .HasConversion<string>();
 
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                // 🔹 relație cu Contract
+                entity.HasOne(p => p.Contract)
+                    .WithMany()
+                    .HasForeignKey(p => p.ContractId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // 🔹 relație cu Installment (optională)
+                entity.HasOne(p => p.Installment)
+                    .WithMany()
+                    .HasForeignKey(p => p.InstallmentId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // 🔹 indexuri (important pentru performanță)
+                entity.HasIndex(p => p.ContractId);
+                entity.HasIndex(p => p.InstallmentId);
+
+                // 🔹 precision pentru bani (FOARTE IMPORTANT)
+                entity.Property(p => p.Amount)
+                    .HasPrecision(18, 2);
+
+                // 🔹 default value
+                entity.Property(p => p.Status)
+                    .HasDefaultValue("Completed");
+            });
+
             modelBuilder.Entity<Employee>()
                 .HasOne(e => e.User)
                 .WithOne(u => u.Employee)
@@ -286,6 +320,21 @@ namespace ERPSystem.Data.Context
                .WithMany(x => x.Documents)
                .HasForeignKey(x => x.EmployeeId)
                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Employee>()
+               .HasOne(e => e.Address)
+               .WithOne(a => a.Employee)
+               .HasForeignKey<EmployeeAddress>(a => a.EmployeeId);
+
+            modelBuilder.Entity<Employee>()
+                .HasOne(e => e.Bank)
+                .WithOne(b => b.Employee)
+                .HasForeignKey<EmployeeBank>(b => b.EmployeeId);
+
+            modelBuilder.Entity<Employee>()
+                .HasOne(e => e.Contact)
+                .WithOne(c => c.Employee)
+                .HasForeignKey<EmployeeContact>(c => c.EmployeeId);
 
         }
 

@@ -11,8 +11,19 @@
 
         public decimal Amount { get; set; }
 
-        public bool IsPaid { get; set; }
+        public decimal PaidAmount { get; set; }
 
-       
+        public bool IsPaid => PaidAmount >= Amount;
+
+        public InstallmentStatus Status { get; set; } = InstallmentStatus.Pending;
+    }
+
+    public enum InstallmentStatus
+    {
+        Pending,
+        Paid,
+        Cancelled,
+        Expired,
+        Suspended
     }
 }

@@ -1,26 +1,17 @@
-<div class="overlay" *ngIf="isOpen" (click)="close(false)">
+<div class="overlay" *ngIf="confirmService.isOpen" (click)="close(false)">
   <div class="modal" (click)="$event.stopPropagation()">
 
-    <h2>{{ title }}</h2>
+    <h2>{{ confirmService.title }}</h2>
 
-    <p>{{ message }}</p>
-
-     <!-- 🔥 COPY BUTTON -->
-    <div *ngIf="copyText" class="copy-box">
-      <span>{{ copyText }}</span>
-
-      <button (click)="copyToClipboard()" class="copy-btn">
-        📋 Copy
-      </button>
-    </div>
+    <p>{{ confirmService.message }}</p>
 
     <div class="actions">
       <button class="btn-cancel" (click)="close(false)">
-        {{ cancelText }}
+        Cancel
       </button>
 
       <button class="btn-confirm" (click)="close(true)">
-        {{ confirmText }}
+        Confirm
       </button>
     </div>
 

@@ -23,6 +23,7 @@
           <th>Zi</th>
           <th>Interval</th>
           <th>Profesor</th>
+          <th>Preț</th>
           <th>Înscriși</th>
         </tr>
       </thead>
@@ -33,9 +34,23 @@
             <td>{{ getDayName(s.dayOfWeek) }}</td>
             <td>{{ s.startTime }} - {{ s.endTime }}</td>
             <td>{{ s.teacherName }}</td>
+            <td class="price-cell">
+              <ng-container *ngIf="s.feeType === 1">
+                <div class="price-main">
+                  {{ s.fee }} RON
+                </div>
+                <span class="badge" *ngIf="s.feeType === 1">Pachet: {{ s.totalSessions }} ședințe  </span>
+              </ng-container>
 
+              <ng-container *ngIf="s.feeType === 2">
+                <div class="price-main">
+                  {{ s.fee }} RON
+                </div>
+                <span class="badge blue" *ngIf="s.feeType === 2">Abonament lunar</span>
+              </ng-container>
+            </td>
+            
             <td>
-
               <ng-container *ngIf="!s.capacity">
                 <span class="unlimited">Nelimitat</span>
               </ng-container>

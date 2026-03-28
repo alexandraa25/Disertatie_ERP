@@ -18,13 +18,13 @@ namespace ERPSystem.Data.Entities
 
         public string? Body { get; set; }
 
-        public bool IsSignedByStudent { get; set; }
-        public bool IsSignedByCompany { get; set; }
+        public string? ClientSignature { get; set; }
+        public string? AdminSignature { get; set; }
 
-        public DateTime? StudentSignedAtUtc { get; set; }
-        public DateTime? CompanySignedAtUtc { get; set; }
+        public DateTime? ClientSignedAtUtc { get; set; }
+        public DateTime? AdminSignedAtUtc { get; set; }
 
-        
+        public string? PdfPath { get; set; }
         public ICollection<ContractAdditionalActItem> Items { get; set; } = new List<ContractAdditionalActItem>();
     }
 }

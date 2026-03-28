@@ -9,6 +9,13 @@
   font-weight: 600;
 }
 
+button {
+  transition: all 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.97);
+}
 /* SEARCH */
 
 .search-bar {
@@ -127,9 +134,11 @@ td {
 
 .toolbar {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
+   justify-content: space-between;
+    align-items: center;
   margin-bottom: 16px;
+  gap: 12px;
+ 
   flex-wrap: wrap;
 }
 
@@ -140,10 +149,39 @@ td {
   flex-wrap: wrap;
 }
 
+.toolbar .right button:last-child {
+  background: linear-gradient(135deg, #5a4bff, #7c6cff);
+  color: white;
+  font-weight: 600;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+}
 
+.toolbar .left.full {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-inline input {
+  width: 440px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #e3e6ef;
+  background: #fafbff;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.search-inline input:focus {
+  border-color: #5a4bff;
+  box-shadow: 0 0 0 3px rgba(90,75,255,0.1);
+}
 
 .export {
-  background: #111827;
+   background: linear-gradient(135deg, #111827, #1f2937);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   color: white;
   border: none;
   padding: 10px 14px;
@@ -186,13 +224,13 @@ a:hover { text-decoration: underline; }
 
 /* toolbar container */
 .filters-card {
-  background: #fff;
-  border: 1px solid #eef0f4;
-  border-radius: 12px;
-  padding: 10px 12px;
+  background: linear-gradient(180deg, #ffffff, #fafbff);
+  border: 1px solid #e5e9f2;
+  border-radius: 14px;
+  padding: 12px 14px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
   box-shadow: 0 4px 12px rgba(0,0,0,0.04);
   margin-bottom: 14px;
@@ -208,6 +246,22 @@ a:hover { text-decoration: underline; }
   padding: 6px 10px;
   border-radius: 10px;
   height: 36px;
+}
+
+.filter-item select {
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  outline: none;
+  min-width: 220px;
+  cursor: pointer;
+}
+
+.filter-item label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
 }
 
 /* text mic */

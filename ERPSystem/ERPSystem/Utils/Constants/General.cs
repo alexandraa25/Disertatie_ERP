@@ -34,7 +34,8 @@
             public static class Admin
             {
                 public const string USERS = "/users";
-               
+                public const string EMPLOYEES_WITHOUY_USER = "/employees-without-user"; 
+
             }
 
             public static class Company
@@ -47,11 +48,14 @@
 
             public static class Employee
             {
-                public const string EMPLOYEE = "/employee";
-                public const string EMPLOYEES = "/employees";
-                public const string EMPLOYEE_BY_ID = "/employee/{id}";
-                public const string TERMINATE_EMPLOYEE = "/employee/{id}/terminate";
-                public const string HR_DASHBOARD = "/employees/dashboard";
+                public const string EMPLOYEE = "";
+                public const string EMPLOYEE_DOCUMENT = "{employeeId}/documents";
+                public const string EMPLOYEES = "/list";
+                public const string EMPLOYEE_BY_ID = "/{id}";
+                public const string TERMINATE_EMPLOYEE = "/{id}/terminate";
+                public const string HR_DASHBOARD = "/dashboard";
+                public const string USERS = "/users";
+
 
             }
 
@@ -64,6 +68,10 @@
                 public const string GUARDIAN_OPTIONS = "/{id}/primary-guardian";
                 public const string STUDENTS_AVAILABLE_COURSE = "{id}/available-courses";
                 public const string STUDENTS_COURSES_BY_CONTRACT = "by-contract/{contractId}";
+                public const string SESSIONS = "/sessions";
+                public const string EXPORT = "/ /export";
+
+              
 
             }
             public static class Courses
@@ -79,34 +87,46 @@
 
             public static class Contracts
             {
-                public const string CONTRACTS = "";
-                public const string CONTRACT_BY_ID = "/{id:int}";
-                public const string CONTRACT_ACTIVATE = "/{id:int}/activate";
-                public const string STUDENT_CONTRACTS = "/students/{id:int}";
-                public const string CONTRACT_FINALIZE = "/{id}/finalize";
-                public const string CONTRACT_SIGN = "/{id}/sign";
-                public const string CONTRACT_CANCEL = "/{id}/cancel";
-                public const string CONTRACT_UPDATE_BODY = "/{id}/body";
+                public const string CONTRACTS = ""; //create
                 public const string CONTRACT_UPDATE = "/{id}";
+                public const string CONTRACT_UPDATE_BODY = "/{id}/body";
                 public const string RESET_BODY = "/{id}/reset-body";
-                public const string CONTRACT_GENERATE_PDF = "/{id}/generate-pdf";
-                public const string CONTRACT_GET_LATEST_BY_STUDENT ="/latest-by-student/{studentId:int}";
+                public const string CONTRACT_FINALIZE = "/{id}/finalize";
                 public const string CONTRACT_SEND_TO_CLIENT = "{id}/send";
-                public const string CONTRACT_CLIENT_SIGN = "/client-sign";
-                public const string CONTRACT_GET_FOR_SIGNING = "/sign/{token}";
+                public const string DOCUMENT_CLIENT_SIGN = "/client-sign";
+                public const string DOCUMENT_GET_FOR_SIGNING = "/sign/{token}";
                 public const string CONTRACT_ADMIN_SIGN = "/{id}/admin-sign";
+                public const string CONTRACT_ACTIVATE = "/{id:int}/activate";
+                public const string CONTRACT_GENERATE_PDF = "/{id}/generate-pdf";
+                public const string CONTRACT_CANCEL = "/{id}/cancel";
                 public const string CONTRACT_SUSPEND = "/{id}/suspend";
                 public const string CONTRACT_COMPLETE = "/{id}/complete";
-                public const string CONTRACT_EXPIRE= "/expire-all";
+                public const string CONTRACT_EXPIRE = "/expire-all";
                 public const string CONTRACT_DOWNLOAD = "/{id}/download";
-                //Act Aditional
-                public const string CREATE_ACT = "/{id}/additional-act";
-                public const string FINALIZE_ACT = "/additional-acts/{id}/finalize";
-                public const string LIST_ACT = "/{id}/additional-acts";
+                public const string CONTRACT_BY_ID = "/{id:int}";
+                public const string STUDENT_CONTRACTS = "/students/{id:int}";
+            }
+           public static class AdditionalAct
+           {
+                public const string CREATE_ACT = "/contract/{contractId}/create";
+                public const string UPDATE_ACT = "/{id}/update";
+                public const string UPDATE_BODY = "/{id}/body";
+                public const string LIST_ACT = "/contract/{contractId}";
+                public const string GET_BY_ID = "/{id}";
+                public const string FINALIZE_ACT = "/{id}/finalize";
+                public const string ACT_SEND_TO_CLIENT = "{id}/send";
+                public const string ACT_ADMIN_SIGN = "/{id}/admin-sign";
+                public const string DOWNLOAD_ACT = "/{id}/download";
+            }
 
-
+            public static class Payments
+            {
+                public const string PAY_INSTALLMENT = "/installments/pay";
+                public const string GET_INSTALLMENTS = "/contracts/{id}/installments";
+                public const string GET_PAYMENTS = "/contracts/{id}/payments";
 
             }
+
 
             public static class Dashboard
             {

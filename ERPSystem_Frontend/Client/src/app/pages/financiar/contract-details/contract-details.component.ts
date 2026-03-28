@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
 import { ViewChild, ElementRef } from '@angular/core';
 import html2pdf from 'html2pdf.js';
+import { DomSanitizer } from '@angular/platform-browser';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AdminSignatureModalComponent } from '../admin-signature-modal/admin-signature-modal.component';
 
@@ -31,7 +32,8 @@ export class ContractDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private contractsService: ContractsService,
-    private dialog: MatDialog
+    private dialog: MatDialog, 
+    private sanitizer: DomSanitizer
 
   ) { }
 
@@ -75,16 +77,19 @@ export class ContractDetailsComponent implements OnInit {
     );
   }
 
-  sign() {
-    this.runAction(() =>
-      this.contractsService.sign(this.contract.id)
-    );
-  }
+  // sign() {
+  //   this.runAction(() =>
+  //     this.contractsService.sign(this.contract.id)
+  //   );
+  // }
 
   activate() {
     const dialogRef = this.dialog.open(AdminSignatureModalComponent, {
       width: '600px',
-      data: this.contract.id
+      data: {
+        id: this.contract.id,
+        type: 'contract'
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -132,30 +137,39 @@ export class ContractDetailsComponent implements OnInit {
   startEditBody() {
     this.isEditingBody = true;
     this.showPreview = false;
-    this.editedBody = this.contract.contractBody;
+    this.editedBody = this.formatForEditor(this.contract.contractBody);
     this.hasUnsavedChanges = false;
   }
-
+  formatForEditor(html: string) {
+    return html || '';
+  }
   cancelEditBody() {
     this.isEditingBody = false;
   }
 
-  saveBody() {
-    this.actionLoading = true;
+ saveBody() {
 
-    this.contractsService.updateBody(this.contract.id, {
-      contractBody: this.editedBody
-    }).subscribe({
-      next: () => {
-        this.contract.contractBody = this.editedBody;
-        this.isEditingBody = false;
-        this.hasUnsavedChanges = false; // 🔥 reset
-        this.actionLoading = false;
-      },
-      error: () => this.actionLoading = false
-    });
-  }
+  const cleaned = this.cleanHtml(this.editedBody);
+  this.actionLoading = true;
 
+  this.contractsService.updateBody(this.contract.id, {
+    contractBody: cleaned // ✔️ DOAR asta
+  }).subscribe({
+    next: () => {
+      this.contract.contractBody = cleaned; // 🔥 sincronizezi UI cu ce ai salvat
+      this.isEditingBody = false;
+      this.hasUnsavedChanges = false;
+      this.actionLoading = false;
+    },
+    error: () => this.actionLoading = false
+  });
+}
+
+cleanHtml(html: string): string {
+  return html
+    .replace(/<p><br><\/p>/g, '')
+    .trim();
+}
 
   resetBody() {
 
@@ -219,69 +233,27 @@ export class ContractDetailsComponent implements OnInit {
   }
 
   suspend() {
-  if (!confirm('Sigur vrei să suspendi contractul?')) return;
+    if (!confirm('Sigur vrei să suspendi contractul?')) return;
 
-  this.runAction(() =>
-    this.contractsService.suspend(this.contract.id)
-  );
-}
+    this.runAction(() =>
+      this.contractsService.suspend(this.contract.id)
+    );
+  }
 
-resume() {
-  this.runAction(() =>
-    this.contractsService.resume(this.contract.id)
-  );
-}
+  resume() {
+    this.runAction(() =>
+      this.contractsService.resume(this.contract.id)
+    );
+  }
 
-complete() {
-  if (!confirm('Marchezi contractul ca finalizat?')) return;
+  complete() {
+    if (!confirm('Marchezi contractul ca finalizat?')) return;
 
-  this.runAction(() =>
-    this.contractsService.complete(this.contract.id)
-  );
-}
+    this.runAction(() =>
+      this.contractsService.complete(this.contract.id)
+    );
+  }
 
-  // formatContractBody(template: string): string {
-  //   if (!template || !this.contract) return '';
-
-  //   const map: any = {
-  //     ContractNumber: this.contract.contractNumber,
-  //     Date: this.contract.date,
-  //     CompanyName: this.contract.companyName,
-  //     CompanyAddress: this.contract.companyAddress,
-  //     CompanyRegistration: this.contract.companyRegistration,
-  //     CompanyCui: this.contract.companyCui,
-  //     CompanyIban: this.contract.companyIban,
-  //     CompanyBank: this.contract.companyBank,
-  //     CompanyEmail: this.contract.companyEmail,
-  //     CompanyPhone: this.contract.companyPhone,
-  //     BeneficiaryName: this.contract.beneficiaryName,
-  //     BeneficiaryAddress: this.contract.beneficiaryAddress,
-  //     BeneficiaryEmail: this.contract.beneficiaryEmail,
-  //     BeneficiaryPhone: this.contract.beneficiaryPhone,
-  //     Courses: this.contract.courses,
-  //     Students: this.contract.students,
-  //     ContractPeriod: this.contract.contractPeriod,
-  //     Subtotal: this.contract.subtotal,
-  //     Discount: this.contract.discount,
-  //     Total: this.contract.total,
-  //     Installments: this.contract.installments
-  //   };
-
-  //   let result = template.replace(/{{(.*?)}}/g, (_, key) => {
-  //     const value = map[key.trim()] ?? '';
-  //     return `<span class="protected-field">${value}</span>`;
-  //   });
-
-  //   return result;
-  // }
-
-  // formatContractBodyForEditor(template: string): string {
-  //   if (!template || !this.contract) return '';
-
-  //   let result = this.formatContractBody(template);
-
-  //   return result.replace(/\n/g, '');
-  // }
 
   restoreTemplateFromHtml(html: string): string {
     if (!html) return '';
@@ -314,4 +286,13 @@ complete() {
   goBack() {
     this.router.navigate(['/students']);
   }
+
+
+  editContract() {
+    this.router.navigate(['/contracts/edit', this.contract.id]);
+  }
+
+  get safeBody() {
+  return this.sanitizer.bypassSecurityTrustHtml(this.contract.contractBody);
+}
 }

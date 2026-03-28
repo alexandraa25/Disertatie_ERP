@@ -25,9 +25,7 @@ public class UserProfileService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    // =====================================================
-    // GET CURRENT USER FROM TOKEN
-    // =====================================================
+    
     private ClaimsPrincipal GetCurrentUser()
     {
         var user = _httpContextAccessor.HttpContext?.User;
@@ -48,10 +46,6 @@ public class UserProfileService
     }
 
 
-
-    // =====================================================
-    // GET PROFILE
-    // =====================================================
     public async Task<UserProfileDto> GetProfileAsync()
     {
         var userId = GetCurrentUserId();
@@ -63,6 +57,19 @@ public class UserProfileService
 
         var unreadNotifications = await _applicationDbContext.UserNotificationSettings
             .CountAsync(x => x.UserId == userId && !x.Enabled);
+
+        // 🔥 AICI ADAUGI EMPLOYEE
+        var employee = await _applicationDbContext.Employees
+            .Where(e => e.UserId == userId)
+            .Select(e => new
+            {
+                e.JobTitle,
+                e.HireDate,
+                e.Salary,
+                e.ContractType,
+                e.EmploymentStatus
+            })
+            .FirstOrDefaultAsync();
 
         return new UserProfileDto(
             user.FirstName,
@@ -78,13 +85,16 @@ public class UserProfileService
             user.CreatedAt,
             user.LastLoginAt,
             user.AvatarUrl,
-            unreadNotifications
+            unreadNotifications,
+
+            // 🔥 ADAUGI LA FINAL
+            employee?.JobTitle,
+            employee?.HireDate,
+            employee?.Salary,
+            employee?.ContractType,
+            employee?.EmploymentStatus
         );
     }
-
-    // =====================================================
-    // UPDATE PROFILE
-    // =====================================================
     public async Task UpdateProfileAsync(UpdateUserProfileDto body)
     {
         var userId = GetCurrentUserId();
@@ -110,9 +120,6 @@ public class UserProfileService
         await transaction.CommitAsync();
     }
 
-    // =====================================================
-    // GET NOTIFICATION SETTINGS
-    // =====================================================
     public async Task<List<NotificationSettingDto>> GetNotificationSettingsAsync()
     {
         var userId = GetCurrentUserId();
@@ -131,9 +138,6 @@ public class UserProfileService
             .ToListAsync();
     }
 
-    // =====================================================
-    // UPSERT NOTIFICATION SETTINGS
-    // =====================================================
     public async Task UpsertNotificationSettingsAsync(List<NotificationSettingDto> body)
     {
         var userId = GetCurrentUserId();

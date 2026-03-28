@@ -14,5 +14,7 @@
         public string CourseNameSnapshot { get; set; } = default!;
         public string SessionNameSnapshot { get; set; } = default!;
         public decimal PriceSnapshot { get; set; }
+
+        public CourseFeeType FeeType { get; set; } // 🔥 ADD
     }
 }

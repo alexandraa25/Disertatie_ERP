@@ -1,45 +1,70 @@
-<div class="page">
+<div class="page" *ngIf="document">
 
-  <h2 class="contract-title">
-    Contract {{ contract?.contractNumber }}
-  </h2>
+  <!-- HEADER -->
+  <div class="header">
 
-  <div class="contract-container">
 
-    <div class="contract-body"
-       [innerHTML]="contract?.contractBody">
+
+    <div class="title-block">
+      <h2 class="contract-title">
+        {{ documentType === 'act' ? '📄 Act adițional' : '📄 Contract' }}
+        <span *ngIf="document?.contractNumber">
+          {{ document.contractNumber }}
+        </span>
+      </h2>
+
+      <!-- STATUS -->
+      <span class="status" [ngClass]="document?.status">
+        {{ document?.status }}
+      </span>
     </div>
 
   </div>
 
+  <!-- INFO (pentru act adițional) -->
+  <div *ngIf="documentType === 'act'" class="info">
+    📎 Acest act modifică contractul {{ document?.contractNumber }}
+  </div>
 
-<h3 class="signature-title" *ngIf="!signed">Semnătura dvs.</h3>
+  <!-- DOCUMENT -->
+  <div class="contract-container">
 
-<canvas *ngIf="!signed"
-        #canvas
-        width="600"
-        height="200"
-        (mousedown)="startDrawing($event)"
-        (mousemove)="draw($event)"
-        (mouseup)="stopDrawing()"
-        (mouseleave)="stopDrawing()">
-</canvas>
+    <div class="contract-body" [innerHTML]="safeBody"></div>
 
-<div class="buttons" *ngIf="!signed">
+  </div>
 
-  <button class="btn-secondary" (click)="clear()">
-    🗑 Șterge
-  </button>
+  <!-- SIGNATURE -->
+  <div *ngIf="!signed" class="signature-section">
 
-  <button class="btn-primary" (click)="sign()" [disabled]="loading">
-    ✍️ Semnează contractul
-  </button>
+    <h3 class="signature-title">Semnătura dvs.</h3>
+
+    <canvas #canvas width="600" height="200" (mousedown)="startDrawing($event)" (mousemove)="draw($event)"
+      (mouseup)="stopDrawing()" (mouseleave)="stopDrawing()">
+    </canvas>
+
+    <div class="buttons">
+
+      <button class="btn secondary" (click)="clear()">
+        🗑 Șterge
+      </button>
+
+      <button class="btn primary" (click)="sign()" [disabled]="loading || !hasSignature()">
+        ✍️ Semnează {{ documentType === 'act' ? 'actul' : 'contractul' }}
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- SUCCESS -->
+  <div *ngIf="signed" class="success">
+    ✅ {{ documentType === 'act' ? 'Act semnat' : 'Contract semnat' }} cu succes!
+  </div>
 
 </div>
 
-<!-- SUCCESS -->
-<div *ngIf="signed" class="success">
-  ✅ Contract semnat cu succes!
-</div>
-
+<!-- LOADING -->
+<div *ngIf="!document" class="loading">
+  <div class="spinner"></div>
+  <p>Se încarcă documentul...</p>
 </div>

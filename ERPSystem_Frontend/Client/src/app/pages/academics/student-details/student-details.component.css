@@ -362,16 +362,42 @@ button {
 /* =========================
    CONTRACT CARD
 ========================= */
+
+/* spacing general */
+.financiar-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* CONTRACT WRAPPER */
+.contract-wrapper {
+  margin-bottom: 10px;
+}
+
+/* HEADER */
+.contract-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.contract-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* CARD */
 .contract-card {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* 🔥 IMPORTANT */
-  padding: 24px;
-  border-radius: 16px;
-  background: white;
+  gap: 24px;
+  padding: 24px 26px;
+  border-radius: 18px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
-  gap: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.04);
 }
 
 /* LEFT */
@@ -381,45 +407,239 @@ button {
   gap: 10px;
 }
 
-.contract-left h2 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-/* META */
-.contract-meta {
-  display: flex;
-  gap: 16px;
-  font-size: 13px;
-  color: #64748b;
-}
-
 /* ACTIONS */
 .contract-actions {
   display: flex;
-  flex-direction: column; /* 🔥 STACK */
+  flex-direction: column;
   gap: 10px;
-  align-items: flex-end;
+  min-width: 200px;
+}
+.contract-actions button {
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
 }
 
-/* BUTTONS */
-.contract-actions button {
-  padding: 10px 16px;
-  border-radius: 10px;
+.primary {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+}
+
+.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(99,102,241,0.25);
+}
+
+/* SUMMARY */
+.finance-summary {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.finance-summary .box {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 11px;
+  color: #6b7280;
+  min-width: 90px;
+  transition: 0.2s;
+}
+
+.finance-summary .box strong {
+  font-size: 14px;
+  color: #111827;
+  margin-top: 2px;
+}
+
+.finance-summary .box:hover {
+  transform: translateY(-1px);
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.box.total { border-color: #6366f1; }
+.box.paid { border-color: #22c55e; }
+.box.remaining { border-color: #ef4444; }
+
+/* SECTION */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ACTS */
+.act-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.act-card {
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.act-card:hover {
+  border-color: #6366f1;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.06);
+}
+
+/* TOP */
+.act-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+/* TITLU */
+.act-top strong {
+  font-size: 14px;
+  color: #111827;
+}
+
+/* DESCRIPTION */
+.act-description {
   font-size: 13px;
-  min-width: 180px; /* 🔥 uniform */
+  color: #64748b;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+/* BUTTON */
+.ghost {
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 12px;
+}
+
+.ghost:hover {
+  background: #e0e7ff;
+}
+
+/* BUTTON LIGHT */
+
+
+.installments-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+/* HEADER */
+.installments-table th {
+  background: #f1f5f9;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+  padding: 12px;
+}
+
+/* ROW */
+.installments-table td {
+  padding: 14px 12px;
+  font-size: 13px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* zebra effect */
+.installments-table tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* hover */
+.installments-table tr:hover {
+  background: #f1f5f9;
+}
+
+/* PAY BUTTON */
+.pay-btn {
+  background: #6366f1;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.pay-btn:hover {
+  background: #4f46e5;
+}
+
+.badge.warning {
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: 600;
+}
+
+/* PAYMENTS */
+.payment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.payment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  transition: 0.2s;
+}
+
+.payment-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.05);
+}
+
+/* LEFT */
+.payment-item .left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.payment-item strong {
+  font-size: 15px;
+  color: #111827;
+}
+
+/* METHOD */
+.payment-item .method {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* SUB */
+.sub {
+  font-size: 12px;
+  color: #9ca3af;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* =========================
    STATUS BADGE
 ========================= */
 .status-badge {
-  width: fit-content;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
   font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
 .status-badge.Active {
@@ -582,74 +802,34 @@ button {
   border-radius: 50%;
 }
 
-
-.empty-contract {
-  text-align: center;
-  padding: 40px;
-  border: 2px dashed #ddd;
-  border-radius: 12px;
-  background: #fafafa;
+.contract-card.highlight {
+  border: 2px solid #4CAF50;
+  box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+  transform: scale(1.01);
 }
 
-.empty-contract h2 {
-  margin-bottom: 10px;
-  color: #444;
+.contract-item.active {
+  border-left: 4px solid #4CAF50;
+  background: #f0fff4;
 }
 
-.empty-contract p {
-  color: #777;
+.contract-selector {
   margin-bottom: 20px;
 }
 
-
-.success {
-  background: #22c55e;
-  color: white;
-}
-
-.danger {
-  background: #ef4444;
-  color: white;
-}
-
-.course-card.inactive {
-  opacity: 0.6;
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
-}
-
-.ended {
-  font-size: 12px;
-  color: #64748b;
-}
-
-.course-price {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.price-value {
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.btn-remove {
-  font-size: 12px;
-  padding: 4px 8px;
-
-  border-radius: 6px;
-  border: 1px solid #ef4444;
-
-  background: transparent;
-  color: #ef4444;
-
+.contract-selector select {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.btn-remove:hover {
-  background: #ef4444;
-  color: white;
+.contract-selector select:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
 }

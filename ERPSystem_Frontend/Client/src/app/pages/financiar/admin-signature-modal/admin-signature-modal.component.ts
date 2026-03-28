@@ -1,8 +1,12 @@
 import { Component, ViewChild, ElementRef, AfterViewInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ContractsService } from '../../services/contracts.service';
+import { AdditionalActService } from '../../services/additional-act.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
+  standalone: true,
+  imports: [CommonModule],
   selector: 'app-admin-signature-modal',
   templateUrl: './admin-signature-modal.component.html',
   styleUrls: ['./admin-signature-modal.component.css']
@@ -15,11 +19,13 @@ export class AdminSignatureModalComponent implements AfterViewInit {
 
   drawing = false;
   loading = false;
+  signed = false;
 
   constructor(
     private contracts: ContractsService,
+    private additionalActs: AdditionalActService,
     private dialogRef: MatDialogRef<AdminSignatureModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public contractId: number
+   @Inject(MAT_DIALOG_DATA) public data: { id: number, type: 'contract' | 'act' },
   ) {}
 
  ngAfterViewInit() {
@@ -29,23 +35,35 @@ export class AdminSignatureModalComponent implements AfterViewInit {
   canvas.height = 220;
 
   this.ctx = canvas.getContext('2d')!;
+
   this.ctx.lineWidth = 2;
   this.ctx.lineCap = 'round';
+  this.ctx.strokeStyle = '#111'; // 🔥 după setarea width
 }
 
   startDrawing(event: MouseEvent) {
-    this.drawing = true;
-    this.ctx.beginPath();
-    this.ctx.moveTo(event.offsetX, event.offsetY);
-  }
+  this.drawing = true;
+
+  const rect = this.canvas.nativeElement.getBoundingClientRect();
+
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  this.ctx.beginPath();
+  this.ctx.moveTo(x, y);
+}
 
   draw(event: MouseEvent) {
+  if (!this.drawing) return;
 
-    if (!this.drawing) return;
+  const rect = this.canvas.nativeElement.getBoundingClientRect();
 
-    this.ctx.lineTo(event.offsetX, event.offsetY);
-    this.ctx.stroke();
-  }
+  const x = event.clientX - rect.left;
+  const y = event.clientY - rect.top;
+
+  this.ctx.lineTo(x, y);
+  this.ctx.stroke();
+}
 
   stopDrawing() {
     this.drawing = false;
@@ -60,19 +78,43 @@ export class AdminSignatureModalComponent implements AfterViewInit {
 
   sign() {
 
-    const canvas = this.canvas.nativeElement;
+  const canvas = this.canvas.nativeElement;
+  const signature = canvas.toDataURL();
 
-    const signature = canvas.toDataURL();
+  this.loading = true;
 
-    this.loading = true;
+  let request$;
 
-    this.contracts.adminSign(this.contractId, signature)
-      .subscribe(() => {
-
-        this.dialogRef.close(true);
-
-      });
-
+  if (this.data.type === 'act') {
+    request$ = this.additionalActs.adminSignAct(this.data.id, signature);
+  } else {
+    request$ = this.contracts.adminSign(this.data.id, signature);
   }
 
+  request$.subscribe({
+    next: () => {
+
+      this.loading = false;
+      this.signed = true; // 🔥 asta lipsea
+
+      setTimeout(() => {
+        this.dialogRef.close(true);
+      }, 800);
+
+    },
+    error: () => {
+      this.loading = false;
+    }
+  });
+}
+
+hasSignature(): boolean {
+  const canvas = this.canvas.nativeElement;
+  const blank = document.createElement('canvas');
+
+  blank.width = canvas.width;
+  blank.height = canvas.height;
+
+  return canvas.toDataURL() !== blank.toDataURL();
+}
 }

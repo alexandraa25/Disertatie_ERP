@@ -13,6 +13,7 @@ builder.Services.AddScoped<PdfService>();
 QuestPDF.Settings.License = LicenseType.Community;
 
 
+
 var app = builder.Build();
 
 

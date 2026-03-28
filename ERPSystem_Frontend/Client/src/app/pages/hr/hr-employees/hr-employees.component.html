@@ -1,163 +1,110 @@
 <div class="container">
 
-<h2>HR Dashboard</h2>
+    <h2>HR Dashboard</h2>
 
-<div class="stats">
+    <div class="stats">
 
-<div class="card">
-<h3>{{dashboard?.totalEmployees}}</h3>
-<p>Total Employees</p>
-</div>
+        <div class="card">
+            <h3>{{dashboard?.totalEmployees}}</h3>
+            <p>Total Employees</p>
+        </div>
 
-<div class="card">
-<h3>{{dashboard?.activeEmployees}}</h3>
-<p>Active</p>
-</div>
+        <div class="card">
+            <h3>{{dashboard?.activeEmployees}}</h3>
+            <p>Active</p>
+        </div>
 
-<div class="card">
-<h3>{{dashboard?.terminatedEmployees}}</h3>
-<p>Terminated</p>
-</div>
+        <div class="card">
+            <h3>{{dashboard?.terminatedEmployees}}</h3>
+            <p>Terminated</p>
+        </div>
 
-<div class="card">
-<h3>{{dashboard?.newHiresThisMonth}}</h3>
-<p>New Hires</p>
-</div>
+        <div class="card">
+            <h3>{{dashboard?.newHiresThisMonth}}</h3>
+            <p>New Hires</p>
+        </div>
 
-</div>
+    </div>
 
-<div class="toolbar">
+    <div class="toolbar">
 
-<input
-type="text"
-placeholder="Search employee..."
-[(ngModel)]="searchText"
-class="search"
-/>
+        <input type="text" placeholder="Search employee..." [(ngModel)]="searchText" class="search" />
 
-</div>
+    </div>
 
-<button class="btn primary" (click)="openCreate()">
-Add Employee
-</button>
+    <button class="btn primary" (click)="openCreate()">
+        Add Employee
+    </button>
 
-<div *ngIf="showCreate" class="create-form">
+   
+    <table>
 
-<h3>Create Employee</h3>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Job</th>
+                <th>Status</th>
+                <th>Hire Date</th>
+                <th>Salary</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
 
-<form [formGroup]="createForm" (ngSubmit)="saveEmployee()">
+        <tbody>
 
-<div class="form-group">
-<label>Job Title</label>
-<input formControlName="jobTitle">
-</div>
+            <tr *ngFor="let employee of filteredEmployees()">
 
-<div class="form-group">
-<label>Hire Date</label>
-<input type="date" formControlName="hireDate">
-</div>
+                <td>
+                    {{employee.firstName}} {{employee.lastName}}
+                </td>
 
-<div class="form-group">
-<label>Salary</label>
-<input type="number" formControlName="salary">
-</div>
+                <td>
+                    {{employee.jobTitle}}
+                </td>
 
-<div class="form-group">
-<label>Contract Type</label>
+                <td>
 
-<select formControlName="contractType">
+                    <span *ngIf="employee.employmentStatus === 'Active'" class="badge success">
+                        Active
+                    </span>
 
-<option value="FullTime">Full Time</option>
-<option value="PartTime">Part Time</option>
-<option value="Collaboration">Collaboration</option>
+                    <span *ngIf="employee.employmentStatus === 'Terminated'" class="badge danger">
+                        Terminated
+                    </span>
 
-</select>
+                </td>
 
-</div>
+                <td>
+                    {{employee.hireDate | date:'shortDate'}}
+                </td>
 
-<div class="form-group">
-<label>Notes</label>
-<textarea formControlName="notes"></textarea>
-</div>
+                <td>
+                    {{employee.salary}}
+                </td>
 
-<div class="actions">
+                <td class="actions-cell">
 
-<button type="button" (click)="cancelCreate()">
-Cancel
-</button>
+    <button class="btn info" (click)="viewDetails(employee)">
+        Details
+    </button>
 
-<button type="submit">
-Create
-</button>
-
-</div>
-
-</form>
-
-</div>
-<table>
-
-<thead>
-<tr>
-<th>Name</th>
-<th>Job</th>
-<th>Status</th>
-<th>Hire Date</th>
-<th>Salary</th>
-<th>Actions</th>
-</tr>
-</thead>
-
-<tbody>
-
-<tr *ngFor="let employee of filteredEmployees()">
-
-<td>
-{{employee.firstName}} {{employee.lastName}}
-</td>
-
-<td>
-{{employee.jobTitle}}
-</td>
-
-<td>
-
-<span *ngIf="employee.employmentStatus === 'Active'" class="badge success">
-Active
-</span>
-
-<span *ngIf="employee.employmentStatus === 'Terminated'" class="badge danger">
-Terminated
-</span>
+    <!-- <button class="btn danger" (click)="terminateEmployee(employee)"
+        *ngIf="employee.employmentStatus === 'Active'">
+        Terminate
+    </button> -->
 
 </td>
 
-<td>
-{{employee.hireDate | date:'shortDate'}}
-</td>
+            </tr>
 
-<td>
-{{employee.salary}}
-</td>
+        </tbody>
 
-<td>
-
-<button
-class="btn danger"
-(click)="terminateEmployee(employee)"
-*ngIf="employee.employmentStatus === 'Active'"
->
-Terminate
-</button>
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
+    </table>
 
 </div>
 
-
+<app-add-employees
+  *ngIf="showCreate"
+  (close)="cancelCreate()"
+  (created)="onEmployeeCreated()">
+</app-add-employees>

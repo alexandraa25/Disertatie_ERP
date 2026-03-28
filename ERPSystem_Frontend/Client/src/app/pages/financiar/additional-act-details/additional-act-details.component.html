@@ -1,0 +1,92 @@
+<div *ngIf="loading" class="loading">
+  <div class="spinner"></div>
+  <p>Se încarcă...</p>
+</div>
+
+<div *ngIf="act" class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+
+    <div class="left">
+      <button class="btn ghost" (click)="goBack()">← Înapoi</button>
+      <div>
+        <h3>📄 Act Adițional</h3>
+        <span class="status" [ngClass]="act.status">
+          {{ act.status }}
+        </span>
+      </div>
+    </div>
+
+    <div class="right">
+      <button 
+        *ngIf="act.status === 'Draft' && !isEditingBody"
+        class="btn primary"
+        (click)="startEditBody()">
+        ✏️ Editează
+      </button>
+
+      <button 
+        *ngIf="act.status === 'Draft'"
+        class="btn outline"
+        (click)="editAct(act.id)">
+        Editează act
+      </button>
+    </div>
+
+  </div>
+
+  <!-- WARNING -->
+  <div *ngIf="isEditingBody" class="warning">
+    ⚠️ Valorile automate (preț, cursuri etc) se modifică din formularul de contract.
+  </div>
+
+  <!-- VIEW -->
+  <div *ngIf="!isEditingBody" class="card">
+    <div class="contract-body" [innerHTML]="formatForEditor(act.body)"></div>
+  </div>
+
+  <!-- EDIT -->
+  <div *ngIf="isEditingBody" class="card">
+    <quill-editor [(ngModel)]="editedBody"></quill-editor>
+
+    <div class="actions">
+      <button class="btn primary" (click)="saveBody()">💾 Salvează</button>
+      <button class="btn ghost" (click)="cancelEditBody()">Anulează</button>
+    </div>
+  </div>
+
+  <!-- FOOTER ACTIONS -->
+  <div class="actions">
+
+    <button 
+      *ngIf="act?.status === 'Draft'"
+      class="btn success"
+      (click)="finalizeAct()">
+      Finalizează
+    </button>
+
+    <button 
+      *ngIf="act?.status === 'Finalized'"
+      class="btn primary"
+      (click)="sendToClient()">
+      Trimite către client
+    </button>
+
+   <button 
+  *ngIf="act?.status === 'SignedByClient'"
+  class="btn primary"
+  (click)="openAdminSignature()">
+  ✍️ Semnează administrator
+</button>
+
+   <button 
+  *ngIf="act?.status === 'Active'"
+  class="btn outline"
+  (click)="downloadAct()">
+  📄 Descarcă PDF
+</button>
+
+  </div>
+
+</div>

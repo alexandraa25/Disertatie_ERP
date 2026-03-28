@@ -11,9 +11,13 @@ public class CourseSession
     public int? Capacity { get; set; } // null = nelimitat
 
     public string Title { get; set; }
+
+    public CourseFeeType FeeType { get; set; }
     public decimal Fee { get; set; }
 
-    // 1=Monday ... 7=Sunday
+    // 🔥 doar pentru FIXED
+    public int? TotalSessions { get; set; }
+
     [Range(1, 7)]
     public int DayOfWeek { get; set; }
 
@@ -26,4 +30,10 @@ public class CourseSession
 
     public ICollection<CourseEnrollment> Enrollments { get; set; }
       = new List<CourseEnrollment>();
+}
+
+public enum CourseFeeType
+{
+    FixedPackage = 1,  // ședințe fixe + preț total
+    Monthly = 2        // abonament lunar
 }

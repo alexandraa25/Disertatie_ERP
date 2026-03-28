@@ -1,6 +1,5 @@
 <div class="details-container" *ngIf="!loading && student">
 
-  <!-- HEADER -->
   <div class="student-header">
     <div class="student-info">
       <div class="avatar">
@@ -33,15 +32,12 @@
     </button>
   </div>
 
-  <!-- TAB CONTENT -->
   <div class="tab-content">
-
     <div class="tab-content">
 
       <!-- ================= INFORMAȚII ================= -->
       <div *ngIf="activeTab === 'Informații'" class="card">
 
-        <!-- HEADER -->
         <div class="section-header">
           <h3>Informații personale</h3>
 
@@ -50,7 +46,6 @@
           </button>
         </div>
 
-        <!-- GRID INFO -->
         <div class="info-grid modern">
 
           <div class="info-box">
@@ -77,7 +72,6 @@
 
         </div>
 
-        <!-- PĂRINȚI -->
         <h3 class="section-title">Părinți / Tutori</h3>
 
         <div *ngIf="student.guardians?.length; else noGuardians">
@@ -110,11 +104,8 @@
                 <label>Telefon</label>
                 <span>{{ g.phone }}</span>
               </div>
-
             </div>
-
           </div>
-
         </div>
 
         <ng-template #noGuardians>
@@ -146,9 +137,7 @@
             <button class="primary small" (click)="openEnrollModal()">
               ➕ Înscrie la curs
             </button>
-
           </div>
-
         </div>
 
         <!-- 🟢 ACTIVE -->
@@ -183,9 +172,7 @@
                 ❌ Scoate
               </button>
             </div>
-
           </div>
-
         </div>
 
         <!-- 🔴 INACTIVE -->
@@ -231,146 +218,200 @@
       </div>
 
       <!-- FINANCIAR -->
-      <div *ngIf="activeTab === 'Financiar'" class="card">
+      <div *ngIf="activeTab === 'Financiar'" class="card financiar-card">
+        <div class="contract-selector" *ngIf="contractsList?.length">
 
-        <!-- 🟢 EXISTĂ CONTRACT -->
-        <div *ngIf="contract; else noContract" class="contract-card">
+          <label>Selectează contract:</label>
 
-          <div class="contract-left">
-            <h2>Contract #{{ contract.contractNumber }}</h2>
+          <select [ngModel]="contract?.id" (ngModelChange)="onSelectContract($event)">
 
-            <span class="status-badge" [ngClass]="contract.status">
-              {{ contract.status }}
-            </span>
+            <option *ngFor="let c of contractsList" [value]="c.id">
+              #{{ c.contractNumber }} - {{ c.displayTotal }} - {{ c.status }}
+            </option>
 
-            <div *ngIf="isExpired()" class="alert danger">
-              ⚠️ Contractul a expirat! Nu mai poate fi activ.
-            </div>
-
-            <div *ngIf="isExpiringSoon()" class="alert warning">
-              ⏳ Contractul expiră în {{ daysLeft }} zile
-            </div>
-
-            <div class="contract-meta">
-              <span>📅 Start: {{ contract.startDate | date:'dd.MM.yyyy' }}</span>
-
-              <span *ngIf="contract.endDate">
-                ⏳ Final: {{ contract.endDate | date:'dd.MM.yyyy' }}
-              </span>
-            </div>
-          </div>
-
-          <div class="contract-actions">
-
-            <!-- BUTON PRINCIPAL -->
-            <button class="primary" (click)="handleContractAction()" [disabled]="contractAction === 'waiting'">
-              {{ getContractButtonText() }}
-            </button>
-
-            <!-- VIEW -->
-            <!-- <button class="secondary" *ngIf="contract && contract.status !== 'Draft' "
-              (click)="openContract(contract.id)">
-              📄 Vizualizează
-            </button>-->
-
-            <!-- ACTIVE ACTIONS -->
-            <ng-container *ngIf="contract.status === 'Active'">
-
-              <button class="secondary" (click)="suspend()">
-                ⏸ Suspendă
-              </button>
-
-              <button class="success" (click)="complete()">
-                ✅ Finalizează
-              </button>
-
-              <button class="danger" (click)="cancelContract()">
-                ❌ Anulează
-              </button>
-
-              <button class="secondary" (click)="downloadPdf()" [disabled]="loading">
-                📄 PDF
-              </button>
-
-            </ng-container>
-
-            <!-- SUSPENDED -->
-            <ng-container *ngIf="contract.status === 'Suspended'">
-
-              <button class="primary" (click)="resume()">
-                ▶️ Reia
-              </button>
-
-              <button class="danger" (click)="cancelContract()">
-                ❌ Anulează
-              </button>
-
-            </ng-container>
-
-          </div>
+          </select>
 
         </div>
+        <!-- CONTRACT SELECTAT (SUS) -->
+        <div *ngIf="contract; else noContract" class="contract-wrapper selected">
 
-        <!-- 🔴 NU EXISTĂ CONTRACT -->
+          <div class="contract-card highlight">
+
+            <div class="contract-left">
+
+              <div class="contract-header">
+                <h2>Contract #{{ contract.contractNumber }}</h2>
+
+                <span class="status-badge" [ngClass]="contract.status">
+                  {{ contract.status }}
+                </span>
+              </div>
+
+              <div *ngIf="isExpired()" class="alert danger">
+                ⚠️ Contractul a expirat
+              </div>
+
+              <div *ngIf="isExpiringSoon()" class="alert warning">
+                ⏳ Expiră în {{ daysLeft }} zile
+              </div>
+
+              <div class="contract-meta">
+                <span>📅 {{ contract.startDate | date:'dd.MM.yyyy' }}</span>
+
+                <span *ngIf="contract.endDate">
+                  ⏳ {{ contract.endDate | date:'dd.MM.yyyy' }}
+                </span>
+              </div>
+
+              <div class="finance-summary">
+                <div class="box total">
+                  <span>Total</span>
+                  <strong>{{ total }} RON</strong>
+                </div>
+
+                <div class="box paid">
+                  <span>Plătit</span>
+                  <strong>{{ paid }} RON</strong>
+                </div>
+
+                <div class="box remaining">
+                  <span>Rest</span>
+                  <strong>{{ remaining }} RON</strong>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="contract-actions">
+              <button class="primary" (click)="handleContractAction()" [disabled]="contractAction === 'waiting'">
+
+                {{ getContractButtonText() }}
+              </button>
+
+              <button class="secondary" *ngIf="contractAction !== 'view'" (click)="openContract(contract.id)">
+                📄 Vizualizează
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+
+        <!-- EMPTY -->
         <ng-template #noContract>
           <div class="empty-contract">
-
-            <h2>📄 Nu există contract</h2>
-
-            <p>
-              Acest client nu are încă un contract asociat.
-            </p>
+            <h2>📄 Nu există contracte</h2>
 
             <button class="primary" (click)="createContract()">
               ➕ Creează contract
             </button>
-
           </div>
         </ng-template>
 
-        <div class="additional-acts" *ngIf="contract?.status === 'Active'">
+        <!-- ACTE -->
+        <div class="section" *ngIf="contract?.status === 'Active'">
 
-          <h3>📎 Acte adiționale</h3>
+          <div class="section-header">
+            <h3>📎 Acte adiționale</h3>
+            <button class="primary" (click)="createAct()">➕ Adaugă Act</button>
+          </div>
 
-          <button class="primary" (click)="createAct()">➕ Act adițional</button>
-  <!--
-           <div *ngFor="let act of acts" class="act-card">
+          <div *ngIf="!acts?.length" class="empty">
+            Nu există acte adiționale.
+          </div>
 
-            <div>
-              <strong>{{ act.actNumber }}</strong>
+          <div class="act-list">
+            <div *ngFor="let act of acts" class="act-card">
+
+              <div class="act-top">
+                <strong>{{ act.actNumber }}</strong>
+
+                <span class="status" [ngClass]="act.status.toLowerCase()">
+                  {{ act.status }}
+                </span>
+              </div>
+
+              <div class="act-description">
+                {{ act.description }}
+              </div>
+
+              <button class="ghost" (click)="openAct(act.id)">
+                👁 Vezi
+              </button>
+
             </div>
-
-            <div>{{ act.type }}</div>
-
-            <div>{{ act.description }}</div>
-
-            <div class="status">{{ act.status }}</div>
-
-            <button *ngIf="act.status === 'Draft'" (click)="finalizeAct(act.id)">
-              ✔ Finalizează
-            </button>
-
-          </div> -->
+          </div>
 
         </div>
 
+        <!-- RATE -->
+        <div class="section" *ngIf="contract && installments?.length">
 
-        <div *ngFor="let f of student.invoices ?? []" class="invoice-item">
-          <div>
-            <strong>{{ f.number }}</strong>
-            <div class="sub">{{ f.date | date:'dd.MM.yyyy' }}</div>
-          </div>
+          <h3>💰 Rate</h3>
 
-          <div>
-            {{ f.amount }} RON
-          </div>
+          <table class="installments-table">
+            <thead>
+              <tr>
+                <th>Scadență</th>
+                <th>Valoare</th>
+                <th>Plătit</th>
+                <th>Rest</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
 
-          <span class="badge" [class.paid]="f.paid">
-            {{ f.paid ? 'Achitat' : 'Neachitat' }}
-          </span>
+            <tbody>
+              <tr *ngFor="let i of installments">
+
+                <td>{{ i.dueDate | date:'dd.MM.yyyy' }}</td>
+                <td>{{ i.amount }}</td>
+                <td>{{ i.paidAmount }}</td>
+                <td>{{ i.amount - i.paidAmount }}</td>
+
+                <td>
+                  <span class="badge" [ngClass]="getInstallmentClass(i)">
+                    {{ getInstallmentStatus(i) }}
+                  </span>
+                </td>
+
+                <td>
+                  <button *ngIf="i.paidAmount < i.amount" class="pay-btn" (click)="openPayModal(i)">
+                    💳 Marchează ca plătit
+                  </button>
+                </td>
+
+              </tr>
+            </tbody>
+          </table>
+
         </div>
+
+        <!-- PAYMENTS -->
+        <div class="section" *ngIf="payments?.length">
+
+          <h3>📜 Istoric plăți</h3>
+
+          <div class="payment-list">
+            <div *ngFor="let p of payments" class="payment-item">
+
+              <div class="left">
+                <strong>{{ p.amount }} RON</strong>
+                <div class="sub">{{ p.paidAtUtc | date:'dd.MM.yyyy HH:mm' }}</div>
+              </div>
+
+              <div class="method">{{ p.method }}</div>
+
+              <div class="sub">
+                Rata #{{ p.installmentId }}
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
       </div>
-
 
       <!-- ISTORIC -->
       <div *ngIf="activeTab === 'Istoric'" class="card">

@@ -485,3 +485,30 @@ button {
   transform: translateX(-4px);
   color: #2f4ecb;
 }
+
+.price-cell {
+  min-width: 120px;
+}
+
+.price-main {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.price-sub {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: #e2e8f0;
+  margin-left: 4px;
+}
+
+.badge.blue {
+  background: #dbeafe;
+  color: #2563eb;
+}

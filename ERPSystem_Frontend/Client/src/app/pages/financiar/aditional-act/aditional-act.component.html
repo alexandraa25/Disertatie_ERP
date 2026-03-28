@@ -2,7 +2,9 @@
 
   <div class="header">
     <button class="back" (click)="goBack()">← Înapoi</button>
-    <h2>➕ Act adițional</h2>
+   <h2>
+  {{ isEdit ? '✏️ Editează Act Adițional' : '➕ Act adițional' }}
+</h2>
   </div>
 
   <div class="card">
@@ -22,7 +24,7 @@
 
         <div *ngIf="selectedTypes.includes('AddCourse')" class="sub-form">
 
-          <ng-container *ngIf="availableCourses.length > 0; else noAvailableCourses">
+          <ng-container *ngIf="availableCourses.length > 0">
 
             <select [(ngModel)]="selectedCourseId">
               <option *ngFor="let c of availableCourses" [value]="c.sessionId">
@@ -32,24 +34,29 @@
 
           </ng-container>
 
-          <ng-template #noAvailableCourses>
+          <!-- <ng-template #noAvailableCourses>
             <div class="empty-message">
               ⚠️ Nu există cursuri disponibile pentru adăugare
             </div>
-          </ng-template>
+          </ng-template> -->
 
         </div>
+        
+            <div class="empty-message" *ngIf='availableCourses.length === 0'>
+              ⚠️ Nu există cursuri disponibile pentru adăugare
+            </div>
+          
 
         <!-- REMOVE COURSE -->
         <label>
-          <input type="checkbox" [disabled]="availableCourses.length === 0"
+          <input type="checkbox" [disabled]="inactiveCourses.length === 0"
             [checked]="selectedTypes.includes('RemoveCourse')" (change)="toggleType('RemoveCourse')" />
           Eliminare curs
         </label>
 
         <div *ngIf="selectedTypes.includes('RemoveCourse')" class="sub-form">
 
-          <ng-container *ngIf="inactiveCourses.length > 0; else noInactiveCourses">
+          <ng-container *ngIf="inactiveCourses.length > 0">
 
             <select [(ngModel)]="selectedCourseId">
               <option *ngFor="let c of inactiveCourses" [value]="c.sessionId">
@@ -59,13 +66,17 @@
 
           </ng-container>
 
-          <ng-template #noInactiveCourses>
+          <!-- <ng-template #noInactiveCourses>
             <div class="empty-message">
               ⚠️ Nu există cursuri în contract pentru eliminare
             </div>
-          </ng-template>
+          </ng-template> -->
 
         </div>
+        
+        <div class="empty-message" *ngIf='inactiveCourses.length === 0'>
+              ⚠️ Nu există cursuri în contract pentru eliminare
+            </div>
 
         <!-- EXTEND -->
         <label> <input type="checkbox" [checked]="selectedTypes.includes('ExtendPeriod')"
@@ -119,7 +130,9 @@
     <!-- ACTIONS -->
     <div class="actions">
       <button class="secondary" (click)="goBack()">Anulează</button>
-      <button class="primary" (click)="save()">✔ Creează act</button>
+      <button class="primary" (click)="save()">
+  {{ isEdit ? '💾 Salvează modificări' : '✔ Creează act' }}
+</button>
     </div>
 
   </div>

@@ -1,0 +1,141 @@
+<div class="page" *ngIf="employee">
+
+  <!-- HEADER -->
+  <div class="top">
+    <div class="avatar">
+      {{employee.firstName[0]}}{{employee.lastName[0]}}
+    </div>
+
+    <div>
+      <h1>{{employee.firstName}} {{employee.lastName}}</h1>
+      <div class="sub">
+        {{employee.jobTitle}} · 
+        <span class="status">
+          {{employee.employmentStatus === 'Active' ? 'Activ' : 
+            employee.employmentStatus === 'Terminated' ? 'Încheiat' : employee.employmentStatus}}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div 
+      class="tab" 
+      [class.active]="activeTab === 'info'" 
+      (click)="activeTab = 'info'">
+      Informații
+    </div>
+
+    <div 
+      class="tab" 
+      [class.active]="activeTab === 'documents'" 
+      (click)="activeTab = 'documents'">
+      Documente
+    </div>
+
+    <div 
+      class="tab" 
+      [class.active]="activeTab === 'leaves'" 
+      (click)="activeTab = 'leaves'">
+      Concedii
+    </div>
+
+    <div 
+      class="tab" 
+      [class.active]="activeTab === 'audit'" 
+      (click)="activeTab = 'audit'">
+      Istoric
+    </div>
+  </div>
+
+  <!-- INFO TAB -->
+  <div *ngIf="activeTab === 'info'" class="content">
+
+    <div class="col">
+
+      <div class="section">
+        <h3>Informații generale</h3>
+
+        <div class="item"><label>Data angajării</label><span>{{employee.hireDate | date}}</span></div>
+        <div class="item"><label>Salariu</label><span>{{employee.salary}}</span></div>
+        <div class="item"><label>Tip contract</label><span>{{employee.contractType}}</span></div>
+      </div>
+
+      <div class="section">
+        <h3>Adresă</h3>
+        <p>{{employee.address?.street}}</p>
+        <p>{{employee.address?.city}}</p>
+        <p>{{employee.address?.country}}</p>
+      </div>
+
+    </div>
+
+    <div class="col">
+
+      <div class="section">
+        <h3>Contact</h3>
+
+        <div class="item"><label>Email</label><span>{{employee.email}}</span></div>
+        <div class="item"><label>Telefon</label><span>{{employee.contact?.phoneNumber}}</span></div>
+        <div class="item"><label>Persoană de urgență</label><span>{{employee.contact?.emergencyContactName}}</span></div>
+      </div>
+
+      <div class="section">
+        <h3>Date bancare</h3>
+
+        <div class="item"><label>IBAN</label><span>{{employee.bank?.iban}}</span></div>
+        <div class="item"><label>Bancă</label><span>{{employee.bank?.bankName}}</span></div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- DOCUMENTS TAB -->
+  <div *ngIf="activeTab === 'documents'" class="section">
+
+    <h3>Documente</h3>
+
+    <div class="doc-row" *ngFor="let doc of employee.documents">
+      <div>
+        <strong>{{doc.fileName}}</strong>
+        <div class="small">{{doc.uploadedAt | date}}</div>
+      </div>
+
+      <button (click)="openDocument(doc.filePath)">
+        Deschide
+      </button>
+    </div>
+
+  </div>
+
+  <!-- LEAVES TAB -->
+  <div *ngIf="activeTab === 'leaves'" class="section">
+
+    <h3>Concedii</h3>
+
+    <div *ngFor="let leave of employee.leaves">
+      {{leave.startDate | date}} - {{leave.endDate | date}}
+    </div>
+
+  </div>
+
+  <!-- AUDIT TAB -->
+  <div *ngIf="activeTab === 'audit'" class="section">
+
+    <h3>Istoric modificări</h3>
+
+    <div class="item">
+      <label>Creat la</label>
+      <span>{{employee.createdAt | date}}</span>
+    </div>
+
+    <div class="item">
+      <label>Actualizat la</label>
+      <span>{{employee.updatedAt | date}}</span>
+    </div>
+
+  </div>
+
+</div>

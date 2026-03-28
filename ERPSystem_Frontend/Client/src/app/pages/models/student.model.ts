@@ -53,6 +53,7 @@ export interface StudentCourseDetailsDto {
   isActive: boolean;
   contractId : number;
   endedAtUtc :string;
+  feeType : number;
 }
 
 export interface StudentCoursesResponse {

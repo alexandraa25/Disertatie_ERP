@@ -1,5 +1,6 @@
 ﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
+using ERPSystem.Modules.AdditionalAct.Models;
 using ERPSystem.Modules.Authentification.Models;
 using ERPSystem.Modules.Contracts.Models;
 using ERPSystem.Utils.Constants.Email;
@@ -142,9 +143,22 @@ namespace ERPSystem.Shared.BusinessLogic
                 template = emailTemplate.HtmlContent
                     .Replace(EmailConstants.CLIENT_NAME, model.ClientName)
                     .Replace(EmailConstants.CONTRACT_NUMBER, model.ContractNumber)
-                    .Replace(EmailConstants.SIGN_CONTRACT_URL, url)
+                    .Replace(EmailConstants.SIGN_URL, url)
                     .Replace(EmailConstants.YEAR, DateTime.UtcNow.Year.ToString());
             }
+
+            else if (templateCode == TemplateCode.ADDITIONAL_ACT_SIGN_REQUEST)
+            {
+                var model = JsonConvert.DeserializeObject<AdditionalActSignEmailModel>(tableRow);
+
+                template = emailTemplate.HtmlContent
+                    .Replace(EmailConstants.CLIENT_NAME, model.ClientName)
+                    .Replace(EmailConstants.ACT_NUMBER, model.ActNumber)
+                    .Replace(EmailConstants.DESCRIPTION, model.Description ?? "")
+                    .Replace(EmailConstants.SIGN_URL, url)
+                    .Replace(EmailConstants.YEAR, DateTime.UtcNow.Year.ToString());
+            }
+
 
             return template;
         }

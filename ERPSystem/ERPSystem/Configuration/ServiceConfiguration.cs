@@ -1,13 +1,15 @@
 ﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
+using ERPSystem.Modules.AdditionalAct;
+using ERPSystem.Modules.Admin;
 using ERPSystem.Modules.Authentificate;
+using ERPSystem.Modules.Company;
 using ERPSystem.Modules.Contracts;
 using ERPSystem.Modules.Dashboard;
+using ERPSystem.Modules.Employees;
 using ERPSystem.Modules.Student;
 using ERPSystem.Modules.UserProfile;
-using ERPSystem.Modules.Admin;
-using ERPSystem.Modules.Employees;
-using ERPSystem.Modules.Company;
+using ERPSystem.Modules.Payments;
 using ERPSystem.Shared.BusinessLogic;
 using ERPSystem.Utils.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -27,11 +29,15 @@ namespace ERPSystem.Configuration
             builder.ConfigureSettings();
             builder.ConfigureService();
             builder.ConfigureBusinessLogic();
+            builder.ConfigureBackgroundJobs();
             builder.ConfigureLogger();
             builder.ConfigureCors();
             builder.ConfigureContext();
         }
-
+        public static void ConfigureBackgroundJobs(this WebApplicationBuilder builder)
+        {
+            builder.Services.AddHostedService<ContractExpirationService>();
+        }
         public static void ConfigureService(this WebApplicationBuilder builder)
         {
             builder.Services.AddScoped<AuthentificationService>();
@@ -44,8 +50,11 @@ namespace ERPSystem.Configuration
             builder.Services.AddScoped<StudentsService>();
             builder.Services.AddScoped<CoursesService>();
             builder.Services.AddScoped<ContractsService>();
+            builder.Services.AddScoped<AdditionalActService>();
+            builder.Services.AddScoped<PaymentsService>();
             builder.Services.AddScoped<DashboardService>();
             builder.Services.AddScoped<AdminService>();
+            builder.Services.AddScoped<LeavesService>();
             builder.Services.AddScoped<EmployeeService>();
             builder.Services.AddScoped<CompanyService>();
             builder.Services.AddScoped<ActivityLogService>();

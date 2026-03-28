@@ -1,4 +1,5 @@
 ﻿using ERPSystem.Extensions;
+using ERPSystem.Modules.Admin;
 using ERPSystem.Modules.Employees;
 using ERPSystem.Modules.Employees.Models;
 
@@ -11,45 +12,43 @@ namespace ERPSystem.Modules.Employees
     {
         public static void Map(RouteGroupBuilder group)
         {
-            // ===============================
-            // CREATE EMPLOYEE
-            // ===============================
+            
             group.MapPost(Route.EMPLOYEE,
-                async (CreateEmployeeRequest request, EmployeeService service)
-                    => await service.CreateEmployeeAsync(request))
-                .WithDefaultApiSettings("CreateEmployee", "Create Employee", "CREATE_EMPLOYEE", false);
+               async (CreateEmployeeFullRequest request, EmployeeService service)
+                   => await service.CreateEmployeeFullAsync(request))
+               .WithDefaultApiSettings("CreateEmployee", "Creare angajat", "CREATE_EMPLOYEE", false);
 
+            group.MapPost(Route.EMPLOYEE_DOCUMENT,
+                async (Guid employeeId, IFormFileCollection files,  EmployeeService service) =>
+                    await service.UploadEmployeeDocuments(employeeId, files))
+                .WithDefaultApiSettings("UploadEmployeeDocuments", "Incarcare documente angajat", "EMPLOYEE_DOCUMENT", false)
+                .Accepts<IFormFileCollection>("multipart/form-data")
+                .Produces(StatusCodes.Status200OK)
+                .Produces(StatusCodes.Status400BadRequest)
+                .Produces(StatusCodes.Status404NotFound);
 
-            // ===============================
-            // GET EMPLOYEES
-            // ===============================
+            group.MapGet(Route.USERS,
+                  async (EmployeeService service)
+                    => await service.GetSimpleUsers())
+                 .WithDefaultApiSettings("GetSimplUsers", "User", "GET_SIMPLE_USERS", false);
+
+            
             group.MapGet(Route.EMPLOYEES,
                 async (EmployeeService service)
                     => await service.GetEmployeesAsync())
                 .WithDefaultApiSettings("ListEmployee", " Employees", "List_EMPLOYEE", false);
 
 
-            // ===============================
-            // GET EMPLOYEE BY ID
-            // ===============================
             group.MapGet(Route.EMPLOYEE_BY_ID,
                 async (Guid id, EmployeeService service)
                     => await service.GetEmployeeAsync(id))
                 .WithDefaultApiSettings("getidEmployee", " Employee by id", "EMPLOYEE_BY_ID", false);
 
-
-            // ===============================
-            // TERMINATE EMPLOYEE
-            // ===============================
             group.MapPost(Route.TERMINATE_EMPLOYEE,
                 async (Guid id, TerminateEmployeeRequest request, EmployeeService service)
                     => await service.TerminateEmployeeAsync(id, request))
                 .WithDefaultApiSettings("TerminateEmployee", "Terminate Employee", "Terminate_EMPLOYEE", false);
 
-
-            // ===============================
-            // HR DASHBOARD
-            // ===============================
             group.MapGet(Route.HR_DASHBOARD,
                 async (EmployeeService service)
                     => await service.GetDashboardAsync())

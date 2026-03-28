@@ -59,5 +59,23 @@ namespace ERPSystem.Modules.Admin
 
             return Results.Ok(dashboard);
         }
+
+        public async Task<IResult> GetEmployeesWithoutUserAsync()
+        {
+            var employees = await _applicationDbContext.Employees
+                  .Where(e => e.UserId == null)
+                  .Select(e => new
+                  {
+                      e.Id,
+                      e.FirstName,
+                      e.LastName,
+                      e.Email,
+                      e.JobTitle,
+                      PhoneNumber = e.Contact != null ? e.Contact.PhoneNumber : null
+                  })
+                  .ToListAsync();
+
+            return Results.Ok(employees);
+        }
     }
 }

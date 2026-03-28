@@ -1,7 +1,8 @@
-export interface CreateDiscountDto { 
-  type: 'Percentage' | 'FixedAmount';
+export interface CreateDiscountDto {
+  type: 1 | 2;
   value: number;
   reason: string;
+  scope: 'Total' | 'Subscription' | 'Package'; // 🔥 ADD
 }
 
 export interface CreateContractDto {

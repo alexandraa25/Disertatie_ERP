@@ -1,0 +1,51 @@
+<div class="modal">
+
+  <h2>💳 Plată rată</h2>
+
+  <div class="remaining-box">
+    Sumă rămasă: <b>{{ data.remaining }} lei</b>
+  </div>
+
+  <!-- SUMĂ -->
+  <div class="field">
+    <label>Sumă</label>
+    <input type="number" [(ngModel)]="amount" (keydown.enter)="confirm()"/>
+
+    <button class="pay-all" (click)="amount = data.remaining">
+      Plătește tot
+    </button>
+  </div>
+
+  <!-- METODĂ -->
+  <div class="field">
+    <label>Metodă</label>
+    <select [(ngModel)]="method">
+      <option *ngFor="let m of methods" [value]="m">{{ m }}</option>
+    </select>
+  </div>
+
+  <!-- NOTE -->
+  <div class="field">
+    <label>Detalii (opțional)</label>
+    <input type="text" [(ngModel)]="notes" />
+  </div>
+
+  <!-- REFERINȚĂ -->
+  <div class="field">
+    <label>Referință (opțional)</label>
+    <input type="text" [(ngModel)]="reference" />
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <button class="btn-cancel" (click)="close()">Cancel</button>
+
+    <button 
+      class="btn-confirm"
+      (click)="confirm()" 
+      [disabled]="amount <= 0 || amount > data.remaining">
+      Confirm
+    </button>
+  </div>
+
+</div>

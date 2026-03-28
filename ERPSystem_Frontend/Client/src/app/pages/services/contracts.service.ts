@@ -18,8 +18,7 @@ export class ContractsService {
     return this.http.get<any>(`${this.baseUrl}/${id}`);
   }
 
-
-  listByStudent(studentId: number): Observable<any> {
+  listContracts(studentId: number): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}/students/${studentId}`);
   }
 
@@ -35,7 +34,6 @@ export class ContractsService {
     return this.http.put<any>(`${this.baseUrl}/${id}/reset-body`, {});
   }
 
-
   finalize(id: number) {
     return this.http.put<any>(`${this.baseUrl}/${id}/finalize`, {});
   }
@@ -48,21 +46,17 @@ export class ContractsService {
     return this.http.get(`${this.baseUrl}/sign/${token}`);
   }
 
-
   signClient(dto: any) {
     return this.http.post(`${this.baseUrl}/client-sign`, dto);
   }
 
-  sign(id: number): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/${id}/sign`, {});
-  }
-
+  // sign(id: number): Observable<any> {
+  //   return this.http.put<any>(`${this.baseUrl}/${id}/sign`, {});
+  // }
 
   activate(id: number) {
     return this.http.put<any>(`${this.baseUrl}/${id}/activate`, {});
   }
-
-
 
   cancel(id: number): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/${id}/cancel`, {});
@@ -71,12 +65,6 @@ export class ContractsService {
 
   generatePdf(id: number): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/${id}/generate-pdf`, {});
-  }
-
-  getLatestByStudent(studentId: number): Observable<any> {
-    return this.http.get<any>(
-      `${this.baseUrl}/latest-by-student/${studentId}`
-    );
   }
 
   adminSign(id: number, signature: string) {

@@ -35,6 +35,8 @@ namespace ERPSystem.Data.Entities
         public ICollection<StudentGuardian> StudentGuardians { get; set; }
             = new List<StudentGuardian>();
 
+        public ICollection<CourseEnrollment> Enrollments { get; set; } = new List<CourseEnrollment>();
+
         [NotMapped]
         public int? Age
         {

@@ -689,3 +689,11 @@ C:\Project\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\refint\ERPSystem
 C:\Project\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\ERPSystem.pdb
 C:\Project\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\ERPSystem.genruntimeconfig.cache
 C:\Project\Disertatie_ERP\ERPSystem\ERPSystem\obj\Debug\net10.0\ref\ERPSystem.dll
+C:\Project\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\ClosedXML.dll
+C:\Project\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\ClosedXML.Parser.dll
+C:\Project\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\DocumentFormat.OpenXml.dll
+C:\Project\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\DocumentFormat.OpenXml.Framework.dll
+C:\Project\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\ExcelNumberFormat.dll
+C:\Project\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\RBush.dll
+C:\Project\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\SixLabors.Fonts.dll
+C:\Project\Disertatie_ERP\ERPSystem\ERPSystem\bin\Debug\net10.0\System.IO.Packaging.dll

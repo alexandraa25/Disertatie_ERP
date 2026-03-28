@@ -10,7 +10,9 @@
         public const string EMAIL = "EMAIL";
         public const string PASSWORD = "PASSWORD";
         public const string CLIENT_NAME = "{{ClientName}}";
-        public const string CONTRACT_NUMBER = "{{ContractNumber}}";
-        public const string SIGN_CONTRACT_URL = "{{SignUrl}}";
+        public const string CONTRACT_NUMBER = "{{ContractNumber}}"; 
+        public const string ACT_NUMBER = "{{ActNumber}}";
+        public const string DESCRIPTION = "{{Description}}";
+        public const string SIGN_URL = "{{SignLink}}";
     }
 }

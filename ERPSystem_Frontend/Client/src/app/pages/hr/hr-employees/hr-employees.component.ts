@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms'
-
+import { AddEmployeesComponent } from '../add-employees/add-employees.component'
 import { EmployeeService } from '../../services/employee.service'
 import { Employee, HrDashboard } from '../../models/employee.model'
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-hr-employees',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  
+  imports: [CommonModule, FormsModule, ReactiveFormsModule,  AddEmployeesComponent],
   templateUrl: './hr-employees.component.html',
   styleUrls: ['./hr-employees.component.css']
 })
@@ -26,7 +28,7 @@ export class HrEmployeesComponent implements OnInit {
 
   constructor(
     private service: EmployeeService,
-    private fb: FormBuilder
+    private fb: FormBuilder, private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -34,7 +36,15 @@ export class HrEmployeesComponent implements OnInit {
     this.loadEmployees()
 
     this.service.getDashboard()
-      .subscribe(data => this.dashboard = data)
+  .subscribe(res => {
+
+    if (!res.isSuccess) {
+      alert(res.error?.errorMessage);
+      return;
+    }
+
+    this.dashboard = res.value; // 🔥 FIX
+  });
 
     this.createForm = this.fb.group({
       jobTitle: [''],
@@ -46,18 +56,30 @@ export class HrEmployeesComponent implements OnInit {
   }
 
   loadEmployees() {
-    this.service.getEmployees()
-      .subscribe(data => this.employees = data)
-  }
+  this.service.getEmployees()
+    .subscribe(res => {
+
+      if (!res.isSuccess) {
+        alert(res.error?.errorMessage);
+        return;
+      }
+
+      this.employees = res.value; // 🔥 IMPORTANT
+    });
+}
 
   openCreate() {
-    this.showCreate = true
-  }
+  this.showCreate = true;
+}
 
-  cancelCreate() {
-    this.showCreate = false
-    this.createForm.reset()
-  }
+cancelCreate() {
+  this.showCreate = false;
+}
+
+onEmployeeCreated() {
+  this.showCreate = false;
+  this.loadEmployees(); // sau refresh listă
+}
 
   saveEmployee() {
 
@@ -99,5 +121,13 @@ export class HrEmployeesComponent implements OnInit {
       x.jobTitle?.toLowerCase().includes(this.searchText.toLowerCase())
     )
   }
+
+ 
+  viewDetails(employee: any) {
+  if (!employee?.id) return;
+
+  this.router.navigate(['/employee', employee.id]);
+
+}
 
 }

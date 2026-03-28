@@ -12,9 +12,9 @@ namespace ERPSystem.Modules.Students
         public static void Map(RouteGroupBuilder group)
         {
             group.MapGet(Route.STUDENTS,
-                async (string? q, int page, int pageSize, string? sortBy, string? sortDir, int? recentDays, bool? onlyRecent,
+                async (string? q, int page, int pageSize, string? sortBy, string? sortDir, int? recentDays, bool? onlyRecent, int ? sessionId,
                        StudentsService studentsService)
-                    => await studentsService.GetStudentsAsync(q, page, pageSize, sortBy, sortDir, recentDays, onlyRecent))
+                    => await studentsService.GetStudentsAsync(q, page, pageSize, sortBy, sortDir, recentDays, onlyRecent, sessionId))
                 .WithDefaultApiSettings("GetStudents", "Lista elevi (paging/sort/filter)", "GET", false);
 
             group.MapGet(Route.STUDENT_BY_ID,
@@ -61,6 +61,26 @@ namespace ERPSystem.Modules.Students
                 async (int contractId, StudentsService service)
                     => await service.GetStudentCoursesByContractAsync(contractId))
                .WithDefaultApiSettings("GetStudentCoursesByContract", "Lista cursuri si sesiuni asociate elevului pentru contract", "GET_STUDENT_COURSES_BY_CONTRACT", false);
-        }
-    }
-}
+
+            group.MapGet(Route.SESSIONS,
+                async (StudentsService studentsService)
+                   => await studentsService.GetAllSessionsAsync() )
+               .WithDefaultApiSettings("GetSessions", "Lista sesiuni", "GET", false);
+
+
+            group.MapGet(Route.EXPORT,
+                 async ( string? q, string? sortBy,string? sortDir, bool? onlyRecent, int? recentDays, int? sessionId, StudentsService studentsService ) =>
+                 {
+                     var bytes = await studentsService.ExportStudentsExcel(  q, sortBy, sortDir, onlyRecent, recentDays, sessionId );
+             
+                     return Results.File(
+                         bytes,
+                         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                         $"students_{DateTime.UtcNow:yyyyMMdd_HHmm}.xlsx"
+                     );
+                 }
+             )
+             .WithDefaultApiSettings("ExportStudents", "Export elevi filtrat", "GET", false);
+                     }
+                 }
+             }

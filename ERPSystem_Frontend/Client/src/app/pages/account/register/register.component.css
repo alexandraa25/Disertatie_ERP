@@ -277,3 +277,12 @@ form {
     padding: 30px 20px;
   }
 }
+
+.job-info {
+  background: #f1f5f9;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #334155;
+  margin-bottom: 12px;
+}

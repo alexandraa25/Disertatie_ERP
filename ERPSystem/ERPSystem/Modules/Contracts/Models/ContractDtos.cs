@@ -1,15 +1,33 @@
 ﻿namespace ERPSystem.Modules.Contracts.Models;
 
-public record ContractListItemDto(
-    int Id,
-    string ContractNumber,
-    string MainGuardianName,
-    DateTime StartDate,
-    DateTime? EndDate,
-    decimal TotalAmount,
-    string Status,
-    DateTime CreatedAtUtc
-);
+public class ContractListItemDto
+{
+    public int Id { get; set; }
+    public string ContractNumber { get; set; } = null!;
+
+    public string? GuardianName { get; set; }
+
+    public DateTime StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+
+    public decimal? TotalAmount { get; set; }
+    public string DisplayTotal { get; set; } = null!;
+
+    public decimal MonthlyAmount { get; set; }
+
+    public bool IsUnlimited { get; set; }
+
+    public string Status { get; set; } = null!;
+    public DateTime CreatedAtUtc { get; set; }
+}
+
+public class InstallmentDto
+{
+    public int Id { get; set; } // 🔥 ADD THIS
+    public DateTime DueDate { get; set; }
+    public decimal Amount { get; set; }
+    public decimal PaidAmount { get; set; }
+}
 
 public record ContractDetailsDto(
     int Id,
@@ -17,19 +35,21 @@ public record ContractDetailsDto(
     DateTime StartDate,
     DateTime? EndDate,
     bool IsUnlimited,
-    decimal TotalAmount,
+    decimal? TotalAmount,
+    string DisplayTotal,
+    decimal MonthlyAmount,
     int Installments,
     string Status,
     DateTime CreatedAtUtc,
     DateTime? FinalizedAtUtc,
 
-    // 🔥 SEMNĂTURI
+    // semnături
     string? ClientSignature,
     DateTime? ClientSignedAtUtc,
     string? AdminSignature,
     DateTime? AdminSignedAtUtc,
 
-    // 🔥 COMPANY SNAPSHOT
+    // company
     string CompanyName,
     string CompanyAddress,
     string CompanyCui,
@@ -39,7 +59,7 @@ public record ContractDetailsDto(
     string CompanyEmail,
     string CompanyPhone,
 
-    // 🔥 BENEFICIAR SNAPSHOT
+    // beneficiar
     string BeneficiaryName,
     string BeneficiaryEmail,
     string BeneficiaryPhone,
@@ -49,7 +69,8 @@ public record ContractDetailsDto(
 
     List<ContractPartyDto> Parties,
     List<ContractCourseDto> Courses,
-    List<ContractDiscountDto> Discounts
+    List<ContractDiscountDto> Discounts,
+    List<InstallmentDto> InstallmentsList
 );
 public record ContractPartyDto(
     int? StudentId,
@@ -62,14 +83,16 @@ public record ContractPartyDto(
 public record ContractDiscountDto(
     string Type,
     decimal Value,
-    string Reason
+    string Reason,
+    string Scope // 🔥 OBLIGATORIU
 );
 
 public record ContractCourseDto(
     int CourseSessionId,
     string CourseName,
     string SessionName,
-    decimal Price
+    decimal Price,
+    int CourseFeeType // 🔥 ADD
 );
 
 public record CreateContractDto(
@@ -86,7 +109,8 @@ public record CreateContractDto(
 public record CreateDiscountDto(
     string Type,
     decimal Value,
-    string Reason
+    string Reason,
+    string Scope // 🔥 OBLIGATORIU
 );
 
 public record UpdateContractDto(

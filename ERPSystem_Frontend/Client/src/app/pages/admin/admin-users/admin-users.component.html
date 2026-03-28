@@ -1,0 +1,165 @@
+<div class="container">
+
+    <h2>Admin Dashboard</h2>
+
+    <div class="stats">
+
+        <div class="card">
+            <h3>{{totalUsers}}</h3>
+            <p>Total Users</p>
+        </div>
+
+        <div class="card">
+            <h3>{{activeUsers}}</h3>
+            <p>Active Users</p>
+        </div>
+
+        <div class="card">
+            <h3>{{inactiveUsers}}</h3>
+            <p>Inactive Users</p>
+        </div>
+
+        <div class="card">
+            <h3>{{adminUsers}}</h3>
+            <p>Admins</p>
+        </div>
+
+    </div>
+
+    <div *ngIf="employeesWithoutUser?.length" class="section">
+
+    <h3>Angajați fără cont</h3>
+
+    <table class="table-secondary">
+
+        <thead>
+            <tr>
+                <th>Nume</th>
+                <th>Email</th>
+                <th>Acțiune</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr *ngFor="let emp of employeesWithoutUser">
+
+                <td>{{emp.firstName}} {{emp.lastName}}</td>
+
+                <td>{{emp.email}}</td>
+
+                <td>
+                    <button class="btn primary" (click)="goToRegister(emp)">
+                        Creează cont
+                    </button>
+                </td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+    <div class="toolbar">
+
+        <input type="text" placeholder="Caută utilizator..." [(ngModel)]="searchText" class="search" />
+
+        <select [(ngModel)]="roleFilter" class="filter">
+            <option value="">Toate rolurile</option>
+            <option value="Admin">Admin</option>
+            <option value="Manager">Manager</option>
+            <option value="Secretary">Secretary</option>
+            <option value="Teacher">Teacher</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Accountant">Accountant</option>
+        </select>
+
+        <select [(ngModel)]="statusFilter" class="filter">
+            <option value="">Toate statusurile</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+        </select>
+
+    </div>
+    <table>
+
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr *ngFor="let user of paginatedUsers()">
+
+                <td>{{user.username}}</td>
+
+                <td>{{user.email}}</td>
+
+                <td>{{user.firstName}} {{user.lastName}}</td>
+
+                <td>
+
+                    <span *ngFor="let role of user.roles" class="role-badge">
+                        {{role}}
+                    </span>
+
+                </td>
+
+                <td>
+
+                    <span *ngIf="user.isActive" class="badge success">
+                        Active
+                    </span>
+
+                    <span *ngIf="!user.isActive" class="badge danger">
+                        Inactive
+                    </span>
+
+                </td>
+
+                <td>{{user.createdAt | date:'short'}}</td>
+
+                <td class="actions">
+
+                    <button class="btn edit" (click)="editUser(user)">
+                        Detalii
+                    </button>
+
+                    <button class="btn disable" (click)="toggleUser(user)">
+                        {{user.isActive ? 'Disable' : 'Enable'}}
+                    </button>
+
+                </td>
+
+            </tr>
+
+        </tbody>
+
+    </table>
+
+    <div class="pagination">
+
+        <button (click)="prevPage()" [disabled]="currentPage === 1">
+            Previous
+        </button>
+
+        <span>
+            Page {{currentPage}} / {{totalPages}}
+        </span>
+
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages">
+            Next
+        </button>
+
+    </div>
+
+</div>

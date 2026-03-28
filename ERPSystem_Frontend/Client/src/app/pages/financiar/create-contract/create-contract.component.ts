@@ -1,13 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  FormArray,
-  Validators,
-  ValidatorFn,
-  AbstractControl,
-  ValidationErrors
-} from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ValidatorFn, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ContractsService } from '../../services/contracts.service';
 import { StudentsService } from '../../services/students.service';
 import { StudentCourseDetailsDto } from '../../models/student.model';
@@ -27,7 +19,9 @@ export class CreateContractComponent implements OnInit {
   contractForm!: FormGroup;
 
   studentCourses: StudentCourseDetailsDto[] = [];
-  totalAmount = 0;
+  subtotal = 0;
+  monthlyAmount = 0;
+  finalTotal: number | null = null;
   studentId!: number;
   isSubmitting = false;
 
@@ -37,6 +31,10 @@ export class CreateContractComponent implements OnInit {
   contractId!: number;
   isEdit = false;
 
+  hasSubscription = false;
+  hasPackage = false;
+  packageAmount = 0;
+
   constructor(
     private fb: FormBuilder,
     private contractsService: ContractsService,
@@ -45,9 +43,6 @@ export class CreateContractComponent implements OnInit {
     private router: Router
   ) { }
 
-  // ===============================
-  // INIT
-  // ===============================
   ngOnInit(): void {
     this.buildForm();
 
@@ -66,6 +61,14 @@ export class CreateContractComponent implements OnInit {
       this.studentId = Number(studentId);
       this.prefillFromStudent(this.studentId);
     }
+
+    this.contractForm.valueChanges.subscribe(() => {
+      this.calculatePricingPreview();
+    });
+    this.discounts.valueChanges.subscribe(() => {
+      this.validateDiscounts();
+
+    });
   }
 
   loadContract(id: number) {
@@ -75,15 +78,51 @@ export class CreateContractComponent implements OnInit {
 
       const c = res.value;
 
+      if (c.status !== 'Draft') {
+        alert('Contractul nu mai poate fi editat');
+        this.router.navigate(['/contracts', id]);
+        return;
+      }
+
       this.contractForm.patchValue({
-        startDate: c.startDate,
-        endDate: c.endDate,
+        startDate: this.formatDate(c.startDate),
+        endDate: c.endDate ? this.formatDate(c.endDate) : null,
         isUnlimited: c.isUnlimited,
         installments: c.installments,
         courseSessionIds: c.courses.map((x: any) => x.courseSessionId)
       });
 
-      this.totalAmount = c.totalAmount;
+      if (this.isEdit) {
+        this.contractForm.get('studentIds')?.disable();
+        this.contractForm.get('guardianId')?.disable();
+        this.contractForm.get('courseSessionIds')?.disable();
+      }
+
+      const studentParty = c.parties.find((p: any) => p.studentId);
+      const guardianParty = c.parties.find((p: any) => p.guardianId);
+
+      if (studentParty) {
+        this.selectedStudent = {
+          firstName: studentParty.studentName,
+          lastName: ''
+        };
+      }
+
+      if (guardianParty) {
+        this.selectedGuardian = {
+          firstName: guardianParty.guardianName,
+          lastName: ''
+        };
+      }
+
+      this.studentCourses = c.courses.map((x: any) => ({
+        courseName: x.courseName,
+        dayOfWeek: x.sessionName,
+        startTime: '',
+        endTime: '',
+        teacherName: '',
+        price: x.priceSnapshot
+      }));
 
       this.discounts.clear();
 
@@ -91,15 +130,18 @@ export class CreateContractComponent implements OnInit {
         this.discounts.push(this.fb.group({
           type: d.type,
           value: d.value,
-          reason: d.reason
+          reason: d.reason,
+          scope: d.scope || 'Total'
         }));
+
       });
+
     });
+
+    this.calculatePricingPreview();
+
   }
 
-  // ===============================
-  // FORM
-  // ===============================
   buildForm() {
     this.contractForm = this.fb.group({
       guardianId: [null],
@@ -137,35 +179,146 @@ export class CreateContractComponent implements OnInit {
   addDiscount() {
     this.discounts.push(this.fb.group({
       type: ['Percentage'],
-      value: [0, Validators.required],
-      reason: ['']
+      value: [0, [Validators.required, Validators.min(0)]],
+      reason: [''],
+      scope: ['Total']
     }));
+  }
+
+  validateDiscounts() {
+    this.discounts.controls.forEach(ctrl => {
+
+      const type = ctrl.get('type')?.value;
+      const valueCtrl = ctrl.get('value');
+
+      if (!valueCtrl) return;
+
+      if (type === 'Percentage' && valueCtrl.value > 100) {
+        valueCtrl.setErrors({ ...(valueCtrl.errors || {}), max: true });
+      }
+
+    });
+  }
+
+  getDiscountImpact(ctrl: any): number {
+
+    const type = ctrl.value.type;
+    const value = Number(ctrl.value.value);
+    const scope = ctrl.value.scope;
+
+    let base = 0;
+
+    if (scope === 'Subscription') {
+      base = this.monthlyAmount;
+    } else if (scope === 'Package') {
+      base = this.packageAmount;
+
+    } else {
+      base = this.finalTotal ?? this.monthlyAmount;
+    }
+
+    if (!base) return 0;
+
+    if (type === 'Percentage') {
+      return base * (value / 100);
+    }
+
+
+    return value;
   }
 
   removeDiscount(index: number) {
     this.discounts.removeAt(index);
   }
 
-  calculateTotal(): number {
-    let total = this.totalAmount;
+  calculatePricingPreview() {
+
+    this.subtotal = 0;
+    this.monthlyAmount = 0;
+    this.finalTotal = null;
+    const isUnlimited = this.contractForm.get('isUnlimited')?.value;
+    const start = this.contractForm.get('startDate')?.value;
+    const end = this.contractForm.get('endDate')?.value;
+
+    this.subtotal = this.studentCourses.reduce((sum, c) => {
+      return sum + (c.price ?? 0);
+    }, 0);
+
+    this.monthlyAmount = this.subtotal;
+
+    let months = 0;
+
+    if (!isUnlimited && start && end) {
+      const d1 = new Date(start);
+      const d2 = new Date(end);
+
+      months =
+        (d2.getFullYear() - d1.getFullYear()) * 12 +
+        (d2.getMonth() - d1.getMonth()) + 1;
+    }
+
+    this.finalTotal = isUnlimited ? null : this.monthlyAmount * months;
+    this.packageAmount = this.finalTotal ?? 0;
 
     this.discounts.controls.forEach(ctrl => {
+
       const type = ctrl.value.type;
       const value = Number(ctrl.value.value);
+      const scope = ctrl.value.scope;
 
-      if (type === 'Percentage') {
-        total -= total * (value / 100);
-      } else {
-        total -= value;
+      const apply = (amount: number) => {
+        if (type === 'Percentage') {
+          return amount - amount * (value / 100);
+        } else {
+          return amount - value;
+        }
+      };
+
+      if (scope === 'Total') {
+
+        if (this.finalTotal != null)
+          this.finalTotal = apply(this.finalTotal);
+
+        this.monthlyAmount = apply(this.monthlyAmount);
+
+      } else if (scope === 'Subscription') {
+
+        this.monthlyAmount = apply(this.monthlyAmount);
+
+        if (this.finalTotal != null && !this.contractForm.get('isUnlimited')?.value) {
+          this.finalTotal = apply(this.finalTotal);
+        }
+
+      } else if (scope === 'Package') {
+
+        if (this.finalTotal != null)
+          this.finalTotal = apply(this.finalTotal);
       }
+
     });
 
-    return total < 0 ? 0 : total;
+    if (this.finalTotal != null && this.finalTotal < 0)
+      this.finalTotal = 0;
+
+    if (this.monthlyAmount < 0)
+      this.monthlyAmount = 0;
+
+    this.hasSubscription = this.monthlyAmount > 0;
+    this.hasPackage = this.finalTotal !== null;
+
+    this.discounts.controls.forEach(ctrl => {
+      const scope = ctrl.get('scope')?.value;
+
+      if (scope === 'Package' && !this.hasPackage) {
+        ctrl.get('scope')?.setValue('Total');
+      }
+
+      if (scope === 'Subscription' && !this.hasSubscription) {
+        ctrl.get('scope')?.setValue('Total');
+      }
+    });
   }
 
-  // ===============================
-  // PREFILL
-  // ===============================
   prefillFromStudent(studentId: number) {
 
     // 1️⃣ student
@@ -205,10 +358,6 @@ export class CreateContractComponent implements OnInit {
         alert('Elevul nu are cursuri asignate');
       }
 
-      this.totalAmount = this.studentCourses.reduce((sum, course) => {
-        return sum + (course.price ?? 0);
-      }, 0);
-
       const sessionIds = this.studentCourses.map(x => x.sessionId);
 
       this.contractForm.patchValue({
@@ -218,9 +367,6 @@ export class CreateContractComponent implements OnInit {
     });
   }
 
-  // ===============================
-  // SUBMIT
-  // ===============================
   submit() {
 
     if (this.contractForm.invalid) {
@@ -239,6 +385,7 @@ export class CreateContractComponent implements OnInit {
       installments: formValue.installments,
       courseSessionIds: formValue.courseSessionIds,
       discounts: formValue.discounts
+
     };
 
     this.isSubmitting = true;
@@ -281,9 +428,6 @@ export class CreateContractComponent implements OnInit {
     return this.isEdit ? '💾 Salvează modificări' : '➕ Creează contract';
   }
 
-  // ===============================
-  // VALIDATOR
-  // ===============================
   private dateRangeValidator(): ValidatorFn {
     return (group: AbstractControl): ValidationErrors | null => {
 
@@ -303,5 +447,10 @@ export class CreateContractComponent implements OnInit {
 
       return null;
     };
+  }
+
+  formatDate(date: string) {
+    if (!date) return null;
+    return date.substring(0, 10); // 👈 MAGIC
   }
 }

@@ -18,15 +18,15 @@ export class CourseDetailsComponent implements OnInit {
   loading = true;
   course: any;
   expandedSessionId: number | null = null;
-loadingEnrollments = false;
-enrollments: { [sessionId: number]: any[] } = {};
+  loadingEnrollments = false;
+  enrollments: { [sessionId: number]: any[] } = {};
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private courses: CoursesService, 
+    private courses: CoursesService,
     private dialog: MatDialog
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -50,81 +50,79 @@ enrollments: { [sessionId: number]: any[] } = {};
 
   toggleSession(sessionId: number) {
 
-  if (this.expandedSessionId === sessionId) {
-    this.expandedSessionId = null;
-    return;
+    if (this.expandedSessionId === sessionId) {
+      this.expandedSessionId = null;
+      return;
+    }
+
+    this.expandedSessionId = sessionId;
+
+    if (!this.enrollments[sessionId]) {
+      this.loadEnrollments(sessionId);
+    }
   }
 
-  this.expandedSessionId = sessionId;
+  loadEnrollments(sessionId: number) {
 
-  if (!this.enrollments[sessionId]) {
-    this.loadEnrollments(sessionId);
+    this.loadingEnrollments = true;
+
+    this.courses.listEnrollments(this.course.id).subscribe({
+      next: (res: any) => {
+        const list = res?.value ?? res;
+
+        this.enrollments[sessionId] =
+          list.filter((x: any) => x.sessionId === sessionId);
+
+        this.loadingEnrollments = false;
+      },
+      error: () => {
+        this.loadingEnrollments = false;
+        alert('Eroare la încărcare cursanți.');
+      }
+    });
   }
-}
 
-loadEnrollments(sessionId: number) {
+  toggleEnrollment(sessionId: number, enrollment: any) {
+    this.courses.setEnrollmentActive(
+      this.course.id,
+      sessionId,
+      enrollment.studentId,
+      !enrollment.isActive
+    ).subscribe({
+      next: () => {
+        this.loadEnrollments(sessionId); // 🔥 reîncarci lista din backend
+      },
+      error: () => alert('Eroare la actualizare.')
+    });
+  }
 
-  this.loadingEnrollments = true;
+  openEnrollModal(session: any) {
+    const ref = this.dialog.open(EnrollStudentsComponent, {
+      width: '600px',
+      data: {
+        courseId: this.course.id,
+        sessionId: session.id
+      }
+    });
 
-  this.courses.listEnrollments(this.course.id).subscribe({
-    next: (res: any) => {
-      const list = res?.value ?? res;
+    ref.afterClosed().subscribe(result => {
+      if (result) {
+        this.loadEnrollments(session.id);
+      }
+    });
+  }
 
-      this.enrollments[sessionId] =
-        list.filter((x: any) => x.sessionId === sessionId);
+  getDayName(day: number): string {
+    const days: { [key: number]: string } = {
+      1: 'Luni',
+      2: 'Marți',
+      3: 'Miercuri',
+      4: 'Joi',
+      5: 'Vineri',
+      6: 'Sâmbătă',
+      7: 'Duminică'
+    };
 
-      this.loadingEnrollments = false;
-    },
-    error: () => {
-      this.loadingEnrollments = false;
-      alert('Eroare la încărcare cursanți.');
-    }
-  });
-}
-
-toggleEnrollment(sessionId: number, enrollment: any) {
-  this.courses.setEnrollmentActive(
-    this.course.id,
-    sessionId,
-    enrollment.studentId,
-    !enrollment.isActive
-  ).subscribe({
-    next: () => {
-      this.loadEnrollments(sessionId); // 🔥 reîncarci lista din backend
-    },
-    error: () => alert('Eroare la actualizare.')
-  });
-}
-
-
-openEnrollModal(session: any) {
-
-  const ref = this.dialog.open(EnrollStudentsComponent, {
-    width: '600px',
-    data: {
-      courseId: this.course.id,
-      sessionId: session.id
-    }
-  });
-
-  ref.afterClosed().subscribe(result => {
-    if (result) {
-      this.loadEnrollments(session.id);
-    }
-  });
-}
-
-getDayName(day: number): string {
-  const days: { [key: number]: string } = {
-    1: 'Luni',
-    2: 'Marți',
-    3: 'Miercuri',
-    4: 'Joi',
-    5: 'Vineri',
-    6: 'Sâmbătă',
-    7: 'Duminică'
-  };
-
-  return days[day] || '-';
-}
+    return days[day] || '-';
+  }
 }

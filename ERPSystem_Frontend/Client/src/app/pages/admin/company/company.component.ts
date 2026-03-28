@@ -12,28 +12,26 @@ import { CompanyModalComponent } from '../company-modal/company-modal.component'
 })
 export class CompanyComponent implements OnInit {
 
-  company:any = {};
+  company: any = {};
   showModal = false;
 
-  constructor(private service:CompanyService){}
+  constructor(private service: CompanyService) { }
 
-  ngOnInit(){
+  ngOnInit() {
     this.reload();
   }
 
-  reload(){
-
+  reload() {
     this.service.get()
-      .subscribe((res:any)=>{
+      .subscribe((res: any) => {
 
-        if(res?.value)
+        if (res?.value)
           this.company = res.value;
 
       });
-
   }
 
-  openModal(){
+  openModal() {
     this.showModal = true;
   }
 

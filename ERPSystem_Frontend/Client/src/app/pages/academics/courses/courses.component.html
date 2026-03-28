@@ -32,9 +32,12 @@
           <td class="actions-cell">
             <a (click)="openDetails(c.id)" class="details">Detalii</a>
             <a (click)="openEdit(c.id)" class="edit">Editează</a>
-            <button *ngIf="c.isActive" class="danger small" (click)="toggleCourse(c)">
-              Dezactivează
-            </button>
+           <button *ngIf="c.isActive"
+        class="danger small"
+        (click)="toggleCourse(c)"
+        [disabled]="hasActiveSessions(c)">
+  Dezactivează
+</button>
 
             <button *ngIf="!c.isActive" class="primary small" (click)="toggleCourse(c)">
               Activează

@@ -108,8 +108,6 @@ enroll(item: any) {
 
 }
 
-
-
   close() {
     this.dialogRef.close(true);
   }

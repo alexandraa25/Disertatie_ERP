@@ -13,5 +13,14 @@ namespace ERPSystem.Data.Entities
         public decimal Value { get; set; }
 
         public string Reason { get; set; } = default!;
+
+        public DiscountScope Scope { get; set; }
+    }
+
+    public enum DiscountScope
+    {
+        Total = 0,
+        Package = 1,
+        Subscription = 2
     }
 }

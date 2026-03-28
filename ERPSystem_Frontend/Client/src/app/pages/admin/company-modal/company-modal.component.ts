@@ -18,123 +18,81 @@ export class CompanyModalComponent implements AfterViewChecked {
   @Output() close = new EventEmitter();
   @Output() saved = new EventEmitter();
 
- @ViewChild('signatureCanvas', { static: false })
-canvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('signatureCanvas', { static: false })
+  canvas!: ElementRef<HTMLCanvasElement>;
 
-private ctx!: CanvasRenderingContext2D;
-drawing = false;
+  private ctx!: CanvasRenderingContext2D;
+  drawing = false;
 
   loading = false;
   canvasInitialized = false;
 
-  constructor(private service: CompanyService) {}
+  constructor(private service: CompanyService) { }
 
- onFileSelected(event: any, field: string) {
-
+  onFileSelected(event: any, field: string) {
     const file = event.target.files[0];
-
     if (!file) return;
-
     const reader = new FileReader();
-
     reader.onload = () => {
       this.company[field] = reader.result;
     };
-
     reader.readAsDataURL(file);
-
   }
 
   save() {
-
     this.loading = true;
-
     this.service.save(this.company)
       .subscribe({
-
         next: () => {
-
           this.loading = false;
           this.saved.emit();
           this.close.emit();
-
         },
         error: () => {
-
           this.loading = false;
-
         }
-
       });
-
   }
 
+  ngAfterViewChecked() {
+    if (this.visible && this.canvas && !this.canvasInitialized) {
+      const canvas = this.canvas.nativeElement;
+      this.ctx = canvas.getContext('2d')!;
+      this.ctx.lineWidth = 2;
+      this.ctx.lineCap = 'round';
+      this.ctx.strokeStyle = '#000';
+      this.canvasInitialized = true;
+    }
+  }
 
+  startDrawing(event: MouseEvent) {
+    this.drawing = true;
+    this.ctx.beginPath();
+    this.ctx.moveTo(event.offsetX, event.offsetY);
+  }
 
-ngAfterViewChecked() {
+  draw(event: MouseEvent) {
+    if (!this.drawing) return;
+    this.ctx.lineTo(event.offsetX, event.offsetY);
+    this.ctx.stroke();
+  }
 
-  if (this.visible && this.canvas && !this.canvasInitialized) {
+  stopDrawing() {
+    this.drawing = false;
+  }
 
+  clearSignature() {
     const canvas = this.canvas.nativeElement;
-
-    this.ctx = canvas.getContext('2d')!;
-
-    this.ctx.lineWidth = 2;
-    this.ctx.lineCap = 'round';
-    this.ctx.strokeStyle = '#000';
-
-    this.canvasInitialized = true;
+    this.ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-}
+  saveSignature() {
+    const canvas = this.canvas.nativeElement;
+    this.company.signatureImage = canvas.toDataURL();
+  }
 
-startDrawing(event: MouseEvent){
-
-  this.drawing = true;
-
-  this.ctx.beginPath();
-
-  this.ctx.moveTo(event.offsetX, event.offsetY);
-
-}
-
-draw(event: MouseEvent){
-
-  if(!this.drawing) return;
-
-  this.ctx.lineTo(event.offsetX, event.offsetY);
-
-  this.ctx.stroke();
-
-}
-
-stopDrawing(){
-
-  this.drawing = false;
-
-}
-
-clearSignature(){
-
-  const canvas = this.canvas.nativeElement;
-
-  this.ctx.clearRect(0,0,canvas.width,canvas.height);
-
-}
-
-saveSignature(){
-
-  const canvas = this.canvas.nativeElement;
-
-  this.company.signatureImage = canvas.toDataURL();
-
-}
-
-closeModal() {
-
-  this.canvasInitialized = false;
-  this.close.emit();
-
-}
-
+  closeModal() {
+    this.canvasInitialized = false;
+    this.close.emit();
+  }
 }

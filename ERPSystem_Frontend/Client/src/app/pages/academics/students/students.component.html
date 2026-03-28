@@ -4,16 +4,33 @@
     <h2>Elevi</h2>
   </div>
 
-  <div class="search-bar">
-    <input [(ngModel)]="q" placeholder="Caută nume, email sau telefon..." />
-    <button (click)="page=1; load()">Caută</button>
-  </div>
+
 
   <div class="card">
 
     <div *ngIf="loading" class="loading">
       Se încarcă elevii...
     </div>
+    <div class="toolbar">
+
+  <!-- 🔍 LEFT -->
+  <div class="left">
+    <div class="search-inline">
+      <input
+        [(ngModel)]="q"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Caută elev..."
+      />
+    </div>
+  </div>
+
+  <!-- 🔲 RIGHT -->
+  <div class="right">
+    <button class="export" (click)="export()">Export Excel</button>
+    <button class="add" (click)="openCreate()">Adaugă elev</button>
+  </div>
+
+</div>
     <div class="toolbar">
       <div class="left">
 
@@ -47,69 +64,74 @@
             </button>
           </div>
 
+          <div class="filter-item">
+            <label>Sesiune</label>
+
+            <select [(ngModel)]="selectedSessionId" (change)="page=1; load()">
+              <option [ngValue]="null">Toate sesiunile</option>
+              <option *ngFor="let s of sessions" [ngValue]="s.id">
+                📘 {{ s.courseName }} | 👨‍🏫 {{ s.teacherName }} |
+                {{ s.dayOfWeek | roDay }} {{ s.startTime }}-{{ s.endTime }}
+              </option>
+            </select>
+          </div>
+
 
         </div>
       </div>
 
-      <div class="right">
+    
+      <table *ngIf="!loading">
+        <thead>
+          <tr>
+            <th class="sortable" (click)="setSort('fullName')">
+              NUME
+              <span class="arrow">{{ sortIcon('fullName') }}</span>
+            </th>
+            <th>Email</th>
+            <th>Telefon</th>
+            <th>Status</th>
+            <th class="sortable" (click)="setSort('createdAt')">
+              DATA ÎNSCRIERII
+              <span class="arrow">{{ sortIcon('createdAt') }}</span>
+            </th>
+            <th>Acțiuni</th>
+          </tr>
+        </thead>
 
-        <button class="export" (click)="export()">Export Excel</button>
-        <button (click)="openCreate()">Adaugă elev</button>
-      </div>
+        <tbody>
+          <tr *ngFor="let s of items">
+            <td class="name">
+              {{ s.fullName }}
+              <span *ngIf="isNew(s.createdAtUtc)" class="badge-new">NEW</span>
+            </td>
+            <td>{{ s.email || '-' }}</td>
+            <td>{{ s.phone || '-' }}</td>
+            <td>
+              <span class="status" [ngClass]="s.isActive ? 'active' : 'inactive'">
+                {{ s.isActive ? 'Activ' : 'Inactiv' }}
+              </span>
+            </td>
+            <td>{{ s.createdAtUtc | date:'dd.MM.yyyy' }}</td>
+            <td class="actions-cell">
+              <button class="details-btn" (click)="openDetails(s.id)">
+                Detalii
+              </button>
+
+              <button class="edit-btn" (click)="openEdit(s.id)">
+                Edit
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
     </div>
 
-
-    <table *ngIf="!loading">
-      <thead>
-        <tr>
-          <th class="sortable" (click)="setSort('fullName')">
-            NUME
-            <span class="arrow">{{ sortIcon('fullName') }}</span>
-          </th>
-          <th>Email</th>
-          <th>Telefon</th>
-          <th>Status</th>
-          <th class="sortable" (click)="setSort('createdAt')">
-            DATA ÎNSCRIERII
-            <span class="arrow">{{ sortIcon('createdAt') }}</span>
-          </th>
-          <th>Acțiuni</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <tr *ngFor="let s of items">
-          <td class="name">
-            {{ s.fullName }}
-            <span *ngIf="isNew(s.createdAtUtc)" class="badge-new">NEW</span>
-          </td>
-          <td>{{ s.email || '-' }}</td>
-          <td>{{ s.phone || '-' }}</td>
-          <td>
-            <span class="status" [ngClass]="s.isActive ? 'active' : 'inactive'">
-              {{ s.isActive ? 'Activ' : 'Inactiv' }}
-            </span>
-          </td>
-          <td>{{ s.createdAtUtc | date:'dd.MM.yyyy' }}</td>
-          <td class="actions-cell">
-  <button class="details-btn" (click)="openDetails(s.id)">
-    Detalii
-  </button>
-
-  <button class="edit-btn" (click)="openEdit(s.id)">
-    Edit
-  </button>
-</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="pagination" *ngIf="!loading">
+      <button (click)="prev()" [disabled]="page <= 1">← Înapoi</button>
+      <span>Pagina {{page}} din {{totalPages}} </span>
+      <button (click)="next()" [disabled]="page >= totalPages">Înainte →</button>
+    </div>
 
   </div>
-
-  <div class="pagination" *ngIf="!loading">
-    <button (click)="prev()" [disabled]="page <= 1">← Înapoi</button>
-    <span>Pagina {{page}} din {{totalPages}} </span>
-    <button (click)="next()" [disabled]="page >= totalPages">Înainte →</button>
-  </div>
-
-</div>

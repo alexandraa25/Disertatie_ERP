@@ -13,7 +13,7 @@ export class StudentsService {
 
   constructor(private http: HttpClient) { }
 
-  list(q = '', page = 1, pageSize = 20, sortBy = 'createdAt', sortDir = 'desc', onlyRecent = false, recentDays = 30) {
+  list(q = '', page = 1, pageSize = 20, sortBy = 'createdAt', sortDir = 'desc', onlyRecent = false, recentDays = 30, sessionId?: number | null) {
     const params = new URLSearchParams({
       q,
       page: String(page),
@@ -22,21 +22,43 @@ export class StudentsService {
       sortDir,
       onlyRecent: String(onlyRecent),
       recentDays: String(recentDays)
-    }).toString();
+    })
 
-    return this.http.get<PagedResult<StudentListItemDto>>(`${this.baseUrl}?${params}`);
+     if (sessionId !== null && sessionId !== undefined) {
+    params.append('sessionId', String(sessionId));
   }
-  exportExcel(q = '', sortBy = 'createdAt', sortDir = 'desc', onlyRecent = false, recentDays = 30) {
-    const params = new URLSearchParams({
-      q,
-      sortBy,
-      sortDir,
-      onlyRecent: String(onlyRecent),
-      recentDays: String(recentDays)
-    }).toString();
 
-    return this.http.get(`${this.baseUrl}/export?${params}`, { responseType: 'blob' });
+     return this.http.get<PagedResult<StudentListItemDto>>(
+    `${this.baseUrl}?${params.toString()}`
+  );
   }
+
+exportExcel(
+  q = '',
+  sortBy = 'createdAt',
+  sortDir = 'desc',
+  onlyRecent = false,
+  recentDays = 30,
+  sessionId?: number | null
+) {
+  const params = new URLSearchParams({
+    q,
+    sortBy,
+    sortDir,
+    onlyRecent: String(onlyRecent),
+    recentDays: String(recentDays)
+  });
+
+  // 🔥 IMPORTANT
+  if (sessionId !== null && sessionId !== undefined) {
+    params.append('sessionId', String(sessionId));
+  }
+
+  return this.http.get(
+    `${this.baseUrl}/ /export?${params.toString()}`,
+    { responseType: 'blob' }
+  );
+}
 
   get(id: number): Observable<StudentDetailsDto> {
     return this.http
@@ -67,6 +89,12 @@ export class StudentsService {
       .get<any>(`${this.baseUrl}/${id}/courses`)
       .pipe(map(res => res.value));
   }
+
+  getSessions() {
+  return this.http
+    .get<any>(`${this.baseUrl}/sessions`)
+    .pipe(map(res => res.value));
+}
 
   search(q: string = ''): Observable<StudentOption[]> {
     return this.http.get<StudentOption[]>(

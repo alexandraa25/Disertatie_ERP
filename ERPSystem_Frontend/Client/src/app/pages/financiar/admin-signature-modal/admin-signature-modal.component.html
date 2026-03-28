@@ -26,7 +26,7 @@
 
       <button
         class="btn-sign"
-        [disabled]="loading"
+        [disabled]="loading || !hasSignature()"
         (click)="sign()">
         ✍️ Semnează
       </button>

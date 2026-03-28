@@ -5,21 +5,45 @@ export interface TeacherOptionDto {
 
 export interface CourseSessionDto {
   id: number;
-  dayOfWeek: number;     // 1..7
-  startTime: string;     // "18:00"
-  endTime: string;       // "19:30"
-  capacity: number | null;
-  enrolledActiveCount: number;
-}
 
-export interface CourseSessionUpsertDto {
-  id?: number | null;  // null/undefined = new
   dayOfWeek: number;
   startTime: string;
   endTime: string;
+
+  capacity?: number | null;
+  enrolledActiveCount: number;
+
   teacherUserId: string;
-  capacity: number | null;
+  teacherName: string;
+
   fee: number;
+
+  // 🔥 ADAUGĂ
+  feeType: 1 | 2;
+  totalSessions?: number | null;
+}
+
+export interface CourseSessionUpsertDto {
+  id?: number | null;
+
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+
+  teacherUserId: string;
+
+  fee: number;
+
+  // 🔥 ADAUGĂ ASTEA
+  feeType: 1 | 2;
+  totalSessions?: number | null;
+
+  capacity?: number | null;
+}
+
+
+export interface CourseSessionFormModel extends Partial<CourseSessionUpsertDto> {
+  enrolledActiveCount?: number;
 }
  
 export interface CourseListItemDto {

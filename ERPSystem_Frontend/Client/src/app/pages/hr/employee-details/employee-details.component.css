@@ -1,0 +1,189 @@
+/* =========================
+   LAYOUT
+========================= */
+.page {
+  max-width: 1100px;
+  margin: 100px auto 40px;
+  padding: 0 20px;
+}
+
+/* =========================
+   HEADER
+========================= */
+.top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.top h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.sub {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* STATUS */
+.status {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* =========================
+   TABS
+========================= */
+.tabs {
+  display: inline-flex;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 14px;
+  background: #f1f5f9;
+  margin-bottom: 24px;
+}
+
+.tabs div {
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.tabs .active {
+  background: white;
+  color: #111827;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* =========================
+   CONTENT GRID
+========================= */
+.content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* =========================
+   CARD
+========================= */
+.section {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  border: 1px solid #f1f5f9;
+}
+
+/* TITLE */
+.section h3 {
+  margin-bottom: 18px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* =========================
+   INFO ITEMS
+========================= */
+.item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.item label {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.item span {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* =========================
+   ADDRESS TEXT
+========================= */
+.section p {
+  margin: 4px 0;
+  color: #334155;
+  font-size: 14px;
+}
+
+/* =========================
+   DOCUMENTS
+========================= */
+.doc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid #f1f5f9;
+}
+
+.doc-row:first-child {
+  border-top: none;
+}
+
+.doc-row strong {
+  font-size: 14px;
+  color: #111827;
+}
+
+.doc-row .small {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* BUTTON */
+button {
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  border: none;
+  cursor: pointer;
+  background: #6366f1;
+  color: white;
+}
+
+button:hover {
+  background: #4f46e5;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+}

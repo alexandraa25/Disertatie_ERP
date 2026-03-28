@@ -9,12 +9,15 @@ namespace ERPSystem.Modules.Admin
         public static void Map(RouteGroupBuilder group)
         {
 
-            // ===============================
-            // GET USERS
-            // ===============================
-            group.MapGet(Route.USERS, async (AdminService service)
-               => await service.GetDashboardAsync())
-            .WithDefaultApiSettings("GetUsers", "Get All Users", "GET_USERS", true);
+            group.MapGet(Route.USERS, 
+               async (AdminService service)
+                  => await service.GetDashboardAsync())
+              .WithDefaultApiSettings("GetUsers", "Get All Users", "GET_USERS", true);
+
+            group.MapGet(Route.EMPLOYEES_WITHOUY_USER, 
+               async (AdminService service)
+                  => await service.GetEmployeesWithoutUserAsync())
+               .WithDefaultApiSettings("GetEmployeesWithoutUser", "Get Employees Without User", "GET_EMPLOYEES_WITHOUY_USER", true);
         }
     }
 }

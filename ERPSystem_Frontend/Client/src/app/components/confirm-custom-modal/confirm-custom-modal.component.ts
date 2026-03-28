@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component } from '@angular/core';
+import { ConfirmService } from '../../pages/services/confirm.service';
 
 @Component({
   selector: 'app-confirm-custom-modal',
@@ -9,27 +10,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   imports: [CommonModule]
 })
 export class ConfirmCustomModalComponent {
-  
-  @Input() title: string = 'Confirm action';
-  @Input() message: string = '';
-  @Input() confirmText: string = 'Confirm';
-  @Input() cancelText: string = 'Cancel';
-  @Input() copyText: string = '';
 
-  @Output() confirmed = new EventEmitter<boolean>();
-
-  isOpen = false;
-
-  open() {
-    this.isOpen = true;
-  }
+  constructor(public confirmService: ConfirmService) {}
 
   close(result: boolean) {
-    this.isOpen = false;
-    this.confirmed.emit(result);
+    this.confirmService.resolve(result);
   }
-
-  copyToClipboard() {
-  navigator.clipboard.writeText(this.copyText);
-}
 }
