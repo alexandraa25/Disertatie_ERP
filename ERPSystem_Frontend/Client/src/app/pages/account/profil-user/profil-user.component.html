@@ -241,44 +241,14 @@
       <div class="leave-header">
         <h3>Concediile mele</h3>
 
-        <button class="btn primary" (click)="openForm = true">
+        <button class="btn primary" (click)="openLeaveModal()">
           + Cerere concediu
         </button>
+
+        <!-- <app-create-leave-modal *ngIf="openForm" (closeModal)="openForm = false" (submitLeave)="handleLeave($event)"> </app-create-leave-modal> -->
       </div>
 
-      <!-- FORM -->
-      <div *ngIf="openForm" class="leave-form">
 
-        <form [formGroup]="leaveForm" (ngSubmit)="submitLeave()">
-
-          <div class="form-group">
-            <label>Data început</label>
-            <input type="date" formControlName="startDate">
-          </div>
-
-          <div class="form-group">
-            <label>Data sfârșit</label>
-            <input type="date" formControlName="endDate">
-          </div>
-
-          <div class="form-group">
-            <label>Motiv</label>
-            <textarea formControlName="reason"></textarea>
-          </div>
-
-          <div class="actions">
-            <button type="button" (click)="openForm = false">
-              Anulează
-            </button>
-
-            <button type="submit">
-              Trimite
-            </button>
-          </div>
-
-        </form>
-
-      </div>
 
       <!-- LISTĂ -->
       <div class="leave-list">
@@ -291,18 +261,78 @@
               {{leave.endDate | date:'dd MMM yyyy'}}
             </strong>
 
-            <p>{{leave.reason}}</p>
+            <p>
+              {{
+              leave.leaveType === 'Vacation' ? 'Concediu de odihnă' :
+              leave.leaveType === 'Sick' ? 'Medical' :
+              leave.leaveType === 'Unpaid' ? 'Fără plată' :
+              leave.leaveType
+              }}
+            </p>
           </div>
 
           <span class="status" [ngClass]="leave.status.toLowerCase()">
             {{leave.status}}
           </span>
+<div class="leave-actions">
+          <!-- 🔥 BUTON EDIT -->
+      <button *ngIf="leave.status === 'Pending'"
+              class="edit-btn"
+              (click)="editLeave(leave)">
+        ✏️Editeaza
+      </button>
+       <!-- CANCEL -->
+ <button *ngIf="canCancel(leave)"
+        class="cancel-btn"
+        (click)="cancelLeave(leave)">
+    ❌Anuleaza
+  </button>
+</div>
 
         </div>
 
       </div>
 
+      <div class="leave-summary" *ngIf="vacation">
+
+        <div class="summary-card">
+          <span>Total</span>
+          <strong>{{ vacation.total }}</strong>
+        </div>
+
+        <div class="summary-card">
+          <span>Folosite</span>
+          <strong>{{ vacation.used }}</strong>
+        </div>
+
+        <div class="summary-card highlight">
+          <span>Rămase</span>
+          <strong>{{ vacation.remaining }}</strong>
+        </div>
+
+        <div class="summary-card">
+          <span>Rămase de anul trecut</span>
+          <strong>{{ vacation.carryOver }}</strong>
+        </div>
+
+      </div>
+
+     <div class="holiday-section" *ngIf="holidays?.length">
+
+  <h4>Sărbători legale</h4>
+
+  <div class="holiday-list">
+
+    <div class="holiday-item" *ngFor="let h of holidays">
+      {{ h | date:'dd MMM yyyy' }}
     </div>
+
+  </div>
+
+</div>
+
+    </div>
+
     <!-- ================= NOTIFICATIONS TAB ================= -->
 
     <div *ngIf="activeTab === 'notifications'">

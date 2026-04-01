@@ -89,8 +89,42 @@ textarea.ng-invalid.ng-touched {
 } */
 
 /* Make Angular Material overlay always relative to viewport */
-.cdk-overlay-container {
+/* .cdk-overlay-container {
   position: fixed !important;
   inset: 0 !important;
   z-index: 10000 !important;
+} */
+
+.mat-datepicker-content {
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+}
+.mat-calendar-header {
+  background: #f5f7fa;
+  border-bottom: 1px solid #eee;
+}
+
+.mat-calendar-body-selected {
+  background-color: #3f51b5 !important;
+  color: white !important;
+}
+
+.mat-calendar-body-selected {
+  background-color: #3f51b5 !important;
+  color: white !important;
+}
+
+.cdk-overlay-pane {
+  z-index: 1100 !important;
+  margin-top: 30px !important;
+   transform: translateY(0px) !important;
+}
+
+.cdk-overlay-container {
+   z-index: 1000 !important;
+}
+
+.mat-mdc-dialog-content {
+  overflow: visible !important;
 }

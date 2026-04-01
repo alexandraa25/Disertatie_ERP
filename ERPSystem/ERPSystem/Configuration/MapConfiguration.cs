@@ -1,10 +1,12 @@
 ﻿using ERPSystem.Extensions;
+
 using ERPSystem.Modules.AdditionalAct;
 using ERPSystem.Modules.Admin;
 using ERPSystem.Modules.Authentificate;
 using ERPSystem.Modules.Contracts;
 using ERPSystem.Modules.Courses;
 using ERPSystem.Modules.Employees;
+using ERPSystem.Modules.Leaves;
 using ERPSystem.Modules.Payments;
 using ERPSystem.Modules.Students;
 using ERPSystem.Modules.UserProfile;
@@ -64,6 +66,16 @@ namespace ERPSystem.Configuration
             );
 
             EmployeeEndpoints.Map(employeeGroup);
+
+            var leavesGroup = app.CreateApiGroup(
+               route: "/leaves",
+               tag: "Leaves",
+               requireAuth: false,
+               description: "Leaves dashboard"
+           );
+
+            LeavesEndpoints.Map(leavesGroup);
+
 
             var studentsGroup = app.CreateApiGroup(
                 route: "/students",

@@ -1,0 +1,73 @@
+<div class="page">
+
+  <h2>Toate concediile</h2>
+
+  <!-- 🔥 FILTERS -->
+  <div class="filters">
+
+    <input type="text"
+           placeholder="Caută angajat..."
+           [(ngModel)]="searchTerm"
+           (keyup.enter)="onSearch()">
+
+    <select [(ngModel)]="filters.status">
+      <option value="">Status</option>
+      <option value="Pending">Pending</option>
+      <option value="Approved">Approved</option>
+    </select>
+
+    <button (click)="applyFilters()">Filtrează</button>
+
+    <!-- <button class="bulk-btn"
+            *ngIf="selected.size > 0"
+            (click)="bulkApprove()">
+      ✔ Approve ({{selected.size}})
+    </button> -->
+
+  </div>
+
+  <!-- 🔥 TABLE -->
+  <table class="leave-table">
+
+    <thead>
+      <tr>
+        <th></th>
+        <th (click)="sortBy('employee')">Angajat ⬍</th>
+        <th (click)="sortBy('startDate')">Start ⬍</th>
+        <th (click)="sortBy('endDate')">End ⬍</th>
+        <th>Tip</th>
+        <th>Zile</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let l of leaves">
+
+        <!-- checkbox -->
+        <td>
+          <input type="checkbox"
+                 (change)="toggleSelection(l.id)">
+        </td>
+
+        <td>{{l.employee.name}}</td>
+
+        <td>{{l.startDate | date:'dd MMM yyyy'}}</td>
+        <td>{{l.endDate | date:'dd MMM yyyy'}}</td>
+
+        <td>{{l.leaveType}}</td>
+
+        <td>{{l.days}}</td>
+
+        <td>
+          <span class="status" [ngClass]="l.status.toLowerCase()">
+            {{l.status}}
+          </span>
+        </td>
+
+      </tr>
+    </tbody>
+
+  </table>
+
+</div>

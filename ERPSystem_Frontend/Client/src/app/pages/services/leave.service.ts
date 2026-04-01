@@ -1,35 +1,54 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Leave } from '../models/leave.model';
+import { Leave, LeavesResponse } from '../models/leave.model';
+import { PublicResponse } from '../../app.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LeaveService {
 
-  private baseUrl = 'https://localhost:7195/employee'
+  private baseUrl = 'https://localhost:7195/leaves'
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  // 🔥 GET - concediile userului
-  getMyLeaves(): Observable<Leave[]> {
-  return this.http.get<Leave[]>(`${this.baseUrl}/my`);
+  getMyLeaves(): Observable<PublicResponse<LeavesResponse>> {
+    return this.http.get<PublicResponse<LeavesResponse>>(`${this.baseUrl}`);
+  }
+
+  createLeave(data: any) {
+    return this.http.post<any>(`${this.baseUrl}/create`, data);
+  }
+
+  updateLeave(id: string, data: any) {
+    return this.http.put(`${this.baseUrl}/${id}`, data);
+  }
+
+  cancelLeave(id: string) {
+    return this.http.put(`${this.baseUrl}/${id}/cancel`, {});
+  }
+
+  approve(id: string) {
+    return this.http.put(`${this.baseUrl}/${id}/approve`, {});
+  }
+
+  reject(id: string, reason: string) {
+    return this.http.put(`${this.baseUrl}/${id}/reject?reason=${reason}`, {});
+  }
+
+  getHolidays(year: number) {
+    return this.http.get<string[]>(`${this.baseUrl}/holidays?year=${year}`);
+  }
+
+  getAllLeaves(params: any) {
+    return this.http.get(`${this.baseUrl}/all`, { params });
+  }
+
+  exportExcel() {
+  return this.http.get(`${this.baseUrl}/export`, {
+    responseType: 'blob'
+  });
 }
-
-  // 🔥 POST - cerere nouă
-  createLeave(data: any): Observable<any> {
-    return this.http.post(this.baseUrl, data);
-  }
-
-  // 🔥 OPTIONAL - admin approve
-  approveLeave(id: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/${id}/approve`, {});
-  }
-
-  // 🔥 OPTIONAL - admin reject
-  rejectLeave(id: string): Observable<any> {
-    return this.http.post(`${this.baseUrl}/${id}/reject`, {});
-  }
 
 }

@@ -21,6 +21,8 @@ namespace ERPSystem.Data.Entities
 
         public string? ApprovedBy { get; set; }
 
+        public string? ReasonUpdate { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

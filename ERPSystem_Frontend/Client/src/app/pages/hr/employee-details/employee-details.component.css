@@ -187,3 +187,68 @@ button:hover {
     grid-template-columns: 1fr;
   }
 }
+.leave-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.leave-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+.leave-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.leave-info p {
+  margin: 5px 0;
+  font-size: 13px;
+  color: #636e72;
+}
+
+.leave-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* status */
+.status.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status.approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status.rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* buttons */
+.approve-btn {
+  background: #d4edda;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.reject-btn {
+  background: #f8d7da;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 8px;
+  cursor: pointer;
+}

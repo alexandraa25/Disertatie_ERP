@@ -1,0 +1,62 @@
+<h2 mat-dialog-title>
+  {{ isEditMode ? 'Editează concediu' : 'Cerere concediu' }}
+</h2>
+
+<form [formGroup]="leaveForm" (ngSubmit)="submit()">
+
+  <mat-dialog-content class="dialog-content">
+
+    <!-- TIP -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Tip concediu</mat-label>
+      <mat-select formControlName="leaveType">
+        <mat-option value="Vacation">Concediu de odihnă</mat-option>
+        <mat-option value="Sick">Medical</mat-option>
+        <mat-option value="Unpaid">Fără plată</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- DATE -->
+    <div class="date-row">
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Data început</mat-label>
+        <input matInput [matDatepicker]="startPicker"
+               formControlName="startDate"
+               [matDatepickerFilter]="dateFilter">
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+       <mat-datepicker #startPicker [dateClass]="dateClass"></mat-datepicker>
+       
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Data sfârșit</mat-label>
+        <input matInput [matDatepicker]="endPicker"
+               formControlName="endDate"
+               [matDatepickerFilter]="dateFilter">
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+       <mat-datepicker #endPicker [dateClass]="dateClass"></mat-datepicker>
+       
+      </mat-form-field>
+
+    </div>
+
+   <mat-form-field appearance="outline" class="full-width" *ngIf="isEditMode">
+  <mat-label>Motiv</mat-label>
+  <textarea matInput formControlName="reason" rows="3"></textarea>
+
+  <mat-error *ngIf="leaveForm.get('reason')?.hasError('required')">
+    Motivul este obligatoriu
+  </mat-error>
+</mat-form-field>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="close()">Anulează</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="leaveForm.invalid">
+      Trimite
+    </button>
+  </mat-dialog-actions>
+
+</form>

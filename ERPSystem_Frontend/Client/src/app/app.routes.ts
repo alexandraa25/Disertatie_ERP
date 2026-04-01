@@ -26,6 +26,7 @@ export const routes: Routes = [
   { path: 'additional-act/edit/:actId', loadComponent: () => import('./pages/financiar/aditional-act/aditional-act.component') .then(m => m.AditionalActComponent) }, 
   { path: 'employee/:id', loadComponent: () => import('./pages/hr/employee-details/employee-details.component').then(m => m.EmployeeDetailsComponent) },
   { path: 'employees', loadComponent: () => import('./pages/hr/hr-employees/hr-employees.component').then(m => m.HrEmployeesComponent) },
+  { path: 'all-leaves', loadComponent: () => import('./pages/hr/all-leaves/all-leaves.component').then(m => m.AllLeavesComponent) },
   { path: 'admin/users', loadComponent: () => import('./pages/admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent) },
   { path: 'company', loadComponent: () => import('./pages/admin/company/company.component') .then(m => m.CompanyComponent) }, 
   { path: 'log-activity', loadComponent: () => import('./pages/admin/admin-activity/admin-activity.component') .then(m => m.AdminActivityComponent) }

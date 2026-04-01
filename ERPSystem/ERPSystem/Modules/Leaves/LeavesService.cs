@@ -1,27 +1,27 @@
-﻿using ERPSystem.Data.Context;
+﻿using ClosedXML.Excel;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
-using ERPSystem.Modules.Contracts.Models;
 using ERPSystem.Modules.Leaves.Models;
-using ERPSystem.Modules.Payments.Models;
-using ERPSystem.Shared.BusinessLogic;
-using ERPSystem.Utils.Constants.Error;
-using ERPSystem.Utils.Enums;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
 
-namespace ERPSystem.Modules.Payments
+
+namespace ERPSystem.Modules.Leaves
 {
     public class LeavesService
     {
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly HolidayService _holidayService;
+        
 
 
-        public LeavesService(ApplicationDbContext db, IHttpContextAccessor httpContextAccessor)
+        public LeavesService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, HolidayService holidayService)
         {
-            _context = db;
+            _context = context;
             _httpContextAccessor = httpContextAccessor;
-
+            _holidayService = holidayService;
+            
         }
 
         private string GetUserId()
@@ -58,7 +58,38 @@ namespace ERPSystem.Modules.Payments
                         dto.EndDate >= l.StartDate);
 
                 if (overlap)
-                    return response.SetError("VALIDATION", "Ai deja concediu în acest interval");
+                    return response.SetError("VALIDATION", "Concediu suprapus");
+
+                var holidays = await _holidayService.GetHolidays(dto.StartDate.Year);
+
+                var requestedDays = GetWorkingDays(
+                    dto.StartDate,
+                    dto.EndDate,
+                    holidays
+                );
+
+                if (dto.LeaveType == "Vacation")
+                {
+                    var currentYear = DateTime.UtcNow.Year;
+
+                    var approvedLeaves = await _context.EmployeeLeaves
+                        .Where(l =>
+                            l.EmployeeId == employee.Id &&
+                            l.Status == "Approved" &&
+                            l.LeaveType == "Vacation" &&
+                            l.StartDate.Year == currentYear)
+                        .ToListAsync();
+
+                    var holidaysForRequest = await _holidayService.GetHolidays(dto.StartDate.Year);
+
+                    var usedDays = approvedLeaves
+                        .Sum(l => GetWorkingDays(l.StartDate, l.EndDate, holidaysForRequest));
+
+                    var total = employee.VacationDaysPerYear + employee.CarryOverDays;
+
+                    if (usedDays + requestedDays > total)
+                        return response.SetError("VALIDATION", "Nu ai suficiente zile");
+                }
 
                 var leave = new EmployeeLeave
                 {
@@ -81,6 +112,131 @@ namespace ERPSystem.Modules.Payments
             }
         }
 
+        public async Task<PublicResponse> UpdateLeave(Guid id, CreateLeaveDto dto)
+        {
+            var response = new PublicResponse(true);
+
+            try
+            {
+                var userId = GetUserId();
+
+                var employee = await _context.Employees
+                    .FirstOrDefaultAsync(e => e.UserId == userId);
+
+                if (employee == null)
+                    return response.SetError("NOT_FOUND", "Employee not found");
+
+                var leave = await _context.EmployeeLeaves
+                    .FirstOrDefaultAsync(l => l.Id == id && l.EmployeeId == employee.Id);
+
+                if (leave == null)
+                    return response.SetError("NOT_FOUND", "Cererea nu există");
+
+                if (leave.Status != "Pending")
+                    return response.SetError("VALIDATION", "Nu poți modifica această cerere");
+
+                if (dto.StartDate < DateTime.Today)
+                    return response.SetError("VALIDATION", "Nu poți selecta trecut");
+
+                if (dto.EndDate < dto.StartDate)
+                    return response.SetError("VALIDATION", "Interval invalid");
+
+                var overlap = await _context.EmployeeLeaves
+                    .AnyAsync(l =>
+                        l.EmployeeId == employee.Id &&
+                        l.Id != id &&
+                        l.Status != "Rejected" &&
+                        dto.StartDate <= l.EndDate &&
+                        dto.EndDate >= l.StartDate);
+
+                if (overlap)
+                    return response.SetError("VALIDATION", "Concediu suprapus");
+
+                var holidays = await _holidayService.GetHolidays(dto.StartDate.Year);
+
+                var requestedDays = GetWorkingDays(
+                    dto.StartDate,
+                    dto.EndDate,
+                    holidays
+                );
+
+                if (dto.LeaveType == "Vacation")
+                {
+                    var currentYear = DateTime.UtcNow.Year;
+
+                    var approvedLeaves = await _context.EmployeeLeaves
+                        .Where(l =>
+                            l.EmployeeId == employee.Id &&
+                            l.Id != id &&
+                            l.Status == "Approved" &&
+                            l.LeaveType == "Vacation" &&
+                            l.StartDate.Year == currentYear)
+                        .ToListAsync();
+
+                    var holidaysForRequest = await _holidayService.GetHolidays(dto.StartDate.Year);
+
+                    var usedDays = approvedLeaves
+                        .Sum(l => GetWorkingDays(l.StartDate, l.EndDate, holidaysForRequest));
+
+                    var total = employee.VacationDaysPerYear + employee.CarryOverDays;
+
+                    if (usedDays + requestedDays > total)
+                        return response.SetError("VALIDATION", "Nu ai suficiente zile");
+                }
+
+                leave.StartDate = dto.StartDate;
+                leave.EndDate = dto.EndDate;
+                leave.LeaveType = dto.LeaveType;
+                leave.ReasonUpdate = dto.Reason;
+
+                await _context.SaveChangesAsync();
+
+                return response.SetSuccess("Cerere actualizată");
+            }
+            catch (Exception ex)
+            {
+                return response.SetError("SERVER", ex.Message);
+            }
+        }
+
+        public async Task<PublicResponse> CancelLeave(Guid id)
+        {
+            var response = new PublicResponse(true);
+
+            try
+            {
+                var userId = GetUserId();
+
+                var employee = await _context.Employees
+                    .FirstOrDefaultAsync(e => e.UserId == userId);
+
+                if (employee == null)
+                    return response.SetError("NOT_FOUND", "Employee not found");
+
+                var leave = await _context.EmployeeLeaves
+                    .FirstOrDefaultAsync(l => l.Id == id && l.EmployeeId == employee.Id);
+
+                if (leave == null)
+                    return response.SetError("NOT_FOUND", "Cererea nu există");
+
+                if (leave.Status == "Rejected" || leave.Status == "Cancelled")
+                    return response.SetError("VALIDATION", "Nu poți anula această cerere");
+
+                if (leave.Status == "Approved" && leave.StartDate <= DateTime.Today)
+                    return response.SetError("VALIDATION", "Nu poți anula un concediu deja început");
+
+                leave.Status = "Cancelled";
+
+                await _context.SaveChangesAsync();
+
+                return response.SetSuccess("Cerere anulată");
+            }
+            catch (Exception ex)
+            {
+                return response.SetError("SERVER", ex.Message);
+            }
+        }
+
         public async Task<PublicResponse> GetMyLeaves()
         {
             var response = new PublicResponse(true);
@@ -95,30 +251,58 @@ namespace ERPSystem.Modules.Payments
                 if (employee == null)
                     return response.SetError("NOT_FOUND", "Employee not found");
 
+                var currentYear = DateTime.UtcNow.Year;
+
                 var leaves = await _context.EmployeeLeaves
                     .Where(l => l.EmployeeId == employee.Id)
-                    .Select(l => new
+                    .OrderByDescending(l => l.StartDate)
+                    .ToListAsync();
+
+                var vacationLeaves = leaves
+                    .Where(l =>
+                        l.Status == "Approved" &&
+                        l.LeaveType == "Vacation" &&
+                        l.StartDate.Year == currentYear);
+
+                var holidays = await _holidayService.GetHolidays(currentYear);
+
+                var usedVacationDays = vacationLeaves
+                    .Sum(l => GetWorkingDays(l.StartDate, l.EndDate, holidays));
+
+                var carryOver = employee.CarryOverDays;
+
+                var total = employee.VacationDaysPerYear + carryOver;
+
+                var remaining = total - usedVacationDays;
+
+                var usedMedicalDays = leaves
+                    .Where(l => l.Status == "Approved" && l.LeaveType == "Medical")
+                    .Sum(l => GetWorkingDays(l.StartDate, l.EndDate, holidays));
+
+                return response.SetSuccess(new
+                {
+                    leaves = leaves.Select(l => new
                     {
                         l.Id,
                         l.LeaveType,
                         l.StartDate,
                         l.EndDate,
-                        l.Status
-                    })
-                    .ToListAsync();
+                        l.Status,
+                        Days = GetWorkingDays(l.StartDate, l.EndDate, holidays)
+                    }),
 
-                var usedDays = leaves
-                    .Where(l => l.Status == "Approved" && l.LeaveType == "Vacation")
-                    .Sum(l => (l.EndDate - l.StartDate).Days + 1);
+                    vacation = new
+                    {
+                        total,
+                        used = usedVacationDays,
+                        remaining,
+                        carryOver
+                    },
 
-                var totalDays = 21;
-
-                return response.SetSuccess(new
-                {
-                    leaves,
-                    totalDays,
-                    usedDays,
-                    remainingDays = totalDays - usedDays
+                    medical = new
+                    {
+                        used = usedMedicalDays
+                    }
                 });
             }
             catch (Exception ex)
@@ -135,13 +319,40 @@ namespace ERPSystem.Modules.Payments
             {
                 var userId = GetUserId();
 
-                var leave = await _context.EmployeeLeaves.FindAsync(id);
+                var leave = await _context.EmployeeLeaves
+                    .Include(l => l.Employee)
+                    .FirstOrDefaultAsync(l => l.Id == id);
 
                 if (leave == null)
                     return response.SetError("NOT_FOUND", "Concediul nu a fost găsit");
 
-                if (leave.Status == "Approved")
-                    return response.SetError("VALIDATION", "Deja aprobat");
+                if (leave.Status != "Pending")
+                    return response.SetError("VALIDATION", "Cererea nu mai poate fi aprobată");
+
+                if (leave.LeaveType == "Vacation")
+                {
+                    var currentYear = DateTime.UtcNow.Year;
+
+                    var holidays = await _holidayService.GetHolidays(currentYear);
+
+                    var usedDays = await _context.EmployeeLeaves
+                        .Where(l =>
+                            l.EmployeeId == leave.EmployeeId &&
+                            l.Status == "Approved" &&
+                            l.LeaveType == "Vacation" &&
+                            l.StartDate.Year == currentYear)
+                        .ToListAsync();
+
+                    var totalUsed = usedDays
+                        .Sum(l => GetWorkingDays(l.StartDate, l.EndDate, holidays));
+
+                    var requested = GetWorkingDays(leave.StartDate, leave.EndDate, holidays);
+
+                    var total = leave.Employee.VacationDaysPerYear + leave.Employee.CarryOverDays;
+
+                    if (totalUsed + requested > total)
+                        return response.SetError("VALIDATION", "Nu sunt suficiente zile");
+                }
 
                 leave.Status = "Approved";
                 leave.ApprovedBy = userId;
@@ -156,7 +367,7 @@ namespace ERPSystem.Modules.Payments
             }
         }
 
-        public async Task<PublicResponse> Reject(Guid id)
+        public async Task<PublicResponse> Reject(Guid id, string? reason = null)
         {
             var response = new PublicResponse(true);
 
@@ -169,11 +380,12 @@ namespace ERPSystem.Modules.Payments
                 if (leave == null)
                     return response.SetError("NOT_FOUND", "Concediul nu a fost găsit");
 
-                if (leave.Status == "Rejected")
-                    return response.SetError("VALIDATION", "Deja respins");
+                if (leave.Status != "Pending")
+                    return response.SetError("VALIDATION", "Cererea nu mai poate fi respinsă");
 
                 leave.Status = "Rejected";
                 leave.ApprovedBy = userId;
+                leave.ReasonUpdate = reason; 
 
                 await _context.SaveChangesAsync();
 
@@ -184,6 +396,200 @@ namespace ERPSystem.Modules.Payments
                 return response.SetError("SERVER", ex.Message);
             }
         }
+
+
+        public async Task<PublicResponse> GetAllLeaves(GetLeavesQuery query)
+        {
+            var response = new PublicResponse(true);
+
+            try
+            {
+                var currentYear = DateTime.UtcNow.Year;
+                var holidays = await _holidayService.GetHolidays(currentYear);
+
+                var q = _context.EmployeeLeaves
+                    .Include(l => l.Employee)
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(query.Status))
+                    q = q.Where(l => l.Status == query.Status);
+
+                if (!string.IsNullOrEmpty(query.LeaveType))
+                    q = q.Where(l => l.LeaveType == query.LeaveType);
+
+                if (query.EmployeeId.HasValue)
+                    q = q.Where(l => l.EmployeeId == query.EmployeeId);
+
+                if (query.StartFrom.HasValue)
+                    q = q.Where(l => l.StartDate >= query.StartFrom);
+
+                if (query.StartTo.HasValue)
+                    q = q.Where(l => l.StartDate <= query.StartTo);
+
+                q = query.SortBy switch
+                {
+                    "EndDate" => query.SortOrder == "asc"
+                        ? q.OrderBy(l => l.EndDate)
+                        : q.OrderByDescending(l => l.EndDate),
+
+                    _ => query.SortOrder == "asc"
+                        ? q.OrderBy(l => l.StartDate)
+                        : q.OrderByDescending(l => l.StartDate)
+                };
+
+                var total = await q.CountAsync();
+
+                var leaves = await q
+                    .Skip((query.Page - 1) * query.PageSize)
+                    .Take(query.PageSize)
+                    .ToListAsync();
+
+                var result = leaves.Select(l => new
+                {
+                    l.Id,
+                    l.LeaveType,
+                    l.StartDate,
+                    l.EndDate,
+                    l.Status,
+                    l.ReasonUpdate,
+
+                    Employee = new
+                    {
+                        l.EmployeeId,
+                        Name = l.Employee.FirstName + " " + l.Employee.LastName
+                    },
+
+                    Days = GetWorkingDays(l.StartDate, l.EndDate, holidays)
+                });
+
+                return response.SetSuccess(new
+                {
+                    data = result,
+                    total,
+                    page = query.Page,
+                    pageSize = query.PageSize
+                });
+            }
+            catch (Exception ex)
+            {
+                return response.SetError("SERVER", ex.Message);
+            }
+        }
+
+
+        public async Task<PublicResponse> GetLeaveStats()
+        {
+            var response = new PublicResponse(true);
+
+            var stats = await _context.EmployeeLeaves
+                .GroupBy(l => l.LeaveType)
+                .Select(g => new
+                {
+                    type = g.Key,
+                    count = g.Count()
+                })
+                .ToListAsync();
+
+            return response.SetSuccess(stats);
+        }
+
+        public async Task<PublicResponse> GetMonthlyHeatmap(int year)
+        {
+            var leaves = await _context.EmployeeLeaves
+                .Where(l => l.StartDate.Year == year)
+                .ToListAsync();
+
+            var result = Enumerable.Range(1, 12)
+                .Select(month => new
+                {
+                    month,
+                    count = leaves.Count(l => l.StartDate.Month == month)
+                });
+
+            return new PublicResponse(true).SetSuccess(result);
+        }
+
+        public async Task<PublicResponse> GetConflicts(DateTime start, DateTime end)
+        {
+            var conflicts = await _context.EmployeeLeaves
+                .Include(l => l.Employee)
+                .Where(l =>
+                    l.Status == "Approved" &&
+                    start <= l.EndDate &&
+                    end >= l.StartDate)
+                .Select(l => new
+                {
+                    l.Id,
+                    Employee = l.Employee.FirstName + " " + l.Employee.LastName,
+                    l.StartDate,
+                    l.EndDate
+                })
+                .ToListAsync();
+
+            return new PublicResponse(true).SetSuccess(conflicts);
+        }
+
+        public async Task<byte[]> ExportLeaves()
+        {
+            var leaves = await _context.EmployeeLeaves
+                .Include(l => l.Employee)
+                .ToListAsync();
+
+            using var workbook = new XLWorkbook();
+            var ws = workbook.Worksheets.Add("Leaves");
+
+            ws.Cell(1, 1).Value = "Employee";
+            ws.Cell(1, 2).Value = "Start";
+            ws.Cell(1, 3).Value = "End";
+            ws.Cell(1, 4).Value = "Type";
+            ws.Cell(1, 5).Value = "Status";
+
+            int row = 2;
+
+            foreach (var l in leaves)
+            {
+                ws.Cell(row, 1).Value = l.Employee.FirstName + " " + l.Employee.LastName;
+                ws.Cell(row, 2).Value = l.StartDate;
+                ws.Cell(row, 3).Value = l.EndDate;
+                ws.Cell(row, 4).Value = l.LeaveType;
+                ws.Cell(row, 5).Value = l.Status;
+                row++;
+            }
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+
+            return stream.ToArray();
+        }
+
+        public static int GetWorkingDays(  DateTime start,  DateTime end, List<DateTime> holidays)
+        {
+            int days = 0;
+
+            for (var date = start; date <= end; date = date.AddDays(1))
+            {
+                var isWeekend =
+                    date.DayOfWeek == DayOfWeek.Saturday ||
+                    date.DayOfWeek == DayOfWeek.Sunday;
+
+                var isHoliday = holidays.Contains(date.Date);
+
+                if (!isWeekend && !isHoliday)
+                    days++;
+            }
+
+            return days;
+        }
+
+        public async Task<List<string>> GetHolidays(int year)
+        {
+            var holidays = await _holidayService.GetHolidays(year);
+
+            return holidays
+                .Select(h => h.Date.ToString("yyyy-MM-dd"))
+                .ToList();
+        }
+
     }
 }
 

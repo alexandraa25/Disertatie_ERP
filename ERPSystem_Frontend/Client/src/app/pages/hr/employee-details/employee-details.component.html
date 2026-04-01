@@ -110,16 +110,66 @@
 
   </div>
 
-  <!-- LEAVES TAB -->
-  <div *ngIf="activeTab === 'leaves'" class="section">
+ <!-- LEAVES TAB -->
+<div *ngIf="activeTab === 'leaves'" class="section">
 
-    <h3>Concedii</h3>
+  <h3>Concedii</h3>
 
-    <div *ngFor="let leave of employee.leaves">
-      {{leave.startDate | date}} - {{leave.endDate | date}}
+  <div class="leave-list">
+
+    <div class="leave-card" *ngFor="let leave of employee.leaves">
+
+      <!-- INFO -->
+      <div class="leave-info">
+        <strong>
+          {{leave.startDate | date:'dd MMM yyyy'}} -
+          {{leave.endDate | date:'dd MMM yyyy'}}
+        </strong>
+
+        <p>
+          {{
+            leave.leaveType === 'Vacation' ? 'Concediu de odihnă' :
+            leave.leaveType === 'Sick' ? 'Medical' :
+            leave.leaveType === 'Unpaid' ? 'Fără plată' :
+            leave.leaveType
+          }}
+          • {{leave.days}} zile
+        </p>
+
+        <!-- 🔥 motiv (doar dacă există) -->
+        <small *ngIf="leave.reason">
+          Motiv: {{leave.reason}}
+        </small>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="leave-actions">
+
+        <span class="status" [ngClass]="leave.status.toLowerCase()">
+          {{leave.status}}
+        </span>
+
+        <!-- ✔ APPROVE -->
+        <button *ngIf="leave.status === 'Pending'"
+                class="approve-btn"
+                (click)="approveLeave(leave.id)">
+          ✔Aproba
+        </button>
+
+        <!-- ✖ REJECT -->
+        <button *ngIf="leave.status === 'Pending'"
+                class="reject-btn"
+                (click)="rejectLeave(leave)">
+          ✖Respinge 
+        </button>
+
+      </div>
+
     </div>
 
   </div>
+
+</div>
 
   <!-- AUDIT TAB -->
   <div *ngIf="activeTab === 'audit'" class="section">

@@ -1,4 +1,8 @@
-﻿namespace ERPSystem.Utils.Constants
+﻿using Azure.Core;
+using ERPSystem.Modules.Employees;
+using ERPSystem.Modules.Employees.Models;
+
+namespace ERPSystem.Utils.Constants
 {
     public class General
     {
@@ -26,8 +30,6 @@
             {
                 public const string PROFILE = "/profile";
                 public const string NOTIFICATION_SETTINGS = "/notification-settings";
-                
-                
 
             }
 
@@ -56,6 +58,22 @@
                 public const string HR_DASHBOARD = "/dashboard";
                 public const string USERS = "/users";
 
+            }
+
+            public static class Leaves
+            {
+                public const string MY_LEAVES = "";
+                public const string CREATE_LEAVES = "/create";
+                public const string UPDATE_LEAVES = "/{id}";
+                public const string CANCEL_LEAVES = "/{id}/cancel";
+                public const string APPROVE_LEAVES = "/{id}/approve";
+                public const string REJECT_LEAVES = "/{id}/reject";
+                public const string ALL_LEAVES = "/all";
+                public const string LEAVES_BY_USER = "";
+                public const string HOLIDAYS = "/holidays";
+                public const string STATS_LEAVES = "/stats";
+                public const string EXPORT_LEAVES = "/export";
+              
 
             }
 
@@ -74,6 +92,9 @@
               
 
             }
+
+
+
             public static class Courses
             {
                 public const string COURSES = "";

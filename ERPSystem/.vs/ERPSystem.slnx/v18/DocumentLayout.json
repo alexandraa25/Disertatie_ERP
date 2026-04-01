@@ -3,32 +3,88 @@
   "WorkspaceRootPath": "C:\\Project\\Disertatie_ERP\\ERPSystem\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\configuration\\serviceconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\configuration\\serviceconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\leaves\\leavesendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\leaves\\leavesendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\utils\\constants\\general.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\utils\\constants\\general.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\leaves\\holidayservice.cs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\leaves\\holidayservice.cs.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\leaves\\leavesservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\leaves\\leavesservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\leaves\\models\\createleavedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\leaves\\models\\createleavedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\leaves\\models\\getleavesquery.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\leaves\\models\\getleavesquery.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\leaves\\leavesendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\leaves\\leavesendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\employees\\employeeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\employees\\employeeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\payments\\paymentsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\payments\\paymentsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\configuration\\serviceconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\configuration\\serviceconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\data\\entities\\employeeleave.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\entities\\employeeleave.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\employees\\employeeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\employees\\employeeservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\employees\\employeeendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\employees\\employeeendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\data\\entities\\employee.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\entities\\employee.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260329124309_AddReasonLeaves.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ERPSystem\\Migrations\\20260329124309_AddReasonLeaves.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\leaves\\models\\createleavedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\leaves\\models\\createleavedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\shared\\businesslogic\\emailbusinesslogic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\shared\\businesslogic\\emailbusinesslogic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\authentification\\authentificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\authentification\\authentificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260329101518_AddLeavesHoliday.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ERPSystem\\Migrations\\20260329101518_AddLeavesHoliday.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\configuration\\mapconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\configuration\\mapconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\payments\\paymentsendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\payments\\paymentsendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\leaves\\models\\nagerholiday.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\leaves\\models\\nagerholiday.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\data\\context\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\context\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\data\\entities\\publicholiday.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\entities\\publicholiday.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\payments\\paymentsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\payments\\paymentsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\userprofile\\userprofileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -47,28 +103,8 @@
       "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\admin\\adminservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\data\\entities\\employee.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\entities\\employee.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\utils\\constants\\general.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\utils\\constants\\general.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\admin\\adminendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\admin\\adminendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\configuration\\mapconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\configuration\\mapconfiguration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260328190957_FixEmployeeRelations.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ERPSystem\\Migrations\\20260328190957_FixEmployeeRelations.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\data\\context\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\context\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\data\\entities\\employeedocument.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -93,14 +129,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\course\\coursesservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\course\\coursesservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\employees\\employeeendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\employees\\employeeendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260328170934_AddEmployees.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ERPSystem\\Migrations\\20260328170934_AddEmployees.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\employees\\models\\terminateemployeerequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -167,10 +195,6 @@
       "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\contracts\\contractsservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\shared\\businesslogic\\emailbusinesslogic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\shared\\businesslogic\\emailbusinesslogic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\contracts\\models\\contractdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\contracts\\models\\contractdtos.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -197,10 +221,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\data\\entities\\contractcourse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\data\\entities\\contractcourse.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\payments\\paymentsendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\payments\\paymentsendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\utils\\enums\\additionalactstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -336,10 +356,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\company\\companyendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\company\\companyendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\authentification\\authentificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\modules\\authentification\\authentificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\modules\\authentification\\authenticationendpoints.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -502,6 +518,14 @@
     {
       "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\migrations\\20260326163805_updatecourses.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\migrations\\20260326163805_updatecourses.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\migrations\\20260328190957_fixemployeerelations.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\migrations\\20260328190957_fixemployeerelations.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|c:\\project\\disertatie_erp\\erpsystem\\erpsystem\\migrations\\20260328170934_addemployees.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{5DD835A8-1454-F4B0-0F80-00B967E76049}|ERPSystem\\ERPSystem.csproj|solutionrelative:erpsystem\\migrations\\20260328170934_addemployees.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -511,141 +535,271 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "CreateLeaveDto.cs",
-              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\Models\\CreateLeaveDto.cs",
-              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Leaves\\Models\\CreateLeaveDto.cs",
-              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\Models\\CreateLeaveDto.cs",
-              "RelativeToolTip": "ERPSystem\\Modules\\Leaves\\Models\\CreateLeaveDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 4,
+              "Title": "GetLeavesQuery.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\Models\\GetLeavesQuery.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Leaves\\Models\\GetLeavesQuery.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\Models\\GetLeavesQuery.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Leaves\\Models\\GetLeavesQuery.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T21:01:22.126Z",
+              "WhenOpened": "2026-03-29T13:25:19.93Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "LeavesEndpoints.cs",
-              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\LeavesEndpoints.cs",
-              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Leaves\\LeavesEndpoints.cs",
-              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\LeavesEndpoints.cs",
-              "RelativeToolTip": "ERPSystem\\Modules\\Leaves\\LeavesEndpoints.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T20:57:43.654Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
               "Title": "LeavesService.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\LeavesService.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Leaves\\LeavesService.cs",
               "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\LeavesService.cs",
               "RelativeToolTip": "ERPSystem\\Modules\\Leaves\\LeavesService.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAMwB8AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABACAAAAAAAAAAAkwDICAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-28T20:57:24.862Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 0,
+              "Title": "LeavesEndpoints.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\LeavesEndpoints.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Leaves\\LeavesEndpoints.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\LeavesEndpoints.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Leaves\\LeavesEndpoints.cs",
+              "ViewState": "AgIAACcAAAAAAAAAAAAkwDMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-28T20:57:43.654Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Employee.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\Employee.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\Employee.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\Employee.cs",
+              "RelativeToolTip": "ERPSystem\\Data\\Entities\\Employee.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAA4wDIAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-09T11:38:47.009Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "General.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Utils\\Constants\\General.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Utils\\Constants\\General.cs",
               "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Utils\\Constants\\General.cs",
               "RelativeToolTip": "ERPSystem\\Utils\\Constants\\General.cs",
-              "ViewState": "AgIAABIAAAAAAAAAAAAYwCQAAABLAAAAAAAAAA==",
+              "ViewState": "AgIAAC4AAAAAAAAAAAAowEkAAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-02-28T17:40:07.266Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "UserProfileService.cs",
-              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\UserProfile\\UserProfileService.cs",
-              "RelativeDocumentMoniker": "ERPSystem\\Modules\\UserProfile\\UserProfileService.cs",
-              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\UserProfile\\UserProfileService.cs",
-              "RelativeToolTip": "ERPSystem\\Modules\\UserProfile\\UserProfileService.cs",
-              "ViewState": "AgIAAEsAAAAAAAAAAAAIwF0AAAAjAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "HolidayService.cs.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\HolidayService.cs.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Leaves\\HolidayService.cs.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\HolidayService.cs.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Leaves\\HolidayService.cs.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAA4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-07T10:09:01.935Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "UserProfileDto.cs",
-              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\UserProfile\\Models\\UserProfileDto.cs",
-              "RelativeDocumentMoniker": "ERPSystem\\Modules\\UserProfile\\Models\\UserProfileDto.cs",
-              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\UserProfile\\Models\\UserProfileDto.cs",
-              "RelativeToolTip": "ERPSystem\\Modules\\UserProfile\\Models\\UserProfileDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAQAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T12:21:20.641Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
-              "Title": "ApplicationDbContext.cs",
-              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
-              "RelativeDocumentMoniker": "ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
-              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
-              "RelativeToolTip": "ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
-              "ViewState": "AgIAADIBAAAAAAAAAAArwEIBAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-21T21:05:58.743Z",
+              "WhenOpened": "2026-03-29T10:10:24.67Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
+              "Title": "EmployeeService.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Employees\\EmployeeService.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Employees\\EmployeeService.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Employees\\EmployeeService.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Employees\\EmployeeService.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAMwDIBAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-09T13:05:46.918Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
               "Title": "EmployeeLeave.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\EmployeeLeave.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\EmployeeLeave.cs",
               "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\EmployeeLeave.cs",
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmployeeLeave.cs",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAcwBMAAABLAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-09T11:43:48.668Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 8,
+              "Title": "EmployeeEndpoints.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Employees\\EmployeeEndpoints.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Employees\\EmployeeEndpoints.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Employees\\EmployeeEndpoints.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Employees\\EmployeeEndpoints.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAQwBIAAABlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-09T13:05:58.866Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "ServiceConfiguration.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Configuration\\ServiceConfiguration.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Configuration\\ServiceConfiguration.cs",
               "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Configuration\\ServiceConfiguration.cs",
               "RelativeToolTip": "ERPSystem\\Configuration\\ServiceConfiguration.cs",
-              "ViewState": "AgIAADMAAAAAAAAAAAAewEgAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAvwFEAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-02T14:32:55.098Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "20260329124309_AddReasonLeaves.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260329124309_AddReasonLeaves.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260329124309_AddReasonLeaves.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260329124309_AddReasonLeaves.cs",
+              "RelativeToolTip": "ERPSystem\\Migrations\\20260329124309_AddReasonLeaves.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAmAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-29T12:43:09.933Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "EmailBusinessLogic.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Shared\\BusinessLogic\\EmailBusinessLogic.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Shared\\BusinessLogic\\EmailBusinessLogic.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Shared\\BusinessLogic\\EmailBusinessLogic.cs",
+              "RelativeToolTip": "ERPSystem\\Shared\\BusinessLogic\\EmailBusinessLogic.cs",
+              "ViewState": "AgIAABcAAAAAAAAAAAAnwDAAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-05T10:26:47.677Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "AuthentificationService.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Authentification\\AuthentificationService.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Authentification\\AuthentificationService.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Authentification\\AuthentificationService.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Authentification\\AuthentificationService.cs",
+              "ViewState": "AgIAAKIAAAAAAAAAAAAvwLwAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-04T09:06:51.125Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "CreateLeaveDto.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\Models\\CreateLeaveDto.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Leaves\\Models\\CreateLeaveDto.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\Models\\CreateLeaveDto.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Leaves\\Models\\CreateLeaveDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-28T21:01:22.126Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "NagerHoliday.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\Models\\NagerHoliday.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Leaves\\Models\\NagerHoliday.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Leaves\\Models\\NagerHoliday.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Leaves\\Models\\NagerHoliday.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-29T10:01:02.652Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 14,
+              "Title": "20260329101518_AddLeavesHoliday.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260329101518_AddLeavesHoliday.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260329101518_AddLeavesHoliday.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260329101518_AddLeavesHoliday.cs",
+              "RelativeToolTip": "ERPSystem\\Migrations\\20260329101518_AddLeavesHoliday.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-29T10:15:18.253Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "PublicHoliday.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\PublicHoliday.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\PublicHoliday.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\PublicHoliday.cs",
+              "RelativeToolTip": "ERPSystem\\Data\\Entities\\PublicHoliday.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-29T09:55:20.428Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
               "Title": "MapConfiguration.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Configuration\\MapConfiguration.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Configuration\\MapConfiguration.cs",
               "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Configuration\\MapConfiguration.cs",
               "RelativeToolTip": "ERPSystem\\Configuration\\MapConfiguration.cs",
-              "ViewState": "AgIAACUAAAAAAAAAAAAIwD0AAAAjAAAAAAAAAA==",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAQwBgAAAA6AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-07T09:01:06.82Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 16,
+              "Title": "PaymentsEndpoints.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Payments\\PaymentsEndpoints.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Payments\\PaymentsEndpoints.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Payments\\PaymentsEndpoints.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\Payments\\PaymentsEndpoints.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-25T20:00:02.263Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
+              "RelativeToolTip": "ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
+              "ViewState": "AgIAABoAAAAAAAAAAIA+wCgAAAA9AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-21T21:05:58.743Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
               "Title": "PaymentsService.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Payments\\PaymentsService.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Payments\\PaymentsService.cs",
@@ -658,7 +812,32 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 23,
+              "Title": "UserProfileDto.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\UserProfile\\Models\\UserProfileDto.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\UserProfile\\Models\\UserProfileDto.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\UserProfile\\Models\\UserProfileDto.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\UserProfile\\Models\\UserProfileDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-04T12:21:20.641Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "UserProfileService.cs",
+              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\UserProfile\\UserProfileService.cs",
+              "RelativeDocumentMoniker": "ERPSystem\\Modules\\UserProfile\\UserProfileService.cs",
+              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\UserProfile\\UserProfileService.cs",
+              "RelativeToolTip": "ERPSystem\\Modules\\UserProfile\\UserProfileService.cs",
+              "ViewState": "AgIAAEsAAAAAAAAAAAAIwF0AAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-07T10:09:01.935Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
               "Title": "AdminEndpoints.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Admin\\AdminEndpoints.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Admin\\AdminEndpoints.cs",
@@ -666,12 +845,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Admin\\AdminEndpoints.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T16:35:56.129Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-08T16:35:56.129Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 24,
               "Title": "AdminService.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Admin\\AdminService.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Admin\\AdminService.cs",
@@ -679,12 +857,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Admin\\AdminService.cs",
               "ViewState": "AgIAADQAAAAAAAAAAAAQwEoAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T16:36:29.413Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-08T16:36:29.413Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 22,
               "Title": "UserProfileEndpoints.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\UserProfile\\UserProfileEndpoints.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\UserProfile\\UserProfileEndpoints.cs",
@@ -692,25 +869,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\UserProfile\\UserProfileEndpoints.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAABEAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T12:34:47.296Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-04T12:34:47.296Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "EmployeeService.cs",
-              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Employees\\EmployeeService.cs",
-              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Employees\\EmployeeService.cs",
-              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Employees\\EmployeeService.cs",
-              "RelativeToolTip": "ERPSystem\\Modules\\Employees\\EmployeeService.cs",
-              "ViewState": "AgIAADcAAAAAAAAAAAAswCcAAAARAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T13:05:46.918Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 130,
               "Title": "20260328190957_FixEmployeeRelations.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260328190957_FixEmployeeRelations.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260328190957_FixEmployeeRelations.cs",
@@ -718,25 +881,11 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260328190957_FixEmployeeRelations.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T19:09:57.194Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T19:09:57.194Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "Employee.cs",
-              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\Employee.cs",
-              "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\Employee.cs",
-              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\Employee.cs",
-              "RelativeToolTip": "ERPSystem\\Data\\Entities\\Employee.cs",
-              "ViewState": "AgIAAB4AAAAAAAAAAAAUwDIAAAAvAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T11:38:47.009Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 27,
               "Title": "EmployeeContracts.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\EmployeeContracts.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\EmployeeContracts.cs",
@@ -744,12 +893,11 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmployeeContracts.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T11:42:15.558Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-09T11:42:15.558Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 26,
               "Title": "EmployeeDocument.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\EmployeeDocument.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\EmployeeDocument.cs",
@@ -757,12 +905,11 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmployeeDocument.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T11:44:10.098Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-09T11:44:10.098Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 28,
               "Title": "EmployeeContact.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\EmployeeContact.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\EmployeeContact.cs",
@@ -770,12 +917,11 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmployeeContact.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T16:39:02.784Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:39:02.784Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 29,
               "Title": "EmployeeBank.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\EmployeeBank.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\EmployeeBank.cs",
@@ -783,12 +929,11 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmployeeBank.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T16:39:43.387Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:39:43.387Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 30,
               "Title": "EmployeeAddress.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\EmployeeAddress.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\EmployeeAddress.cs",
@@ -796,12 +941,11 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmployeeAddress.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T16:39:26.22Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T16:39:26.22Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 31,
               "Title": "CoursesService.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Course\\CoursesService.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Course\\CoursesService.cs",
@@ -814,20 +958,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
-              "Title": "EmployeeEndpoints.cs",
-              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Employees\\EmployeeEndpoints.cs",
-              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Employees\\EmployeeEndpoints.cs",
-              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Employees\\EmployeeEndpoints.cs",
-              "RelativeToolTip": "ERPSystem\\Modules\\Employees\\EmployeeEndpoints.cs",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAjwBIAAABlAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T13:05:58.866Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 33,
               "Title": "CreateEmployeeRequest.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Employees\\Models\\CreateEmployeeRequest.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Employees\\Models\\CreateEmployeeRequest.cs",
@@ -835,12 +966,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Employees\\Models\\CreateEmployeeRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T13:06:39.572Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-09T13:06:39.572Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 131,
               "Title": "20260328170934_AddEmployees.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260328170934_AddEmployees.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260328170934_AddEmployees.cs",
@@ -848,12 +978,11 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260328170934_AddEmployees.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:09:34.758Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T17:09:34.758Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 32,
               "Title": "TerminateEmployeeRequest.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Employees\\Models\\TerminateEmployeeRequest.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Employees\\Models\\TerminateEmployeeRequest.cs",
@@ -861,12 +990,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Employees\\Models\\TerminateEmployeeRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T13:37:03.542Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-09T13:37:03.542Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
+              "DocumentIndex": 40,
               "Title": "StudentDtos.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Students\\Models\\StudentDtos.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Students\\Models\\StudentDtos.cs",
@@ -874,12 +1002,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Students\\Models\\StudentDtos.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAFYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T13:04:31.42Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-02T13:04:31.42Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 36,
               "Title": "DashboardService.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Dashboard\\DashboardService.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Dashboard\\DashboardService.cs",
@@ -887,12 +1014,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Dashboard\\DashboardService.cs",
               "ViewState": "AgIAAAsAAAAAAAAAAAAAwBYAAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T14:23:09.059Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-02T14:23:09.059Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 34,
               "Title": "ApplicationUser.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\ApplicationUser.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\ApplicationUser.cs",
@@ -900,12 +1026,11 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\ApplicationUser.cs",
               "ViewState": "AgIAABMAAAAAAAAAAAAwwBYAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-26T12:02:43.81Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-26T12:02:43.81Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 35,
               "Title": "ActivityLog.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\ActivityLog.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\ActivityLog.cs",
@@ -913,12 +1038,11 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\ActivityLog.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T19:05:09.24Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-17T19:05:09.24Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 41,
               "Title": "CoursesEndpoints.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Course\\CoursesEndpoints.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Course\\CoursesEndpoints.cs",
@@ -926,12 +1050,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Course\\CoursesEndpoints.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAAB8AAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T13:05:25.466Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-02T13:05:25.466Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
+              "DocumentIndex": 37,
               "Title": "StudentsEndpoints.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Students\\StudentsEndpoints.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Students\\StudentsEndpoints.cs",
@@ -939,12 +1062,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Students\\StudentsEndpoints.cs",
               "ViewState": "AgIAAAsAAAAAAAAAAAAAwCUAAABbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T14:23:29.968Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-02T14:23:29.968Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 38,
               "Title": "StudentsService.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Students\\StudentsService.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Students\\StudentsService.cs",
@@ -952,25 +1074,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Students\\StudentsService.cs",
               "ViewState": "AgIAAD0CAAAAAAAAAAAkwFgCAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T13:03:48.58Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-02T13:03:48.58Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
-              "Title": "EmailBusinessLogic.cs",
-              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Shared\\BusinessLogic\\EmailBusinessLogic.cs",
-              "RelativeDocumentMoniker": "ERPSystem\\Shared\\BusinessLogic\\EmailBusinessLogic.cs",
-              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Shared\\BusinessLogic\\EmailBusinessLogic.cs",
-              "RelativeToolTip": "ERPSystem\\Shared\\BusinessLogic\\EmailBusinessLogic.cs",
-              "ViewState": "AgIAABoAAAAAAAAAAADgvzoAAAAIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-05T10:26:47.677Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 43,
               "Title": "Student.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\Student.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\Student.cs",
@@ -978,12 +1086,11 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\Student.cs",
               "ViewState": "AgIAAA4AAAAAAAAAAAAgwB8AAABFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T12:32:26.358Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T12:32:26.358Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 39,
               "Title": "SessionDto.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Students\\Models\\SessionDto.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Students\\Models\\SessionDto.cs",
@@ -991,12 +1098,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Students\\Models\\SessionDto.cs",
               "ViewState": "AgIAAAIAAAAAAAAAAAAxwA4AAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T12:45:02.298Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-28T12:45:02.298Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 47,
               "Title": "ContractsService.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Contracts\\ContractsService.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Contracts\\ContractsService.cs",
@@ -1009,7 +1115,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
+              "DocumentIndex": 45,
               "Title": "AdditionalActService.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\AdditionalAct\\AdditionalActService.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\AdditionalAct\\AdditionalActService.cs",
@@ -1022,7 +1128,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 42,
               "Title": "PaymentType.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Utils\\Enums\\PaymentType.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Utils\\Enums\\PaymentType.cs",
@@ -1030,12 +1136,11 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Enums\\PaymentType.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T17:55:09.167Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-26T17:55:09.167Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 42,
+              "DocumentIndex": 48,
               "Title": "ContractDtos.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Contracts\\Models\\ContractDtos.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Contracts\\Models\\ContractDtos.cs",
@@ -1043,12 +1148,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Contracts\\Models\\ContractDtos.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAwwBwAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T13:19:23.901Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-17T13:19:23.901Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 43,
+              "DocumentIndex": 49,
               "Title": "PayInstallmentDto.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Payments\\Models\\PayInstallmentDto.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Payments\\Models\\PayInstallmentDto.cs",
@@ -1056,12 +1160,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Payments\\Models\\PayInstallmentDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-25T20:00:20.908Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-25T20:00:20.908Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 46,
               "Title": "ContractStatus.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Utils\\Enums\\ContractStatus.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Utils\\Enums\\ContractStatus.cs",
@@ -1069,12 +1172,11 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Enums\\ContractStatus.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAuwAcAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-28T17:45:10.755Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-28T17:45:10.755Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 44,
               "Title": "CourseEnrollment.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\CourseEnrollment.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\CourseEnrollment.cs",
@@ -1082,12 +1184,11 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\CourseEnrollment.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-20T22:31:23.974Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-20T22:31:23.974Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 44,
+              "DocumentIndex": 50,
               "Title": "ContractsEndpoints.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Contracts\\ContractsEndpoints.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Contracts\\ContractsEndpoints.cs",
@@ -1095,12 +1196,11 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Contracts\\ContractsEndpoints.cs",
               "ViewState": "AgIAABwAAAAAAAAAAAAQwDMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-26T12:03:26.859Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-26T12:03:26.859Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 48,
+              "DocumentIndex": 54,
               "Title": "ContractCourse.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\ContractCourse.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\ContractCourse.cs",
@@ -1112,7 +1212,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 46,
+              "DocumentIndex": 52,
               "Title": "ContractInstallment.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\ContractInstallment.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\ContractInstallment.cs",
@@ -1124,7 +1224,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 47,
+              "DocumentIndex": 53,
               "Title": "CourseSession.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\CourseSession.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\CourseSession.cs",
@@ -1136,7 +1236,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 45,
+              "DocumentIndex": 51,
               "Title": "20260327185756_AddStatusPayment.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260327185756_AddStatusPayment.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260327185756_AddStatusPayment.cs",
@@ -1144,12 +1244,11 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260327185756_AddStatusPayment.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-27T18:57:56.559Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-03-27T18:57:56.559Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 50,
+              "DocumentIndex": 55,
               "Title": "AdditionalActStatus.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Utils\\Enums\\AdditionalActStatus.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Utils\\Enums\\AdditionalActStatus.cs",
@@ -1161,7 +1260,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 124,
+              "DocumentIndex": 128,
               "Title": "20260326201343_UpdateCreateContract.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260326201343_UpdateCreateContract.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260326201343_UpdateCreateContract.cs",
@@ -1173,19 +1272,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 49,
-              "Title": "PaymentsEndpoints.cs",
-              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Payments\\PaymentsEndpoints.cs",
-              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Payments\\PaymentsEndpoints.cs",
-              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Payments\\PaymentsEndpoints.cs",
-              "RelativeToolTip": "ERPSystem\\Modules\\Payments\\PaymentsEndpoints.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAsAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-25T20:00:02.263Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 51,
+              "DocumentIndex": 56,
               "Title": "StudentContract.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\StudentContract.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\StudentContract.cs",
@@ -1197,7 +1284,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 52,
+              "DocumentIndex": 57,
               "Title": "ContractDiscount.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\ContractDiscount.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\ContractDiscount.cs",
@@ -1209,7 +1296,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 53,
+              "DocumentIndex": 58,
               "Title": "PdfService.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Shared\\BusinessLogic\\PdfService.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Shared\\BusinessLogic\\PdfService.cs",
@@ -1221,7 +1308,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 54,
+              "DocumentIndex": 59,
               "Title": "PdfDocumentModel.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Shared\\DTOs\\PDF\\PdfDocumentModel.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Shared\\DTOs\\PDF\\PdfDocumentModel.cs",
@@ -1233,7 +1320,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 55,
+              "DocumentIndex": 60,
               "Title": "PricingResult.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Contracts\\Models\\PricingResult.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Contracts\\Models\\PricingResult.cs",
@@ -1245,7 +1332,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 125,
+              "DocumentIndex": 129,
               "Title": "20260326163805_UpdateCourses.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260326163805_UpdateCourses.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260326163805_UpdateCourses.cs",
@@ -1257,7 +1344,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 56,
+              "DocumentIndex": 61,
               "Title": "CourseDtos.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Course\\Models\\CourseDtos.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Course\\Models\\CourseDtos.cs",
@@ -1269,7 +1356,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 57,
+              "DocumentIndex": 62,
               "Title": "DashboardEndpoints.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Dashboard\\DashboardEndpoints.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Dashboard\\DashboardEndpoints.cs",
@@ -1281,7 +1368,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 123,
+              "DocumentIndex": 127,
               "Title": "20260325195336_AddPayments.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260325195336_AddPayments.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260325195336_AddPayments.cs",
@@ -1293,7 +1380,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 59,
+              "DocumentIndex": 64,
               "Title": "Payment.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\Payment.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\Payment.cs",
@@ -1305,7 +1392,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 58,
+              "DocumentIndex": 63,
               "Title": "AdditionalActEndpoints.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\AdditionalAct\\AdditionalActEndpoints.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\AdditionalAct\\AdditionalActEndpoints.cs",
@@ -1317,7 +1404,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 60,
+              "DocumentIndex": 65,
               "Title": "ContractAdditionalAct.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\ContractAdditionalAct.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\ContractAdditionalAct.cs",
@@ -1329,7 +1416,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 61,
+              "DocumentIndex": 66,
               "Title": "EmailConstants.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Utils\\Constants\\Email\\EmailConstants.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Utils\\Constants\\Email\\EmailConstants.cs",
@@ -1341,7 +1428,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 62,
+              "DocumentIndex": 67,
               "Title": "EmailRequest.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Shared\\DTOs\\Email\\EmailRequest.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Shared\\DTOs\\Email\\EmailRequest.cs",
@@ -1353,7 +1440,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 63,
+              "DocumentIndex": 68,
               "Title": "AdditionalActSignEmailModel.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\AdditionalAct\\Models\\AdditionalActSignEmailModel.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\AdditionalAct\\Models\\AdditionalActSignEmailModel.cs",
@@ -1365,7 +1452,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 122,
+              "DocumentIndex": 126,
               "Title": "20260325093033_UpdateActAdd.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260325093033_UpdateActAdd.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260325093033_UpdateActAdd.cs",
@@ -1377,7 +1464,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 65,
+              "DocumentIndex": 70,
               "Title": "ContractExpirationService.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Contracts\\ContractExpirationService.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Contracts\\ContractExpirationService.cs",
@@ -1389,7 +1476,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 64,
+              "DocumentIndex": 69,
               "Title": "ContractSignEmailModel.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Contracts\\Models\\ContractSignEmailModel.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Contracts\\Models\\ContractSignEmailModel.cs",
@@ -1401,7 +1488,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 66,
+              "DocumentIndex": 71,
               "Title": "SignContractDto.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Contracts\\Models\\SignContractDto.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Contracts\\Models\\SignContractDto.cs",
@@ -1413,7 +1500,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 67,
+              "DocumentIndex": 72,
               "Title": "TemplateCode.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Utils\\Constants\\Email\\TemplateCode.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Utils\\Constants\\Email\\TemplateCode.cs",
@@ -1425,7 +1512,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 68,
+              "DocumentIndex": 73,
               "Title": "SigningToken.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\SigningToken.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\SigningToken.cs",
@@ -1437,7 +1524,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 69,
+              "DocumentIndex": 74,
               "Title": "AdditionalActType.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Utils\\Enums\\AdditionalActType.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Utils\\Enums\\AdditionalActType.cs",
@@ -1449,7 +1536,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 71,
+              "DocumentIndex": 76,
               "Title": "CreateAdditionalActDto.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\AdditionalAct\\Models\\CreateAdditionalActDto.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\AdditionalAct\\Models\\CreateAdditionalActDto.cs",
@@ -1461,7 +1548,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 70,
+              "DocumentIndex": 75,
               "Title": "ContractAdditionalActItem.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\ContractAdditionalActItem.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\ContractAdditionalActItem.cs",
@@ -1473,7 +1560,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 72,
+              "DocumentIndex": 77,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Program.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Program.cs",
@@ -1485,7 +1572,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 73,
+              "DocumentIndex": 78,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\appsettings.json",
               "RelativeDocumentMoniker": "ERPSystem\\appsettings.json",
@@ -1497,7 +1584,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 121,
+              "DocumentIndex": 125,
               "Title": "20260321214933_MoveTypeToItem.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260321214933_MoveTypeToItem.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260321214933_MoveTypeToItem.cs",
@@ -1509,7 +1596,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 74,
+              "DocumentIndex": 79,
               "Title": "20260321210857_AddAdditionalActItems.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260321210857_AddAdditionalActItems.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260321210857_AddAdditionalActItems.cs",
@@ -1521,7 +1608,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 120,
+              "DocumentIndex": 124,
               "Title": "20260321210533_AddActAdd.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260321210533_AddActAdd.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260321210533_AddActAdd.cs",
@@ -1533,7 +1620,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 75,
+              "DocumentIndex": 80,
               "Title": "CompanySettings.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\CompanySettings.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\CompanySettings.cs",
@@ -1545,7 +1632,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 76,
+              "DocumentIndex": 81,
               "Title": "Microsoft.NET.Sdk.StaticWebAssets.targets",
               "DocumentMoniker": "C:\\Program Files\\dotnet\\sdk\\10.0.201\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.targets",
               "RelativeDocumentMoniker": "..\\..\\..\\Program Files\\dotnet\\sdk\\10.0.201\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.targets",
@@ -1557,7 +1644,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 77,
+              "DocumentIndex": 82,
               "Title": "20260320230903_AddAdditionalActs.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260320230903_AddAdditionalActs.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260320230903_AddAdditionalActs.cs",
@@ -1569,7 +1656,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 78,
+              "DocumentIndex": 83,
               "Title": "AuditEntry.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Audit\\AuditEntry.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Audit\\AuditEntry.cs",
@@ -1581,7 +1668,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 118,
+              "DocumentIndex": 122,
               "Title": "20260320174525_AddInstallmentsAndBodyEdit.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260320174525_AddInstallmentsAndBodyEdit.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260320174525_AddInstallmentsAndBodyEdit.cs",
@@ -1593,7 +1680,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 119,
+              "DocumentIndex": 123,
               "Title": "20260320172123_updatebodycontract.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260320172123_updatebodycontract.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260320172123_updatebodycontract.cs",
@@ -1605,7 +1692,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 79,
+              "DocumentIndex": 84,
               "Title": "ActivityLogService.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Shared\\ActivityLogs\\ActivityLogService.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Shared\\ActivityLogs\\ActivityLogService.cs",
@@ -1617,7 +1704,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 80,
+              "DocumentIndex": 85,
               "Title": "ActivityLogEndpoint.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Shared\\ActivityLogs\\ActivityLogEndpoint.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Shared\\ActivityLogs\\ActivityLogEndpoint.cs",
@@ -1629,7 +1716,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 81,
+              "DocumentIndex": 86,
               "Title": "ActivityLogDto.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Shared\\ActivityLogs\\ActivityLogDto.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Shared\\ActivityLogs\\ActivityLogDto.cs",
@@ -1641,7 +1728,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 116,
+              "DocumentIndex": 120,
               "Title": "20260318121523_UpdateAuditLog.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260318121523_UpdateAuditLog.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260318121523_UpdateAuditLog.cs",
@@ -1653,7 +1740,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 117,
+              "DocumentIndex": 121,
               "Title": "20260318115351_Add1.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260318115351_Add1.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260318115351_Add1.cs",
@@ -1665,7 +1752,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 82,
+              "DocumentIndex": 87,
               "Title": "CompanyService.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Company\\CompanyService.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Company\\CompanyService.cs",
@@ -1677,7 +1764,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 83,
+              "DocumentIndex": 88,
               "Title": "CompanyEndpoints.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Company\\CompanyEndpoints.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Company\\CompanyEndpoints.cs",
@@ -1689,7 +1776,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 115,
+              "DocumentIndex": 119,
               "Title": "20260317190740_AddActivityLog.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260317190740_AddActivityLog.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260317190740_AddActivityLog.cs",
@@ -1701,20 +1788,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 84,
-              "Title": "AuthentificationService.cs",
-              "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Authentification\\AuthentificationService.cs",
-              "RelativeDocumentMoniker": "ERPSystem\\Modules\\Authentification\\AuthentificationService.cs",
-              "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Authentification\\AuthentificationService.cs",
-              "RelativeToolTip": "ERPSystem\\Modules\\Authentification\\AuthentificationService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEcAAAAsAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T09:06:51.125Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 85,
+              "DocumentIndex": 89,
               "Title": "AuthenticationEndpoints.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Authentification\\AuthenticationEndpoints.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Authentification\\AuthenticationEndpoints.cs",
@@ -1726,7 +1800,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 86,
+              "DocumentIndex": 90,
               "Title": "UserCredentialsEmailModel.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Authentification\\Models\\UserCredentialsEmailModel.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Authentification\\Models\\UserCredentialsEmailModel.cs",
@@ -1738,7 +1812,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 87,
+              "DocumentIndex": 91,
               "Title": "ResetPasswordRequest.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Authentification\\Models\\ResetPasswordRequest.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Authentification\\Models\\ResetPasswordRequest.cs",
@@ -1750,7 +1824,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 88,
+              "DocumentIndex": 92,
               "Title": "RegisterRequest.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Authentification\\Models\\RegisterRequest.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Authentification\\Models\\RegisterRequest.cs",
@@ -1762,7 +1836,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 89,
+              "DocumentIndex": 93,
               "Title": "ChangePasswordRequest.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Authentification\\Models\\ChangePasswordRequest.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Authentification\\Models\\ChangePasswordRequest.cs",
@@ -1774,7 +1848,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 90,
+              "DocumentIndex": 94,
               "Title": "CompanySettingsDto.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Company\\Models\\CompanySettingsDto.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Company\\Models\\CompanySettingsDto.cs",
@@ -1786,7 +1860,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 114,
+              "DocumentIndex": 118,
               "Title": "20260316153604_PDF.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260316153604_PDF.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260316153604_PDF.cs",
@@ -1798,7 +1872,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 92,
+              "DocumentIndex": 96,
               "Title": "ContractTemplate.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\ContractTemplate.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\ContractTemplate.cs",
@@ -1810,7 +1884,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 112,
+              "DocumentIndex": 116,
               "Title": "20260316143722_AddContractSnapshots.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260316143722_AddContractSnapshots.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260316143722_AddContractSnapshots.cs",
@@ -1822,7 +1896,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 111,
+              "DocumentIndex": 115,
               "Title": "20260316145103_AddContractSnapshots1.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260316145103_AddContractSnapshots1.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260316145103_AddContractSnapshots1.cs",
@@ -1834,7 +1908,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 91,
+              "DocumentIndex": 95,
               "Title": "Course.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\Course.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\Course.cs",
@@ -1846,7 +1920,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 113,
+              "DocumentIndex": 117,
               "Title": "20260316135148_AddContractTemplates.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260316135148_AddContractTemplates.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260316135148_AddContractTemplates.cs",
@@ -1858,7 +1932,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 110,
+              "DocumentIndex": 114,
               "Title": "20260314163259_AddCompanySettings.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260314163259_AddCompanySettings.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260314163259_AddCompanySettings.cs",
@@ -1870,7 +1944,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 93,
+              "DocumentIndex": 97,
               "Title": "EmailTemplate.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\EmailTemplate.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\EmailTemplate.cs",
@@ -1882,7 +1956,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 109,
+              "DocumentIndex": 113,
               "Title": "20260313114945_AddClientSignatureToContract.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260313114945_AddClientSignatureToContract.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260313114945_AddClientSignatureToContract.cs",
@@ -1894,7 +1968,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 94,
+              "DocumentIndex": 98,
               "Title": "HrDashboardDto.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Employees\\Models\\HrDashboardDto.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Employees\\Models\\HrDashboardDto.cs",
@@ -1906,7 +1980,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 95,
+              "DocumentIndex": 99,
               "Title": "EmployeeDto.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Employees\\Models\\EmployeeDto.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Employees\\Models\\EmployeeDto.cs",
@@ -1918,7 +1992,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 106,
+              "DocumentIndex": 110,
               "Title": "20260309130153_AddHRRelationships1.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260309130153_AddHRRelationships1.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260309130153_AddHRRelationships1.cs",
@@ -1930,7 +2004,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 107,
+              "DocumentIndex": 111,
               "Title": "20260309114910_AddHRRelationships.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260309114910_AddHRRelationships.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260309114910_AddHRRelationships.cs",
@@ -1942,7 +2016,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 108,
+              "DocumentIndex": 112,
               "Title": "20260309101417_UpdateApplicationUserFields.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260309101417_UpdateApplicationUserFields.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260309101417_UpdateApplicationUserFields.cs",
@@ -1954,7 +2028,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 96,
+              "DocumentIndex": 100,
               "Title": "UserNotificationSetting.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Data\\Entities\\UserNotificationSetting.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Data\\Entities\\UserNotificationSetting.cs",
@@ -1966,7 +2040,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 98,
+              "DocumentIndex": 102,
               "Title": "AdminUserDto.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Admin\\Models\\AdminUserDto.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Admin\\Models\\AdminUserDto.cs",
@@ -1978,7 +2052,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 97,
+              "DocumentIndex": 101,
               "Title": "AdminDashboardDto.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Admin\\Models\\AdminDashboardDto.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Admin\\Models\\AdminDashboardDto.cs",
@@ -1990,7 +2064,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 100,
+              "DocumentIndex": 104,
               "Title": "EndpointExtensions.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Extensions\\EndpointExtensions.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Extensions\\EndpointExtensions.cs",
@@ -2002,7 +2076,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 99,
+              "DocumentIndex": 103,
               "Title": ".gitignore",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\.gitignore",
               "RelativeDocumentMoniker": "ERPSystem\\.gitignore",
@@ -2014,7 +2088,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 105,
+              "DocumentIndex": 109,
               "Title": "20260306140213_FixCascade.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260306140213_FixCascade.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260306140213_FixCascade.cs",
@@ -2026,7 +2100,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 102,
+              "DocumentIndex": 106,
               "Title": "20260306135509_FixCascade.cs",
               "DocumentMoniker": "D:\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260306135509_FixCascade.cs",
               "ToolTip": "D:\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260306135509_FixCascade.cs",
@@ -2035,7 +2109,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 101,
+              "DocumentIndex": 105,
               "Title": "20260304130942_AddUserProfileTable.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260304130942_AddUserProfileTable.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260304130942_AddUserProfileTable.cs",
@@ -2047,7 +2121,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 103,
+              "DocumentIndex": 107,
               "Title": "20260304090221_InitialCreate.cs",
               "DocumentMoniker": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260304090221_InitialCreate.cs",
               "RelativeDocumentMoniker": "ERPSystem\\Migrations\\20260304090221_InitialCreate.cs",
@@ -2059,7 +2133,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 104,
+              "DocumentIndex": 108,
               "Title": "20260304085954_InitialFix.cs",
               "DocumentMoniker": "C:\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260304085954_InitialFix.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\Users\\Alexandra\\Desktop\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Migrations\\20260304085954_InitialFix.cs",

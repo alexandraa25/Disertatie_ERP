@@ -1,6 +1,7 @@
 ﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Employees.Models;
+using ERPSystem.Modules.Leaves;
 using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,11 +12,15 @@ public class EmployeeService
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly HolidayService _holidayService;
+   
 
-    public EmployeeService(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    public EmployeeService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, HolidayService holidayService)
     {
         _context = context;
         _userManager = userManager;
+        _holidayService = holidayService;
+     
     }
 
     public async Task<PublicResponse> CreateEmployeeFullAsync(CreateEmployeeFullRequest request)
@@ -172,12 +177,17 @@ public class EmployeeService
 
         try
         {
+
+            var currentYear = DateTime.UtcNow.Year;
+            var holidays = await _holidayService.GetHolidays(currentYear);
+
             var employee = await _context.Employees
                .Include(x => x.User)
                .Include(x => x.Address)
                .Include(x => x.Bank)
                .Include(x => x.Contact)
                .Include(x => x.Documents)
+               .Include(x => x.Leaves)
                .Where(x => x.Id == id)
                .Select(x => new
                {
@@ -201,7 +211,20 @@ public class EmployeeService
                         d.FilePath,
                         d.ContentType,
                         d.UploadedAt
-                    }).ToList()
+                    }).ToList(),
+                   Leaves = x.Leaves
+                         .OrderByDescending(l => l.StartDate)
+                         .Select(l => new
+                         {
+                             l.Id,
+                             l.LeaveType,
+                             l.StartDate,
+                             l.EndDate,
+                             l.Status,
+                             l.ReasonUpdate,
+
+                             Days = LeavesService.GetWorkingDays(l.StartDate, l.EndDate, holidays)
+                         }).ToList()
                })
                .FirstOrDefaultAsync();
 

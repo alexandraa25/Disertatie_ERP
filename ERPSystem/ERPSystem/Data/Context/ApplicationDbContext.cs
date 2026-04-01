@@ -43,7 +43,9 @@ namespace ERPSystem.Data.Context
         public DbSet<EmployeeContract> EmployeeContracts { get; set; }
         public DbSet<EmployeeLeave> EmployeeLeaves { get; set; }
         public DbSet<EmployeeDocument> EmployeeDocuments { get; set; }
-        
+
+        public DbSet<PublicHoliday> PublicHolidays { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }

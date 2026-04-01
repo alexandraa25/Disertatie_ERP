@@ -1,0 +1,35 @@
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 10px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.date-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* HOLIDAYS (galben) */
+.holiday-date .mat-calendar-body-cell-content {
+  background: #ffeaa7 !important;
+  color: #6c5ce7 !important;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+/* WEEKEND (gri) */
+.weekend-date .mat-calendar-body-cell-content {
+  background: #f1f2f6 !important;
+  color: #036d9b !important;
+  border-radius: 50%;
+}

@@ -3,10 +3,9 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { provideRouter } from '@angular/router';
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { importProvidersFrom } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { authInterceptor } from './app/components/auth-interceptor';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 bootstrapApplication(AppComponent, {
   providers: [
@@ -17,7 +16,8 @@ bootstrapApplication(AppComponent, {
       withInterceptors([authInterceptor])
     ),
 
-    importProvidersFrom(BrowserAnimationsModule),
-    provideAnimations()
+   
+    provideAnimations(),
+    provideNativeDateAdapter() 
   ]
 }).catch(err => console.error(err));

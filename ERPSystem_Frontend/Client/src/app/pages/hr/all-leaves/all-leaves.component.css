@@ -1,0 +1,136 @@
+.page {
+  padding: 30px;
+  max-width: 1200px;
+  margin: auto;
+  margin-top: 60px;
+}
+
+/* ===== FILTERS ===== */
+.filters {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filters input,
+.filters select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #dcdde1;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.filters input:focus,
+.filters select:focus {
+  border-color: #6c5ce7;
+}
+
+.filters button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #6c5ce7;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.filters button:hover {
+  background: #5a4bd1;
+}
+
+/* ===== TABLE ===== */
+.leave-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+/* header */
+.leave-table thead {
+  background: #f5f6fa;
+}
+
+.leave-table th {
+  padding: 14px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.leave-table th:hover {
+  background: #eceef3;
+}
+
+/* rows */
+.leave-table td {
+  padding: 14px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.leave-table tr:hover {
+  background: #f9f9ff;
+}
+
+/* ===== STATUS ===== */
+.status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status.pending {
+  background: #fff4e5;
+  color: #e67e22;
+}
+
+.status.approved {
+  background: #eafaf1;
+  color: #27ae60;
+}
+
+.status.rejected {
+  background: #fdecea;
+  color: #e74c3c;
+}
+
+.status.cancelled {
+  background: #ecf0f1;
+  color: #7f8c8d;
+}
+
+/* ===== CHECKBOX ===== */
+input[type="checkbox"] {
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+/* ===== PAGINATION ===== */
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  background: #dfe6e9;
+  cursor: pointer;
+}
+
+.pagination button:hover {
+  background: #b2bec3;
+}

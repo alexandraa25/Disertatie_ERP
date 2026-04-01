@@ -23,6 +23,12 @@ export interface UserProfileDto {
 
   unreadNotificationsCount: number;
 
+  jobTitle?: string;
+  hireDate?: string;
+  salary?: number;
+  contractType?: string;
+  employmentStatus?: string;
+
 }
 
 export interface UpdateUserProfileDto {

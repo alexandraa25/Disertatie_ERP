@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { routes } from './app.routes';
 import { AppComponent } from './app.component';
 import { RomanianDayPipe } from './components/pipes/romanian-day.pipe';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { RomanianDayPipe } from './components/pipes/romanian-day.pipe';
   imports: [
     BrowserModule,
     ReactiveFormsModule,
-    RouterModule.forRoot(routes)
+    RouterModule.forRoot(routes), 
+    BrowserAnimationsModule
   ],
   bootstrap: [AppComponent]
 })
