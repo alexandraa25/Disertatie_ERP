@@ -44,7 +44,7 @@ public class StudentsService
             ))
             .ToListAsync();
 
-        return response.SetSuccess(new PagedResult<StudentListItemDto>(page, pageSize, total, items));
+        return response.SetSuccess(new Student.Models.PagedResult<StudentListItemDto>(page, pageSize, total, items));
     }
 
     public async Task<PublicResponse> GetByIdAsync(int id)

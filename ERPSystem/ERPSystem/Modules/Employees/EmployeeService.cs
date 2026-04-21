@@ -2,6 +2,7 @@
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Employees.Models;
 using ERPSystem.Modules.Leaves;
+using ERPSystem.Modules.Student.Models;
 using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,29 +26,53 @@ public class EmployeeService
 
     public async Task<PublicResponse> CreateEmployeeFullAsync(CreateEmployeeFullRequest request)
     {
-        var response = new PublicResponse(true);
-
         var strategy = _context.Database.CreateExecutionStrategy();
 
         return await strategy.ExecuteAsync(async () =>
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            var response = new PublicResponse(true);
 
             try
             {
-                if (string.IsNullOrEmpty(request.JobTitle))
+                await using var transaction = await _context.Database.BeginTransactionAsync();
+
+                if (string.IsNullOrWhiteSpace(request.JobTitle))
                     return response.SetError("VALIDATION", "Job title is required");
 
                 if (request.HireDate == default)
                     return response.SetError("VALIDATION", "Hire date is required");
 
+                string? userId = null;
+                string? firstName = request.FirstName;
+                string? lastName = request.LastName;
+                string? email = request.Email;
+
+                if (!string.IsNullOrWhiteSpace(request.UserId))
+                {
+                    var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == request.UserId);
+
+                    if (user == null)
+                        return response.SetError("NOT_FOUND", "User not found");
+
+                    userId = user.Id;
+                    firstName = user.FirstName;
+                    lastName = user.LastName;
+                    email = user.Email;
+                }
+
+                if (string.IsNullOrWhiteSpace(firstName))
+                    return response.SetError("VALIDATION", "First name is required");
+
+                if (string.IsNullOrWhiteSpace(lastName))
+                    return response.SetError("VALIDATION", "Last name is required");
+
                 var employee = new Employee
                 {
                     Id = Guid.NewGuid(),
-                    UserId = null, // 🔥 NU mai creezi user
-                    FirstName = request.FirstName!,
-                    LastName = request.LastName!,
-                    Email = request.Email,
+                    UserId = userId,
+                    FirstName = firstName,
+                    LastName = lastName,
+                    Email = email,
                     HireDate = request.HireDate,
                     JobTitle = request.JobTitle,
                     Salary = request.Salary,
@@ -59,19 +84,86 @@ public class EmployeeService
                 _context.Employees.Add(employee);
                 await _context.SaveChangesAsync();
 
+                _context.EmployeeContact.Add(new EmployeeContact
+                {
+                    Id = Guid.NewGuid(),
+                    EmployeeId = employee.Id,
+                    PhoneNumber = request.PhoneNumber,
+                    EmergencyContactName = request.EmergencyContactName,
+                    EmergencyContactPhone = request.EmergencyContactPhone
+                });
+
+                _context.EmployeeAddress.Add(new EmployeeAddress
+                {
+                    Id = Guid.NewGuid(),
+                    EmployeeId = employee.Id,
+                    Street = request.Street,
+                    City = request.City,
+                    Country = request.Country,
+                    PostalCode = request.PostalCode
+                });
+
+                _context.EmployeeBank.Add(new EmployeeBank
+                {
+                    Id = Guid.NewGuid(),
+                    EmployeeId = employee.Id,
+                    IBAN = request.IBAN,
+                    BankName = request.BankName
+                });
+
+                if (request.Files != null && request.Files.Any())
+                {
+                    var allowedExtensions = new[]
+                    {
+                    ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".txt", ".ppt", ".pptx"
+                };
+
+                    var root = Directory.GetCurrentDirectory();
+                    var uploadPath = Path.Combine(root, "uploads", "employees", employee.Id.ToString());
+
+                    Directory.CreateDirectory(uploadPath);
+
+                    foreach (var file in request.Files)
+                    {
+                        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+                        if (!allowedExtensions.Contains(ext))
+                            return response.SetError("VALIDATION", $"Invalid file: {file.FileName}");
+
+                        if (file.Length > 1 * 1024 * 1024)
+                            return response.SetError("VALIDATION", $"File too large: {file.FileName}");
+
+                        var newFileName = $"{Guid.NewGuid()}{ext}";
+                        var filePath = Path.Combine(uploadPath, newFileName);
+
+                        await using var stream = new FileStream(filePath, FileMode.Create);
+                        await file.CopyToAsync(stream);
+
+                        _context.EmployeeDocuments.Add(new EmployeeDocument
+                        {
+                            Id = Guid.NewGuid(),
+                            EmployeeId = employee.Id,
+                            FileName = file.FileName,
+                            FilePath = filePath,
+                            ContentType = file.ContentType,
+                            UploadedAt = DateTime.UtcNow
+                        });
+                    }
+                }
+
+                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 return response.SetSuccess(employee.Id);
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
-                return response.SetError("SERVER", ex.Message);
+                return new PublicResponse(false).SetError("SERVER", ex.ToString());
             }
         });
     }
 
-    public async Task<PublicResponse> UploadEmployeeDocuments(Guid employeeId, IFormFileCollection files)
+    public async Task<PublicResponse> UploadEmployeeDocuments(Guid employeeId, List<IFormFile> files)
     {
         var response = new PublicResponse(true);
 
@@ -82,10 +174,13 @@ public class EmployeeService
             if (employee == null)
                 return response.SetError("NOT_FOUND", "Employee not found");
 
-            if (files == null || files.Count == 0)
+            if (files == null || !files.Any())
                 return response.SetError("VALIDATION", "No files uploaded");
 
-            var allowedExtensions = new[] { ".pdf", ".jpg", ".png" };
+            var allowedExtensions = new[]
+            {
+            ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".txt", ".ppt", ".pptx"
+        };
 
             var root = Directory.GetCurrentDirectory();
             var uploadPath = Path.Combine(root, "uploads", "employees", employeeId.ToString());
@@ -102,7 +197,7 @@ public class EmployeeService
                 if (!allowedExtensions.Contains(ext))
                     return response.SetError("VALIDATION", $"Invalid file: {file.FileName}");
 
-                if (file.Length > 5 * 1024 * 1024)
+                if (file.Length > 1 * 1024 * 1024)
                     return response.SetError("VALIDATION", $"File too large: {file.FileName}");
 
                 var newFileName = $"{Guid.NewGuid()}{ext}";
@@ -140,20 +235,90 @@ public class EmployeeService
         }
     }
 
-    public async Task<PublicResponse> GetEmployeesAsync()
+    public async Task<PublicResponse> GetEmployeesAsync(EmployeeListRequest request)
     {
         var response = new PublicResponse(true);
 
         try
         {
-            var employees = await _context.Employees
+            var query = _context.Employees
                 .Include(x => x.User)
+                .AsQueryable();
+
+            // SEARCH
+            if (!string.IsNullOrWhiteSpace(request.Search))
+            {
+                var search = request.Search.Trim().ToLower();
+
+                query = query.Where(x =>
+                    ((x.User != null ? x.User.FirstName : x.FirstName) ?? "").ToLower().Contains(search) ||
+                    ((x.User != null ? x.User.LastName : x.LastName) ?? "").ToLower().Contains(search) ||
+                    (x.JobTitle ?? "").ToLower().Contains(search));
+            }
+
+            // FILTERE
+            if (!string.IsNullOrWhiteSpace(request.EmploymentStatus))
+            {
+                query = query.Where(x => x.EmploymentStatus == request.EmploymentStatus);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.ContractType))
+            {
+                query = query.Where(x => x.ContractType == request.ContractType);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.JobTitle))
+            {
+                query = query.Where(x => x.JobTitle == request.JobTitle);
+            }
+
+            if (request.HireDateFrom.HasValue)
+            {
+                query = query.Where(x => x.HireDate >= request.HireDateFrom.Value);
+            }
+
+            if (request.HireDateTo.HasValue)
+            {
+                query = query.Where(x => x.HireDate <= request.HireDateTo.Value);
+            }
+
+            // SORTARE
+            var sortBy = request.SortBy?.ToLower();
+            var sortDirection = request.SortDirection?.ToLower() == "asc" ? "asc" : "desc";
+
+            query = (sortBy, sortDirection) switch
+            {
+                ("name", "asc") => query.OrderBy(x => x.User != null ? x.User.FirstName : x.FirstName)
+                                        .ThenBy(x => x.User != null ? x.User.LastName : x.LastName),
+
+                ("name", "desc") => query.OrderByDescending(x => x.User != null ? x.User.FirstName : x.FirstName)
+                                         .ThenByDescending(x => x.User != null ? x.User.LastName : x.LastName),
+
+                ("salary", "asc") => query.OrderBy(x => x.Salary),
+                ("salary", "desc") => query.OrderByDescending(x => x.Salary),
+
+                ("hiredate", "asc") => query.OrderBy(x => x.HireDate),
+                ("hiredate", "desc") => query.OrderByDescending(x => x.HireDate),
+
+                _ => query.OrderByDescending(x => x.HireDate)
+            };
+
+            // TOTAL
+            var totalCount = await query.CountAsync();
+
+            // PAGINARE
+            var page = request.Page < 1 ? 1 : request.Page;
+            var pageSize = request.PageSize <= 0 ? 10 : request.PageSize;
+
+            var employees = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(x => new EmployeeDto
                 {
                     Id = x.Id,
                     UserId = x.UserId,
-                    FirstName = x.User != null ? x.User.FirstName : null,
-                    LastName = x.User != null ? x.User.LastName : null,
+                    FirstName = x.User != null ? x.User.FirstName : x.FirstName,
+                    LastName = x.User != null ? x.User.LastName : x.LastName,
                     JobTitle = x.JobTitle,
                     HireDate = x.HireDate,
                     TerminationDate = x.TerminationDate,
@@ -163,7 +328,16 @@ public class EmployeeService
                 })
                 .ToListAsync();
 
-            return response.SetSuccess(employees);
+            var result = new Utils.Response.PagedResult<EmployeeDto>
+            {
+                Items = employees,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+            };
+
+            return response.SetSuccess(result);
         }
         catch (Exception ex)
         {

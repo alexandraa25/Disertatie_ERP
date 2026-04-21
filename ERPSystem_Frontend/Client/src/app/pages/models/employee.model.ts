@@ -38,3 +38,11 @@ export interface SimpleUser {
   email: string;
   roles: string[];
 }
+
+export interface PagedResult<T> {
+  items: T[];
+  totalCount: number;
+  totalPages: number;
+  page: number;
+  pageSize: number;
+}

@@ -4,6 +4,7 @@ using ERPSystem.Modules.Employees;
 using ERPSystem.Modules.Employees.Models;
 
 using ERPSystem.Shared.BusinessLogic;
+using Microsoft.AspNetCore.Mvc;
 using Route = ERPSystem.Utils.Constants.General.Route.Employee;
 
 namespace ERPSystem.Modules.Employees
@@ -14,18 +15,22 @@ namespace ERPSystem.Modules.Employees
         {
             
             group.MapPost(Route.EMPLOYEE,
-               async (CreateEmployeeFullRequest request, EmployeeService service)
-                   => await service.CreateEmployeeFullAsync(request))
-               .WithDefaultApiSettings("CreateEmployee", "Creare angajat", "CREATE_EMPLOYEE", false);
-
-            group.MapPost(Route.EMPLOYEE_DOCUMENT,
-                async (Guid employeeId, IFormFileCollection files,  EmployeeService service) =>
-                    await service.UploadEmployeeDocuments(employeeId, files))
-                .WithDefaultApiSettings("UploadEmployeeDocuments", "Incarcare documente angajat", "EMPLOYEE_DOCUMENT", false)
-                .Accepts<IFormFileCollection>("multipart/form-data")
+               async ([FromForm] CreateEmployeeFullRequest request, EmployeeService service) =>
+                    await service.CreateEmployeeFullAsync(request))
+                .DisableAntiforgery()
+                .Accepts<CreateEmployeeFullRequest>("multipart/form-data")
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status400BadRequest)
-                .Produces(StatusCodes.Status404NotFound);
+                .WithDefaultApiSettings("CreateEmployee", "Creare angajat", "CREATE_EMPLOYEE", false);
+
+            group.MapPost(Route.EMPLOYEE_DOCUMENT,
+               async ([FromRoute] Guid employeeId, [FromForm] List<IFormFile> files, EmployeeService service) 
+                   => await service.UploadEmployeeDocuments(employeeId, files))
+               .WithDefaultApiSettings("UploadEmployeeDocuments", "Incarcare documente angajat", "EMPLOYEE_DOCUMENT", false)
+               .Accepts<List<IFormFile>>("multipart/form-data")
+               .Produces(StatusCodes.Status200OK)
+               .Produces(StatusCodes.Status400BadRequest)
+               .Produces(StatusCodes.Status404NotFound);
 
             group.MapGet(Route.USERS,
                   async (EmployeeService service)
@@ -34,8 +39,8 @@ namespace ERPSystem.Modules.Employees
 
             
             group.MapGet(Route.EMPLOYEES,
-                async (EmployeeService service)
-                    => await service.GetEmployeesAsync())
+                async ([AsParameters] EmployeeListRequest request, EmployeeService service) 
+                  => await service.GetEmployeesAsync(request))
                 .WithDefaultApiSettings("ListEmployee", " Employees", "List_EMPLOYEE", false);
 
 

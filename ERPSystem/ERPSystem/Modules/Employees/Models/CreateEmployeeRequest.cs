@@ -31,5 +31,8 @@
         // BANK
         public string? IBAN { get; set; }
         public string? BankName { get; set; }
+
+        // DOCUMENTE
+        public List<IFormFile>? Files { get; set; }
     }
 }

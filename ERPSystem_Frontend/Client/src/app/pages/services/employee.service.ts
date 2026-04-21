@@ -13,28 +13,34 @@ export class EmployeeService {
 
   constructor(private http: HttpClient) { }
 
-  getEmployees(): Observable<PublicResponse<Employee[]>> {
-  return this.http.get<PublicResponse<Employee[]>>(`${this.baseUrl}/list`);
+ 
+getEmployees(params?: any) {
+  return this.http.get<any>(`${this.baseUrl}/list`, { params });
 }
 
 getEmployeeById(id: string) {
   return this.http.get<any>(`${this.baseUrl}/${id}`);
 }
 
-  createEmployee(data: any): Observable<PublicResponse<any>> {
-  return this.http.post<PublicResponse<any>>(this.baseUrl, data);
+ createEmployee(formData: FormData) {
+  return this.http.post<PublicResponse<any>>(this.baseUrl, formData);
 }
 
-  uploadDocuments(employeeId: string, files: File[]) {
-    const formData = new FormData();
+uploadDocuments(employeeId: string, files: File[]) {
+  const formData = new FormData();
 
-    files.forEach(file => {
-      formData.append('files', file);
-    });
-
-    return this.http.post(`${this.baseUrl}/${employeeId}/documents`, formData);
+  for (const file of files) {
+    formData.append('files', file);
   }
 
+  console.log('UPLOAD URL:', `${this.baseUrl}/${employeeId}/documents`);
+  console.log('UPLOAD FILES:', files);
+
+  return this.http.post(
+    `${this.baseUrl}/${employeeId}/documents`,
+    formData
+  );
+}
   terminateEmployee(id: string, body: any) {
     return this.http.post(`${this.baseUrl}/${id}/terminate`, body)
   }

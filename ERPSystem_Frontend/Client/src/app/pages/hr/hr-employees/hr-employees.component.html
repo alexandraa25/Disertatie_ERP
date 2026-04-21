@@ -1,110 +1,161 @@
-<div class="container">
+<div class="dashboard-container">
 
-    <h2>HR Dashboard</h2>
-
-    <div class="stats">
-
-        <div class="card">
-            <h3>{{dashboard?.totalEmployees}}</h3>
-            <p>Total Employees</p>
-        </div>
-
-        <div class="card">
-            <h3>{{dashboard?.activeEmployees}}</h3>
-            <p>Active</p>
-        </div>
-
-        <div class="card">
-            <h3>{{dashboard?.terminatedEmployees}}</h3>
-            <p>Terminated</p>
-        </div>
-
-        <div class="card">
-            <h3>{{dashboard?.newHiresThisMonth}}</h3>
-            <p>New Hires</p>
-        </div>
-
+  <div class="page-header">
+    <div class="page-header-left">
+      <h2>Gestionează angajații</h2>
     </div>
 
-    <div class="toolbar">
+    <div class="page-header-actions">
+      <button class="btn btn-light" (click)="exportCSV()">Export CSV</button>
+      <button class="btn btn-primary" (click)="openCreate()">Adaugă angajat</button>
+    </div>
+  </div>
 
-        <input type="text" placeholder="Search employee..." [(ngModel)]="searchText" class="search" />
-
+  <!-- <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-title">Total angajați</span>
+      <strong>{{ dashboard?.totalEmployees }}</strong>
     </div>
 
-    <button class="btn primary" (click)="openCreate()">
-        Add Employee
-    </button>
+    <div class="stat-card">
+      <span class="stat-title">Activi</span>
+      <strong>{{ dashboard?.activeEmployees }}</strong>
+    </div>
 
-   
-    <table>
+    <div class="stat-card">
+      <span class="stat-title">Încetați</span>
+      <strong>{{ dashboard?.terminatedEmployees }}</strong>
+    </div>
 
+    <div class="stat-card">
+      <span class="stat-title">Angajări noi</span>
+      <strong>{{ dashboard?.newHiresThisMonth }}</strong>
+    </div>
+  </div> -->
+
+  <div class="filters-card">
+    <div class="filters-top">
+      <input class="search-input" type="text" placeholder="Caută după nume sau funcție..." [(ngModel)]="searchText"
+        (ngModelChange)="onSearchChange()" />
+
+      <select class="filter-select" [(ngModel)]="contractFilter" (change)="loadEmployees()">
+        <option value="">Toate contractele</option>
+        <option value="FullTime">Full Time</option>
+        <option value="PartTime">Part Time</option>
+      </select>
+    </div>
+
+    <div class="filters-bottom">
+      <div class="quick-filters">
+        <button type="button" class="chip" (click)="setQuickFilter('')">Toți</button>
+        <button type="button" class="chip" (click)="setQuickFilter('Active')">Activi</button>
+        <button type="button" class="chip" (click)="setQuickFilter('Terminated')">Încetați</button>
+      </div>
+
+      <div class="results-count">
+        {{ totalCount }} angajați
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="state-card">
+    Se încarcă...
+  </div>
+
+  <div *ngIf="!loading && employees.length === 0" class="state-card">
+    Nu există angajați
+  </div>
+
+  <div class="table-card" *ngIf="!loading && employees.length > 0">
+    <div class="table-wrapper">
+      <table>
         <thead>
-            <tr>
-                <th>Name</th>
-                <th>Job</th>
-                <th>Status</th>
-                <th>Hire Date</th>
-                <th>Salary</th>
-                <th>Actions</th>
-            </tr>
+          <tr>
+            <th class="sortable" (click)="sort('name')">
+              <span class="th-content">
+                Nume
+                <span class="sort-icon">{{ getSortIcon('name') }}</span>
+              </span>
+            </th>
+
+            <th class="sortable" (click)="sort('jobTitle')">
+              <span class="th-content">
+                Funcție
+                <span class="sort-icon">{{ getSortIcon('jobTitle') }}</span>
+              </span>
+            </th>
+
+            <th>Status</th>
+
+            <th class="sortable" (click)="sort('hireDate')">
+              <span class="th-content">
+                Data angajării
+                <span class="sort-icon">{{ getSortIcon('hireDate') }}</span>
+              </span>
+            </th>
+
+            <th class="sortable" (click)="sort('salary')">
+              <span class="th-content">
+                Salariu brut
+                <span class="sort-icon">{{ getSortIcon('salary') }}</span>
+              </span>
+            </th>
+            <th class="actions-column">Acțiuni</th>
+          </tr>
         </thead>
 
         <tbody>
+          <tr *ngFor="let e of employees">
+            <td>
+              <div class="employee-name">
+                <span class="employee-fullname">{{ e.firstName }} {{ e.lastName }}</span>
+                <span class="employee-subtext">{{ e.contractType }}</span>
+              </div>
+            </td>
 
-            <tr *ngFor="let employee of filteredEmployees()">
+            <td>{{ e.jobTitle }}</td>
 
-                <td>
-                    {{employee.firstName}} {{employee.lastName}}
-                </td>
+            <td>
+              <span class="badge badge-active" *ngIf="e.employmentStatus === 'Active'">Activ</span>
+              <span class="badge badge-terminated" *ngIf="e.employmentStatus === 'Terminated'">Încetat</span>
+            </td>
 
-                <td>
-                    {{employee.jobTitle}}
-                </td>
+            <td>{{ e.hireDate | date:'dd.MM.yyyy' }}</td>
 
-                <td>
+            <td>{{ e.salary }}</td>
 
-                    <span *ngIf="employee.employmentStatus === 'Active'" class="badge success">
-                        Active
-                    </span>
+            <td>
+              <div class="table-actions">
+                <button class="btn btn-small btn-light" (click)="viewDetails(e)">Detalii</button>
 
-                    <span *ngIf="employee.employmentStatus === 'Terminated'" class="badge danger">
-                        Terminated
-                    </span>
+                <button class="btn btn-small btn-danger-soft" *ngIf="e.employmentStatus === 'Active'"
+                  (click)="terminateEmployee(e)">
+                  Încetează
+                </button>
 
-                </td>
-
-                <td>
-                    {{employee.hireDate | date:'shortDate'}}
-                </td>
-
-                <td>
-                    {{employee.salary}}
-                </td>
-
-                <td class="actions-cell">
-
-    <button class="btn info" (click)="viewDetails(employee)">
-        Details
-    </button>
-
-    <!-- <button class="btn danger" (click)="terminateEmployee(employee)"
-        *ngIf="employee.employmentStatus === 'Active'">
-        Terminate
-    </button> -->
-
-</td>
-
-            </tr>
-
+                <!--
+                <button
+                  class="btn btn-small btn-success-soft"
+                  *ngIf="e.employmentStatus === 'Terminated'"
+                  (click)="reactivateEmployee(e)">
+                  Reactivare
+                </button>
+                -->
+              </div>
+            </td>
+          </tr>
         </tbody>
+      </table>
+    </div>
 
-    </table>
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button [disabled]="page === 1" (click)="changePage(page - 1)">←</button>
+      <span>Pagina {{ page }} din {{ totalPages }}</span>
+      <button [disabled]="page === totalPages" (click)="changePage(page + 1)">→</button>
+    </div>
+  </div>
 
 </div>
 
-<app-add-employees
-  *ngIf="showCreate"
-  (close)="cancelCreate()"
-  (created)="onEmployeeCreated()">
+<app-add-employees *ngIf="showCreate" (close)="cancelCreate()" (created)="onEmployeeCreated()">
 </app-add-employees>

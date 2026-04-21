@@ -70,7 +70,7 @@
             <div *ngIf="currentStep === 1" class="grid">
                 <input placeholder="Job Title" formControlName="jobTitle">
                 <input type="date" formControlName="hireDate">
-                <input type="number" placeholder="Salary" formControlName="salary">
+                <input type="number" placeholder="Salariu brut" formControlName="salary">
 
                 <select formControlName="contractType">
                     <option value="">Select contract</option>
@@ -104,14 +104,51 @@
             </div>
 
             <!-- STEP 6: DOCUMENTS -->
-            <div *ngIf="currentStep === 5" class="grid">
+            <div *ngIf="currentStep === 5" class="upload-container">
 
-                <input type="file" multiple (change)="onFileSelected($event)" />
+                <h3>Documente suplimentare</h3>
 
-                <div class="file-list">
-                    <div *ngFor="let file of selectedFiles; let i = index">
-                        {{file.name}}
-                        <button type="button" (click)="removeFile(i)">❌</button>
+                <p class="hint">Dimensiunea maximă a fișierului este de 1 MB</p>
+
+                <!-- DROP ZONE -->
+                <div class="drop-zone" [class.dragging]="isDragging" (dragover)="onDragOver($event)"
+                    (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
+                    <div class="left">
+                        <div class="icon">📄⬆️</div>
+                        <div>
+                            <p class="main-text">Trageți și plasați fișiere</p>
+                            <p class="formats">.doc, .docx, .pdf, .txt, .jpg, .jpeg, .png, .ppt, .pptx</p>
+                        </div>
+                    </div>
+
+                    <label class="upload-btn">
+                        ⬆ Selectați fișierele
+                        <input type="file" multiple hidden accept=".doc,.docx,.pdf,.txt,.jpg,.jpeg,.png,.ppt,.pptx"
+                            (change)="onFileSelected($event)" />
+                    </label>
+                </div>
+
+                <!-- ERRORS -->
+                <div class="upload-errors" *ngIf="fileErrors.length">
+                    <div class="error-item" *ngFor="let error of fileErrors">
+                        {{ error }}
+                    </div>
+                </div>
+
+                <!-- FILE LIST -->
+                <div class="file-list" *ngIf="selectedFiles.length">
+                    <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
+                        <div class="file-info">
+                            <span class="file-icon">📄</span>
+                            <div class="file-meta">
+                                <span class="file-name">{{ file.name }}</span>
+                                <span class="file-size">{{ formatFileSize(file.size) }}</span>
+                            </div>
+                        </div>
+
+                        <button type="button" class="delete-btn" (click)="removeFile(i)">
+                            🗑
+                        </button>
                     </div>
                 </div>
 

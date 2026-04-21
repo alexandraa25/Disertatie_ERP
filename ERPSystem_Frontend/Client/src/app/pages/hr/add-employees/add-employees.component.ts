@@ -7,11 +7,7 @@ import { SimpleUser } from '../../models/employee.model';
 @Component({
   selector: 'app-add-employees',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule // 🔥 IMPORTANT pentru ngModel
-  ],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './add-employees.component.html',
   styleUrl: './add-employees.component.css'
 })
@@ -22,7 +18,6 @@ export class AddEmployeesComponent implements OnInit {
 
   createForm: FormGroup;
 
-  // 🔥 lipsă înainte
   activeTab = 'user';
   mode = 'existing';
 
@@ -31,14 +26,17 @@ export class AddEmployeesComponent implements OnInit {
   submitted = false;
 
   selectedFiles: File[] = [];
+  fileErrors: string[] = [];
+  isDragging = false;
+
+  readonly maxFileSize = 1 * 1024 * 1024;
+  readonly allowedExtensions: string[] = ['doc', 'docx', 'pdf', 'txt', 'jpg', 'jpeg', 'png', 'ppt', 'pptx'];
 
   users: SimpleUser[] = [];
   selectedUser: any = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private employeeService: EmployeeService
-  ) {
+
+  constructor(private fb: FormBuilder, private employeeService: EmployeeService) {
     this.createForm = this.fb.group({
       mode: ['existing'],
 
@@ -78,19 +76,19 @@ export class AddEmployeesComponent implements OnInit {
     });
   }
 
-  
+
   loadUsers() {
-  this.employeeService.getUsers()
-    .subscribe(res => {
+    this.employeeService.getUsers()
+      .subscribe(res => {
 
-      if (!res.isSuccess) {
-        alert(res.error?.errorMessage);
-        return;
-      }
+        if (!res.isSuccess) {
+          alert(res.error?.errorMessage);
+          return;
+        }
 
-      this.users = res.value;
-    });
-}
+        this.users = res.value;
+      });
+  }
 
   next() {
     this.submitted = true;
@@ -146,57 +144,142 @@ export class AddEmployeesComponent implements OnInit {
   }
 
 
-  onFileSelected(event: any) {
-    const files = Array.from(event.target.files) as File[];
-    this.selectedFiles.push(...files);
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = true;
   }
 
-  removeFile(index: number) {
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging = false;
+
+    const files = event.dataTransfer?.files;
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    this.processFiles(Array.from(files));
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+
+    this.processFiles(Array.from(input.files));
+    input.value = '';
+  }
+
+  processFiles(files: File[]): void {
+    this.fileErrors = [];
+
+    files.forEach((file: File) => {
+      const extension = this.getFileExtension(file.name);
+
+      if (!this.allowedExtensions.includes(extension)) {
+        this.fileErrors.push(`Fișierul "${file.name}" nu are un format permis.`);
+        return;
+      }
+
+      if (file.size > this.maxFileSize) {
+        this.fileErrors.push(`Fișierul "${file.name}" depășește limita de 1 MB.`);
+        return;
+      }
+
+      const exists = this.selectedFiles.some(
+        (existingFile) =>
+          existingFile.name === file.name &&
+          existingFile.size === file.size &&
+          existingFile.lastModified === file.lastModified
+      );
+
+      if (exists) {
+        this.fileErrors.push(`Fișierul "${file.name}" este deja adăugat.`);
+        return;
+      }
+
+      this.selectedFiles.push(file);
+    });
+  }
+
+  removeFile(index: number): void {
     this.selectedFiles.splice(index, 1);
   }
 
-  saveEmployee() {
-  if (this.createForm.valid) {
-
-    const payload = {
-      ...this.createForm.value,
-      mode: this.mode
-    };
-
-    this.employeeService.createEmployee(payload)
-      .subscribe({
-        next: (res: any) => {
-
-          if (!res.isSuccess) {
-            alert(res.error?.errorMessage);
-            return;
-          }
-
-          const employee = res.value; // 🔥 AICI E FIXUL
-
-          if (this.selectedFiles.length > 0) {
-            this.employeeService
-              .uploadDocuments(employee.id, this.selectedFiles)
-              .subscribe({
-                next: (uploadRes: any) => {
-
-                  if (!uploadRes.isSuccess) {
-                    alert(uploadRes.error?.errorMessage);
-                  }
-
-                  this.finish();
-                },
-                error: () => {
-                  alert('Upload failed');
-                  this.finish();
-                }
-              });
-          } else {
-            this.finish();
-          }
-        }
-      });
+  getFileExtension(fileName: string): string {
+    return fileName.split('.').pop()?.toLowerCase() || '';
   }
+
+  formatFileSize(size: number): string {
+    if (size < 1024) {
+      return `${size} B`;
+    }
+
+    if (size < 1024 * 1024) {
+      return `${(size / 1024).toFixed(1)} KB`;
+    }
+
+    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+  }
+
+
+
+saveEmployee() {
+  if (!this.createForm.valid) {
+    return;
+  }
+
+  const formValue = this.createForm.value;
+  const formData = new FormData();
+
+  formData.append('mode', this.mode || '');
+  formData.append('userId', formValue.userId || '');
+  formData.append('firstName', formValue.firstName || '');
+  formData.append('lastName', formValue.lastName || '');
+  formData.append('email', formValue.email || '');
+  formData.append('hireDate', formValue.hireDate || '');
+  formData.append('jobTitle', formValue.jobTitle || '');
+  formData.append('salary', String(formValue.salary ?? '0'));
+  formData.append('contractType', formValue.contractType || '');
+  formData.append('notes', formValue.notes || '');
+  formData.append('phoneNumber', formValue.phoneNumber || '');
+  formData.append('emergencyContactName', formValue.emergencyContactName || '');
+  formData.append('emergencyContactPhone', formValue.emergencyContactPhone || '');
+  formData.append('street', formValue.street || '');
+  formData.append('city', formValue.city || '');
+  formData.append('country', formValue.country || '');
+  formData.append('postalCode', formValue.postalCode || '');
+  formData.append('iban', formValue.iban || '');
+  formData.append('bankName', formValue.bankName || '');
+
+  for (const file of this.selectedFiles) {
+    formData.append('Files', file);
+  }
+
+  this.employeeService.createEmployee(formData).subscribe({
+    next: (res: any) => {
+      if (!res?.isSuccess) {
+        alert(res?.error?.errorMessage || 'Eroare la salvare');
+        return;
+      }
+
+      this.finish();
+    },
+    error: (err) => {
+      console.error(err);
+      alert('Eroare la salvare');
+    }
+  });
 }
 
   finish() {
