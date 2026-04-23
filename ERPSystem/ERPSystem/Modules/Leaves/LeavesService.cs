@@ -476,53 +476,41 @@ namespace ERPSystem.Modules.Leaves
             }
         }
 
-
-        public async Task<PublicResponse> GetLeaveStats()
+        public async Task<PublicResponse> GetConflicts(DateTime start, DateTime end, Guid? excludeId)
         {
-            var response = new PublicResponse(true);
+            if (start == default || end == default)
+                return new PublicResponse(false)
+                    .SetError("VALIDATION", "Perioada este invalidă");
 
-            var stats = await _context.EmployeeLeaves
-                .GroupBy(l => l.LeaveType)
-                .Select(g => new
-                {
-                    type = g.Key,
-                    count = g.Count()
-                })
-                .ToListAsync();
+            if (start > end)
+                return new PublicResponse(false)
+                    .SetError("VALIDATION", "Data de început nu poate fi mai mare decât data de sfârșit");
 
-            return response.SetSuccess(stats);
-        }
-
-        public async Task<PublicResponse> GetMonthlyHeatmap(int year)
-        {
-            var leaves = await _context.EmployeeLeaves
-                .Where(l => l.StartDate.Year == year)
-                .ToListAsync();
-
-            var result = Enumerable.Range(1, 12)
-                .Select(month => new
-                {
-                    month,
-                    count = leaves.Count(l => l.StartDate.Month == month)
-                });
-
-            return new PublicResponse(true).SetSuccess(result);
-        }
-
-        public async Task<PublicResponse> GetConflicts(DateTime start, DateTime end)
-        {
-            var conflicts = await _context.EmployeeLeaves
+            var query = _context.EmployeeLeaves
+                .AsNoTracking()
                 .Include(l => l.Employee)
                 .Where(l =>
                     l.Status == "Approved" &&
-                    start <= l.EndDate &&
-                    end >= l.StartDate)
-                .Select(l => new
+                    start.Date <= l.EndDate.Date &&
+                    end.Date >= l.StartDate.Date);
+
+            if (excludeId.HasValue)
+                query = query.Where(l => l.Id != excludeId.Value);
+
+            var conflicts = await query
+                .OrderBy(l => l.StartDate)
+                .Select(l => new 
                 {
-                    l.Id,
-                    Employee = l.Employee.FirstName + " " + l.Employee.LastName,
-                    l.StartDate,
-                    l.EndDate
+                    Id = l.Id,
+                    EmployeeId = l.EmployeeId,
+                    Employee = l.Employee != null
+                        ? $"{l.Employee.FirstName} {l.Employee.LastName}"
+                        : "Angajat necunoscut",
+                    StartDate = l.StartDate,
+                    EndDate = l.EndDate,
+                    LeaveType = l.LeaveType,
+                    Status = l.Status,
+                    Days = (l.EndDate.Date - l.StartDate.Date).Days + 1
                 })
                 .ToListAsync();
 

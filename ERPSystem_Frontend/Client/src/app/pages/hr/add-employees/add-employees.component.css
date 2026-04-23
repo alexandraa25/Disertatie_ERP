@@ -151,6 +151,81 @@ textarea:focus {
   border-color: #2563eb;
 }
 
+
+.doc-type-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.doc-type-box select,
+.doc-type-box input {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+}
+
+.file-list {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.file-info {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.file-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.file-name {
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.file-size {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.doc-type-inline {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.doc-type-inline select,
+.doc-type-inline input {
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 12px;
+}
+
+.delete-btn {
+  background: #fee2e2;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
 /* 🔥 FILE INPUT */
 input[type="file"] {
   padding: 10px;

@@ -18,31 +18,28 @@ namespace ERPSystem.Modules.Employees
                async ([FromForm] CreateEmployeeFullRequest request, EmployeeService service) =>
                     await service.CreateEmployeeFullAsync(request))
                 .DisableAntiforgery()
-                .Accepts<CreateEmployeeFullRequest>("multipart/form-data")
-                .Produces(StatusCodes.Status200OK)
-                .Produces(StatusCodes.Status400BadRequest)
-                .WithDefaultApiSettings("CreateEmployee", "Creare angajat", "CREATE_EMPLOYEE", false);
+                 .WithDefaultApiSettings("CreateEmployee", "Creare angajat", "CREATE_EMPLOYEE", false);
+
+            group.MapPut(Route.UPDATE_EMPLOYEE,
+                async ([FromBody] UpdateEmployeeRequest request, EmployeeService service) =>
+                    await service.UpdateEmployeeAsync(request))        
+                .WithDefaultApiSettings(  "UpdateEmployee", "Actualizare angajat", "UPDATE_EMPLOYEE", false);
 
             group.MapPost(Route.EMPLOYEE_DOCUMENT,
-               async ([FromRoute] Guid employeeId, [FromForm] List<IFormFile> files, EmployeeService service) 
-                   => await service.UploadEmployeeDocuments(employeeId, files))
-               .WithDefaultApiSettings("UploadEmployeeDocuments", "Incarcare documente angajat", "EMPLOYEE_DOCUMENT", false)
-               .Accepts<List<IFormFile>>("multipart/form-data")
-               .Produces(StatusCodes.Status200OK)
-               .Produces(StatusCodes.Status400BadRequest)
-               .Produces(StatusCodes.Status404NotFound);
-
+                async ([FromForm] UploadEmployeeDocsRequest request, EmployeeService service)
+                    => await service.UploadEmployeeDocuments(request))
+                .WithDefaultApiSettings("UploadEmployeeDocuments", "Incarcare documente angajat", "EMPLOYEE_DOCUMENT", false)
+                .DisableAntiforgery();
+               
             group.MapGet(Route.USERS,
                   async (EmployeeService service)
                     => await service.GetSimpleUsers())
                  .WithDefaultApiSettings("GetSimplUsers", "User", "GET_SIMPLE_USERS", false);
 
-            
             group.MapGet(Route.EMPLOYEES,
                 async ([AsParameters] EmployeeListRequest request, EmployeeService service) 
                   => await service.GetEmployeesAsync(request))
                 .WithDefaultApiSettings("ListEmployee", " Employees", "List_EMPLOYEE", false);
-
 
             group.MapGet(Route.EMPLOYEE_BY_ID,
                 async (Guid id, EmployeeService service)
@@ -50,8 +47,9 @@ namespace ERPSystem.Modules.Employees
                 .WithDefaultApiSettings("getidEmployee", " Employee by id", "EMPLOYEE_BY_ID", false);
 
             group.MapPost(Route.TERMINATE_EMPLOYEE,
-                async (Guid id, TerminateEmployeeRequest request, EmployeeService service)
+                async (Guid id, [FromForm] TerminateEmployeeRequest request, EmployeeService service)
                     => await service.TerminateEmployeeAsync(id, request))
+                .DisableAntiforgery()
                 .WithDefaultApiSettings("TerminateEmployee", "Terminate Employee", "Terminate_EMPLOYEE", false);
 
             group.MapGet(Route.HR_DASHBOARD,

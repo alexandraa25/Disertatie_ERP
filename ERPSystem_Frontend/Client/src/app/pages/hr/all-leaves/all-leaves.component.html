@@ -1,73 +1,221 @@
 <div class="page">
 
   <h2>Toate concediile</h2>
+  <div class="top-bar">
+    <div class="filters-left">
+      <div class="filters">
+        <input type="text" placeholder="Caută angajat..." [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()">
 
-  <!-- 🔥 FILTERS -->
-  <div class="filters">
+        <select [(ngModel)]="filters.status" (ngModelChange)="onFilterChange()">
+          <option value="">Status</option>
+          <option value="Pending">În așteptare</option>
+          <option value="Approved">Aprobat</option>
+          <option value="Rejected">Respins</option>
+        </select>
 
-    <input type="text"
-           placeholder="Caută angajat..."
-           [(ngModel)]="searchTerm"
-           (keyup.enter)="onSearch()">
+        <select [(ngModel)]="filters.leaveType" (ngModelChange)="onFilterChange()">
+          <option value="">Tip concediu</option>
+          <option value="Vacation">Concediu de odihnă</option>
+          <option value="Medical">Concediu medical</option>
+          <option value="Unpaid">Concediu fără plată</option>
+        </select>
+      </div>
+    </div>
 
-    <select [(ngModel)]="filters.status">
-      <option value="">Status</option>
-      <option value="Pending">Pending</option>
-      <option value="Approved">Approved</option>
-    </select>
-
-    <button (click)="applyFilters()">Filtrează</button>
-
-    <!-- <button class="bulk-btn"
-            *ngIf="selected.size > 0"
-            (click)="bulkApprove()">
-      ✔ Approve ({{selected.size}})
-    </button> -->
-
+    <div class="check-action">
+      <button type="button" class="check-period-btn" (click)="openConflictsModal()">
+        Verifică perioada
+      </button>
+    </div>
   </div>
 
-  <!-- 🔥 TABLE -->
   <table class="leave-table">
 
     <thead>
       <tr>
         <th></th>
         <th (click)="sortBy('employee')">Angajat ⬍</th>
-        <th (click)="sortBy('startDate')">Start ⬍</th>
-        <th (click)="sortBy('endDate')">End ⬍</th>
-        <th>Tip</th>
-        <th>Zile</th>
+        <th (click)="sortBy('startDate')">Data început ⬍</th>
+        <th (click)="sortBy('endDate')">Data sfârșit ⬍</th>
+        <th>Tip concediu</th>
+        <th>Număr zile</th>
         <th>Status</th>
+        <th>Acțiuni</th>
       </tr>
     </thead>
 
     <tbody>
       <tr *ngFor="let l of leaves">
 
-        <!-- checkbox -->
         <td>
-          <input type="checkbox"
-                 (change)="toggleSelection(l.id)">
+          <input type="checkbox" (change)="toggleSelection(l.id)">
         </td>
 
-        <td>{{l.employee.name}}</td>
-
-        <td>{{l.startDate | date:'dd MMM yyyy'}}</td>
-        <td>{{l.endDate | date:'dd MMM yyyy'}}</td>
-
-        <td>{{l.leaveType}}</td>
-
-        <td>{{l.days}}</td>
+        <td>{{ l.employee.name }}</td>
+        <td>{{ l.startDate | date:'dd MMM yyyy' }}</td>
+        <td>{{ l.endDate | date:'dd MMM yyyy' }}</td>
+        <td>{{ getLeaveTypeLabel(l.leaveType) }}</td>
+        <td>{{ l.days }}</td>
 
         <td>
           <span class="status" [ngClass]="l.status.toLowerCase()">
-            {{l.status}}
+            {{ getStatusLabel(l.status) }}
           </span>
         </td>
 
+        <td class="actions">
+
+  <!-- ✔ APPROVE -->
+  <button *ngIf="l.status === 'Pending'"
+          class="approve-btn"
+          title="Aproba concediul"
+          (click)="approveLeave(l.id)">
+    ✔
+  </button>
+
+  <!-- ✖ REJECT -->
+  <button *ngIf="l.status === 'Pending'"
+        class="reject-btn"
+        title="Respinge concediul"
+        (click)="openRejectModal(l)">
+  ✖
+</button>
+
+</td>
+
+      </tr>
+
+      <tr *ngIf="!loading && leaves.length === 0">
+        <td colspan="7" class="empty-state">
+          Nu există concedii pentru criteriile selectate.
+        </td>
+      </tr>
+
+      <tr *ngIf="loading">
+        <td colspan="7" class="empty-state">
+          Se încarcă...
+        </td>
       </tr>
     </tbody>
 
   </table>
+
+  <div class="pagination" *ngIf="totalPages > 1">
+
+    <button type="button" [disabled]="filters.page === 1" (click)="changePage(filters.page - 1)">
+      ←
+    </button>
+
+    <span>
+      Pagina {{ filters.page }} din {{ totalPages }}
+    </span>
+
+    <button type="button" [disabled]="filters.page === totalPages" (click)="changePage(filters.page + 1)">
+      →
+    </button>
+
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showConflictsModal">
+    <div class="modal">
+
+      <h3>Verificare perioadă</h3>
+
+      <!-- 🔽 ZONA CU SCROLL -->
+      <div class="modal-body">
+
+        <p class="modal-subtitle">
+          Selectează intervalul pentru care vrei să verifici concediile aprobate.
+        </p>
+
+        <div class="modal-form">
+          <div class="form-group">
+            <label>Data început</label>
+            <input type="date" [(ngModel)]="startDate">
+          </div>
+
+          <div class="form-group">
+            <label>Data sfârșit</label>
+            <input type="date" [(ngModel)]="endDate">
+          </div>
+
+          <button type="button" class="verify-btn" (click)="checkConflicts()">
+            Verifică perioada
+          </button>
+        </div>
+
+        <div class="conflicts-result" *ngIf="loadingConflicts">
+          Se verifică...
+        </div>
+
+        <div class="conflicts-result" *ngIf="!loadingConflicts && checkedConflicts">
+
+          <div *ngIf="conflicts.length > 0">
+
+            <div class="conflicts-summary">
+              Au fost găsite {{ conflicts.length }} concedii.
+            </div>
+
+            <div class="conflict-cards">
+              <div class="conflict-card" *ngFor="let c of conflicts">
+                <strong>{{ c.employee }}</strong><br>
+                {{ c.startDate | date:'dd.MM.yyyy' }} -
+                {{ c.endDate | date:'dd.MM.yyyy' }}<br>
+                {{ c.days }} zile
+              </div>
+            </div>
+
+          </div>
+
+          <div *ngIf="conflicts.length === 0" class="success-message">
+            Nu există concedii aprobate în această perioadă.
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- 🔽 FIX JOS -->
+      <div class="modal-actions">
+        <button type="button" (click)="closeConflictsModal()">Închide</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="showRejectModal">
+  <div class="modal small-modal">
+    <h3>Respinge concediul</h3>
+
+    <div class="modal-body">
+      <p class="modal-subtitle">
+        Completează motivul respingerii pentru
+        <strong>{{ selectedLeave?.employee?.name }}</strong>.
+      </p>
+
+      <div class="form-group">
+        <label for="rejectReason">Motiv respingere</label>
+        <textarea id="rejectReason"
+                  rows="5"
+                  [(ngModel)]="rejectReason"
+                  placeholder="Scrie motivul respingerii..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button"
+              class="secondary-btn"
+              (click)="closeRejectModal()">
+        Anulează
+      </button>
+
+      <button type="button"
+              class="reject-btn modal-reject-btn"
+              (click)="confirmReject()">
+        Respinge
+      </button>
+    </div>
+  </div>
+</div>
 
 </div>

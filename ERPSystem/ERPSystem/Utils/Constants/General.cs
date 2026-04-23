@@ -51,7 +51,8 @@ namespace ERPSystem.Utils.Constants
             public static class Employee
             {
                 public const string EMPLOYEE = "";
-                public const string EMPLOYEE_DOCUMENT = "{employeeId}/documents";
+                public const string UPDATE_EMPLOYEE = "/update"; 
+                public const string EMPLOYEE_DOCUMENT = "/upload-documents";
                 public const string EMPLOYEES = "/list";
                 public const string EMPLOYEE_BY_ID = "/{id}";
                 public const string TERMINATE_EMPLOYEE = "/{id}/terminate";
@@ -71,7 +72,7 @@ namespace ERPSystem.Utils.Constants
                 public const string ALL_LEAVES = "/all";
                 public const string LEAVES_BY_USER = "";
                 public const string HOLIDAYS = "/holidays";
-                public const string STATS_LEAVES = "/stats";
+                public const string GET_CONFLICTS = "/conflicts";
                 public const string EXPORT_LEAVES = "/export";
               
 

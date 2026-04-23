@@ -25,9 +25,12 @@ export class AddEmployeesComponent implements OnInit {
   currentStep = 0;
   submitted = false;
 
-  selectedFiles: File[] = [];
+  selectedFiles: { file: File; documentType: string; customType?: string; }[] = [];
   fileErrors: string[] = [];
   isDragging = false;
+
+  documentType: string = 'Contract';
+  customDocumentType: string = '';
 
   readonly maxFileSize = 1 * 1024 * 1024;
   readonly allowedExtensions: string[] = ['doc', 'docx', 'pdf', 'txt', 'jpg', 'jpeg', 'png', 'ppt', 'pptx'];
@@ -170,14 +173,25 @@ export class AddEmployeesComponent implements OnInit {
   }
 
   onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
+  const input = event.target as HTMLInputElement;
 
-    if (!input.files || input.files.length === 0) {
-      return;
+  if (!input.files || input.files.length === 0) return;
+
+  this.processFiles(Array.from(input.files));
+
+  input.value = '';
+}
+
+  onDocTypeChange() {
+    if (this.documentType !== 'custom') {
+      this.customDocumentType = '';
     }
+  }
 
-    this.processFiles(Array.from(input.files));
-    input.value = '';
+  getFinalDocType(item: any): string {
+    return item.documentType === 'custom'
+      ? item.customType
+      : item.documentType;
   }
 
   processFiles(files: File[]): void {
@@ -197,18 +211,19 @@ export class AddEmployeesComponent implements OnInit {
       }
 
       const exists = this.selectedFiles.some(
-        (existingFile) =>
-          existingFile.name === file.name &&
-          existingFile.size === file.size &&
-          existingFile.lastModified === file.lastModified
+        x => x.file.name === file.name && x.file.size === file.size
       );
 
       if (exists) {
-        this.fileErrors.push(`Fișierul "${file.name}" este deja adăugat.`);
+        this.fileErrors.push(`Fișier duplicat: "${file.name}"`);
         return;
       }
 
-      this.selectedFiles.push(file);
+      this.selectedFiles.push({
+  file,
+  documentType: this.documentType,
+  customType: this.customDocumentType
+});
     });
   }
 
@@ -234,53 +249,61 @@ export class AddEmployeesComponent implements OnInit {
 
 
 
-saveEmployee() {
-  if (!this.createForm.valid) {
-    return;
-  }
-
-  const formValue = this.createForm.value;
-  const formData = new FormData();
-
-  formData.append('mode', this.mode || '');
-  formData.append('userId', formValue.userId || '');
-  formData.append('firstName', formValue.firstName || '');
-  formData.append('lastName', formValue.lastName || '');
-  formData.append('email', formValue.email || '');
-  formData.append('hireDate', formValue.hireDate || '');
-  formData.append('jobTitle', formValue.jobTitle || '');
-  formData.append('salary', String(formValue.salary ?? '0'));
-  formData.append('contractType', formValue.contractType || '');
-  formData.append('notes', formValue.notes || '');
-  formData.append('phoneNumber', formValue.phoneNumber || '');
-  formData.append('emergencyContactName', formValue.emergencyContactName || '');
-  formData.append('emergencyContactPhone', formValue.emergencyContactPhone || '');
-  formData.append('street', formValue.street || '');
-  formData.append('city', formValue.city || '');
-  formData.append('country', formValue.country || '');
-  formData.append('postalCode', formValue.postalCode || '');
-  formData.append('iban', formValue.iban || '');
-  formData.append('bankName', formValue.bankName || '');
-
-  for (const file of this.selectedFiles) {
-    formData.append('Files', file);
-  }
-
-  this.employeeService.createEmployee(formData).subscribe({
-    next: (res: any) => {
-      if (!res?.isSuccess) {
-        alert(res?.error?.errorMessage || 'Eroare la salvare');
-        return;
-      }
-
-      this.finish();
-    },
-    error: (err) => {
-      console.error(err);
-      alert('Eroare la salvare');
+  saveEmployee() {
+    if (!this.createForm.valid) {
+      return;
     }
-  });
-}
+
+    const formValue = this.createForm.value;
+    const formData = new FormData();
+
+    formData.append('mode', this.mode || '');
+    formData.append('userId', formValue.userId || '');
+    formData.append('firstName', formValue.firstName || '');
+    formData.append('lastName', formValue.lastName || '');
+    formData.append('email', formValue.email || '');
+    formData.append('hireDate', new Date(formValue.hireDate).toISOString());
+    formData.append('jobTitle', formValue.jobTitle || '');
+    formData.append('salary', String(formValue.salary ?? '0'));
+    formData.append('contractType', formValue.contractType || '');
+    formData.append('notes', formValue.notes || '');
+    formData.append('phoneNumber', formValue.phoneNumber || '');
+    formData.append('emergencyContactName', formValue.emergencyContactName || '');
+    formData.append('emergencyContactPhone', formValue.emergencyContactPhone || '');
+    formData.append('street', formValue.street || '');
+    formData.append('city', formValue.city || '');
+    formData.append('country', formValue.country || '');
+    formData.append('postalCode', formValue.postalCode || '');
+    formData.append('iban', formValue.iban || '');
+    formData.append('bankName', formValue.bankName || '');
+
+    // 🔥 DOCUMENTE + TYPE PER FILE
+    for (const item of this.selectedFiles) {
+
+      const finalType =
+        item.documentType === 'custom'
+          ? item.customType || ''
+          : item.documentType;
+
+      formData.append('Files', item.file, item.file.name);
+      formData.append('DocumentTypes', finalType);
+    }
+
+    this.employeeService.createEmployee(formData).subscribe({
+      next: (res: any) => {
+        if (!res?.isSuccess) {
+          alert(res?.error?.errorMessage || 'Eroare la salvare');
+          return;
+        }
+
+        this.finish();
+      },
+      error: (err) => {
+        console.error(err);
+        alert('Eroare la salvare');
+      }
+    });
+  }
 
   finish() {
     this.createForm.reset();

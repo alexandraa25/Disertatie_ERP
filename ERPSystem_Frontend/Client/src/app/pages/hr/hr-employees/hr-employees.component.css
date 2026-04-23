@@ -439,6 +439,153 @@ a:hover {
   text-decoration: underline;
 }
 
+/* BACKDROP */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55); /* dark blue overlay */
+  backdrop-filter: blur(4px);
+  z-index: 999;
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  width: 420px;
+  max-width: 95%;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 24px;
+  z-index: 1000;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.2s ease;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* TITLE */
+.modal h3 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* TEXT */
+.modal p {
+  margin-bottom: 16px;
+  color: #475569;
+  font-size: 14px;
+}
+
+/* UPLOAD BOX */
+.upload-box {
+  background: #f8fafc;
+  border: 1px dashed #cbd5f5;
+  padding: 14px;
+  border-radius: 10px;
+}
+
+/* LABEL */
+.upload-box label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #334155;
+}
+
+/* DOC TYPE */
+.doc-type-box {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.doc-type-box select,
+.doc-type-box input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+/* FOCUS */
+.doc-type-box select:focus,
+.doc-type-box input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+/* FILE INPUT */
+.upload-box input[type="file"] {
+  width: 100%;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+/* FILE PREVIEW */
+.upload-box div {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #1e293b;
+}
+
+/* ACTIONS */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* BUTTON BASE */
+.modal-actions button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* CANCEL */
+.modal-actions button:first-child {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.modal-actions button:first-child:hover {
+  background: #e2e8f0;
+}
+
+/* CONFIRM (DANGER) */
+.modal-actions button:last-child {
+  background: #ef4444;
+  color: white;
+}
+
+.modal-actions button:last-child:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
 /* RESPONSIVE */
 @media (max-width: 900px) {
   .stats-grid {

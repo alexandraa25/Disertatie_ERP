@@ -26,21 +26,14 @@ getEmployeeById(id: string) {
   return this.http.post<PublicResponse<any>>(this.baseUrl, formData);
 }
 
-uploadDocuments(employeeId: string, files: File[]) {
-  const formData = new FormData();
-
-  for (const file of files) {
-    formData.append('files', file);
-  }
-
-  console.log('UPLOAD URL:', `${this.baseUrl}/${employeeId}/documents`);
-  console.log('UPLOAD FILES:', files);
-
-  return this.http.post(
-    `${this.baseUrl}/${employeeId}/documents`,
-    formData
-  );
+updateEmployee(data: any) {
+  return this.http.put<PublicResponse<any>>( `${this.baseUrl}/update`,  data );
 }
+
+uploadEmployeeDocuments(formData: FormData) {
+  return this.http.post<any>( `${this.baseUrl}/upload-documents`, formData);
+}
+
   terminateEmployee(id: string, body: any) {
     return this.http.post(`${this.baseUrl}/${id}/terminate`, body)
   }

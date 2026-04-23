@@ -14,6 +14,7 @@ namespace ERPSystem.Data.Entities
         public string FileName { get; set; }
         public string FilePath { get; set; }
         public string ContentType { get; set; }
+        public string DocumentType { get; set; }
 
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 

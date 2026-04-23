@@ -36,10 +36,17 @@ export class HrEmployeesComponent implements OnInit {
   loading = false;
   showCreate = false;
 
+  terminateModalOpen = false;
+  employeeToTerminate: Employee | null = null;
+  terminationFile: File | null = null;
+
+  terminationDocumentType: string = 'DecizieIncetare';
+  terminationCustomType: string = '';
+
   constructor(
     private service: EmployeeService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadEmployees();
@@ -156,21 +163,7 @@ export class HrEmployeesComponent implements OnInit {
     this.loadEmployees();
   }
 
-  terminateEmployee(employee: Employee): void {
-    const body = {
-      terminationDate: new Date()
-    };
 
-    this.service.terminateEmployee(employee.id, body).subscribe({
-      next: () => {
-        this.loadEmployees();
-        this.loadDashboard();
-      },
-      error: () => {
-        alert('Eroare la încetarea angajatului.');
-      }
-    });
-  }
 
   // reactivateEmployee(employee: Employee): void {
   //   if (!this.service.reactivateEmployee) {
@@ -227,10 +220,67 @@ export class HrEmployeesComponent implements OnInit {
   }
 
   getSortIcon(column: string): string {
-  if (this.sortBy !== column) {
-    return '↕';
+    if (this.sortBy !== column) {
+      return '↕';
+    }
+
+    return this.sortDirection === 'asc' ? '↑' : '↓';
   }
 
-  return this.sortDirection === 'asc' ? '↑' : '↓';
-}
+
+  terminateEmployee(employee: Employee): void {
+    this.employeeToTerminate = employee;
+    this.terminationFile = null;
+    this.terminateModalOpen = true;
+  }
+
+  onTerminationFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (!input.files || input.files.length === 0) return;
+
+    this.terminationFile = input.files[0];
+  }
+  confirmTerminate(): void {
+
+    if (!this.employeeToTerminate) return;
+
+    const formData = new FormData();
+
+    formData.append('terminationDate', new Date().toISOString());
+
+    const finalType =
+      this.terminationDocumentType === 'custom'
+        ? this.terminationCustomType || 'Unknown'
+        : this.terminationDocumentType;
+
+    if (this.terminationFile) {
+      formData.append('File', this.terminationFile);
+      formData.append('DocumentType', finalType); // 🔥 AICI
+    }
+
+    this.service.terminateEmployee(this.employeeToTerminate.id, formData)
+      .subscribe({
+        next: () => {
+          this.loadEmployees();
+          this.loadDashboard();
+          this.closeTerminateModal();
+        },
+        error: () => {
+          alert('Eroare la încetarea angajatului.');
+        }
+      });
+  }
+  closeTerminateModal(): void {
+    this.terminateModalOpen = false;
+    this.employeeToTerminate = null;
+    this.terminationFile = null;
+  }
+
+  onTerminationDocTypeChange() {
+    if (this.terminationDocumentType !== 'custom') {
+      this.terminationCustomType = '';
+    }
+  }
+
 }

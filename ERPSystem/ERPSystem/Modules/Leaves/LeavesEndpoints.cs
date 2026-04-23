@@ -50,16 +50,17 @@ namespace ERPSystem.Modules.Leaves
                       => await service.GetAllLeaves(query))
                  .WithDefaultApiSettings("GetAllLeaves", "Toate concediile", "GET_ALL_LEAVES", true);
 
+            group.MapGet(Route.GET_CONFLICTS,
+                 async (DateTime start, DateTime end, Guid? excludeId, LeavesService service)
+                     => await service.GetConflicts(start, end, excludeId))
+                 .WithDefaultApiSettings("GetConflicts", "Verifică suprapuneri concedii", "GET_CONFLICTS", true);
+
             group.MapGet(Route.HOLIDAYS,
                   async (int year, LeavesService service)
                        => await service.GetHolidays(year))
                  .WithDefaultApiSettings( "GetHolidays",  "Sarbatori legale pe an", "GET_HOLIDAYS", false);
 
-            group.MapGet(Route.STATS_LEAVES,
-                 async (LeavesService service) 
-                     => await service.GetLeaveStats())
-                 .WithDefaultApiSettings("GetLeaveStats", "Sarbatori legale pe an", "GET_HOLIDAYS", false);
-
+         
 
             group.MapGet(Route.EXPORT_LEAVES, async (LeavesService service) =>
             {

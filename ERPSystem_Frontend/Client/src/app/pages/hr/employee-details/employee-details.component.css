@@ -101,6 +101,22 @@
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
   border: 1px solid #f1f5f9;
+  transition: 0.2s;
+}
+.edit-mode .section {
+  border: 1px solid #c7d2fe;
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.08);
+}
+
+.edit-badge {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #c2410c;
+  font-weight: 500;
 }
 
 /* TITLE */
@@ -117,17 +133,22 @@
 .item {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
 }
 
 .item label {
   font-size: 13px;
   color: #94a3b8;
+  min-width: 120px;
 }
 
 .item span {
   font-weight: 600;
   color: #1e293b;
+  text-align: right;
+  flex: 1;
 }
 
 /* =========================
@@ -137,6 +158,75 @@
   margin: 4px 0;
   color: #334155;
   font-size: 14px;
+}
+
+input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  color: #1e293b;
+  outline: none;
+  transition: 0.2s;
+  background: #f8fafc;
+}
+
+input:focus {
+  border-color: #6366f1;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.actions button {
+  padding: 7px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+/* EDIT */
+.actions button:nth-child(1) {
+  background: #6366f1;
+  color: white;
+}
+
+.actions button:nth-child(1):hover {
+  background: #4f46e5;
+}
+
+/* SAVE */
+.actions button:nth-child(2) {
+  background: #22c55e;
+  color: white;
+}
+
+.actions button:nth-child(2):hover {
+  background: #16a34a;
+}
+
+/* CANCEL */
+.actions button:nth-child(3) {
+  background: #ef4444;
+  color: white;
+}
+
+.actions button:nth-child(3):hover {
+  background: #dc2626;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* =========================
@@ -185,6 +275,19 @@ button:hover {
 @media (max-width: 768px) {
   .content {
     grid-template-columns: 1fr;
+  }
+   .actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .item span {
+    text-align: left;
   }
 }
 .leave-list {
@@ -251,4 +354,103 @@ button:hover {
   border-radius: 6px;
   padding: 5px 8px;
   cursor: pointer;
+}
+
+.upload-box {
+  background: white;
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* TYPE ROW */
+.type-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+select, input[type="text"] {
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+}
+
+select:focus, input:focus {
+  border-color: #6366f1;
+}
+
+/* FILE LIST */
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.file-item .tag {
+  margin-left: 8px;
+  font-size: 11px;
+  color: #6366f1;
+}
+
+/* REMOVE */
+.remove {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #ef4444;
+  font-size: 14px;
+}
+
+/* UPLOAD BUTTON */
+.upload-btn {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.upload-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.file-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  background: #f8fafc;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.remove {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: red;
 }

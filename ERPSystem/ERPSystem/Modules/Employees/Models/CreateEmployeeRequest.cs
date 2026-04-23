@@ -1,4 +1,6 @@
-﻿namespace ERPSystem.Modules.Employees.Models
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace ERPSystem.Modules.Employees.Models
 {
     public class CreateEmployeeFullRequest
     {
@@ -34,5 +36,7 @@
 
         // DOCUMENTE
         public List<IFormFile>? Files { get; set; }
+
+        public List<string>? DocumentTypes { get; set; }
     }
 }

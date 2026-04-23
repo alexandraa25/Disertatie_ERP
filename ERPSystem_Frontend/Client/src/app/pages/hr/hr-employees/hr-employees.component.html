@@ -133,19 +133,13 @@
                   Încetează
                 </button>
 
-                <!--
-                <button
-                  class="btn btn-small btn-success-soft"
-                  *ngIf="e.employmentStatus === 'Terminated'"
-                  (click)="reactivateEmployee(e)">
-                  Reactivare
-                </button>
-                -->
               </div>
             </td>
           </tr>
         </tbody>
       </table>
+
+
     </div>
 
     <div class="pagination" *ngIf="totalPages > 1">
@@ -155,6 +149,48 @@
     </div>
   </div>
 
+</div>
+
+<div class="modal-backdrop" *ngIf="terminateModalOpen"></div>
+
+<div class="modal" *ngIf="terminateModalOpen">
+  <h3>Confirmare încetare contract</h3>
+
+  <p>Ești sigur că vrei să încetezi acest angajat?</p>
+
+  <div class="upload-box">
+
+    <label>Document justificativ</label>
+
+    <!-- DOCUMENT TYPE -->
+    <div class="doc-type-box">
+
+      <select [(ngModel)]="terminationDocumentType" (change)="onTerminationDocTypeChange()">
+        <option value="DecizieIncetare">Decizie încetare</option>
+        <option value="Demisie">Demisie</option>
+        <option value="Concediere">Concediere</option>
+        <option value="AcordParti">Acord părți</option>
+        <option value="custom">Alt tip</option>
+      </select>
+
+      <input *ngIf="terminationDocumentType === 'custom'" [(ngModel)]="terminationCustomType"
+        placeholder="Tip document..." />
+
+    </div>
+
+    <!-- FILE -->
+    <input type="file" (change)="onTerminationFileSelected($event)" accept=".pdf,.doc,.docx,.jpg,.png" />
+
+    <div *ngIf="terminationFile">
+      📄 {{ terminationFile.name }}
+    </div>
+
+  </div>
+
+  <div class="modal-actions">
+    <button (click)="closeTerminateModal()">Renunță</button>
+    <button (click)="confirmTerminate()">Confirmă</button>
+  </div>
 </div>
 
 <app-add-employees *ngIf="showCreate" (close)="cancelCreate()" (created)="onEmployeeCreated()">

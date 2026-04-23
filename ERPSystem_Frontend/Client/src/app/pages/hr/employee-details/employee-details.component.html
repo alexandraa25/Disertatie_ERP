@@ -2,49 +2,32 @@
 
   <!-- HEADER -->
   <div class="top">
-    <div class="avatar">
-      {{employee.firstName[0]}}{{employee.lastName[0]}}
-    </div>
-
+    <div class="avatar"> {{employee.firstName[0]}}{{employee.lastName[0]}} </div>
     <div>
       <h1>{{employee.firstName}} {{employee.lastName}}</h1>
-      <div class="sub">
-        {{employee.jobTitle}} · 
-        <span class="status">
-          {{employee.employmentStatus === 'Active' ? 'Activ' : 
-            employee.employmentStatus === 'Terminated' ? 'Încheiat' : employee.employmentStatus}}
-        </span>
-      </div>
+      <div class="sub"> {{employee.jobTitle}} · <span class="status"> {{employee.employmentStatus === 'Active' ? 'Activ'
+          : employee.employmentStatus === 'Terminated' ? 'Încheiat' : employee.employmentStatus}} </span> </div>
     </div>
+    <div class="actions"> <button *ngIf="!isEditMode" (click)="enableEdit()"> ✏ Edit </button> <button
+        *ngIf="isEditMode" (click)="save()"> 💾 Save </button> <button *ngIf="isEditMode" (click)="cancelEdit()"> ✖
+        Cancel </button> </div>
   </div>
 
   <!-- TABS -->
   <div class="tabs">
-    <div 
-      class="tab" 
-      [class.active]="activeTab === 'info'" 
-      (click)="activeTab = 'info'">
+    <div class="tab" [class.active]="activeTab === 'info'" (click)="activeTab = 'info'">
       Informații
     </div>
 
-    <div 
-      class="tab" 
-      [class.active]="activeTab === 'documents'" 
-      (click)="activeTab = 'documents'">
+    <div class="tab" [class.active]="activeTab === 'documents'" (click)="activeTab = 'documents'">
       Documente
     </div>
 
-    <div 
-      class="tab" 
-      [class.active]="activeTab === 'leaves'" 
-      (click)="activeTab = 'leaves'">
+    <div class="tab" [class.active]="activeTab === 'leaves'" (click)="activeTab = 'leaves'">
       Concedii
     </div>
 
-    <div 
-      class="tab" 
-      [class.active]="activeTab === 'audit'" 
-      (click)="activeTab = 'audit'">
+    <div class="tab" [class.active]="activeTab === 'audit'" (click)="activeTab = 'audit'">
       Istoric
     </div>
   </div>
@@ -54,122 +37,307 @@
 
     <div class="col">
 
+      <!-- ================= GENERAL ================= -->
       <div class="section">
         <h3>Informații generale</h3>
 
-        <div class="item"><label>Data angajării</label><span>{{employee.hireDate | date}}</span></div>
-        <div class="item"><label>Salariu</label><span>{{employee.salary}}</span></div>
-        <div class="item"><label>Tip contract</label><span>{{employee.contractType}}</span></div>
+        <div class="item">
+          <label>Data angajării</label>
+
+          <span *ngIf="!isEditMode">
+            {{employee.hireDate | date}}
+          </span>
+
+          <input *ngIf="isEditMode" type="date" [(ngModel)]="editModel.hireDate" />
+        </div>
+
+        <div class="item">
+          <label>Salariu brut</label>
+
+          <span *ngIf="!isEditMode">
+            {{employee.salary}}
+          </span>
+
+          <input *ngIf="isEditMode" type="number" [(ngModel)]="editModel.salary" />
+        </div>
+
+        <!-- CONTRACT TYPE (DROP-DOWN) -->
+        <div class="item">
+          <label>Tip contract</label>
+
+          <span *ngIf="!isEditMode">{{ employee.contractType }}</span>
+
+          <select *ngIf="isEditMode" [(ngModel)]="editModel.contractType">
+            <option value="FullTime">Full Time</option>
+            <option value="PartTime">Part Time</option>
+            <option value="Collaboration">Colaborare</option>
+          </select>
+        </div>
+
+        <!-- JOB TITLE -->
+        <div class="item">
+          <label>Funcție</label>
+
+          <span *ngIf="!isEditMode">{{ employee.jobTitle }}</span>
+
+          <input *ngIf="isEditMode" type="text" [(ngModel)]="editModel.jobTitle" />
+        </div>
+
       </div>
 
+      <!-- ================= ADRESĂ ================= -->
       <div class="section">
         <h3>Adresă</h3>
-        <p>{{employee.address?.street}}</p>
-        <p>{{employee.address?.city}}</p>
-        <p>{{employee.address?.country}}</p>
+
+        <div class="item">
+          <label>Stradă</label>
+
+          <span *ngIf="!isEditMode">
+            {{employee.address?.street}}
+          </span>
+
+          <input *ngIf="isEditMode" [(ngModel)]="editModel.address.street" />
+        </div>
+
+        <div class="item">
+          <label>Oraș</label>
+
+          <span *ngIf="!isEditMode">
+            {{employee.address?.city}}
+          </span>
+
+          <input *ngIf="isEditMode" [(ngModel)]="editModel.address.city" />
+        </div>
+
+        <div class="item">
+          <label>Țară</label>
+
+          <span *ngIf="!isEditMode">
+            {{employee.address?.country}}
+          </span>
+
+          <input *ngIf="isEditMode" [(ngModel)]="editModel.address.country" />
+        </div>
+
+        <div class="item">
+          <label>Cod poștal</label>
+
+          <span *ngIf="!isEditMode">
+            {{employee.address?.postalCode}}
+          </span>
+
+          <input *ngIf="isEditMode" [(ngModel)]="editModel.address.postalCode" />
+        </div>
       </div>
 
     </div>
 
+    <!-- ================= COL 2 ================= -->
     <div class="col">
 
+      <!-- ================= CONTACT ================= -->
       <div class="section">
         <h3>Contact</h3>
 
-        <div class="item"><label>Email</label><span>{{employee.email}}</span></div>
-        <div class="item"><label>Telefon</label><span>{{employee.contact?.phoneNumber}}</span></div>
-        <div class="item"><label>Persoană de urgență</label><span>{{employee.contact?.emergencyContactName}}</span></div>
+        <div class="item">
+          <label>Email</label>
+
+          <span *ngIf="!isEditMode">
+            {{employee.email}}
+          </span>
+
+          <input *ngIf="isEditMode" [(ngModel)]="editModel.email" />
+        </div>
+
+        <div class="item">
+          <label>Telefon</label>
+
+          <span *ngIf="!isEditMode">
+            {{employee.contact?.phoneNumber}}
+          </span>
+
+          <input *ngIf="isEditMode" [(ngModel)]="editModel.contact.phoneNumber" />
+        </div>
+
+        <div class="item">
+          <label>Persoană de urgență</label>
+
+          <span *ngIf="!isEditMode">
+            {{employee.contact?.emergencyContactName}}
+          </span>
+
+          <input *ngIf="isEditMode" [(ngModel)]="editModel.contact.emergencyContactName" />
+        </div>
+
+        <div class="item">
+          <label>Telefon urgență</label>
+
+          <span *ngIf="!isEditMode">
+            {{employee.contact?.emergencyContactPhone}}
+          </span>
+
+          <input *ngIf="isEditMode" [(ngModel)]="editModel.contact.emergencyContactPhone" />
+        </div>
       </div>
 
+      <!-- ================= BANK ================= -->
       <div class="section">
         <h3>Date bancare</h3>
 
-        <div class="item"><label>IBAN</label><span>{{employee.bank?.iban}}</span></div>
-        <div class="item"><label>Bancă</label><span>{{employee.bank?.bankName}}</span></div>
+        <div class="item">
+          <label>IBAN</label>
+
+          <span *ngIf="!isEditMode">
+            {{employee.bank?.iban}}
+          </span>
+
+          <input *ngIf="isEditMode" [(ngModel)]="editModel.bank.iban" />
+        </div>
+
+        <div class="item">
+          <label>Bancă</label>
+
+          <span *ngIf="!isEditMode">
+            {{employee.bank?.bankName}}
+          </span>
+
+          <input *ngIf="isEditMode" [(ngModel)]="editModel.bank.bankName" />
+        </div>
       </div>
 
     </div>
 
   </div>
 
+ 
   <!-- DOCUMENTS TAB -->
   <div *ngIf="activeTab === 'documents'" class="section">
 
     <h3>Documente</h3>
 
-    <div class="doc-row" *ngFor="let doc of employee.documents">
+    <!-- UPLOAD ZONE -->
+    <div class="upload-box">
+
+  <!-- DOCUMENT TYPE -->
+  <div class="type-row">
+    <select [(ngModel)]="documentType" (change)="onDocTypeChange()">
+      <option value="Contract">Contract</option>
+      <option value="ActAditional">Act Adițional</option>
+      <option value="Cerere">Cerere</option>
+      <option value="CV">CV</option>
+      <option value="custom">Alt tip (custom)</option>
+    </select>
+
+    <input *ngIf="documentType === 'custom'"
+           [(ngModel)]="customDocumentType"
+           placeholder="Introdu tip document..." />
+  </div>
+
+  <!-- FILE INPUT -->
+  <input type="file"
+         multiple
+         (change)="onFileSelected($event)"
+         accept=".doc,.docx,.pdf,.jpg,.png" />
+
+  <!-- FILE LIST -->
+  <div class="file-list" *ngIf="selectedFiles.length">
+    <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
+
       <div>
-        <strong>{{doc.fileName}}</strong>
-        <div class="small">{{doc.uploadedAt | date}}</div>
+        📄 {{ file.name }}
+
+        <small class="tag">
+          {{ getResolvedDocType() }}
+        </small>
+      </div>
+
+      <button class="remove" (click)="removeFile(i)">✖</button>
+
+    </div>
+  </div>
+
+  <button class="upload-btn"
+          (click)="uploadDocuments()"
+          [disabled]="selectedFiles.length === 0">
+    Upload
+  </button>
+
+</div>
+
+    <hr />
+
+    <!-- EXISTING DOCUMENTS -->
+    <div class="doc-row" *ngFor="let doc of employee.documents">
+
+      <div>
+        <strong>{{ doc.fileName }}</strong>
+        <div class="small"> {{ doc.uploadedAt | date }} • {{ doc.documentType }}</div>
       </div>
 
       <button (click)="openDocument(doc.filePath)">
         Deschide
       </button>
+
     </div>
 
   </div>
 
- <!-- LEAVES TAB -->
-<div *ngIf="activeTab === 'leaves'" class="section">
+  <!-- LEAVES TAB -->
+  <div *ngIf="activeTab === 'leaves'" class="section">
 
-  <h3>Concedii</h3>
+    <h3>Concedii</h3>
 
-  <div class="leave-list">
+    <div class="leave-list">
 
-    <div class="leave-card" *ngFor="let leave of employee.leaves">
+      <div class="leave-card" *ngFor="let leave of employee.leaves">
 
-      <!-- INFO -->
-      <div class="leave-info">
-        <strong>
-          {{leave.startDate | date:'dd MMM yyyy'}} -
-          {{leave.endDate | date:'dd MMM yyyy'}}
-        </strong>
+        <!-- INFO -->
+        <div class="leave-info">
+          <strong>
+            {{leave.startDate | date:'dd MMM yyyy'}} -
+            {{leave.endDate | date:'dd MMM yyyy'}}
+          </strong>
 
-        <p>
-          {{
+          <p>
+            {{
             leave.leaveType === 'Vacation' ? 'Concediu de odihnă' :
             leave.leaveType === 'Sick' ? 'Medical' :
             leave.leaveType === 'Unpaid' ? 'Fără plată' :
             leave.leaveType
-          }}
-          • {{leave.days}} zile
-        </p>
+            }}
+            • {{leave.days}} zile
+          </p>
 
-        <!-- 🔥 motiv (doar dacă există) -->
-        <small *ngIf="leave.reason">
-          Motiv: {{leave.reason}}
-        </small>
-      </div>
+          <!-- 🔥 motiv (doar dacă există) -->
+          <small *ngIf="leave.reason">
+            Motiv: {{leave.reason}}
+          </small>
+        </div>
 
-      <!-- ACTIONS -->
-      <div class="leave-actions">
+        <!-- ACTIONS -->
+        <div class="leave-actions">
 
-        <span class="status" [ngClass]="leave.status.toLowerCase()">
-          {{leave.status}}
-        </span>
+          <span class="status" [ngClass]="leave.status.toLowerCase()">
+            {{leave.status}}
+          </span>
 
-        <!-- ✔ APPROVE -->
-        <button *ngIf="leave.status === 'Pending'"
-                class="approve-btn"
-                (click)="approveLeave(leave.id)">
-          ✔Aproba
-        </button>
+          <!-- ✔ APPROVE -->
+          <button *ngIf="leave.status === 'Pending'" class="approve-btn" (click)="approveLeave(leave.id)">
+            ✔Aproba
+          </button>
 
-        <!-- ✖ REJECT -->
-        <button *ngIf="leave.status === 'Pending'"
-                class="reject-btn"
-                (click)="rejectLeave(leave)">
-          ✖Respinge 
-        </button>
+          <!-- ✖ REJECT -->
+          <button *ngIf="leave.status === 'Pending'" class="reject-btn" (click)="rejectLeave(leave)">
+            ✖Respinge
+          </button>
+
+        </div>
 
       </div>
 
     </div>
 
   </div>
-
-</div>
 
   <!-- AUDIT TAB -->
   <div *ngIf="activeTab === 'audit'" class="section">

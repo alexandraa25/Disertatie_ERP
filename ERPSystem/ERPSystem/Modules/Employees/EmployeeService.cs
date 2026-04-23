@@ -1,11 +1,14 @@
-﻿using ERPSystem.Data.Context;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Employees.Models;
 using ERPSystem.Modules.Leaves;
 using ERPSystem.Modules.Student.Models;
 using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static ERPSystem.Utils.Constants.General.Route;
 
 namespace ERPSystem.Modules.Employees;
 
@@ -14,14 +17,14 @@ public class EmployeeService
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly HolidayService _holidayService;
-   
+
 
     public EmployeeService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, HolidayService holidayService)
     {
         _context = context;
         _userManager = userManager;
         _holidayService = holidayService;
-     
+
     }
 
     public async Task<PublicResponse> CreateEmployeeFullAsync(CreateEmployeeFullRequest request)
@@ -66,7 +69,7 @@ public class EmployeeService
                 if (string.IsNullOrWhiteSpace(lastName))
                     return response.SetError("VALIDATION", "Last name is required");
 
-                var employee = new Employee
+                var employee = new Data.Entities.Employee
                 {
                     Id = Guid.NewGuid(),
                     UserId = userId,
@@ -163,76 +166,179 @@ public class EmployeeService
         });
     }
 
-    public async Task<PublicResponse> UploadEmployeeDocuments(Guid employeeId, List<IFormFile> files)
+    public async Task<PublicResponse> UpdateEmployeeAsync(UpdateEmployeeRequest request)
+    {
+        var strategy = _context.Database.CreateExecutionStrategy();
+
+        return await strategy.ExecuteAsync(async () =>
+        {
+            var response = new PublicResponse(true);
+
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var employee = await _context.Employees
+                    .FirstOrDefaultAsync(x => x.Id == request.Id);
+
+                if (employee == null)
+                {
+                    return response.SetError("NOT_FOUND", "Employee not found");
+                }
+
+           
+                if (!string.IsNullOrWhiteSpace(request.UserId))
+                {
+                    var user = await _context.Users
+                        .FirstOrDefaultAsync(x => x.Id == request.UserId);
+
+                    if (user == null)
+                    {
+                        return response.SetError("NOT_FOUND", "User not found");
+                    }
+
+                    employee.UserId = user.Id;
+                    employee.FirstName = user.FirstName;
+                    employee.LastName = user.LastName;
+                    employee.Email = user.Email;
+                }
+                else
+                {
+                    employee.FirstName = request.FirstName;
+                    employee.LastName = request.LastName;
+                    employee.Email = request.Email;
+                }
+
+                employee.HireDate = request.HireDate;
+                employee.JobTitle = request.JobTitle;
+                employee.Salary = request.Salary;
+                employee.ContractType = request.ContractType;
+                employee.Notes = request.Notes;
+                employee.UpdatedAt = DateTime.UtcNow;
+
+                var contact = await _context.EmployeeContact
+                    .FirstOrDefaultAsync(x => x.EmployeeId == employee.Id);
+
+                if (contact == null)
+                {
+                    contact = new EmployeeContact
+                    {
+                        Id = Guid.NewGuid(),
+                        EmployeeId = employee.Id
+                    };
+
+                    _context.EmployeeContact.Add(contact);
+                }
+
+                contact.PhoneNumber = request.PhoneNumber ?? contact.PhoneNumber;
+                contact.EmergencyContactName = request.EmergencyContactName ?? contact.EmergencyContactName;
+                contact.EmergencyContactPhone = request.EmergencyContactPhone ?? contact.EmergencyContactPhone;
+
+                var address = await _context.EmployeeAddress
+                    .FirstOrDefaultAsync(x => x.EmployeeId == employee.Id);
+
+                if (address == null)
+                {
+                    address = new EmployeeAddress
+                    {
+                        Id = Guid.NewGuid(),
+                        EmployeeId = employee.Id,
+                        Street = request.Street ?? "",
+                        City = request.City ?? "",
+                        Country = request.Country ?? "",
+                        PostalCode = request.PostalCode ?? ""
+                    };
+
+                    _context.EmployeeAddress.Add(address);
+                }
+                else
+                {
+                    address.Street = request.Street ?? address.Street;
+                    address.City = request.City ?? address.City;
+                    address.Country = request.Country ?? address.Country;
+                    address.PostalCode = request.PostalCode ?? address.PostalCode;
+                }
+
+                var bank = await _context.EmployeeBank
+                    .FirstOrDefaultAsync(x => x.EmployeeId == employee.Id);
+
+                if (bank == null)
+                {
+                    bank = new EmployeeBank
+                    {
+                        Id = Guid.NewGuid(),
+                        EmployeeId = employee.Id,
+                        IBAN = request.IBAN ?? "",
+                        BankName = request.BankName ?? ""
+                    };
+
+                    _context.EmployeeBank.Add(bank);
+                }
+                else
+                {
+                    bank.IBAN = request.IBAN ?? bank.IBAN;
+                    bank.BankName = request.BankName ?? bank.BankName;
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return response.SetSuccess(employee.Id);
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return new PublicResponse(false)
+                    .SetError("SERVER", ex.Message);
+            }
+        });
+    }
+
+    public async Task<PublicResponse> UploadEmployeeDocuments(UploadEmployeeDocsRequest request)
     {
         var response = new PublicResponse(true);
 
-        try
+        var employee = await _context.Employees
+            .FirstOrDefaultAsync(x => x.Id == request.EmployeeId);
+
+        if (employee == null)
+            return response.SetError("NOT_FOUND", "Employee not found");
+
+        if (request.Files == null || !request.Files.Any())
+            return response.SetError("VALIDATION", "No files uploaded");
+
+        var root = Directory.GetCurrentDirectory();
+        var uploadPath = Path.Combine(root, "uploads", "employees", employee.Id.ToString());
+
+        Directory.CreateDirectory(uploadPath);
+
+        for (int i = 0; i < request.Files.Count; i++)
         {
-            var employee = await _context.Employees.FindAsync(employeeId);
+            var file = request.Files[i];
+            var docType = request.DocumentTypes.ElementAtOrDefault(i) ?? "Unknown";
 
-            if (employee == null)
-                return response.SetError("NOT_FOUND", "Employee not found");
+            var ext = Path.GetExtension(file.FileName);
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var path = Path.Combine(uploadPath, fileName);
 
-            if (files == null || !files.Any())
-                return response.SetError("VALIDATION", "No files uploaded");
+            await using var stream = new FileStream(path, FileMode.Create);
+            await file.CopyToAsync(stream);
 
-            var allowedExtensions = new[]
+            _context.EmployeeDocuments.Add(new EmployeeDocument
             {
-            ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".txt", ".ppt", ".pptx"
-        };
-
-            var root = Directory.GetCurrentDirectory();
-            var uploadPath = Path.Combine(root, "uploads", "employees", employeeId.ToString());
-
-            if (!Directory.Exists(uploadPath))
-                Directory.CreateDirectory(uploadPath);
-
-            var uploadedFiles = new List<object>();
-
-            foreach (var file in files)
-            {
-                var ext = Path.GetExtension(file.FileName).ToLower();
-
-                if (!allowedExtensions.Contains(ext))
-                    return response.SetError("VALIDATION", $"Invalid file: {file.FileName}");
-
-                if (file.Length > 1 * 1024 * 1024)
-                    return response.SetError("VALIDATION", $"File too large: {file.FileName}");
-
-                var newFileName = $"{Guid.NewGuid()}{ext}";
-                var filePath = Path.Combine(uploadPath, newFileName);
-
-                using var stream = new FileStream(filePath, FileMode.Create);
-                await file.CopyToAsync(stream);
-
-                var doc = new EmployeeDocument
-                {
-                    Id = Guid.NewGuid(),
-                    EmployeeId = employeeId,
-                    FileName = file.FileName,
-                    FilePath = filePath,
-                    ContentType = file.ContentType,
-                    UploadedAt = DateTime.UtcNow
-                };
-
-                _context.EmployeeDocuments.Add(doc);
-
-                uploadedFiles.Add(new
-                {
-                    doc.Id,
-                    doc.FileName
-                });
-            }
-
-            await _context.SaveChangesAsync();
-
-            return response.SetSuccess(uploadedFiles);
+                Id = Guid.NewGuid(),
+                EmployeeId = employee.Id,
+                FileName = file.FileName,
+                FilePath = path,
+                ContentType = file.ContentType ?? "application/octet-stream",
+                DocumentType = docType, // 🔥 aici
+                UploadedAt = DateTime.UtcNow
+            });
         }
-        catch (Exception ex)
-        {
-            return response.SetError("SERVER", ex.Message);
-        }
+
+        await _context.SaveChangesAsync();
+
+        return response.SetSuccess(true);
     }
 
     public async Task<PublicResponse> GetEmployeesAsync(EmployeeListRequest request)
@@ -245,7 +351,6 @@ public class EmployeeService
                 .Include(x => x.User)
                 .AsQueryable();
 
-            // SEARCH
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 var search = request.Search.Trim().ToLower();
@@ -256,7 +361,6 @@ public class EmployeeService
                     (x.JobTitle ?? "").ToLower().Contains(search));
             }
 
-            // FILTERE
             if (!string.IsNullOrWhiteSpace(request.EmploymentStatus))
             {
                 query = query.Where(x => x.EmploymentStatus == request.EmploymentStatus);
@@ -282,7 +386,6 @@ public class EmployeeService
                 query = query.Where(x => x.HireDate <= request.HireDateTo.Value);
             }
 
-            // SORTARE
             var sortBy = request.SortBy?.ToLower();
             var sortDirection = request.SortDirection?.ToLower() == "asc" ? "asc" : "desc";
 
@@ -303,10 +406,8 @@ public class EmployeeService
                 _ => query.OrderByDescending(x => x.HireDate)
             };
 
-            // TOTAL
             var totalCount = await query.CountAsync();
 
-            // PAGINARE
             var page = request.Page < 1 ? 1 : request.Page;
             var pageSize = request.PageSize <= 0 ? 10 : request.PageSize;
 
@@ -366,6 +467,7 @@ public class EmployeeService
                .Select(x => new
                {
                    x.Id,
+                   x.UserId,
                    x.FirstName,
                    x.LastName,
                    x.Email,
@@ -374,40 +476,44 @@ public class EmployeeService
                    x.EmploymentStatus,
                    x.Salary,
                    x.ContractType,
-            
+                   
+
                    Address = x.Address,
                    Bank = x.Bank,
                    Contact = x.Contact,
-                    Documents = x.Documents.Select(d => new
-                    {
-                        d.Id,
-                        d.FileName,
-                        d.FilePath,
-                        d.ContentType,
-                        d.UploadedAt
-                    }).ToList(),
+
+                   Documents = x.Documents.Select(d => new
+                   {
+                       d.Id,
+                       d.FileName,
+                       d.FilePath,
+                       d.ContentType,
+                       d.DocumentType,
+                       d.UploadedAt
+                   }).ToList(),
+
                    Leaves = x.Leaves
-                         .OrderByDescending(l => l.StartDate)
-                         .Select(l => new
-                         {
-                             l.Id,
-                             l.LeaveType,
-                             l.StartDate,
-                             l.EndDate,
-                             l.Status,
-                             l.ReasonUpdate,
-
-                             Days = LeavesService.GetWorkingDays(l.StartDate, l.EndDate, holidays)
-                         }).ToList()
-               })
-               .FirstOrDefaultAsync();
-
+               .OrderByDescending(l => l.StartDate)
+               .Select(l => new
+                  {
+                      l.Id,
+                      l.LeaveType,
+                      l.StartDate,
+                      l.EndDate,
+                      l.Status,
+                      l.ReasonUpdate,
+            
+                      Days = LeavesService.GetWorkingDays(l.StartDate, l.EndDate, holidays)
+                  }).ToList()
+                         })
+                         .FirstOrDefaultAsync();
+            
+                   
+            
+             if (employee == null)
+                 return response.SetError("NOT_FOUND", "Employee not found");
          
-
-            if (employee == null)
-                return response.SetError("NOT_FOUND", "Employee not found");
-
-            return response.SetSuccess(employee);
+             return response.SetSuccess(employee);
         }
         catch (Exception ex)
         {
@@ -433,6 +539,32 @@ public class EmployeeService
 
             if (employee.User != null)
                 employee.User.IsActive = false;
+
+            if (request.File != null)
+            {
+                var root = Directory.GetCurrentDirectory();
+                var uploadPath = Path.Combine(root, "uploads", "employees", employee.Id.ToString());
+
+                Directory.CreateDirectory(uploadPath);
+
+                var ext = Path.GetExtension(request.File.FileName);
+                var fileName = $"{Guid.NewGuid()}{ext}";
+                var path = Path.Combine(uploadPath, fileName);
+
+                await using var stream = new FileStream(path, FileMode.Create);
+                await request.File.CopyToAsync(stream);
+
+                _context.EmployeeDocuments.Add(new EmployeeDocument
+                {
+                    Id = Guid.NewGuid(),
+                    EmployeeId = employee.Id,
+                    FileName = request.File.FileName,
+                    FilePath = path,
+                    ContentType = request.File.ContentType ?? "application/octet-stream",
+                    DocumentType = request.DocumentType ?? "Incetare",
+                    UploadedAt = DateTime.UtcNow
+                });
+            }
 
             await _context.SaveChangesAsync();
 
@@ -486,7 +618,14 @@ public class EmployeeService
 
         try
         {
-            var users = await _userManager.Users.ToListAsync();
+            var usedUserIds = await _context.Employees
+                .Where(e => e.UserId != null)
+                .Select(e => e.UserId)
+                .ToListAsync();
+
+            var users = await _userManager.Users
+                .Where(u => !usedUserIds.Contains(u.Id))
+                .ToListAsync();
 
             var result = new List<object>();
 
