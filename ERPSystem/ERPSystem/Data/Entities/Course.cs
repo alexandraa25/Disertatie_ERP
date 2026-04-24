@@ -19,6 +19,9 @@ public class Course
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
 
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAtUtc { get; set; }
+
     public List<CourseSession> Sessions { get; set; } = new();
     public List<CourseEnrollment> Enrollments { get; set; } = new();
 }

@@ -283,7 +283,7 @@ public class StudentsService
                 _db.ActivityLog.Add(new ActivityLog
                 {
                     EntityType = "Student",
-                    EntityId = s.Id,
+                    EntityId = s.Id.ToString(),
                     Action = "UpdateGuardians",
                     Description = description.Trim(),
                     CreatedAtUtc = DateTime.UtcNow,

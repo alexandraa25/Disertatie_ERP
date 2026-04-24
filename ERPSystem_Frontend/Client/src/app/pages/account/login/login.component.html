@@ -1,56 +1,156 @@
 <div class="login-wrapper">
 
+  <div class="left-side">
+    <svg class="creatures" viewBox="0 0 500 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+
+      <!-- Subtle educational emblem (original): open book + globe -->
+      <g opacity="0.18" [attr.transform]="emblemT">
+        <!-- book -->
+        <path d="M70 175
+               C95 160, 120 160, 145 175
+               L145 205
+               C120 190, 95 190, 70 205 Z" fill="#1E3A8A" />
+        <path d="M145 175
+               C170 160, 195 160, 220 175
+               L220 205
+               C195 190, 170 190, 145 205 Z" fill="#1E3A8A" />
+        <line x1="145" y1="172" x2="145" y2="208" stroke="#0F172A" stroke-width="3" opacity="0.35" />
+
+        <!-- globe -->
+        <circle cx="145" cy="125" r="35" fill="#22C55E" opacity="0.9" />
+        <ellipse cx="145" cy="125" rx="33" ry="16" fill="none" stroke="#0B3D2E" stroke-width="3" opacity="0.55" />
+        <ellipse cx="145" cy="125" rx="14" ry="33" fill="none" stroke="#0B3D2E" stroke-width="3" opacity="0.55" />
+        <path d="M110 125 H180" stroke="#0B3D2E" stroke-width="3" opacity="0.55" />
+      </g>
+
+      <!-- M1 -->
+      <g id="m1" [attr.transform]="creatureT[0]">
+        <path d="M80 200 A70 70 0 0 1 220 200 L80 200 Z" fill="#1E3A8A"></path>
+
+        <circle cx="120" cy="185" r="8" fill="white"></circle>
+        <circle cx="150" cy="185" r="8" fill="white"></circle>
+
+        <!-- pupils move -->
+        <circle cx="120" cy="185" r="4" fill="#0F172A" [attr.transform]="pupilT[0]"></circle>
+        <circle cx="150" cy="185" r="4" fill="#0F172A" [attr.transform]="pupilT[0]"></circle>
+
+        <!-- blink lids -->
+        <g [attr.transform]="blinkT[0]">
+          <rect x="110" y="177" width="20" height="16" rx="8" fill="#1E3A8A"></rect>
+          <rect x="140" y="177" width="20" height="16" rx="8" fill="#1E3A8A"></rect>
+        </g>
+
+        <!-- green accent pulses -->
+        <circle cx="205" cy="188" r="6" fill="#22C55E" opacity="0.95" [attr.transform]="accT[0]"></circle>
+      </g>
+
+      <!-- M2 -->
+      <g id="m2" [attr.transform]="creatureT[1]">
+        <rect x="220" y="60" width="70" height="160" rx="12" fill="#2563EB"></rect>
+
+        <polygon points="255,58 214,74 255,90 296,74" fill="#0F172A" opacity="0.95"></polygon>
+        <rect x="240" y="90" width="30" height="8" rx="3" fill="#0F172A" opacity="0.95"></rect>
+        <line x1="270" y1="90" x2="284" y2="104" stroke="#22C55E" stroke-width="3" stroke-linecap="round"
+          [attr.transform]="capT"></line>
+
+        <circle cx="245" cy="105" r="7" fill="white"></circle>
+        <circle cx="265" cy="105" r="7" fill="white"></circle>
+
+        <circle cx="245" cy="105" r="4" fill="#0F172A" [attr.transform]="pupilT[1]"></circle>
+        <circle cx="265" cy="105" r="4" fill="#0F172A" [attr.transform]="pupilT[1]"></circle>
+
+        <g [attr.transform]="blinkT[1]">
+          <rect x="236" y="98" width="18" height="14" rx="7" fill="#2563EB"></rect>
+          <rect x="256" y="98" width="18" height="14" rx="7" fill="#2563EB"></rect>
+        </g>
+      </g>
+
+      <!-- M3 -->
+      <g id="m3" [attr.transform]="creatureT[2]">
+        <rect x="290" y="110" width="60" height="110" rx="12" fill="#111827"></rect>
+
+        <circle cx="315" cy="145" r="6" fill="white"></circle>
+        <circle cx="335" cy="145" r="6" fill="white"></circle>
+
+        <circle cx="315" cy="145" r="3" fill="#0F172A" [attr.transform]="pupilT[2]"></circle>
+        <circle cx="335" cy="145" r="3" fill="#0F172A" [attr.transform]="pupilT[2]"></circle>
+
+        <g [attr.transform]="blinkT[2]">
+          <rect x="308" y="139" width="14" height="12" rx="6" fill="#111827"></rect>
+          <rect x="328" y="139" width="14" height="12" rx="6" fill="#111827"></rect>
+        </g>
+
+        <!-- document chip bobs -->
+        <g [attr.transform]="accT[2]">
+          <rect x="303" y="182" width="34" height="18" rx="6" fill="#E5E7EB" opacity="0.95"></rect>
+          <line x1="308" y1="188" x2="332" y2="188" stroke="#111827" stroke-width="2" opacity="0.5"></line>
+          <line x1="308" y1="193" x2="326" y2="193" stroke="#111827" stroke-width="2" opacity="0.5"></line>
+        </g>
+      </g>
+
+      <!-- M4 -->
+      <g id="m4" [attr.transform]="creatureT[3]">
+        <ellipse cx="380" cy="170" rx="45" ry="65" fill="#0EA5A4"></ellipse>
+
+        <circle cx="370" cy="160" r="7" fill="white"></circle>
+        <circle cx="370" cy="160" r="4" fill="#0F172A" [attr.transform]="pupilT[3]"></circle>
+
+        <g [attr.transform]="blinkT[3]">
+          <rect x="362" y="154" width="16" height="12" rx="6" fill="#0EA5A4"></rect>
+        </g>
+
+        <!-- mouth reacts -->
+        <line [attr.x1]="mouth.x1" [attr.y1]="mouth.y" [attr.x2]="mouth.x2" [attr.y2]="mouth.y" stroke="#0F172A"
+          stroke-width="4" stroke-linecap="round"></line>
+
+        <!-- tiny green badge pulses -->
+        <circle cx="404" cy="208" r="8" fill="#22C55E" opacity="0.95" [attr.transform]="accT[3]"></circle>
+      </g>
+
+    </svg>
+  </div>
+
+  <div class="right-side">
   <div class="login-card">
-    <h3>Sign In</h3>
+    <h3>Autentificare</h3>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
 
       <div class="form-group">
         <i class="fas fa-envelope icon-inside"></i>
-        <input formControlName="email" placeholder="Email" />
+        <input type="email" formControlName="email" placeholder="Email" />
       </div>
 
       <div class="form-group password-group">
         <i class="fas fa-lock icon-inside"></i>
 
-        <input [type]="showPassword ? 'text' : 'password'" formControlName="password" placeholder="Password" />
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="Parolă"
+        />
 
         <span class="password-toggle" (click)="togglePassword()">
-
-          <!-- OCHI DESCHIS -->
-          <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              d="M17.94 17.94C16.2 19.24 14.21 20 12 20c-7 0-11-8-11-8a21.83 21.83 0 0 1 5.06-6.61m3.6-2.02A11.19 11.19 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-3.21 4.49M1 1l22 22" />
-            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              d="M1 12s4-7 11-7s11 7 11 7s-4 7-11 7s-11-7-11-7zm11 3a3 3 0 1 1 0-6a3 3 0 0 1 0 6z" />
-          </svg>
-
-          <!-- OCHI TĂIAT -->
-          <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-            <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              d="M1 12s4-7 11-7s11 7 11 7s-4 7-11 7s-11-7-11-7zm11 3a3 3 0 1 1 0-6a3 3 0 0 1 0 6z" />>
-          </svg>
-
+          <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
         </span>
       </div>
 
       <div class="extra-links">
-        <span class="clickable" (click)="goToForgot()">Forgot password?</span>
+        <span class="clickable" (click)="goToForgot()">Ai uitat parola?</span>
       </div>
 
-      <button type="submit" class="btn-submit">Login</button>
+      <button type="submit" class="btn-submit" [disabled]="!loginForm.valid || isLoading">
+        Autentifică-te
+      </button>
 
-      <div class="extra-links center">
-        <span>Don't have an account?</span>
-        <span class="clickable" (click)="goToRegister()">Sign Up</span>
-      </div>
+      
 
     </form>
   </div>
+</div>
 
 </div>
 
 <div class="loading-overlay" *ngIf="isLoading">
   <div class="spinner"></div>
-  <span class="loading-text">Loading...</span>
 </div>

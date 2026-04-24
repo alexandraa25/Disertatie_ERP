@@ -71,7 +71,7 @@ namespace ERPSystem.Modules.Payments
             _db.ActivityLog.Add(new ActivityLog
             {
                 EntityType = nameof(ContractInstallment),
-                EntityId = installment.Id,
+                EntityId = installment.Id.ToString(),
                 Action = "Payment",
                 Description = $"Plată {amountToApply} lei pentru rata #{installment.Id}",
                 CreatedAtUtc = DateTime.UtcNow

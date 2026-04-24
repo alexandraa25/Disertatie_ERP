@@ -16,12 +16,18 @@ import {
 export class CoursesService {
   private baseUrl = 'https://localhost:7195/courses';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  list(q = ''): Observable<CourseListItemDto[]> {
-    const params = new URLSearchParams({ q }).toString();
-    return this.http.get<CourseListItemDto[]>(`${this.baseUrl}?${params}`);
-  }
+  list(q?: string, status?: string, deleteStatus: string = 'notDeleted') {
+  let params: any = {
+    deleteStatus
+  };
+
+  if (q) params.q = q;
+  if (status) params.status = status;
+
+  return this.http.get<any>(`${this.baseUrl}`, { params });
+}
 
   get(id: number): Observable<CourseDetailsDto> {
     return this.http.get<CourseDetailsDto>(`${this.baseUrl}/${id}`);
@@ -49,22 +55,11 @@ export class CoursesService {
     );
   }
 
- enroll(
-  courseId: number,
-  body: CourseEnrollRequest
-): Observable<void> {
-  return this.http.post<void>(
-    `${this.baseUrl}/${courseId}/enrollments`,
-    body
-  );
-}
+  enroll( courseId: number,body: CourseEnrollRequest): Observable<void> {
+    return this.http.post<void>( `${this.baseUrl}/${courseId}/enrollments`, body);
+  }
 
-  setEnrollmentActive(
-    courseId: number,
-    sessionId: number,
-    studentId: number,
-    isActive: boolean
-  ): Observable<void> {
+  setEnrollmentActive( courseId: number, sessionId: number,studentId: number, isActive: boolean): Observable<void> {
     return this.http.put<void>(
       `${this.baseUrl}/${courseId}/enrollments/${sessionId}/${studentId}?isActive=${isActive}`,
       {}
@@ -72,11 +67,21 @@ export class CoursesService {
   }
 
   getAvailableStudents(courseId: number, sessionId: number, q?: string) {
-  return this.http.get(
-    `${this.baseUrl}/${courseId}/sessions/${sessionId}/available-students`,
-    { params: { q: q || '' } }
-  );
-  
+    return this.http.get(
+      `${this.baseUrl}/${courseId}/sessions/${sessionId}/available-students`,
+      { params: { q: q || '' } }
+    );
+  }
+
+  deleteCourse(id: number) {
+  return this.http.delete<any>(`${this.baseUrl}/${id}/delete`);
+}
+
+restoreCourse(id: number) {
+  return this.http.post<any>(`${this.baseUrl}/${id}/restore`, {});
+}
+toggleCourseStatus(id: number) {
+  return this.http.post<any>(`${this.baseUrl}/${id}/toggle-status`, {});
 }
 
 }

@@ -104,6 +104,12 @@ namespace ERPSystem.Modules.Leaves
                 _context.EmployeeLeaves.Add(leave);
                 await _context.SaveChangesAsync();
 
+                await AddEmployeeLeaveActivityLogAsync(
+                    leave.EmployeeId,
+                    "LeaveCreated",
+                    $"Cererea de concediu a fost creată pentru perioada {leave.StartDate:dd.MM.yyyy} - {leave.EndDate:dd.MM.yyyy}."
+                );
+
                 return response.SetSuccess("Cerere trimisă");
             }
             catch (Exception ex)
@@ -191,6 +197,12 @@ namespace ERPSystem.Modules.Leaves
 
                 await _context.SaveChangesAsync();
 
+                await AddEmployeeLeaveActivityLogAsync(
+                    leave.EmployeeId,
+                    "LeaveUpdated",
+                    $"Cererea de concediu a fost actualizată pentru perioada {leave.StartDate:dd.MM.yyyy} - {leave.EndDate:dd.MM.yyyy}."
+                );
+
                 return response.SetSuccess("Cerere actualizată");
             }
             catch (Exception ex)
@@ -228,6 +240,12 @@ namespace ERPSystem.Modules.Leaves
                 leave.Status = "Cancelled";
 
                 await _context.SaveChangesAsync();
+
+                await AddEmployeeLeaveActivityLogAsync(
+                    leave.EmployeeId,
+                    "LeaveCancelled",
+                    $"Cererea de concediu a fost anulată."
+                );
 
                 return response.SetSuccess("Cerere anulată");
             }
@@ -359,6 +377,12 @@ namespace ERPSystem.Modules.Leaves
 
                 await _context.SaveChangesAsync();
 
+                await AddEmployeeLeaveActivityLogAsync(
+                    leave.EmployeeId,
+                    "LeaveApproved",
+                    $"Cererea de concediu a fost aprobată."
+                );
+
                 return response.SetSuccess("Concediu aprobat");
             }
             catch (Exception ex)
@@ -388,6 +412,14 @@ namespace ERPSystem.Modules.Leaves
                 leave.ReasonUpdate = reason; 
 
                 await _context.SaveChangesAsync();
+
+                await AddEmployeeLeaveActivityLogAsync(
+                    leave.EmployeeId,
+                    "LeaveRejected",
+                    string.IsNullOrWhiteSpace(reason)
+                        ? "Cererea de concediu a fost respinsă."
+                        : $"Cererea de concediu a fost respinsă. Motiv: {reason}"
+                );
 
                 return response.SetSuccess("Concediu respins");
             }
@@ -576,6 +608,32 @@ namespace ERPSystem.Modules.Leaves
             return holidays
                 .Select(h => h.Date.ToString("yyyy-MM-dd"))
                 .ToList();
+        }
+
+        private string GetCurrentUser()
+        {
+            return _httpContextAccessor.HttpContext?.User?.Identity?.Name
+                ?? _httpContextAccessor.HttpContext?.User?.FindFirst("email")?.Value
+                ?? GetUserId()
+                ?? "system";
+        }
+
+        private async Task AddEmployeeLeaveActivityLogAsync(
+    Guid employeeId,
+    string action,
+    string description)
+        {
+            _context.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = "Employee",
+                EntityId = employeeId.ToString(),
+                Action = action,
+                Description = description,
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = GetCurrentUser()
+            });
+
+            await _context.SaveChangesAsync();
         }
 
     }

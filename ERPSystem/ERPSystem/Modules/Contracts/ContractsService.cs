@@ -544,7 +544,7 @@ public class ContractsService
         _db.ActivityLog.Add(new ActivityLog
         {
             EntityType = nameof(StudentContract),
-            EntityId = contract.Id,
+            EntityId = contract.Id.ToString(),
             Action = "Finalize",
             Description = $"Contractul {contract.ContractNumber} a fost finalizat",
             CreatedAtUtc = DateTime.UtcNow
@@ -716,7 +716,7 @@ public class ContractsService
             _db.ActivityLog.Add(new ActivityLog
             {
                 EntityType = entityName,
-                EntityId = entityId,
+                EntityId = entityId.ToString(),
                 Action = "Send",
                 Description = $"Document trimis către {email}",
                 CreatedAtUtc = DateTime.UtcNow
@@ -770,7 +770,7 @@ public class ContractsService
                     _db.ActivityLog.Add(new ActivityLog
                     {
                         EntityType = nameof(StudentContract),
-                        EntityId = contract.Id,
+                        EntityId = contract.Id.ToString(),
                         Action = "SignClient",
                         Description = "Clientul a semnat contractul",
                         CreatedAtUtc = DateTime.UtcNow
@@ -798,7 +798,7 @@ public class ContractsService
                     _db.ActivityLog.Add(new ActivityLog
                     {
                         EntityType = nameof(ContractAdditionalAct),
-                        EntityId = act.Id,
+                        EntityId = act.Id.ToString(),
                         Action = "SignClient",
                         Description = "Clientul a semnat actul adițional",
                         CreatedAtUtc = DateTime.UtcNow
@@ -941,7 +941,7 @@ public class ContractsService
                         _db.ActivityLog.Add(new ActivityLog
                         {
                             EntityType = nameof(StudentContract),
-                            EntityId = contract.Id,
+                            EntityId = contract.Id.ToString(),
                             Action = "SignAdmin",
                             Description = "Administratorul a semnat contractul",
                             CreatedAtUtc = DateTime.UtcNow
@@ -988,7 +988,7 @@ public class ContractsService
                         _db.ActivityLog.Add(new ActivityLog
                         {
                             EntityType = nameof(ContractAdditionalAct),
-                            EntityId = act.Id,
+                            EntityId = act.Id.ToString(),
                             Action = "SignAdmin",
                             Description = "Administratorul a semnat actul adițional",
                             CreatedAtUtc = DateTime.UtcNow
@@ -1045,7 +1045,7 @@ public class ContractsService
         _db.ActivityLog.Add(new ActivityLog
         {
             EntityType = nameof(StudentContract),
-            EntityId = contract.Id,
+            EntityId = contract.Id.ToString(),
             Action = "Cancelled",
             Description = $"Contract {contract.ContractNumber} a fost anulat",
             CreatedAtUtc = DateTime.UtcNow
@@ -1066,7 +1066,7 @@ public class ContractsService
             _db.ActivityLog.Add(new ActivityLog
             {
                 EntityType = nameof(CourseEnrollment),
-                EntityId = e.Id,
+                EntityId = e.Id.ToString(),
                 Action = "EnrollmentCancelled",
                 Description =
                     $"Student {e.Student.FirstName} {e.Student.LastName} eliminat din {e.Session.Title} (contract anulat)",
@@ -1117,7 +1117,7 @@ public class ContractsService
         _db.ActivityLog.Add(new ActivityLog
         {
             EntityType = nameof(StudentContract),
-            EntityId = contract.Id,
+            EntityId = contract.Id.ToString(),
             Action = "Completed",
             Description = $"Contract {contract.ContractNumber} finalizat",
             CreatedAtUtc = DateTime.UtcNow
@@ -1138,7 +1138,7 @@ public class ContractsService
             _db.ActivityLog.Add(new ActivityLog
             {
                 EntityType = nameof(CourseEnrollment),
-                EntityId = e.Id,
+                EntityId = e.Id.ToString(),
                 Action = "EnrollmentCompleted",
                 Description =
                     $"Student {e.Student.FirstName} {e.Student.LastName} a finalizat {e.Session.Title}",
@@ -1178,7 +1178,7 @@ public class ContractsService
                 _db.ActivityLog.Add(new ActivityLog
             {
                 EntityType = nameof(StudentContract),
-                EntityId = contract.Id,
+                EntityId = contract.Id.ToString(),
                 Action = "Expired",
                 Description = $"Contract {contract.ContractNumber} a expirat",
                 CreatedAtUtc = DateTime.UtcNow
@@ -1210,7 +1210,7 @@ public class ContractsService
                 _db.ActivityLog.Add(new ActivityLog
                 {
                     EntityType = nameof(CourseEnrollment),
-                    EntityId = e.Id,
+                    EntityId = e.Id.ToString(),
                     Action = "EnrollmentEnded",
                     Description =
                         $"Student {e.Student.FirstName} {e.Student.LastName} a fost scos din sesiunea {e.Session.Title} (contract expirat)",
@@ -1262,7 +1262,7 @@ public class ContractsService
         _db.ActivityLog.Add(new ActivityLog
         {
             EntityType = nameof(StudentContract),
-            EntityId = contract.Id,
+            EntityId = contract.Id.ToString(),
             Action = "Suspended",
             Description = $"Contract {contract.ContractNumber} a fost suspendat",
             CreatedAtUtc = DateTime.UtcNow
@@ -1284,7 +1284,7 @@ public class ContractsService
             _db.ActivityLog.Add(new ActivityLog
             {
                 EntityType = nameof(CourseEnrollment),
-                EntityId = e.Id,
+                EntityId = e.Id.ToString(),
                 Action = "EnrollmentSuspended",
                 Description =
                     $"Student {e.Student.FirstName} {e.Student.LastName} suspendat din {e.Session.Title}",
@@ -1345,7 +1345,7 @@ public class ContractsService
             _db.ActivityLog.Add(new ActivityLog
             {
                 EntityType = nameof(CourseEnrollment),
-                EntityId = e.Id,
+                EntityId = e.Id.ToString(),
                 Action = "EnrollmentResumed",
                 Description = $"Student {e.Student.FirstName} {e.Student.LastName} reluat în {e.Session.Title}",
                 CreatedAtUtc = DateTime.UtcNow
@@ -1356,7 +1356,7 @@ public class ContractsService
         _db.ActivityLog.Add(new ActivityLog
         {
             EntityType = nameof(StudentContract),
-            EntityId = contract.Id,
+            EntityId = contract.Id.ToString(),
             Action = "Resumed",
             Description = $"Contract {contract.ContractNumber} a fost reluat",
             CreatedAtUtc = DateTime.UtcNow

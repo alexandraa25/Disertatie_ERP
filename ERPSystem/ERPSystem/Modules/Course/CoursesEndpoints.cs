@@ -1,6 +1,7 @@
 ﻿using ERPSystem.Extensions;
 using ERPSystem.Modules.Course.Models;
 using ERPSystem.Shared.BusinessLogic;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Route = ERPSystem.Utils.Constants.General.Route.Courses;
 
 namespace ERPSystem.Modules.Courses;
@@ -10,8 +11,8 @@ public static class CoursesEndpoints
     public static void Map(RouteGroupBuilder group)
     {
         group.MapGet(Route.COURSES,
-            async (string? q, CoursesService service)
-                => await service.ListAsync(q))
+            async (string? q, string? status, string? deleteStatus, CoursesService service)
+                 => await service.ListAsync(q, status, deleteStatus))
             .WithDefaultApiSettings("GetAllCourses", "Lista cursuri", "GET", false);
 
         group.MapGet(Route.COURSE_BY_ID,
@@ -29,10 +30,20 @@ public static class CoursesEndpoints
                 => await service.UpdateAsync(id, dto))
             .WithDefaultApiSettings("UpdateCourse", "Actualizare curs", "UPDATE", false);
 
-        group.MapDelete(Route.COURSE_BY_ID,
+        group.MapPost(Route.COURSE_STATUS,
+           async (int id, CoursesService service)
+               => await service.ToggleCourseStatusAsync(id))
+           .WithDefaultApiSettings("ToggleCourseStatus", "Activare/Dezactivare curs", "UPDATE", false);
+
+        group.MapDelete(Route.COURSE_DELETE,
             async (int id, CoursesService service)
                 => await service.DeleteAsync(id))
             .WithDefaultApiSettings("DeleteCourse", "Stergere curs", "DELETE", false);
+       
+        group.MapPost(Route.COURSE_RESTORE,
+            async (int id, CoursesService service)
+                => await service.RestoreAsync(id))
+            .WithDefaultApiSettings("RestoreCourse", "Restore curs", "RESTORE", false);
 
         group.MapGet(Route.COURSE_ENROLLMENTS,
             async (int id, CoursesService service)

@@ -19,6 +19,7 @@ namespace ERPSystem.Modules.UserProfile.Models
     DateTime? LastLoginAt,
     string? AvatarUrl,
     int UnreadNotifications,
+    Guid? EmployeeId,
         string? jobTitle,
 DateTime? hireDate,
 decimal? salary,

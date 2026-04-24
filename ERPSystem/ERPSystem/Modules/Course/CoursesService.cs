@@ -23,7 +23,7 @@ public class CoursesService
         _logger = logger;
     }
 
-    public async Task<PublicResponse> ListAsync(string? q)
+    public async Task<PublicResponse> ListAsync(string? q, string? status, string? deleteStatus)
     {
         var response = new PublicResponse(true);
 
@@ -37,14 +37,31 @@ public class CoursesService
                 query = query.Where(x => x.Name.Contains(q));
             }
 
+            if (status == "active")
+                query = query.Where(x => x.IsActive);
+
+            if (status == "inactive")
+                query = query.Where(x => !x.IsActive);
+
+            if (string.IsNullOrWhiteSpace(deleteStatus) || deleteStatus == "notDeleted")
+                query = query.Where(x => !x.IsDeleted);
+
+            if (deleteStatus == "deleted")
+                query = query.Where(x => x.IsDeleted);
+
+            if (deleteStatus == "all")
+                query = query;
+
             var items = await query
-                .OrderByDescending(x => x.IsActive)
+                .OrderBy(x => x.IsDeleted)
+                .ThenByDescending(x => x.IsActive)
                 .ThenBy(x => x.Name)
                 .Select(x => new CourseListItemDto
                 {
                     Id = x.Id,
                     Name = x.Name,
                     IsActive = x.IsActive,
+                    IsDeleted = x.IsDeleted,
                     CreatedAtUtc = x.CreatedAtUtc
                 })
                 .ToListAsync();
@@ -198,13 +215,12 @@ public class CoursesService
             _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
             {
                 EntityType = "Course",
-                EntityId = c.Id,
+                EntityId = c.Id.ToString(),
                 Action = "Create",
                 Description = description,
                 CreatedAtUtc = DateTime.UtcNow,
                 PerformedBy = "system"
             });
-
 
             return response.SetCreated(new { id = c.Id });
         }
@@ -246,7 +262,6 @@ public class CoursesService
             if (c is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Cursul nu a fost gasit.");
 
-            // 🔥 OLD VALUES
             var oldName = c.Name;
             var oldIsActive = c.IsActive;
 
@@ -264,7 +279,6 @@ public class CoursesService
                       s.TotalSessions
                   });
 
-            // 🔥 UPDATE COURSE
             c.Name = dto.Name.Trim();
             c.Description = string.IsNullOrWhiteSpace(dto.Description) ? null : dto.Description.Trim();
             c.IsActive = dto.IsActive;
@@ -282,14 +296,12 @@ public class CoursesService
                 .Select(x => x.Id!.Value)
                 .ToHashSet();
 
-            // 🔥 detectăm ștergeri
             var removedSessions = c.Sessions
                 .Where(s => !incomingIds.Contains(s.Id))
                 .ToList();
 
             c.Sessions.RemoveAll(s => !incomingIds.Contains(s.Id));
 
-            // 🔥 detectăm adăugări
             var addedSessions = new List<CourseSession>();
 
             foreach (var sDto in dto.Sessions)
@@ -332,9 +344,8 @@ public class CoursesService
 
             }
 
-            await _db.SaveChangesAsync(); // 🔥 audit automat
+            await _db.SaveChangesAsync(); 
 
-            // 🔥 luăm profesori (pentru nume)
             var teacherIds = dto.Sessions
                 .Select(x => x.TeacherUserId)
                 .Concat(oldSessions.Values.Select(x => x.TeacherUserId))
@@ -347,7 +358,6 @@ public class CoursesService
 
             var changes = new List<string>();
 
-            // 🔥 schimbări simple
             if (oldName != c.Name)
                 changes.Add($"Nume: '{oldName}' → '{c.Name}'");
 
@@ -355,7 +365,6 @@ public class CoursesService
                 changes.Add(c.IsActive ? "Curs activat" : "Curs dezactivat");
 
             
-            // 🔥 sesiuni adăugate
             if (addedSessions.Any())
             {
                 var added = addedSessions.Select(s =>
@@ -370,7 +379,6 @@ public class CoursesService
                 changes.Add("Sesiuni adăugate: " + string.Join(", ", added));
             }
 
-            // 🔥 sesiuni șterse
             if (removedSessions.Any())
             {
                 var removed = removedSessions.Select(s =>
@@ -385,7 +393,6 @@ public class CoursesService
                 changes.Add("Sesiuni eliminate: " + string.Join(", ", removed));
             }
 
-            // 🔥 sesiuni modificate
             var updatedSessions = new List<string>();
 
             foreach (var sDto in dto.Sessions)
@@ -457,13 +464,12 @@ public class CoursesService
                 changes.AddRange(updatedSessions.Select(x => "- " + x));
             }
 
-            // 🔥 LOG FINAL
             if (changes.Any())
             {
                 _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
                 {
                     EntityType = "Course",
-                    EntityId = c.Id,
+                    EntityId = c.Id.ToString(),
                     Action = "Update",
                     Description = $"Curs actualizat:\n{string.Join("\n", changes)}",
                     CreatedAtUtc = DateTime.UtcNow,
@@ -482,6 +488,51 @@ public class CoursesService
         }
     }
 
+    public async Task<PublicResponse> ToggleCourseStatusAsync(int id)
+    {
+        var response = new PublicResponse(true);
+
+        try
+        {
+            var course = await _db.Courses
+                .Include(x => x.Sessions)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (course == null)
+                return response.SetError("NOT_FOUND", "Course not found");
+
+            if (course.IsActive && course.Sessions.Any(s => s.IsActive))
+            {
+                return response.SetError("VALIDATION", "Există sesiuni active");
+            }
+
+            course.IsActive = !course.IsActive;
+
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = "Course",
+                EntityId = course.Id.ToString(),
+                Action = course.IsActive ? "CourseActivated" : "CourseDeactivated",
+                Description = course.IsActive
+                    ? $"Cursul '{course.Name}' a fost activat."
+                    : $"Cursul '{course.Name}' a fost dezactivat.",
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
+            await _db.SaveChangesAsync();
+
+            return response.SetSuccess(new
+            {
+                course.Id,
+                course.IsActive
+            });
+        }
+        catch (Exception ex)
+        {
+            return response.SetError("SERVER", ex.Message);
+        }
+    }
 
     public async Task<PublicResponse> DeleteAsync(int id)
     {
@@ -489,11 +540,24 @@ public class CoursesService
 
         try
         {
-            var c = await _db.Courses.FirstOrDefaultAsync(x => x.Id == id);
+            var c = await _db.Courses.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+
             if (c is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Course not found");
 
-            _db.Courses.Remove(c);
+            c.IsDeleted = true;
+            c.DeletedAtUtc = DateTime.UtcNow;
+
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = "Course",
+                EntityId = c.Id.ToString(),
+                Action = "Delete",
+                Description = $"Cursul '{c.Name}' a fost șters.",
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
             await _db.SaveChangesAsync();
 
             return response.SetSuccess(true);
@@ -505,6 +569,22 @@ public class CoursesService
         }
     }
 
+    public async Task<PublicResponse> RestoreAsync(int id)
+    {
+        var response = new PublicResponse(true);
+
+        var c = await _db.Courses.FirstOrDefaultAsync(x => x.Id == id);
+
+        if (c is null)
+            return response.SetError(ErrorCodes.InvalidParameters, "Course not found");
+
+        c.IsDeleted = false;
+        c.DeletedAtUtc = null;
+
+        await _db.SaveChangesAsync();
+
+        return response.SetSuccess(true);
+    }
 
     public async Task<PublicResponse> ListEnrollmentsAsync(int courseId)
     {
@@ -570,7 +650,7 @@ public class CoursesService
             }
 
             var alreadyActive = await _db.CourseEnrollments
-     .AnyAsync(x => x.CourseSessionId == sessionId && x.StudentId == studentId && x.IsActive);
+               .AnyAsync(x => x.CourseSessionId == sessionId && x.StudentId == studentId && x.IsActive);
 
             if (alreadyActive)
                 return response.SetError(ErrorCodes.InvalidParameters, "Student already active");
@@ -584,29 +664,24 @@ public class CoursesService
                 IsActive = true
             });
 
-            
-
             var sessionInfo = $"{session.DayOfWeek} {session.StartTime:HH:mm}";
 
             var description = $"Studentul {student.FullName} a fost înscris la cursul {course.Name} ({sessionInfo})";
               
-
-            // 🔥 LOG STUDENT
             _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
             {
                 EntityType = "Student",
-                EntityId = studentId,
+                EntityId = studentId.ToString(),
                 Action =  "Enroll",
                 Description = description,
                 CreatedAtUtc = DateTime.UtcNow,
                 PerformedBy = "system"
             });
 
-            // 🔥 LOG COURSE
             _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
             {
                 EntityType = "Course",
-                EntityId = courseId,
+                EntityId = courseId.ToString(),
                 Action =  "EnrollStudent",
                 Description = description,
                 CreatedAtUtc = DateTime.UtcNow,
@@ -645,29 +720,24 @@ public class CoursesService
                 var course = await _db.Courses.FindAsync(courseId);
                 var session = await _db.CourseSessions.FindAsync(sessionId);
 
-
-
-
                 var sessionInfo = $"{session.DayOfWeek} {session.StartTime:HH:mm}";
 
                 var description = $"Studentul {student!.FullName} a fost eliminat din cursul {course!.Name} ({sessionInfo})";
 
-                // 🔥 STUDENT LOG
                 _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
                 {
                     EntityType = "Student",
-                    EntityId = studentId,
+                    EntityId = studentId.ToString(),
                     Action = "EnrollDeactivate",
                     Description = description,
                     CreatedAtUtc = DateTime.UtcNow,
                     PerformedBy = "system"
                 });
 
-                // 🔥 COURSE LOG
                 _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
                 {
                     EntityType = "Course",
-                    EntityId = courseId,
+                    EntityId = courseId.ToString(),
                     Action = "StudentRemoved",
                     Description = description,
                     CreatedAtUtc = DateTime.UtcNow,
@@ -675,7 +745,7 @@ public class CoursesService
                 });
 
                 await _db.SaveChangesAsync();
-                return response.SetSuccess(true); // 🔥 FIX
+                return response.SetSuccess(true); 
 
             }
             else
@@ -721,7 +791,6 @@ public class CoursesService
             return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
         }
     }
-
 
     private static TimeOnly ParseTime(string s)
     {
@@ -797,7 +866,6 @@ public class CoursesService
 
         return null;
     }
-
 
     private static bool HasTeacherOverlap(List<CourseSessionUpsertDto> sessions)
     {

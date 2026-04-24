@@ -4,11 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../services/admin.service';
 import { AdminUser, AdminDashboard } from '../../models/admin-user.model';
 import { Router } from '@angular/router';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
+import { ConfirmService } from '../../services/confirm.service';
+import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
 
 @Component({
   selector: 'app-admin-users',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmCustomModalComponent],
   templateUrl: './admin-users.component.html',
   styleUrls: ['./admin-users.component.css']
 })
@@ -29,8 +32,7 @@ export class AdminUsersComponent implements OnInit {
   currentPage = 1;
   pageSize = 10;
 
-  constructor(private adminService: AdminService, private router: Router) { }
-
+  constructor(private adminService: AdminService, private router: Router,  private snackbar: SnackbarService, private confirmService: ConfirmService, ) { }
 
 
   filteredUsers() {
@@ -65,17 +67,43 @@ export class AdminUsersComponent implements OnInit {
 
   }
 
-  editUser(user: AdminUser) {
+ detailsUser(user: AdminUser) {
+  this.router.navigate(['/user-details', user.id]);
+}
 
-    console.log("Edit user", user);
+async askToggleUserStatus(user: AdminUser): Promise<void> {
+  const action = user.isActive ? 'dezactivezi' : 'activezi';
 
-  }
+  const confirmed = await this.confirmService.confirm(
+    'Confirmare',
+    `Sigur vrei să ${action} contul utilizatorului ${user.email}?`
+  );
 
-  toggleUser(user: AdminUser) {
+  if (!confirmed) return;
 
-    user.isActive = !user.isActive;
+  this.toggleUser(user);
+}
 
-  }
+ toggleUser(user: AdminUser): void {
+  this.adminService.toggleUserStatus(user.id).subscribe({
+    next: (res: any) => {
+      if (res.isSuccess === false) {
+        this.snackbar.showError('Statusul utilizatorului nu a putut fi actualizat.', 2000);
+        return;
+      }
+
+      user.isActive = res.value.isActive;
+
+      this.snackbar.showSuccess(
+        user.isActive ? 'Utilizator activat.' : 'Utilizator dezactivat.',
+        1500
+      );
+    },
+    error: () => {
+      this.snackbar.showError('A apărut o eroare.', 2000);
+    }
+  });
+}
 
   loadDashboard() {
 

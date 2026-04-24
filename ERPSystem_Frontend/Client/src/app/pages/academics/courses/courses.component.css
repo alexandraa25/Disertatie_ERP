@@ -1,16 +1,17 @@
-/* ===== Page Background ===== */
+/* ===== GLOBAL ===== */
 body {
   background: linear-gradient(135deg, #c9d6ff 0%, #e2e2e2 100%);
   font-family: 'Inter', sans-serif;
 }
 
+/* ===== PAGE ===== */
 .page {
   max-width: 1200px;
   margin: 80px auto;
   padding: 0 24px;
 }
 
-/* ===== Header ===== */
+/* ===== HEADER ===== */
 .header {
   display: flex;
   justify-content: space-between;
@@ -25,7 +26,7 @@ body {
   color: #111827;
 }
 
-/* ===== Actions ===== */
+/* ===== ACTIONS ===== */
 .actions {
   display: flex;
   gap: 12px;
@@ -38,8 +39,8 @@ body {
   border: 1px solid #e5e7eb;
   width: 240px;
   background: white;
-  transition: 0.2s ease;
   font-size: 14px;
+  transition: 0.2s ease;
 }
 
 .actions input:focus {
@@ -48,7 +49,7 @@ body {
   box-shadow: 0 0 0 3px rgba(90, 75, 255, 0.15);
 }
 
-/* ===== Buttons ===== */
+/* ===== BUTTONS ===== */
 button {
   height: 40px;
   padding: 0 18px;
@@ -70,16 +71,7 @@ button {
   box-shadow: 0 10px 25px rgba(90, 75, 255, 0.35);
 }
 
-.secondary {
-  background: white;
-  border: 1px solid #e5e7eb;
-}
-
-.secondary:hover {
-  background: #f9fafb;
-}
-
-/* ===== Card ===== */
+/* ===== CARD ===== */
 .card {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
@@ -89,98 +81,94 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
-/* ===== Table ===== */
 table {
   width: 100%;
   border-collapse: collapse;
-}
-
-thead {
-  background: transparent;
+  table-layout: auto;
 }
 
 th {
   text-align: left;
-  font-weight: 600;
-  padding: 16px 12px;
-  font-size: 14px;
+  font-weight: 700;
+  padding: 16px 18px;
+  font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #6b7280;
 }
 
-th:last-child,
-td:last-child {
-  text-align: center;
-}
-
-th:last-child,
-td:last-child {
-  width: 260px;   /* ajustează dacă vrei */
-}
-
 td {
-  padding: 20px 12px;
+  padding: 18px;
   font-size: 15px;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid #eef2f7;
+  vertical-align: middle;
 }
 
-tbody tr {
-  transition: 0.2s ease;
+th:nth-child(1),
+td:nth-child(1) {
+  width: 42%;
 }
 
-tbody tr:hover {
-  background: rgba(90, 75, 255, 0.04);
+th:nth-child(2),
+td:nth-child(2) {
+  width: 16%;
 }
 
-.name {
-  font-weight: 600;
-  color: #111827;
+th:nth-child(3),
+td:nth-child(3) {
+  width: 16%;
 }
 
-/* ===== Status Badge ===== */
-.status {
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
+th:nth-child(4),
+td:nth-child(4) {
+  width: 26%;
 }
 
-.status.active {
-  background: rgba(34, 197, 94, 0.15);
-  color: #15803d;
+.filter {
+  height: 48px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  font-size: 14px;
+  outline: none;
 }
 
-.status.inactive {
-  background: rgba(239, 68, 68, 0.15);
-  color: #b91c1c;
-}
-
-/* ===== Action Buttons ===== */
 .actions-cell {
   display: flex;
-  justify-content: center;   /* 🔥 centrează pe mijloc */
+  flex-direction: row;
   align-items: center;
+  justify-content: flex-start;
   gap: 8px;
-  flex-wrap: wrap;
-}
-
-.actions-cell a {
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: 0.2s ease;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .actions-cell a,
-.actions-cell button {
-  padding: 6px 12px;
-  font-size: 13px;
-  border-radius: 8px;
+.btn-soft {
+  height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-/* Detalii */
+
+.btn-soft {
+  min-width: auto;
+}
+
+.actions-cell a:hover,
+.btn-soft:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
 .actions-cell .details {
   background: #eef2ff;
   color: #4338ca;
@@ -191,7 +179,6 @@ tbody tr:hover {
   color: white;
 }
 
-/* Edit */
 .actions-cell .edit {
   background: #ecfdf5;
   color: #047857;
@@ -202,23 +189,53 @@ tbody tr:hover {
   color: white;
 }
 
-/* Danger button */
-button.danger {
-  background: #ef4444;
-  color: white;
-  border-radius: 8px;
+.btn-soft.primary-soft {
+  background: #eef2ff;
+  color: #4338ca;
 }
 
-button.danger:hover {
-  background: #dc2626;
+.btn-soft.danger {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
-button.small {
-  padding: 6px 12px;
+.btn-soft.danger-outline {
+  background: white;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.btn-soft.restore {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.btn-soft:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 78px;
+  padding: 7px 12px;
+  border-radius: 999px;
   font-size: 12px;
+  font-weight: 800;
 }
 
-/* ===== Responsive ===== */
+/* ===== LOADING ===== */
+.loading {
+  text-align: center;
+  padding: 30px;
+  font-size: 15px;
+  color: #64748b;
+}
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
@@ -232,5 +249,13 @@ button.small {
 
   .card {
     padding: 20px;
+  }
+
+  table {
+    font-size: 13px;
+  }
+
+  .actions-cell {
+    justify-content: flex-start;
   }
 }

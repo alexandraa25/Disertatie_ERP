@@ -1,11 +1,9 @@
 ﻿using ERPSystem.Data.Audit;
 using ERPSystem.Data.Entities;
 //using ERPSystem.Data.TypeConfigurations;
-using ERPSystem.Modules.UserProfile.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
 using System.Text.Json;
 
 namespace ERPSystem.Data.Context
@@ -435,7 +433,7 @@ namespace ERPSystem.Data.Context
                 var log = new ActivityLog
                 {
                     EntityType = entry.EntityType,
-                    EntityId = entry.GetEntityId(),
+                    EntityId = entry.GetEntityId().ToString(),
                     Action = entry.Action,
                     Changes = JsonSerializer.Serialize(new
                     {

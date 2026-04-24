@@ -10,7 +10,7 @@ namespace ERPSystem.Shared.ActivityLogs
         public static void Map(RouteGroupBuilder group)
         {
             group.MapGet(Route.ACTIVITY,
-                async (string entity, int id, ActivityLogService activityLogService)
+                async (string entity, string id, ActivityLogService activityLogService)
                     => await activityLogService.GetActivity(entity, id))
                .WithDefaultApiSettings("GetActivity", "Istoric generic entitate", "GET", false);
 

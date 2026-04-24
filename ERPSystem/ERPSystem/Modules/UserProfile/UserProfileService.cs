@@ -58,11 +58,11 @@ public class UserProfileService
         var unreadNotifications = await _applicationDbContext.UserNotificationSettings
             .CountAsync(x => x.UserId == userId && !x.Enabled);
 
-        // 🔥 AICI ADAUGI EMPLOYEE
         var employee = await _applicationDbContext.Employees
             .Where(e => e.UserId == userId)
             .Select(e => new
             {
+                e.Id,
                 e.JobTitle,
                 e.HireDate,
                 e.Salary,
@@ -86,8 +86,7 @@ public class UserProfileService
             user.LastLoginAt,
             user.AvatarUrl,
             unreadNotifications,
-
-            // 🔥 ADAUGI LA FINAL
+             employee?.Id,
             employee?.JobTitle,
             employee?.HireDate,
             employee?.Salary,

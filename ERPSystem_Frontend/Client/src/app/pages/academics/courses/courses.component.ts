@@ -9,12 +9,15 @@ import { CourseFormComponent } from '../course-form/course-form.component';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, startWith, switchMap } from 'rxjs/operators';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
+import { ConfirmService } from '../../services/confirm.service';
+import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
 
 
 @Component({
   selector: 'app-courses',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, ConfirmCustomModalComponent],
   templateUrl: './courses.component.html',
   styleUrls: ['./courses.component.css']
 })
@@ -24,35 +27,48 @@ export class CoursesComponent implements OnInit {
   items: CourseListItemDto[] = [];
   searchSubject = new Subject<string>();
 
-  constructor(private courses: CoursesService, private dialog: MatDialog, private router: Router) { }
+  statusFilter = '';
+  deleteStatusFilter = 'notDeleted';
+
+  constructor(private courses: CoursesService, private dialog: MatDialog, private router: Router, private snackbar: SnackbarService, private confirmService: ConfirmService) { }
 
   ngOnInit(): void {
-  this.searchSubject.pipe(
-    startWith(''), 
-    debounceTime(300),
-    distinctUntilChanged(),
-    switchMap((term) => {
-      this.loading = true;
-      return this.courses.list(term);
-    })
-  ).subscribe({
-    next: (res: any) => {
-      const data = res?.value ?? res?.data ?? res;
-      this.items = Array.isArray(data) ? data : [];
-      this.loading = false;
-    },
-    error: () => {
-      this.loading = false;
-      alert('Eroare la încărcare cursuri');
-    }
-  });
-}
+    this.searchSubject.pipe(
+      startWith(this.q),
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe((term) => {
+      this.q = term;
+      this.loadCourses();
+    });
+  }
 
   onSearch(term: string): void {
     this.searchSubject.next(term);
-    if (!term.trim()) {
-      this.items = [];
-    }
+  }
+
+  loadCourses(): void {
+    this.loading = true;
+
+    this.courses.list(this.q, this.statusFilter, this.deleteStatusFilter).subscribe({
+      next: (res: any) => {
+        const data = res?.value ?? res?.data ?? res;
+        this.items = Array.isArray(data) ? data : [];
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.snackbar.showError('Eroare la încărcare cursuri.', 2500);
+      }
+    });
+  }
+
+  onStatusFilterChange() {
+    this.loadCourses();
+  }
+
+  onDeleteStatusFilterChange() {
+    this.loadCourses();
   }
 
   openCreate() {
@@ -63,7 +79,7 @@ export class CoursesComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
-        this.ngOnInit();
+        this.loadCourses();
       }
     });
   }
@@ -82,7 +98,7 @@ export class CoursesComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
-        this.ngOnInit();
+        this.loadCourses();
       }
     });
   }
@@ -91,40 +107,80 @@ export class CoursesComponent implements OnInit {
     this.router.navigate(['/courses', id]);
   }
 
-  toggleCourse(course: any) {
-
-  // 🔥 verificăm doar la dezactivare
-  if (course.isActive) {
-
-    const hasActiveSessions = course.sessions?.some((s: any) => s.isActive);
-
-    if (hasActiveSessions) {
-      alert('Nu poți dezactiva cursul. Există sesiuni active.');
+  async toggleCourse(course: any): Promise<void> {
+    if (course.isActive && this.hasActiveSessions(course)) {
+      this.snackbar.showError('Nu poți dezactiva cursul. Există sesiuni active.', 2500);
       return;
     }
+
+    const action = course.isActive ? 'dezactivezi' : 'activezi';
+
+    const confirmed = await this.confirmService.confirm(
+      'Confirmare',
+      `Sigur vrei să ${action} cursul "${course.name}"?`
+    );
+
+    if (!confirmed) return;
+
+    this.courses.toggleCourseStatus(course.id).subscribe({
+      next: (res: any) => {
+        course.isActive = res.value.isActive;
+
+        this.snackbar.showSuccess(
+          course.isActive ? 'Curs activat cu succes.' : 'Curs dezactivat cu succes.',
+          1800
+        );
+      },
+      error: () => {
+        this.snackbar.showError('Statusul cursului nu a putut fi actualizat.', 2500);
+      }
+    });
   }
 
-  const confirmMsg = course.isActive
-    ? 'Sigur vrei să dezactivezi cursul?'
-    : 'Sigur vrei să activezi cursul?';
+  hasActiveSessions(course: any): boolean {
+    return course.sessions?.some((s: any) => s.isActive) ?? false;
+  }
 
-  if (!confirm(confirmMsg)) return;
+  async deleteCourse(course: any): Promise<void> {
+    if (this.hasActiveSessions(course)) {
+      this.snackbar.showError('Nu poți șterge cursul. Există sesiuni active.', 2500);
+      return;
+    }
 
-  const dto = {
-    name: course.name,
-    description: course.description,
-    price: course.price,
-    isActive: !course.isActive,
-    sessions: []
-  };
+    const confirmed = await this.confirmService.confirm(
+      'Confirmare ștergere',
+      `Sigur vrei să ștergi cursul "${course.name}"? Acesta va putea fi restaurat ulterior.`
+    );
 
-  this.courses.update(course.id, dto).subscribe({
-    next: () => this.ngOnInit(),
-    error: () => alert('Eroare la actualizare')
-  });
-}
+    if (!confirmed) return;
 
-hasActiveSessions(course: any): boolean {
-  return course.sessions?.some((s: any) => s.isActive);
-}
+    this.courses.deleteCourse(course.id).subscribe({
+      next: () => {
+        this.snackbar.showSuccess('Cursul a fost mutat în coș.', 1800);
+        this.loadCourses();
+      },
+      error: () => {
+        this.snackbar.showError('Cursul nu a putut fi șters.', 2500);
+      }
+    });
+  }
+
+  async restoreCourse(course: any): Promise<void> {
+    const confirmed = await this.confirmService.confirm(
+      'Confirmare restaurare',
+      `Sigur vrei să restaurezi cursul "${course.name}"?`
+    );
+
+    if (!confirmed) return;
+
+    this.courses.restoreCourse(course.id).subscribe({
+      next: () => {
+        this.snackbar.showSuccess('Cursul a fost restaurat cu succes.', 1800);
+        this.loadCourses();
+      },
+      error: () => {
+        this.snackbar.showError('Cursul nu a putut fi restaurat.', 2500);
+      }
+    });
+  }
 }

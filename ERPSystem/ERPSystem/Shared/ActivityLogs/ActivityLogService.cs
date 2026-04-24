@@ -13,7 +13,7 @@ public class ActivityLogService
         _db = db;
     }
 
-    public async Task<List<ActivityLogDto>> GetActivity(string entityType, int entityId)
+    public async Task<List<ActivityLogDto>> GetActivity(string entityType, string entityId)
     {
         var logs = await _db.ActivityLog
             .AsNoTracking()
@@ -48,8 +48,6 @@ public class ActivityLogService
                 NewValues = changes.ContainsKey("New") ? changes["New"] : new()
             };
         }).ToList();
-
-
     }
 
 

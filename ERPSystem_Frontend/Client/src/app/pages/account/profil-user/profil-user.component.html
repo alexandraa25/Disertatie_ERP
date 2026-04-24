@@ -274,20 +274,16 @@
           <span class="status" [ngClass]="leave.status.toLowerCase()">
             {{leave.status}}
           </span>
-<div class="leave-actions">
-          <!-- 🔥 BUTON EDIT -->
-      <button *ngIf="leave.status === 'Pending'"
-              class="edit-btn"
-              (click)="editLeave(leave)">
-        ✏️Editeaza
-      </button>
-       <!-- CANCEL -->
- <button *ngIf="canCancel(leave)"
-        class="cancel-btn"
-        (click)="cancelLeave(leave)">
-    ❌Anuleaza
-  </button>
-</div>
+          <div class="leave-actions">
+            <!-- 🔥 BUTON EDIT -->
+            <button *ngIf="leave.status === 'Pending'" class="edit-btn" (click)="editLeave(leave)">
+              ✏️Editeaza
+            </button>
+            <!-- CANCEL -->
+            <button *ngIf="canCancel(leave)" class="cancel-btn" (click)="cancelLeave(leave)">
+              ❌Anuleaza
+            </button>
+          </div>
 
         </div>
 
@@ -317,19 +313,19 @@
 
       </div>
 
-     <div class="holiday-section" *ngIf="holidays?.length">
+      <div class="holiday-section" *ngIf="holidays?.length">
 
-  <h4>Sărbători legale</h4>
+        <h4>Sărbători legale</h4>
 
-  <div class="holiday-list">
+        <div class="holiday-list">
 
-    <div class="holiday-item" *ngFor="let h of holidays">
-      {{ h | date:'dd MMM yyyy' }}
-    </div>
+          <div class="holiday-item" *ngFor="let h of holidays">
+            {{ h | date:'dd MMM yyyy' }}
+          </div>
 
-  </div>
+        </div>
 
-</div>
+      </div>
 
     </div>
 

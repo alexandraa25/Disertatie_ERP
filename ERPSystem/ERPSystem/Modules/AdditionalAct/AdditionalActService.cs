@@ -411,7 +411,7 @@ namespace ERPSystem.Modules.AdditionalAct
             _db.ActivityLog.Add(new ActivityLog
             {
                 EntityType = nameof(ContractAdditionalAct),
-                EntityId = act.Id,
+                EntityId = act.Id.ToString(),
                 Action = "Finalized",
                 Description = $"Act {act.ActNumber} finalizat",
                 CreatedAtUtc = DateTime.UtcNow

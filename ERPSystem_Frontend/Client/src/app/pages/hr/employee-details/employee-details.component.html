@@ -209,7 +209,7 @@
 
   </div>
 
- 
+
   <!-- DOCUMENTS TAB -->
   <div *ngIf="activeTab === 'documents'" class="section">
 
@@ -218,51 +218,45 @@
     <!-- UPLOAD ZONE -->
     <div class="upload-box">
 
-  <!-- DOCUMENT TYPE -->
-  <div class="type-row">
-    <select [(ngModel)]="documentType" (change)="onDocTypeChange()">
-      <option value="Contract">Contract</option>
-      <option value="ActAditional">Act Adițional</option>
-      <option value="Cerere">Cerere</option>
-      <option value="CV">CV</option>
-      <option value="custom">Alt tip (custom)</option>
-    </select>
+      <!-- DOCUMENT TYPE -->
+      <div class="type-row">
+        <select [(ngModel)]="documentType" (change)="onDocTypeChange()">
+          <option value="Contract">Contract</option>
+          <option value="ActAditional">Act Adițional</option>
+          <option value="Cerere">Cerere</option>
+          <option value="CV">CV</option>
+          <option value="custom">Alt tip (custom)</option>
+        </select>
 
-    <input *ngIf="documentType === 'custom'"
-           [(ngModel)]="customDocumentType"
-           placeholder="Introdu tip document..." />
-  </div>
-
-  <!-- FILE INPUT -->
-  <input type="file"
-         multiple
-         (change)="onFileSelected($event)"
-         accept=".doc,.docx,.pdf,.jpg,.png" />
-
-  <!-- FILE LIST -->
-  <div class="file-list" *ngIf="selectedFiles.length">
-    <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
-
-      <div>
-        📄 {{ file.name }}
-
-        <small class="tag">
-          {{ getResolvedDocType() }}
-        </small>
+        <input *ngIf="documentType === 'custom'" [(ngModel)]="customDocumentType"
+          placeholder="Introdu tip document..." />
       </div>
 
-      <button class="remove" (click)="removeFile(i)">✖</button>
+      <!-- FILE INPUT -->
+      <input type="file" multiple (change)="onFileSelected($event)" accept=".doc,.docx,.pdf,.jpg,.png" />
+
+      <!-- FILE LIST -->
+      <div class="file-list" *ngIf="selectedFiles.length">
+        <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
+
+          <div>
+            📄 {{ file.name }}
+
+            <small class="tag">
+              {{ getResolvedDocType() }}
+            </small>
+          </div>
+
+          <button class="remove" (click)="removeFile(i)">✖</button>
+
+        </div>
+      </div>
+
+      <button class="upload-btn" (click)="uploadDocuments()" [disabled]="selectedFiles.length === 0">
+        Upload
+      </button>
 
     </div>
-  </div>
-
-  <button class="upload-btn"
-          (click)="uploadDocuments()"
-          [disabled]="selectedFiles.length === 0">
-    Upload
-  </button>
-
-</div>
 
     <hr />
 
@@ -340,20 +334,55 @@
   </div>
 
   <!-- AUDIT TAB -->
-  <div *ngIf="activeTab === 'audit'" class="section">
+ <div *ngIf="activeTab === 'audit'" class="section">
 
-    <h3>Istoric modificări</h3>
+  <h3>Istoric modificări</h3>
 
-    <div class="item">
-      <label>Creat la</label>
-      <span>{{employee.createdAt | date}}</span>
-    </div>
+  <div *ngIf="!activityLogs.length" class="empty-text">
+    Nu există modificări.
+  </div>
 
-    <div class="item">
-      <label>Actualizat la</label>
-      <span>{{employee.updatedAt | date}}</span>
+  <div class="audit-list" *ngIf="activityLogs.length">
+
+    <div class="audit-item" *ngFor="let log of activityLogs">
+
+      <div class="audit-icon">
+        {{
+          log.action === 'EmployeeCreated' ? '✓' :
+          log.action === 'EmployeeUpdated' ? '✏' :
+          log.action === 'EmployeeDocumentsUploaded' ? '📄' :
+          log.action === 'EmployeeTerminated' ? '⚠' :
+          '•'
+        }}
+      </div>
+
+      <div class="audit-content">
+
+        <div class="audit-title">
+          {{
+            log.action === 'EmployeeCreated' ? 'Angajat creat' :
+            log.action === 'EmployeeUpdated' ? 'Date modificate' :
+            log.action === 'EmployeeDocumentsUploaded' ? 'Documente încărcate' :
+            log.action === 'EmployeeTerminated' ? 'Angajat încetat' :
+            log.action
+          }}
+        </div>
+
+        <div class="audit-description">
+          {{ log.description }}
+        </div>
+
+        <div class="audit-meta">
+          {{ log.performedBy || 'system' }} · 
+          {{ log.createdAtUtc | date:'dd.MM.yyyy HH:mm' }}
+        </div>
+
+      </div>
+
     </div>
 
   </div>
+
+</div>
 
 </div>

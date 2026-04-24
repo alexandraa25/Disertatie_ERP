@@ -157,6 +157,12 @@ public class EmployeeService
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
+                await AddEmployeeActivityLogAsync(
+                    employee.Id,
+                    "EmployeeCreated",
+                    $"Angajatul {employee.FirstName} {employee.LastName} a fost creat."
+                );
+
                 return response.SetSuccess(employee.Id);
             }
             catch (Exception ex)
@@ -283,6 +289,12 @@ public class EmployeeService
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
+                await AddEmployeeActivityLogAsync(
+                    employee.Id,
+                    "EmployeeUpdated",
+                    $"Datele angajatului {employee.FirstName} {employee.LastName} au fost actualizate."
+                );
+
                 return response.SetSuccess(employee.Id);
             }
             catch (Exception ex)
@@ -337,6 +349,12 @@ public class EmployeeService
         }
 
         await _context.SaveChangesAsync();
+
+        await AddEmployeeActivityLogAsync(
+            employee.Id,
+            "EmployeeDocumentsUploaded",
+            $"Au fost încărcate {request.Files.Count} document(e) pentru angajatul {employee.FirstName} {employee.LastName}."
+        );
 
         return response.SetSuccess(true);
     }
@@ -568,6 +586,12 @@ public class EmployeeService
 
             await _context.SaveChangesAsync();
 
+            await AddEmployeeActivityLogAsync(
+                employee.Id,
+                "EmployeeTerminated",
+                $"Angajatul {employee.FirstName} {employee.LastName} a fost încetat la data {request.TerminationDate:dd.MM.yyyy}."
+            );
+
             return response.SetSuccess("Employee terminated");
         }
         catch (Exception ex)
@@ -649,5 +673,23 @@ public class EmployeeService
         {
             return response.SetError("SERVER", ex.Message);
         }
+    }
+
+    private async Task AddEmployeeActivityLogAsync(
+    Guid employeeId,
+    string action,
+    string description)
+    {
+        _context.ActivityLog.Add(new ActivityLog
+        {
+            EntityType = "Employee",
+            EntityId = employeeId.ToString(),
+            Action = action,
+            Description = description,
+            CreatedAtUtc = DateTime.UtcNow,
+            PerformedBy = "system"
+        });
+
+        await _context.SaveChangesAsync();
     }
 }

@@ -1,66 +1,65 @@
 <div class="container">
 
-    <h2>Admin Dashboard</h2>
 
     <div class="stats">
 
         <div class="card">
             <h3>{{totalUsers}}</h3>
-            <p>Total Users</p>
+            <p>Total utilizatori</p>
         </div>
 
         <div class="card">
             <h3>{{activeUsers}}</h3>
-            <p>Active Users</p>
+            <p>Utilizatori activi</p>
         </div>
 
         <div class="card">
             <h3>{{inactiveUsers}}</h3>
-            <p>Inactive Users</p>
+            <p>Utilizatori inactivi</p>
         </div>
 
         <div class="card">
             <h3>{{adminUsers}}</h3>
-            <p>Admins</p>
+            <p>Administratori</p>
         </div>
 
     </div>
 
     <div *ngIf="employeesWithoutUser?.length" class="section">
 
-    <h3>Angajați fără cont</h3>
+        <h3>Angajați fără cont</h3>
 
-    <table class="table-secondary">
+        <table class="table-secondary">
 
-        <thead>
-            <tr>
-                <th>Nume</th>
-                <th>Email</th>
-                <th>Acțiune</th>
-            </tr>
-        </thead>
+            <thead>
+                <tr>
+                    <th>Nume</th>
+                    <th>Email</th>
+                    <th>Acțiune</th>
+                </tr>
+            </thead>
 
-        <tbody>
+            <tbody>
 
-            <tr *ngFor="let emp of employeesWithoutUser">
+                <tr *ngFor="let emp of employeesWithoutUser">
 
-                <td>{{emp.firstName}} {{emp.lastName}}</td>
+                    <td>{{emp.firstName}} {{emp.lastName}}</td>
 
-                <td>{{emp.email}}</td>
+                    <td>{{emp.email}}</td>
 
-                <td>
-                    <button class="btn primary" (click)="goToRegister(emp)">
-                        Creează cont
-                    </button>
-                </td>
+                    <td>
+                        <button class="btn primary" (click)="goToRegister(emp)">
+                            Creează cont
+                        </button>
+                    </td>
 
-            </tr>
+                </tr>
 
-        </tbody>
+            </tbody>
 
-    </table>
+        </table>
 
-</div>
+    </div>
 
     <div class="toolbar">
 
@@ -68,31 +67,33 @@
 
         <select [(ngModel)]="roleFilter" class="filter">
             <option value="">Toate rolurile</option>
-            <option value="Admin">Admin</option>
+            <option value="Admin">Administrator</option>
             <option value="Manager">Manager</option>
-            <option value="Secretary">Secretary</option>
-            <option value="Teacher">Teacher</option>
+            <option value="Secretary">Secretar</option>
+            <option value="Teacher">Profesor</option>
             <option value="Marketing">Marketing</option>
-            <option value="Accountant">Accountant</option>
+            <option value="Accountant">Contabil</option>
         </select>
 
         <select [(ngModel)]="statusFilter" class="filter">
             <option value="">Toate statusurile</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="active">Activ</option>
+            <option value="inactive">Inactiv</option>
         </select>
 
     </div>
+
     <table>
 
         <thead>
             <tr>
-                <th>Username</th>
+                <th>Utilizator</th>
                 <th>Email</th>
-                <th>Name</th>
-                <th>Role</th>
+                <th>Nume</th>
+                <th>Rol</th>
                 <th>Status</th>
-                <th>Created</th>
+                <th>Creat la</th>
+                <th>Acțiuni</th>
             </tr>
         </thead>
 
@@ -107,35 +108,32 @@
                 <td>{{user.firstName}} {{user.lastName}}</td>
 
                 <td>
-
                     <span *ngFor="let role of user.roles" class="role-badge">
                         {{role}}
                     </span>
-
                 </td>
 
                 <td>
-
                     <span *ngIf="user.isActive" class="badge success">
-                        Active
+                        Activ
                     </span>
 
                     <span *ngIf="!user.isActive" class="badge danger">
-                        Inactive
+                        Inactiv
                     </span>
-
                 </td>
 
                 <td>{{user.createdAt | date:'short'}}</td>
 
                 <td class="actions">
 
-                    <button class="btn edit" (click)="editUser(user)">
+                    <button class="btn edit" (click)="detailsUser(user)">
                         Detalii
                     </button>
 
-                    <button class="btn disable" (click)="toggleUser(user)">
-                        {{user.isActive ? 'Disable' : 'Enable'}}
+                    
+                    <button class="btn disable" [ngClass]="user.isActive ? 'danger' : 'primary'" (click)="askToggleUserStatus(user)">
+                        {{ user.isActive ? 'Dezactivează cont' : 'Activează cont' }}
                     </button>
 
                 </td>
@@ -149,17 +147,19 @@
     <div class="pagination">
 
         <button (click)="prevPage()" [disabled]="currentPage === 1">
-            Previous
+            Anterior
         </button>
 
         <span>
-            Page {{currentPage}} / {{totalPages}}
+            Pagina {{currentPage}} / {{totalPages}}
         </span>
 
         <button (click)="nextPage()" [disabled]="currentPage === totalPages">
-            Next
+            Următor
         </button>
 
     </div>
 
 </div>
+
+<app-confirm-custom-modal></app-confirm-custom-modal>

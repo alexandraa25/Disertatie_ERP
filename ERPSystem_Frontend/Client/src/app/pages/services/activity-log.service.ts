@@ -13,12 +13,13 @@ export class ActivityLogService {
 
   constructor(private http: HttpClient) {}
 
-  getActivity(entity: string, id: number) {
-    return this.http.get<ActivityLog[]>(
-      `${this.apiUrl}/activity?entity=${entity}&id=${id}`
-    );
-  }
+  getActivity(entity: string, id: string) {
+  return this.http.get<ActivityLog[]>(
+    `${this.apiUrl}/activity?entity=${entity}&id=${id}`
+  );
+}
 
+  
 getFilters() {
   return this.http.get<ActivityFilterOptions>(
     `${this.apiUrl}/fillter`

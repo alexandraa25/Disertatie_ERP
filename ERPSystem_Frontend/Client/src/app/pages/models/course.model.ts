@@ -51,6 +51,7 @@ export interface CourseListItemDto {
   name: string;
   isActive: boolean;
   createdAtUtc: string;
+  isDeleted:boolean;
 }
 
 export interface CourseDetailsDto {

@@ -100,6 +100,10 @@ export class StudentDetailsComponent implements OnInit {
     if (tab === 'Cursuri' && !this.coursesLoaded) {
       this.loadCourses();
     }
+
+     if (tab === 'Istoric') {
+    this.loadActivity();
+  }
   }
 
   loadCourses() {
@@ -574,15 +578,18 @@ export class StudentDetailsComponent implements OnInit {
     return 'success';
   }
 
-  loadActivity() {
-    if (!this.student?.id) return;
+ loadActivity() {
+  if (!this.student?.id) return;
 
-    this.activityService
-      .getActivity('Student', this.student.id)
-      .subscribe((res: ActivityLog[]) => {
-        this.activityLogs = res;
-      });
-  }
+  console.log('Loading activity for student:', this.student.id);
+
+  this.activityService
+    .getActivity('Student', this.student.id.toString())
+    .subscribe((res: ActivityLog[]) => {
+      console.log('Activity logs:', res);
+      this.activityLogs = res;
+    });
+}
 
 }
 

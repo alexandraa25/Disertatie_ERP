@@ -1,8 +1,8 @@
 <div class="verify-wrapper">
 
   <div class="verify-card">
-    <h3>Enter Verification Code</h3>
-    <p class="subtitle">We sent a 6-digit code to your email</p>
+    <h3>Introdu codul de verificare</h3>
+    <p class="subtitle">Am trimis un cod din 6 cifre pe email</p>
 
     <form [formGroup]="codeForm" (ngSubmit)="onSubmit()">
 
@@ -15,11 +15,13 @@
                (keydown.backspace)="moveToPrev($event, i)">
       </div>
 
-      <button type="submit" class="btn-submit">Verify Code</button>
+      <button type="submit" class="btn-submit">
+        Verifică codul
+      </button>
 
       <div class="extra-links center">
-        <span>Didn't receive the code? </span>
-        <span class="clickable" (click)="resend()">Resend</span>
+        <span>Nu ai primit codul?</span>
+        <span class="clickable" (click)="resend()">Retrimite</span>
       </div>
 
     </form>
@@ -29,5 +31,5 @@
 
 <div class="loading-overlay" *ngIf="isLoading">
   <div class="spinner"></div>
-  <span class="loading-text">Verifying...</span>
+  <span class="loading-text">Se verifică...</span>
 </div>

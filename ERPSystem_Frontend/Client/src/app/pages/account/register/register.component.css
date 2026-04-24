@@ -1,241 +1,174 @@
-/* HOST */
 :host {
   display: block;
   width: 100%;
 }
 
-/* MAIN WRAPPER */
-.register-wrapper {
+.register-page {
+  min-height: calc(100vh - 70px);
+  margin-top: 70px;
+  padding: 50px 20px;
   display: flex;
-  width: 90%;
-  max-width: 1100px;
-  min-height: 12vh;
-  margin: 140px auto 80px auto;  /* 🔥 mutat mai jos pe toate device-urile */
-  background: #ffffff;
-  border-radius: 30px;
-  overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-}
-
-/* LEFT SIDE */
-.left-side,
-.right-side {
-  flex: 1;
-}
-
-.left-side {
-  display: flex;
-  align-items: center;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-/* MAI MARE */
-.creatures {
-  width: min(820px, 96%);   /* <-- mărește aici */
-  height: auto;
-  overflow: visible;
-  filter: drop-shadow(0 14px 26px rgba(15, 23, 42, 0.18));
-  transform-origin: center;
-}
-
-/* REACȚIE LA EROARE */
-.creatures.error {
-  animation: shake 350ms ease-in-out;
-  filter: drop-shadow(0 14px 26px rgba(220, 38, 38, 0.25));
-}
-
-@keyframes shake {
-  0%   { transform: translateX(0); }
-  20%  { transform: translateX(-6px); }
-  40%  { transform: translateX(6px); }
-  60%  { transform: translateX(-4px); }
-  80%  { transform: translateX(4px); }
-  100% { transform: translateX(0); }
-}
-
-/* RIGHT SIDE */
-.right-side {
-  display: flex;
   align-items: flex-start;
-  justify-content: center;
-  padding: 40px 60px 40px 30px;
+  background: linear-gradient(135deg, #eff6ff, #e0f2fe, #f8fafc);
 }
 
-/* FORM CARD */
-.form-card {
+.register-card {
   width: 100%;
-  max-width: 580px;
+  max-width: 850px;
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 42px;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.14);
+}
+
+.register-header {
   text-align: center;
+  margin-bottom: 32px;
 }
 
-/* TITLE */
-h3 {
-  margin-bottom: 12px;
-  font-size: 22px;
-  font-weight: 600;
-  color: #333;
+.register-header h3 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
-/* FORM */
+.register-header p {
+  margin-top: 8px;
+  font-size: 15px;
+  color: #64748b;
+}
+
 form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
 }
 
-/* FORM GROUP */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
 .form-group {
   position: relative;
   width: 100%;
 }
 
-/* LEFT ICON */
 .icon-inside {
   position: absolute;
   left: 18px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 18px;
-  color: #6c757d;
+  color: #64748b;
+  font-size: 17px;
   pointer-events: none;
 }
 
-/* INPUT */
-.form-group input {
-  width: 100%;
-  height: 50px;
-  padding-left: 52px;
-  padding-right: 55px; /* 🔥 loc pentru ochișor */
-  border-radius: 40px;
-  border: 1px solid #cfd4da;
-  outline: none;
-  font-size: 18px;
-  box-sizing: border-box;
-}
-
-/* PASSWORD GROUP */
-.password-group {
-  position: relative;
-}
-
-/* PASSWORD TOGGLE (EYE) */
-.password-toggle {
-  position: absolute;
-  right: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 20px;
-  color: #6c757d;
-  cursor: pointer;
-  opacity: 0.8;
-  z-index: 10;
-  transition: opacity 0.2s ease;
-}
-
-.password-toggle:hover {
-  opacity: 1;
-}
-
-
-/* ROLE SELECT IMPROVED */
-/* ============================= */
-
+.form-group input,
 .form-group select {
   width: 100%;
-  height: 50px;
+  height: 54px;
   padding-left: 52px;
-  padding-right: 20px;
-  border-radius: 40px;
-  border: 1px solid #cfd4da;
+  padding-right: 18px;
+  border-radius: 16px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 16px;
   outline: none;
-  font-size: 17px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.25s ease;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
 }
 
-/* Icon inside select */
-.form-group select + .icon-inside {
-  pointer-events: none;
-}
-
-/* Hover & Focus */
+.form-group input:focus,
 .form-group select:focus {
-  border: 1px solid #1d4ed8;
-  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.15);
+  background: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
 }
 
-/* Option style */
-.form-group select option {
-  padding: 10px;
+.form-group select {
+  cursor: pointer;
+  
 }
 
-
-/* ============================= */
-/* CUSTOM CHECKBOX */
-/* ============================= */
+.job-info {
+  background: #eff6ff;
+  color: #1e3a8a;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  text-align: left;
+}
 
 .checkbox-container {
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 16px;
+  width: fit-content;
+  color: #1f2937;
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-  color: #1f2937;
 }
 
-/* Ascunde checkbox default */
 .checkbox-container input {
   appearance: none;
   width: 22px;
   height: 22px;
-  border-radius: 6px;
-  border: 2px solid #cfd4da;
+  border-radius: 7px;
+  border: 2px solid #cbd5e1;
+  cursor: pointer;
   position: relative;
+  transition: all 0.2s ease;
+}
+
+.checkbox-container input:checked {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.checkbox-container input:checked::after {
+  content: "✓";
+  position: absolute;
+  top: -1px;
+  left: 4px;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.btn-submit {
+  height: 54px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 16px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-/* Când este selectat */
-.checkbox-container input:checked {
+.btn-submit:hover {
   background: #1d4ed8;
-  border-color: #1d4ed8;
+  transform: translateY(-1px);
 }
 
-/* Check icon */
-.checkbox-container input:checked::after {
-  content: "✓";
-  color: white;
-  font-size: 14px;
-  position: absolute;
-  top: 0;
-  left: 4px;
-}
-/* BUTTON */
-.btn-submit {
-  margin-top: 10px;
-  background: #1d4ed8;
-  color: #ffffff;
-  padding: 14px;
-  border-radius: 40px;
-  border: none;
-  cursor: pointer;
-  font-size: 17px;
-  transition: background 0.25s ease;
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
-
-/* LOADING OVERLAY (GLOBAL, nu doar în @media) */
 .loading-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -244,45 +177,35 @@ form {
 }
 
 .spinner {
-  border: 8px solid #f3f3f3;
-  border-top: 8px solid #3498db;
-  border-radius: 50%;
   width: 70px;
   height: 70px;
+  border: 8px solid #f8fafc;
+  border-top: 8px solid #2563eb;
+  border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* RESPONSIVE */
-@media (max-width: 992px) {
-  .register-wrapper {
-    flex-direction: column;
-    margin-top: 120px;
-  }
-
-  .left-side,
-  .right-side {
-    width: 100%;
-  }
-
-  .left-side {
-    height: 260px;
-  }
-
-  .right-side {
-    padding: 30px 20px;
+  100% {
+    transform: rotate(360deg);
   }
 }
 
-.job-info {
-  background: #f1f5f9;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 13px;
-  color: #334155;
-  margin-bottom: 12px;
+@media (max-width: 768px) {
+  .register-page {
+    padding: 35px 16px;
+  }
+
+  .register-card {
+    padding: 28px 22px;
+    border-radius: 22px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .register-header h3 {
+    font-size: 24px;
+  }
 }

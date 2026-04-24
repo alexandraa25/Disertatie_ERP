@@ -1,0 +1,227 @@
+<div class="page" *ngIf="user">
+
+  <div class="top">
+    <div class="avatar">
+      {{ user.firstName?.[0] || '?' }}{{ user.lastName?.[0] || '' }}
+    </div>
+
+    <div class="top-info">
+      <h1>{{ user.fullName || (user.firstName + ' ' + user.lastName) }}</h1>
+
+      <div class="sub">
+        {{ user.userName || '-' }}
+        <span class="dot">•</span>
+        <span class="status" [class.active]="user.isActive">
+          {{ user.isActive ? 'Activ' : 'Inactiv' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button (click)="goBack()">← Înapoi</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">
+      Profil
+    </div>
+
+    <div class="tab" [class.active]="activeTab === 'security'" (click)="activeTab = 'security'">
+      Cont & securitate
+    </div>
+
+    <div class="tab" [class.active]="activeTab === 'audit'" (click)="openAuditTab()">
+  Istoric
+</div>
+  </div>
+
+  <div *ngIf="activeTab === 'profile'" class="content">
+
+    <div class="col">
+      <div class="section">
+        <h3>Informații utilizator</h3>
+
+        <div class="item">
+          <label>Prenume</label>
+          <span>{{ user.firstName || '-' }}</span>
+        </div>
+
+        <div class="item">
+          <label>Nume</label>
+          <span>{{ user.lastName || '-' }}</span>
+        </div>
+
+        <div class="item">
+          <label>Username</label>
+          <span>{{ user.userName || '-' }}</span>
+        </div>
+
+        <div class="item">
+          <label>Email</label>
+          <span>{{ user.email || '-' }}</span>
+        </div>
+
+        <div class="item">
+          <label>Telefon</label>
+          <span>{{ user.phoneNumber || '-' }}</span>
+        </div>
+
+        <button *ngIf="user.employeeId" class="employee-details-btn" (click)="viewEmployeeDetails()">
+          Vezi detalii angajat
+        </button>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="section">
+        <div class="section-title-row">
+          <h3>Roluri</h3>
+
+          <button *ngIf="!isRoleEditMode" class="small-btn" (click)="enableRoleEdit()">
+            Editează
+          </button>
+
+          <div *ngIf="isRoleEditMode" class="small-actions">
+            <button class="success small-btn" (click)="saveRoles()">Salvează</button>
+            <button class="danger small-btn" (click)="cancelRoleEdit()">Anulează</button>
+          </div>
+        </div>
+
+        <div *ngIf="!isRoleEditMode" class="roles">
+          <span *ngFor="let role of user.roles" class="role-badge">
+            {{ role }}
+          </span>
+
+          <span *ngIf="!user.roles?.length" class="empty-text">Nu există roluri</span>
+        </div>
+
+        <div *ngIf="isRoleEditMode" class="role-picker">
+          <label *ngFor="let role of availableRoles" class="role-option">
+            <input type="checkbox" [checked]="selectedRoles.includes(role)" (change)="toggleRole(role)" />
+            <span>{{ role }}</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Activitate</h3>
+
+        <div class="item">
+          <label>Creat la</label>
+          <span>{{ user.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
+        </div>
+
+        <div class="item">
+          <label>Ultima logare</label>
+          <span>{{ user.lastLoginAt ? (user.lastLoginAt | date:'dd.MM.yyyy HH:mm') : '-' }}</span>
+        </div>
+
+        <div class="item">
+          <label>Notificări dezactivate</label>
+          <span>{{ user.unreadNotifications }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div *ngIf="activeTab === 'security'" class="content">
+
+    <div class="col">
+      <div class="section">
+        <h3>Status cont</h3>
+
+        <div class="item">
+          <label>Cont activ</label>
+          <span>{{ user.isActive ? 'Da' : 'Nu' }}</span>
+        </div>
+
+        <div class="item">
+          <label>Email confirmat</label>
+          <span>{{ user.emailConfirmed ? 'Da' : 'Nu' }}</span>
+        </div>
+
+        <div class="item">
+          <label>Data nașterii</label>
+          <span>{{ user.birthdayDate ? (user.birthdayDate | date:'dd.MM.yyyy') : '-' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="section">
+        <h3>Acțiuni administrative</h3>
+
+        <div class="admin-actions">
+          <button *ngIf="!user.emailConfirmed" class="primary" (click)="confirmEmailManually()">
+            Confirmă email
+          </button>
+
+          <button class="warning" (click)="goToForgotPassword()">
+            Resetare parolă
+          </button>
+
+          <button
+            [ngClass]="user.isActive ? 'danger' : 'primary'"
+            (click)="askToggleUserStatus()"
+          >
+            {{ user.isActive ? 'Dezactivează cont' : 'Activează cont' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div *ngIf="activeTab === 'audit'" class="section audit-section">
+
+  <h3>Istoric acțiuni</h3>
+
+  <div *ngIf="!auditLogs.length" class="empty-text">
+    Nu există acțiuni înregistrate pentru acest utilizator.
+  </div>
+
+  <div class="audit-list" *ngIf="auditLogs.length">
+
+    <div class="audit-item" *ngFor="let log of auditLogs">
+
+      <div class="audit-icon">
+        {{
+          log.action === 'UserActivated' ? '✓' :
+          log.action === 'UserDeactivated' ? '!' :
+          log.action === 'UserRolesUpdated' ? '↻' :
+          log.action === 'UserEmailConfirmed' ? '@' :
+          '•'
+        }}
+      </div>
+
+      <div class="audit-content">
+        <div class="audit-title">
+          {{
+            log.action === 'UserActivated' ? 'Cont activat' :
+            log.action === 'UserDeactivated' ? 'Cont dezactivat' :
+            log.action === 'UserRolesUpdated' ? 'Roluri modificate' :
+            log.action === 'UserEmailConfirmed' ? 'Email confirmat' :
+            log.action
+          }}
+        </div>
+
+        <div class="audit-description">
+          {{ log.description }}
+        </div>
+
+        <div class="audit-meta">
+          {{ log.performedBy || 'system' }} · {{ log.createdAtUtc | date:'dd.MM.yyyy HH:mm' }}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+</div>
+
+<app-confirm-custom-modal></app-confirm-custom-modal>

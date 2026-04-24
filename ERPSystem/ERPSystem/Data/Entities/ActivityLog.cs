@@ -5,7 +5,7 @@
         public int Id { get; set; }
 
         public string EntityType { get; set; } = null!;
-        public int EntityId { get; set; }
+        public string EntityId { get; set; } = null!;
 
         public string Action { get; set; } = null!; // Create, Update, Delete
 

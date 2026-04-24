@@ -8,6 +8,7 @@ export interface AdminUser {
   isActive: boolean;
   createdAt: Date;
    roles: string[];
+   
 }
 
 export interface AdminDashboard {

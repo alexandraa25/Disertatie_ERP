@@ -5,6 +5,7 @@ import { EmployeeService } from '../../services/employee.service';
 import { LeaveService } from '../../services/leave.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivityLogService} from '../../services/activity-log.service'
 
 @Component({
   selector: 'app-employee-details',
@@ -26,11 +27,15 @@ export class EmployeeDetailsComponent implements OnInit {
   documentType: string = 'Contract';
 customDocumentType: string = '';
 
+activityLogs: any[] = [];
+activityLoaded = false;
+
 
   constructor(
     private route: ActivatedRoute,
     private employeeService: EmployeeService,
-    private leaveService:LeaveService
+    private leaveService:LeaveService, 
+    private activityLogService:ActivityLogService
   ) {}
 
   ngOnInit(): void {
@@ -171,5 +176,22 @@ getResolvedDocType(): string {
     return this.customDocumentType || 'Custom';
   }
   return this.documentType;
+}
+
+
+loadActivity(): void {
+  if (this.activityLoaded) return;
+
+  this.activityLogService
+    .getActivity('Employee', this.employee.id)
+    .subscribe({
+      next: (res) => {
+        this.activityLogs = res;
+        this.activityLoaded = true;
+      },
+      error: () => {
+        console.error('Nu s-a putut încărca istoricul');
+      }
+    });
 }
 }

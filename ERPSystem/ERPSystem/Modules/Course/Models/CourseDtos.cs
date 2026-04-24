@@ -8,6 +8,7 @@ public class CourseListItemDto
     public string Name { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAtUtc { get; set; }
+    public bool IsDeleted { get; set; }
 }
 
 public class CourseDetailsDto

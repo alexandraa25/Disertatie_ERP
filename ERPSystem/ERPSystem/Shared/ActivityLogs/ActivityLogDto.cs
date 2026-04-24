@@ -3,7 +3,7 @@
     public class ActivityLogDto
     {
         public string EntityType { get; set; } = null!;
-        public int EntityId { get; set; }
+        public string EntityId { get; set; } = string.Empty;
 
         public string Action { get; set; } = null!;
         public DateTime CreatedAtUtc { get; set; }

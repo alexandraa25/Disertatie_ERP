@@ -36,9 +36,15 @@ namespace ERPSystem.Utils.Constants
             public static class Admin
             {
                 public const string USERS = "/users";
-                public const string EMPLOYEES_WITHOUY_USER = "/employees-without-user"; 
+                public const string EMPLOYEES_WITHOUY_USER = "/employees-without-user";
+                public const string USER_DETAILS = "user-details/{userId}";
+                public const string TOGGLE_USER_STATUS = "users/{userId}/toggle-status";
+                public const string UPDATE_USER_ROLES = "users/update-roles";
+                public const string CONFIRM_USER_EMAIL = "users/{userId}/confirm-email";
+                public const string USER_ACTIVITY_LOG = "users/{userId}/activity-log";
+               
 
-            }
+        }
 
             public static class Company
             {
@@ -104,6 +110,9 @@ namespace ERPSystem.Utils.Constants
                 public const string COURSE_ENROLLMENT_BY_SESSION_STUDENT = "/{id:int}/enrollments/{sessionId:int}/{studentId:int}";
                 public const string COURSE_TEACHERS = "/teachers";
                 public const string COURSE_AVAILABLE_STUDENTS ="{id}/sessions/{sessionId}/available-students";
+                public const string COURSE_RESTORE = "/{id}/restore";
+                public const string COURSE_DELETE = "/{id}/delete";
+                public const string COURSE_STATUS = "/{id}/toggle-status";
 
             }
 

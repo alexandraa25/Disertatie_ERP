@@ -3,8 +3,21 @@
     <h2>Cursuri</h2>
 
     <div class="actions">
-     <input [(ngModel)]="q" (ngModelChange)="onSearch($event)" placeholder="Caută curs..." />
-      <button class="primary" (click)="openCreate()">+ Adaugă curs</button>
+      <input [(ngModel)]="q" (ngModelChange)="onSearch($event)" placeholder="Caută curs..." />
+
+      <select [(ngModel)]="statusFilter" (change)="onStatusFilterChange()" class="filter">
+        <option value="">Toate statusurile</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+
+      <select [(ngModel)]="deleteStatusFilter" (change)="onDeleteStatusFilterChange()" class="filter">
+        <option value="notDeleted">Neșterse</option>
+        <option value="deleted">Șterse</option>
+        <option value="all">Toate</option>
+      </select>
+
+       <button class="primary" (click)="openCreate()">+ Adaugă curs</button>
     </div>
   </div>
 
@@ -20,32 +33,54 @@
           <th>Acțiuni</th>
         </tr>
       </thead>
+
       <tbody>
-        <tr *ngFor="let c of items">
-          <td class="name">{{ c.name }}</td>
+        <tr *ngFor="let c of items" [class.deleted-row]="c.isDeleted">
+          <td class="name">
+            <div class="course-name">{{ c.name }}</div>
+          </td>
+
           <td>
-            <span class="status" [ngClass]="c.isActive ? 'active' : 'inactive'">
-              {{ c.isActive ? 'Activ' : 'Inactiv' }}
+            <span class="status-badge" [ngClass]="{
+            'badge-active': c.isActive && !c.isDeleted,
+            'badge-inactive': !c.isActive && !c.isDeleted,
+            'badge-deleted': c.isDeleted
+          }">
+              {{ c.isDeleted ? 'Șters' : c.isActive ? 'Activ' : 'Inactiv' }}
             </span>
           </td>
-          <td>{{ c.createdAtUtc | date:'dd.MM.yyyy' }}</td>
-          <td class="actions-cell">
-            <a (click)="openDetails(c.id)" class="details">Detalii</a>
-            <a (click)="openEdit(c.id)" class="edit">Editează</a>
-           <button *ngIf="c.isActive"
-        class="danger small"
-        (click)="toggleCourse(c)"
-        [disabled]="hasActiveSessions(c)">
-  Dezactivează
-</button>
 
-            <button *ngIf="!c.isActive" class="primary small" (click)="toggleCourse(c)">
+          <td>{{ c.createdAtUtc | date:'dd.MM.yyyy' }}</td>
+
+          <td class="actions-cell">
+            <a *ngIf="!c.isDeleted" (click)="openDetails(c.id)" class="details">Detalii</a>
+
+            <a *ngIf="!c.isDeleted" (click)="openEdit(c.id)" class="edit">Editează</a>
+
+            <button *ngIf="!c.isDeleted && c.isActive" class="btn-soft danger" (click)="toggleCourse(c)"
+              [disabled]="hasActiveSessions(c)"
+              [title]="hasActiveSessions(c) ? 'Nu poți dezactiva cursul deoarece are sesiuni active' : ''">
+              Dezactivează
+            </button>
+
+            <button *ngIf="!c.isDeleted && !c.isActive" class="btn-soft primary-soft" (click)="toggleCourse(c)">
               Activează
             </button>
 
+            <button *ngIf="!c.isDeleted" class="btn-soft danger-outline" (click)="deleteCourse(c)"
+              [disabled]="hasActiveSessions(c)"
+              [title]="hasActiveSessions(c) ? 'Nu poți șterge cursul deoarece are sesiuni active' : ''">
+              Șterge
+            </button>
+
+            <button *ngIf="c.isDeleted" class="btn-soft restore" (click)="restoreCourse(c)">
+              Restaurează
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
+
+<app-confirm-custom-modal></app-confirm-custom-modal>

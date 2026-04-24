@@ -28,6 +28,7 @@ export const routes: Routes = [
   { path: 'employees', loadComponent: () => import('./pages/hr/hr-employees/hr-employees.component').then(m => m.HrEmployeesComponent) },
   { path: 'all-leaves', loadComponent: () => import('./pages/hr/all-leaves/all-leaves.component').then(m => m.AllLeavesComponent) },
   { path: 'admin/users', loadComponent: () => import('./pages/admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent) },
+  { path: 'user-details/:id',  loadComponent: () => import('./pages/admin/user-details/user-details.component')  .then(c => c.UserDetailsComponent)},
   { path: 'company', loadComponent: () => import('./pages/admin/company/company.component') .then(m => m.CompanyComponent) }, 
   { path: 'log-activity', loadComponent: () => import('./pages/admin/admin-activity/admin-activity.component') .then(m => m.AdminActivityComponent) }
 
