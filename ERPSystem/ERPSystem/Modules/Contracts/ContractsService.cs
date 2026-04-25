@@ -5,6 +5,7 @@ using ERPSystem.Modules.AdditionalAct;
 using ERPSystem.Modules.Contracts.Models;
 using ERPSystem.Shared.BusinessLogic;
 using ERPSystem.Shared.DTOs.PDF;
+using ERPSystem.Shared.Notifications;
 using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Enums;
@@ -25,14 +26,16 @@ public class ContractsService
     private readonly PdfService _pdfService;
     private readonly EmailBusinessLogic _emailBusinessLogic;
     private readonly AdditionalActService _additionalActService;
+    private readonly NotificationsService _notificationsService;
 
-    public ContractsService(  ApplicationDbContext db,  ILogger<ContractsService> logger, EmailBusinessLogic emailBusinessLogic, PdfService pdfService, AdditionalActService additionalActService)
+    public ContractsService(  ApplicationDbContext db,  ILogger<ContractsService> logger, EmailBusinessLogic emailBusinessLogic, PdfService pdfService, AdditionalActService additionalActService, NotificationsService notificationsService)
     {
         _db = db;
         _logger = logger;
         _emailBusinessLogic = emailBusinessLogic;
         _pdfService = pdfService;
         _additionalActService = additionalActService;
+        _notificationsService = notificationsService;
     }
 
     public async Task<PublicResponse> CreateAsync(CreateContractDto dto)
@@ -227,17 +230,13 @@ public class ContractsService
 
             contract.InstallmentsList.Clear();
 
-            // detect
             var hasSubscription = pricing.SubscriptionMonthly > 0;
             var hasPackage = pricing.PackageTotal > 0;
 
-            // 🔥 mutat mai sus
             var packageInstallments = dto.Installments <= 0 ? 1 : dto.Installments;
 
-            // luni
             var months = pricing.SubscriptionMonths ?? packageInstallments;
 
-            // setezi pe contract
             contract.Installments = packageInstallments;
 
             if (contract.IsUnlimited)
@@ -299,7 +298,29 @@ public class ContractsService
             _db.StudentContracts.Add(contract);
             await _db.SaveChangesAsync();
 
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = nameof(StudentContract),
+                EntityId = contract.Id.ToString(),
+                Action = "Create",
+                Description = $"Contractul {contract.ContractNumber} a fost creat.",
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
+            await _db.SaveChangesAsync();
+
             await transaction.CommitAsync();
+
+            await NotifyAdminsAsync(
+                 NotificationEvents.ContractActivity,
+                 "Contract nou creat",
+                 $"Contractul {contract.ContractNumber} a fost creat.",
+                 "Success",
+                 $"/contracts/{contract.Id}",
+                 nameof(StudentContract),
+                 contract.Id.ToString()
+             );
 
             return response.SetCreated(new { contract.Id });
         }
@@ -550,7 +571,18 @@ public class ContractsService
             CreatedAtUtc = DateTime.UtcNow
         });
 
+      
         await _db.SaveChangesAsync();
+
+        await NotifyAdminsAsync(
+             NotificationEvents.ContractActivity,
+             "Contract finalizat",
+             $"Contractul {contract.ContractNumber} a fost finalizat.",
+             "Info",
+             $"/contracts/{contract.Id}",
+             nameof(StudentContract),
+             contract.Id.ToString()
+         );
 
         return response.SetSuccess(true);
     }
@@ -566,6 +598,10 @@ public class ContractsService
             string link;
             string entityName;
             int entityId;
+            string notificationEventType = "";
+            string notificationTitle = "";
+            string notificationMessage = "";
+            string notificationLink = "";
 
             var token = Guid.NewGuid().ToString();
 
@@ -636,6 +672,11 @@ public class ContractsService
                             $"http://localhost:4200/sign/{token}"
                         );
 
+                        notificationEventType = NotificationEvents.ContractActivity;
+                        notificationTitle = "Contract trimis către client";
+                        notificationMessage = $"Contractul {contract.ContractNumber} a fost trimis către {email}.";
+                        notificationLink = $"/contracts/{contract.Id}";
+
                         break;
                     }
 
@@ -705,6 +746,11 @@ public class ContractsService
                             $"http://localhost:4200/sign/{token}"
                         );
 
+                        notificationEventType = NotificationEvents.ContractActivity;
+                        notificationTitle = "Act adițional trimis către client";
+                        notificationMessage = $"Actul adițional {act.ActNumber} a fost trimis către {email}.";
+                        notificationLink = $"/contracts/{act.ContractId}/additional-acts/{act.Id}";
+
                         break;
                     }
 
@@ -723,6 +769,18 @@ public class ContractsService
             });
 
             await _db.SaveChangesAsync();
+
+
+            await NotifyAdminsAsync(
+                 notificationEventType,
+                 notificationTitle,
+                 notificationMessage,
+                 "Info",
+                 notificationLink,
+                 entityName,
+                 entityId.ToString()
+                 );
+
 
             return response.SetSuccess(new { link = $"http://localhost:4200/sign/{token}" });
         }
@@ -776,6 +834,17 @@ public class ContractsService
                         CreatedAtUtc = DateTime.UtcNow
                     });
 
+
+                    await NotifyAdminsAsync(
+                         NotificationEvents.ContractActivity,
+                         "Contract semnat de client",
+                         $"Clientul a semnat contractul {contract.ContractNumber}.",
+                         "Success",
+                         $"/contracts/{contract.Id}",
+                         nameof(StudentContract),
+                         contract.Id.ToString()
+                     );
+
                     break;
                 }
 
@@ -803,6 +872,16 @@ public class ContractsService
                         Description = "Clientul a semnat actul adițional",
                         CreatedAtUtc = DateTime.UtcNow
                     });
+
+                    await NotifyAdminsAsync(
+                        NotificationEvents.ContractActivity,
+                        "Act adițional semnat de client",
+                        $"Clientul a semnat actul adițional {act.ActNumber}.",
+                        "Success",
+                        $"/contracts/{act.ContractId}/additional-acts/{act.Id}",
+                        nameof(ContractAdditionalAct),
+                        act.Id.ToString()
+                    );
 
                     break;
                 }
@@ -947,6 +1026,16 @@ public class ContractsService
                             CreatedAtUtc = DateTime.UtcNow
                         });
 
+                        await NotifyAdminsAsync(
+                            NotificationEvents.ContractActivity,
+                            "Contract activat",
+                            $"Contractul {contract.ContractNumber} a fost semnat de administrator și activat.",
+                            "Success",
+                            $"/contracts/{contract.Id}",
+                            nameof(StudentContract),
+                            contract.Id.ToString()
+                        );
+
                         break;
                     }
 
@@ -993,6 +1082,16 @@ public class ContractsService
                             Description = "Administratorul a semnat actul adițional",
                             CreatedAtUtc = DateTime.UtcNow
                         });
+
+                        await NotifyAdminsAsync(
+                            NotificationEvents.ContractActivity,
+                            "Act adițional activat",
+                            $"Actul adițional {act.ActNumber} a fost semnat de administrator și activat.",
+                            "Success",
+                            $"/contracts/{act.ContractId}/additional-acts/{act.Id}",
+                            nameof(ContractAdditionalAct),
+                            act.Id.ToString()
+                        );
 
                         break;
                     }
@@ -1076,6 +1175,16 @@ public class ContractsService
 
         await _db.SaveChangesAsync();
 
+        await NotifyAdminsAsync(
+                NotificationEvents.ContractActivity,
+                "Contract anulat",
+                $"Contractul {contract.ContractNumber} a fost anulat.",
+                "Warning",
+                $"/contracts/{contract.Id}",
+                nameof(StudentContract),
+                contract.Id.ToString()
+            );
+
         return response.SetSuccess(true);
     }
 
@@ -1148,6 +1257,16 @@ public class ContractsService
 
         await _db.SaveChangesAsync();
 
+        await NotifyAdminsAsync(
+               NotificationEvents.ContractActivity,
+               "Contract finalizat",
+               $"Contractul {contract.ContractNumber} a fost finalizat.",
+               "Success",
+               $"/contracts/{contract.Id}",
+               nameof(StudentContract),
+               contract.Id.ToString()
+           );
+
         return response.SetSuccess(true);
     }
 
@@ -1216,6 +1335,16 @@ public class ContractsService
                         $"Student {e.Student.FirstName} {e.Student.LastName} a fost scos din sesiunea {e.Session.Title} (contract expirat)",
                     CreatedAtUtc = DateTime.UtcNow
                 });
+
+                await NotifyAdminsAsync(
+                    NotificationEvents.ContractActivity,
+                    "Contract expirat",
+                    $"Contractul {contract.ContractNumber} a expirat.",
+                    "Warning",
+                    $"/contracts/{contract.Id}",
+                    nameof(StudentContract),
+                    contract.Id.ToString()
+                );
             }
         }
 
@@ -1294,6 +1423,16 @@ public class ContractsService
 
         await _db.SaveChangesAsync();
 
+        await NotifyAdminsAsync(
+             NotificationEvents.ContractActivity,
+             "Contract suspendat",
+             $"Contractul {contract.ContractNumber} a fost suspendat.",
+             "Warning",
+             $"/contracts/{contract.Id}",
+             nameof(StudentContract),
+             contract.Id.ToString()
+         );
+
         return response.SetSuccess(true);
     }
 
@@ -1361,6 +1500,16 @@ public class ContractsService
             Description = $"Contract {contract.ContractNumber} a fost reluat",
             CreatedAtUtc = DateTime.UtcNow
         });
+
+        await NotifyAdminsAsync(
+              NotificationEvents.ContractActivity,
+              "Contract reluat",
+              $"Contractul {contract.ContractNumber} a fost reluat.",
+              "Success",
+              $"/contracts/{contract.Id}",
+              nameof(StudentContract),
+              contract.Id.ToString()
+          );
 
         await _db.SaveChangesAsync();
 
@@ -1823,6 +1972,28 @@ public class ContractsService
         }
 
         await _db.SaveChangesAsync();
+    }
+
+
+    private async Task NotifyAdminsAsync(
+    string eventType,
+    string title,
+    string message,
+    string type,
+    string link,
+    string entityType,
+    string entityId)
+    {
+        await _notificationsService.CreateNotificationForRolesAsync(
+            roleNames: new[] { "Admin", "Secretary" },
+            eventType: eventType,
+            title: title,
+            message: message,
+            type: type,
+            link: link,
+            entityType: entityType,
+            entityId: entityId
+            );
     }
 
 

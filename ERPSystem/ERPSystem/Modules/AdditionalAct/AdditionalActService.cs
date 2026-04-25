@@ -5,6 +5,7 @@ using ERPSystem.Modules.Contracts;
 using ERPSystem.Modules.Contracts.Models;
 using ERPSystem.Shared.BusinessLogic;
 using ERPSystem.Shared.DTOs.PDF;
+using ERPSystem.Shared.Notifications;
 using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Enums;
@@ -20,13 +21,15 @@ namespace ERPSystem.Modules.AdditionalAct
         private readonly ILogger<ContractsService> _logger;
         private readonly PdfService _pdfService;
         private readonly EmailBusinessLogic _emailBusinessLogic;
+        private readonly NotificationsService _notificationsService;
 
-        public AdditionalActService(ApplicationDbContext db, ILogger<ContractsService> logger, EmailBusinessLogic emailBusinessLogic, PdfService pdfService)
+        public AdditionalActService(ApplicationDbContext db, ILogger<ContractsService> logger, EmailBusinessLogic emailBusinessLogic, PdfService pdfService, NotificationsService notificationsService)
         {
             _db = db;
             _logger = logger;
             _emailBusinessLogic = emailBusinessLogic;
             _pdfService = pdfService;
+            _notificationsService = notificationsService;
         }
 
         public async Task<PublicResponse> CreateAdditionalActAsync(int contractId, CreateAdditionalActDto dto)
@@ -63,7 +66,6 @@ namespace ERPSystem.Modules.AdditionalAct
                 Items = new List<ContractAdditionalActItem>()
             };
 
-            // 🔥 NOUA LOGICĂ
             var workingMonthly = contract.MonthlyAmount;
             var workingTotal = contract.TotalAmount;
 
@@ -230,6 +232,29 @@ namespace ERPSystem.Modules.AdditionalAct
             _db.ContractAdditionalAct.Add(act);
 
             await _db.SaveChangesAsync();
+
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = nameof(ContractAdditionalAct),
+                EntityId = act.Id.ToString(),
+                Action = "Create",
+                Description = $"Actul adițional {act.ActNumber} a fost creat pentru contractul {contract.ContractNumber}. {act.Description}",
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
+            await _db.SaveChangesAsync();
+
+            await _notificationsService.CreateNotificationForRolesAsync(
+                roleNames: new[] { "Admin", "Secretary" },
+                eventType: NotificationEvents.ContractActivity,
+                title: "Act adițional nou",
+                message: $"Actul adițional {act.ActNumber} a fost creat pentru contractul {contract.ContractNumber}.",
+                type: "Success",
+                link: $"/contracts/{contract.Id}/additional-acts/{act.Id}",
+                entityType: nameof(ContractAdditionalAct),
+                entityId: act.Id.ToString()
+            );
 
             return response.SetSuccess(new { act.Id });
         }
@@ -418,6 +443,17 @@ namespace ERPSystem.Modules.AdditionalAct
             });
 
             await _db.SaveChangesAsync();
+
+            await _notificationsService.CreateNotificationForRolesAsync(
+                roleNames: new[] { "Admin", "Secretary" },
+                eventType: NotificationEvents.ContractActivity,
+                title: "Act adițional finalizat",
+                message: $"Actul adițional {act.ActNumber} a fost finalizat.",
+                type: "Info",
+                link: $"/contracts/{act.ContractId}/additional-acts/{act.Id}",
+                entityType: nameof(ContractAdditionalAct),
+                entityId: act.Id.ToString()
+            );
 
             return response.SetSuccess(true);
         }

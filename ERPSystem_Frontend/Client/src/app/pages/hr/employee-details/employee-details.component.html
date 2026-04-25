@@ -268,9 +268,19 @@
         <div class="small"> {{ doc.uploadedAt | date }} • {{ doc.documentType }}</div>
       </div>
 
-      <button (click)="openDocument(doc.filePath)">
-        Deschide
-      </button>
+      <div class="doc-actions">
+  <button type="button" (click)="openDocument(doc)">
+    Vizualizează
+  </button>
+
+  <button type="button" class="download-btn" (click)="downloadDocument(doc)">
+    Descarcă
+  </button>
+
+  <button type="button" class="delete-btn" (click)="deleteDocument(doc)">
+    Șterge
+  </button>
+</div>
 
     </div>
 
@@ -386,3 +396,5 @@
 </div>
 
 </div>
+
+<app-confirm-custom-modal></app-confirm-custom-modal>

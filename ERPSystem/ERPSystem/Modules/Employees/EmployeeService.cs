@@ -1,9 +1,11 @@
 ﻿using DocumentFormat.OpenXml.Office2010.Excel;
 using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
+using ERPSystem.Models.Notifications;
 using ERPSystem.Modules.Employees.Models;
 using ERPSystem.Modules.Leaves;
 using ERPSystem.Modules.Student.Models;
+using ERPSystem.Shared.Notifications;
 using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +19,15 @@ public class EmployeeService
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly HolidayService _holidayService;
+    private readonly NotificationsService _notificationService;
 
 
-    public EmployeeService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, HolidayService holidayService)
+    public EmployeeService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, HolidayService holidayService, NotificationsService notificationService)
     {
         _context = context;
         _userManager = userManager;
         _holidayService = holidayService;
-
+        _notificationService = notificationService;
     }
 
     public async Task<PublicResponse> CreateEmployeeFullAsync(CreateEmployeeFullRequest request)
@@ -163,6 +166,35 @@ public class EmployeeService
                     $"Angajatul {employee.FirstName} {employee.LastName} a fost creat."
                 );
 
+                if (string.IsNullOrWhiteSpace(employee.UserId))
+                {
+                    // 🔴 nu are cont → notificare Admin
+                    await _notificationService.CreateNotificationForRolesAsync(
+                        roleNames: new[] { "Admin" },
+                        eventType: NotificationEvents.Employee,
+                        title: "Angajat fără cont",
+                        message: $"Angajatul {employee.FirstName} {employee.LastName} nu are cont. Creează un cont pentru acces în sistem.",
+                        type: "Warning",
+                        link: $"/admin/users",
+                        entityType: "Employee",
+                        entityId: employee.Id.ToString()
+                    );
+                }
+                else
+                {
+                    // 🟢 are cont → notificare HR/Admin
+                    await _notificationService.CreateNotificationForRolesAsync(
+                        roleNames: new[] { "HR", "Admin", "Secretary" },
+                        eventType: NotificationEvents.Employee,
+                        title: "Angajat nou creat",
+                        message: $"Angajatul {employee.FirstName} {employee.LastName} a fost creat în sistem.",
+                        type: "Success",
+                        link: $"/employee/{employee.Id}",
+                        entityType: "Employee",
+                        entityId: employee.Id.ToString()
+                    );  
+                }
+
                 return response.SetSuccess(employee.Id);
             }
             catch (Exception ex)
@@ -295,6 +327,31 @@ public class EmployeeService
                     $"Datele angajatului {employee.FirstName} {employee.LastName} au fost actualizate."
                 );
 
+                await _notificationService.CreateNotificationForRolesAsync(
+                     roleNames: new[] { "HR", "Administrator" },
+                     eventType: NotificationEvents.Employee,
+                     title: "Date angajat actualizate",
+                     message: $"Datele angajatului {employee.FirstName} {employee.LastName} au fost actualizate.",
+                     type: "Info",
+                     link: $"/employee/{employee.Id}",
+                     entityType: "Employee",
+                     entityId: employee.Id.ToString()
+                 );
+
+                if (!string.IsNullOrWhiteSpace(employee.UserId))
+                {
+                    await _notificationService.CreateNotificationAsync(
+                        userId: employee.UserId,
+                        eventType: NotificationEvents.Employee,
+                        title: "Profil actualizat",
+                        message: "Datele profilului tău de angajat au fost actualizate.",
+                        type: "Info",
+                        link: "/profil-user",
+                        entityType: "Employee",
+                        entityId: employee.Id.ToString()
+                    );
+                }
+
                 return response.SetSuccess(employee.Id);
             }
             catch (Exception ex)
@@ -355,6 +412,31 @@ public class EmployeeService
             "EmployeeDocumentsUploaded",
             $"Au fost încărcate {request.Files.Count} document(e) pentru angajatul {employee.FirstName} {employee.LastName}."
         );
+
+        await _notificationService.CreateNotificationForRolesAsync(
+             roleNames: new[] { "HR", "Admin", "Secretary" },
+             eventType: NotificationEvents.Employee,
+             title: "Documente încărcate",
+             message: $"Au fost încărcate {request.Files.Count} document(e) pentru angajatul {employee.FirstName} {employee.LastName}.",
+             type: "Info",
+             link: $"/employee/{employee.Id}",
+             entityType: "Employee",
+             entityId: employee.Id.ToString()
+         );
+
+        if (!string.IsNullOrWhiteSpace(employee.UserId))
+        {
+            await _notificationService.CreateNotificationAsync(
+                userId: employee.UserId,
+                eventType: NotificationEvents.Employee,
+                title: "Documente noi în profil",
+                message: $"Au fost încărcate {request.Files.Count} document(e) în profilul tău.",
+                type: "Info",
+                link: "/profil-user",
+                entityType: "Employee",
+                entityId: employee.Id.ToString()
+            );
+        }
 
         return response.SetSuccess(true);
     }
@@ -584,12 +666,35 @@ public class EmployeeService
                 });
             }
 
+            var pendingLeaves = await _context.EmployeeLeaves
+                .Where(x =>
+                    x.EmployeeId == employee.Id &&
+                    x.Status == "Pending")
+                .ToListAsync();
+
+            foreach (var leave in pendingLeaves)
+            {
+                leave.Status = "Cancelled";
+                leave.ReasonUpdate = "Cerere anulată automat deoarece angajatul a fost încetat.";
+            }
+
             await _context.SaveChangesAsync();
 
             await AddEmployeeActivityLogAsync(
-                employee.Id,
-                "EmployeeTerminated",
-                $"Angajatul {employee.FirstName} {employee.LastName} a fost încetat la data {request.TerminationDate:dd.MM.yyyy}."
+                 employee.Id,
+                 "EmployeeTerminated",
+                 $"Angajatul {employee.FirstName} {employee.LastName} a fost încetat la data {request.TerminationDate:dd.MM.yyyy}. Cereri pending anulate: {pendingLeaves.Count}."
+             );
+
+            await _notificationService.CreateNotificationForRolesAsync(
+                roleNames: new[] { "HR", "Admin", "Secretary" },
+                eventType: NotificationEvents.Employee,
+                title: "Angajat încetat",
+                message: $"Angajatul {employee.FirstName} {employee.LastName} a fost încetat la data {request.TerminationDate:dd.MM.yyyy}.",
+                type: "Warning",
+                link: $"/hr/employees/{employee.Id}",
+                entityType: "Employee",
+                entityId: employee.Id.ToString()
             );
 
             return response.SetSuccess("Employee terminated");
@@ -675,10 +780,7 @@ public class EmployeeService
         }
     }
 
-    private async Task AddEmployeeActivityLogAsync(
-    Guid employeeId,
-    string action,
-    string description)
+    private async Task AddEmployeeActivityLogAsync( Guid employeeId,string action,string description)
     {
         _context.ActivityLog.Add(new ActivityLog
         {
@@ -691,5 +793,81 @@ public class EmployeeService
         });
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<IResult> ViewEmployeeDocumentAsync(Guid documentId)
+    {
+        var document = await _context.EmployeeDocuments
+            .FirstOrDefaultAsync(x => x.Id == documentId);
+
+        if (document == null)
+            return Results.NotFound("Document not found");
+
+        if (!File.Exists(document.FilePath))
+            return Results.NotFound("File not found");
+
+        var bytes = await File.ReadAllBytesAsync(document.FilePath);
+
+        return Results.File(
+            bytes,
+            document.ContentType ?? "application/octet-stream",
+            document.FileName
+        );
+    }
+
+    public async Task<IResult> DownloadEmployeeDocumentAsync(Guid documentId)
+    {
+        var document = await _context.EmployeeDocuments
+            .FirstOrDefaultAsync(x => x.Id == documentId);
+
+        if (document == null)
+            return Results.NotFound("Document not found");
+
+        if (!File.Exists(document.FilePath))
+            return Results.NotFound("File not found");
+
+        var bytes = await File.ReadAllBytesAsync(document.FilePath);
+
+        return Results.File(
+            bytes,
+            document.ContentType ?? "application/octet-stream",
+            document.FileName,
+            enableRangeProcessing: true 
+        );
+    }
+
+    public async Task<PublicResponse> DeleteEmployeeDocumentAsync(Guid documentId)
+    {
+        var response = new PublicResponse(true);
+
+        try
+        {
+            var document = await _context.EmployeeDocuments
+                .FirstOrDefaultAsync(x => x.Id == documentId);
+
+            if (document == null)
+                return response.SetError("NOT_FOUND", "Documentul nu a fost găsit.");
+
+            if (File.Exists(document.FilePath))
+            {
+                File.Delete(document.FilePath);
+            }
+
+            _context.EmployeeDocuments.Remove(document);
+
+            await _context.SaveChangesAsync();
+
+            await AddEmployeeActivityLogAsync(
+                document.EmployeeId,
+                "EmployeeDocumentDeleted",
+                $"Documentul '{document.FileName}' a fost șters."
+            );
+
+            return response.SetSuccess(true);
+        }
+        catch (Exception ex)
+        {
+            return response.SetError("SERVER", ex.Message);
+        }
     }
 }

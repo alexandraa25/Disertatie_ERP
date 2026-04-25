@@ -1,4 +1,5 @@
 ﻿using ERPSystem.Extensions;
+using ERPSystem.Models.Notifications;
 using ERPSystem.Modules.UserProfile.Models;
 using Route = ERPSystem.Utils.Constants.General.Route.Profile;
 
@@ -10,11 +11,14 @@ public static class UserProfileEndpoints
     {
        
 
-        group.MapGet(Route.PROFILE, async (UserProfileService service)  => await service.GetProfileAsync())
+        group.MapGet(Route.PROFILE, 
+            async (UserProfileService service) 
+                => await service.GetProfileAsync())
           .WithDefaultApiSettings("GetProfile", "Get Profile", "GET_PROFILE", true);
 
       
-        group.MapPut(Route.PROFILE, async (UpdateUserProfileDto body,   UserProfileService service)
+        group.MapPut(Route.PROFILE, 
+            async (UpdateUserProfileDto body,   UserProfileService service)
                 => await service.UpdateProfileAsync(body))
         .WithDefaultApiSettings("UpdateProfile", "Update Profile", "UPDATE_PROFILE", true);
 

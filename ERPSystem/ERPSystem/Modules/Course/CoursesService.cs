@@ -2,6 +2,7 @@
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Course.Models;
 using ERPSystem.Shared.ActivityLogs;
+using ERPSystem.Shared.Notifications;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Identity;
@@ -15,12 +16,14 @@ public class CoursesService
     private readonly ApplicationDbContext _db;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<CoursesService> _logger;
+    private readonly NotificationsService _notificationService;
 
-    public CoursesService(ApplicationDbContext db, UserManager<ApplicationUser> userManager, ILogger<CoursesService> logger)
+    public CoursesService(ApplicationDbContext db, UserManager<ApplicationUser> userManager, ILogger<CoursesService> logger, NotificationsService notificationService)
     {
         _db = db;
         _userManager = userManager;
         _logger = logger;
+        _notificationService = notificationService;
     }
 
     public async Task<PublicResponse> ListAsync(string? q, string? status, string? deleteStatus)
@@ -222,6 +225,19 @@ public class CoursesService
                 PerformedBy = "system"
             });
 
+            foreach (var session in c.Sessions)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: session.TeacherUserId,
+                    eventType: NotificationEvents.CourseActivity,
+                    title: "Ai fost asignat la un curs",
+                    message: $"Ai fost asignat la cursul '{c.Name}', sesiunea {session.DayOfWeek} {session.StartTime:HH:mm}-{session.EndTime:HH:mm}.",
+                    type: "Info",
+                    link: "/courses",
+                    entityType: "Course",
+                    entityId: c.Id.ToString()
+                );
+            }
             return response.SetCreated(new { id = c.Id });
         }
         catch (Exception ex)
@@ -479,6 +495,26 @@ public class CoursesService
                 await _db.SaveChangesAsync();
             }
 
+            var affectedTeacherIds = dto.Sessions
+                .Select(x => x.TeacherUserId)
+                .Concat(oldSessions.Values.Select(x => x.TeacherUserId))
+                .Distinct()
+                .ToList();
+              
+            foreach (var teacherUserId in affectedTeacherIds)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: teacherUserId,
+                    eventType: NotificationEvents.CourseActivity,
+                    title: "Curs actualizat",
+                    message: $"Cursul '{c.Name}' a fost actualizat.",
+                    type: "Warning",
+                    link: "/courses",
+                    entityType: "Course",
+                    entityId: c.Id.ToString()
+                );
+            }
+
             return response.SetSuccess(true);
         }
         catch (Exception ex)
@@ -522,6 +558,27 @@ public class CoursesService
 
             await _db.SaveChangesAsync();
 
+            var teacherIds = course.Sessions
+                .Select(x => x.TeacherUserId)
+                .Distinct()
+                .ToList();
+
+            foreach (var teacherUserId in teacherIds)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: teacherUserId,
+                    eventType: NotificationEvents.CourseActivity,
+                    title: course.IsActive ? "Curs activat" : "Curs dezactivat",
+                    message: course.IsActive
+                        ? $"Cursul '{course.Name}' a fost activat."
+                        : $"Cursul '{course.Name}' a fost dezactivat.",
+                    type: course.IsActive ? "Success" : "Warning",
+                    link: "/courses",
+                    entityType: "Course",
+                    entityId: course.Id.ToString()
+                );
+            }
+
             return response.SetSuccess(new
             {
                 course.Id,
@@ -540,8 +597,10 @@ public class CoursesService
 
         try
         {
-            var c = await _db.Courses.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
-
+            var c = await _db.Courses
+              .Include(x => x.Sessions)
+              .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+            
             if (c is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Course not found");
 
@@ -560,6 +619,25 @@ public class CoursesService
 
             await _db.SaveChangesAsync();
 
+            var teacherIds = c.Sessions
+               .Select(x => x.TeacherUserId)
+               .Distinct()
+               .ToList();
+
+            foreach (var teacherUserId in teacherIds)
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: teacherUserId,
+                    eventType: NotificationEvents.CourseActivity,
+                    title: "Curs șters",
+                    message: $"Cursul '{c.Name}' a fost șters.",
+                    type: "Warning",
+                    link: "/courses",
+                    entityType: "Course",
+                    entityId: c.Id.ToString()
+                );
+            }
+
             return response.SetSuccess(true);
         }
         catch (Exception ex)
@@ -573,8 +651,10 @@ public class CoursesService
     {
         var response = new PublicResponse(true);
 
-        var c = await _db.Courses.FirstOrDefaultAsync(x => x.Id == id);
-
+        var c = await _db.Courses
+            .Include(x => x.Sessions)
+            .FirstOrDefaultAsync(x => x.Id == id);
+          
         if (c is null)
             return response.SetError(ErrorCodes.InvalidParameters, "Course not found");
 
@@ -582,6 +662,25 @@ public class CoursesService
         c.DeletedAtUtc = null;
 
         await _db.SaveChangesAsync();
+
+        var teacherIds = c.Sessions
+            .Select(x => x.TeacherUserId)
+            .Distinct()
+            .ToList();
+
+        foreach (var teacherUserId in teacherIds)
+        {
+            await _notificationService.CreateNotificationAsync(
+                userId: teacherUserId,
+                eventType: NotificationEvents.CourseActivity,
+                title: "Curs restaurat",
+                message: $"Cursul '{c.Name}' a fost restaurat.",
+                type: "Success",
+                link: "/courses",
+                entityType: "Course",
+                entityId: c.Id.ToString()
+            );
+        }
 
         return response.SetSuccess(true);
     }
@@ -690,6 +789,17 @@ public class CoursesService
 
             await _db.SaveChangesAsync();
 
+            await _notificationService.CreateNotificationAsync(
+                userId: session.TeacherUserId,
+                eventType: NotificationEvents.CourseActivity,
+                title: "Cursant înscris",
+                message: $"Cursantul {student.FullName} a fost înscris la cursul '{course.Name}', sesiunea {session.DayOfWeek} {session.StartTime:HH:mm}.",
+                type: "Success",
+                link: "/courses",
+                entityType: "CourseEnrollment",
+                entityId: sessionId.ToString()
+            );
+
             return response.SetSuccess(true);
         }
         catch (Exception ex)
@@ -745,6 +855,17 @@ public class CoursesService
                 });
 
                 await _db.SaveChangesAsync();
+
+                await _notificationService.CreateNotificationAsync(
+                    userId: session!.TeacherUserId,
+                    eventType: NotificationEvents.CourseActivity,
+                    title: "Cursant eliminat",
+                    message: $"Cursantul {student!.FullName} a fost eliminat din cursul '{course!.Name}', sesiunea {session.DayOfWeek} {session.StartTime:HH:mm}.",
+                    type: "Warning",
+                    link: "/courses",
+                    entityType: "CourseEnrollment",
+                    entityId: existing.Id.ToString()
+                );
                 return response.SetSuccess(true); 
 
             }

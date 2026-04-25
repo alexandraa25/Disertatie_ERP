@@ -1,6 +1,9 @@
 ﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
+using ERPSystem.Models.Notifications;
 using ERPSystem.Modules.UserProfile.Models;
+using ERPSystem.Shared.Notifications;
+using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
@@ -8,21 +11,23 @@ using System.Security.Claims;
 namespace ERPSystem.Modules.UserProfile;
 
 
-//DE FOLOSIT PUBLIC RESPONSE PULIFRICIII!!
+
 public class UserProfileService
 {
     private readonly ApplicationDbContext _applicationDbContext;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly NotificationsService _notificationService;
 
     public UserProfileService(
         ApplicationDbContext applicationDbContex,
         UserManager<ApplicationUser> userManager,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor, NotificationsService notificationService)
     {
         _applicationDbContext = applicationDbContex;
         _userManager = userManager;
         _httpContextAccessor = httpContextAccessor;
+        _notificationService = notificationService;
     }
 
     
@@ -45,96 +50,251 @@ public class UserProfileService
                ?? throw new UnauthorizedAccessException();
     }
 
-
-    public async Task<UserProfileDto> GetProfileAsync()
+    public async Task<PublicResponse> GetProfileAsync()
     {
-        var userId = GetCurrentUserId();
+        var response = new PublicResponse(true);
 
-        var user = await _userManager.FindByIdAsync(userId)
-            ?? throw new UnauthorizedAccessException();
+        try
+        {
+            var userId = GetCurrentUserId();
 
-        var roles = (await _userManager.GetRolesAsync(user)).ToArray();
+            var user = await _userManager.FindByIdAsync(userId);
 
-        var unreadNotifications = await _applicationDbContext.UserNotificationSettings
-            .CountAsync(x => x.UserId == userId && !x.Enabled);
+            if (user == null)
+                return response.SetError("NOT_FOUND", "User not found");
 
-        var employee = await _applicationDbContext.Employees
-            .Where(e => e.UserId == userId)
-            .Select(e => new
-            {
-                e.Id,
-                e.JobTitle,
-                e.HireDate,
-                e.Salary,
-                e.ContractType,
-                e.EmploymentStatus
-            })
-            .FirstOrDefaultAsync();
+            var roles = (await _userManager.GetRolesAsync(user)).ToArray();
 
-        return new UserProfileDto(
-            user.FirstName,
-            user.LastName,
-            user.FullName,
-            user.UserName,
-            user.Email,
-            user.EmailConfirmed,
-            user.PhoneNumber,
-            roles,
-            user.IsActive,
-            user.BirthdayDate,
-            user.CreatedAt,
-            user.LastLoginAt,
-            user.AvatarUrl,
-            unreadNotifications,
-             employee?.Id,
-            employee?.JobTitle,
-            employee?.HireDate,
-            employee?.Salary,
-            employee?.ContractType,
-            employee?.EmploymentStatus
-        );
+            var unreadNotifications = await _applicationDbContext.UserNotificationSettings
+                .CountAsync(x => x.UserId == userId && !x.Enabled);
+
+            var employee = await _applicationDbContext.Employees
+                .Where(e => e.UserId == userId)
+                .Select(e => new
+                {
+                    e.Id,
+                    e.JobTitle,
+                    e.HireDate,
+                    e.Salary,
+                    e.ContractType,
+                    e.EmploymentStatus,
+
+                    Address = e.Address == null ? null : new AddressDto(
+                        e.Address.Street,
+                        e.Address.City,
+                        e.Address.Country,
+                        e.Address.PostalCode
+                    ),
+
+                    Contact = e.Contact == null ? null : new ContactDto(
+                        e.Contact.PhoneNumber,
+                        e.Contact.EmergencyContactName,
+                        e.Contact.EmergencyContactPhone
+                    ),
+
+                    Bank = e.Bank == null ? null : new BankDto(
+                        e.Bank.IBAN,
+                        e.Bank.BankName
+                    ),
+
+                    Documents = e.Documents.Select(d => new DocumentDto(
+                        d.Id,
+                        d.FileName,
+                        d.FilePath,
+                        d.DocumentType,
+                        d.UploadedAt
+                    )).ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            var result = new UserProfileDto(
+                user.FirstName,
+                user.LastName,
+                user.FullName,
+                user.UserName,
+                user.Email,
+                user.EmailConfirmed,
+                user.PhoneNumber,
+                roles,
+                user.IsActive,
+                user.BirthdayDate,
+                user.CreatedAt,
+                user.LastLoginAt,
+                user.AvatarUrl,
+                unreadNotifications,
+
+                employee?.Id,
+                employee?.JobTitle,
+                employee?.HireDate,
+                employee?.Salary,
+                employee?.ContractType,
+                employee?.EmploymentStatus,
+
+                employee?.Address,
+                employee?.Contact,
+                employee?.Bank,
+                employee?.Documents
+            );
+
+            return response.SetSuccess(result);
+        }
+        catch (Exception ex)
+        {
+            return response.SetError("SERVER", ex.Message);
+        }
     }
-    public async Task UpdateProfileAsync(UpdateUserProfileDto body)
+    public async Task<PublicResponse> UpdateProfileAsync(UpdateUserProfileDto body)
     {
-        var userId = GetCurrentUserId();
+        var response = new PublicResponse(true);
 
         await using var transaction = await _applicationDbContext.Database.BeginTransactionAsync();
 
-        var user = await _applicationDbContext.Users
-            .FirstOrDefaultAsync(x => x.Id == userId);
+        try
+        {
+            var userId = GetCurrentUserId();
 
-        if (user == null)
-            throw new Exception("User not found");
+            var user = await _applicationDbContext.Users
+                .FirstOrDefaultAsync(x => x.Id == userId);
 
-        user.FirstName = body.FirstName?.Trim();
-        user.LastName = body.LastName?.Trim();
-        user.PhoneNumber = body.PhoneNumber?.Trim();
-        user.BirthdayDate = body.BirthdayDate;
-        user.AvatarUrl = body.AvatarUrl;
+            if (user == null)
+                return response.SetError("NOT_FOUND", "User not found");
 
-        user.UpdatedAt = DateTime.UtcNow;
-        user.UpdatedBy = userId;
+            user.FirstName = body.FirstName?.Trim();
+            user.LastName = body.LastName?.Trim();
+            user.PhoneNumber = body.PhoneNumber?.Trim();
+            user.BirthdayDate = body.BirthdayDate;
+            user.AvatarUrl = body.AvatarUrl;
+            user.UpdatedAt = DateTime.UtcNow;
+            user.UpdatedBy = userId;
 
-        await _applicationDbContext.SaveChangesAsync();
-        await transaction.CommitAsync();
+            var employee = await _applicationDbContext.Employees
+               .FirstOrDefaultAsync(e => e.UserId == userId);
+
+            if (employee != null)
+            {
+                employee.FirstName = user.FirstName;
+                employee.LastName = user.LastName;
+                employee.UpdatedAt = DateTime.UtcNow;
+
+                var address = await _applicationDbContext.EmployeeAddress
+                    .FirstOrDefaultAsync(x => x.EmployeeId == employee.Id);
+
+                if (address == null)
+                {
+                    address = new EmployeeAddress
+                    {
+                        Id = Guid.NewGuid(),
+                        EmployeeId = employee.Id,
+                        Street = body.Street?.Trim() ?? "",
+                        City = body.City?.Trim() ?? "",
+                        Country = body.Country?.Trim() ?? "",
+                        PostalCode = body.PostalCode?.Trim() ?? ""
+                    };
+
+                    _applicationDbContext.EmployeeAddress.Add(address);
+                }
+                else
+                {
+                    address.Street = body.Street?.Trim() ?? address.Street;
+                    address.City = body.City?.Trim() ?? address.City;
+                    address.Country = body.Country?.Trim() ?? address.Country;
+                    address.PostalCode = body.PostalCode?.Trim() ?? address.PostalCode;
+                }
+
+                var contact = await _applicationDbContext.EmployeeContact
+                    .FirstOrDefaultAsync(x => x.EmployeeId == employee.Id);
+
+                if (contact == null)
+                {
+                    contact = new EmployeeContact
+                    {
+                        Id = Guid.NewGuid(),
+                        EmployeeId = employee.Id,
+                        PhoneNumber = body.PhoneNumber?.Trim(),
+                        EmergencyContactName = body.EmergencyContactName?.Trim(),
+                        EmergencyContactPhone = body.EmergencyContactPhone?.Trim()
+                    };
+
+                    _applicationDbContext.EmployeeContact.Add(contact);
+                }
+                else
+                {
+                    contact.PhoneNumber = body.PhoneNumber?.Trim() ?? contact.PhoneNumber;
+                    contact.EmergencyContactName = body.EmergencyContactName?.Trim() ?? contact.EmergencyContactName;
+                    contact.EmergencyContactPhone = body.EmergencyContactPhone?.Trim() ?? contact.EmergencyContactPhone;
+                }
+            }
+            await _applicationDbContext.SaveChangesAsync();
+
+
+            if (employee != null)
+            {
+
+                _applicationDbContext.ActivityLog.Add(new ActivityLog
+                {
+                    EntityType = "Employee",
+                    EntityId = employee.Id.ToString(),
+                    Action = "UserProfileUpdated",
+                    Description = $"{employee.FirstName} {employee.LastName} și-a actualizat profilul.",
+                    CreatedAtUtc = DateTime.UtcNow,
+                    PerformedBy = userId
+                });
+
+                await _notificationService.CreateNotificationForRolesAsync(
+                    roleNames: new[] { "HR", "Administrator" },
+                    eventType: NotificationEvents.UserActivity,
+                    title: "Profil utilizator actualizat",
+                    message: $"{employee.FirstName} {employee.LastName} și-a actualizat profilul.",
+                    type: "Info",
+                    link: $"/employee/{employee.Id}",
+                    entityType: "Employee",
+                    entityId: employee.Id.ToString()
+                );
+            }
+
+            await transaction.CommitAsync();
+
+            return response.SetSuccess(true);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return response.SetError("SERVER", ex.Message);
+        }
     }
 
     public async Task<List<NotificationSettingDto>> GetNotificationSettingsAsync()
     {
         var userId = GetCurrentUserId();
 
-        return await _applicationDbContext.UserNotificationSettings
+        var existing = await _applicationDbContext.UserNotificationSettings
             .AsNoTracking()
             .Where(x => x.UserId == userId)
+            .ToListAsync();
+
+        var result = new List<NotificationSettingDto>();
+
+        foreach (var eventType in NotificationEvents.All)
+        {
+            foreach (NotificationChannel channel in Enum.GetValues<NotificationChannel>())
+            {
+                var setting = existing.FirstOrDefault(x =>
+                    x.EventType == eventType &&
+                    x.Channel == channel);
+
+                result.Add(new NotificationSettingDto(
+                    eventType,
+                    channel,
+                    setting?.Enabled ?? true,
+                    setting?.Digest ?? GetDefaultDigest(channel)
+                ));
+            }
+        }
+
+        return result
             .OrderBy(x => x.EventType)
             .ThenBy(x => x.Channel)
-            .Select(x => new NotificationSettingDto(
-                x.EventType,
-                x.Channel,
-                x.Enabled,
-                x.Digest
-            ))
-            .ToListAsync();
+            .ToList();
     }
 
     public async Task UpsertNotificationSettingsAsync(List<NotificationSettingDto> body)
@@ -147,10 +307,12 @@ public class UserProfileService
 
         foreach (var dto in body)
         {
-            var existing = existingSettings
-                .FirstOrDefault(x =>
-                    x.EventType == dto.EventType &&
-                    x.Channel == dto.Channel);
+            if (!NotificationEvents.All.Contains(dto.EventType))
+                continue;
+
+            var existing = existingSettings.FirstOrDefault(x =>
+                x.EventType == dto.EventType &&
+                x.Channel == dto.Channel);
 
             if (existing == null)
             {
@@ -173,5 +335,12 @@ public class UserProfileService
         }
 
         await _applicationDbContext.SaveChangesAsync();
+    }
+
+    private static DigestMode GetDefaultDigest(NotificationChannel channel)
+    {
+        return channel == NotificationChannel.Email
+            ? DigestMode.Daily
+            : DigestMode.Immediate;
     }
 }

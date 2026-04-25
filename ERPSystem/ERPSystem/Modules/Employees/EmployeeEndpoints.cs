@@ -58,6 +58,20 @@ namespace ERPSystem.Modules.Employees
                 .WithDefaultApiSettings("HRDASHBOARD", "HRDASHBOARD", "HR_DASHBOARD", true);
 
 
+            group.MapGet(Route.EMPLOYEE_DOCUMENT_VIEW,
+                async (Guid documentId, EmployeeService service)
+                     => await service.ViewEmployeeDocumentAsync(documentId))
+             .WithDefaultApiSettings("ViewEmployeeDocument", "View Employee DocumenT", "View Employee Document", false);
+
+            group.MapGet(Route.EMPLOYEE_DOCUMENT_DOWNLOAD,
+               async (Guid documentId, EmployeeService service)
+               => await service.DownloadEmployeeDocumentAsync(documentId))
+                .WithDefaultApiSettings("DownloadEmployeeDocument", "Download Employee Document", "Download Employee Document", false);
+
+            group.MapDelete(Route.EMPLOYEE_DOCUMENT_DELETE,
+               async (Guid documentId, EmployeeService service) 
+               => await service.DeleteEmployeeDocumentAsync(documentId));
+
         }
     }
 }

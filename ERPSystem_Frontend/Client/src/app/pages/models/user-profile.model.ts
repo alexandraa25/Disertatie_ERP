@@ -3,6 +3,7 @@ export interface UserProfileDto {
   firstName: string;
   lastName: string;
 
+  fullName: string;
   username: string;
 
   email: string;
@@ -21,7 +22,9 @@ export interface UserProfileDto {
 
   avatarUrl?: string | null;
 
-  unreadNotificationsCount: number;
+  unreadNotifications: number;
+
+  employeeId?: string;
 
   jobTitle?: string;
   hireDate?: string;
@@ -29,6 +32,11 @@ export interface UserProfileDto {
   contractType?: string;
   employmentStatus?: string;
 
+  // 🔥 NOU
+  address?: AddressDto;
+  contact?: ContactDto;
+  bank?: BankDto;
+  documents?: DocumentDto[];
 }
 
 export interface UpdateUserProfileDto {
@@ -37,12 +45,46 @@ export interface UpdateUserProfileDto {
   lastName?: string;
 
   phoneNumber?: string | null;
-
   birthdayDate?: string | null;
-
   avatarUrl?: string | null;
 
+  // 🔥 address
+  street?: string;
+  city?: string;
+  country?: string;
+  postalCode?: string;
+
+  // 🔥 contact
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
 }
+
+export interface AddressDto {
+  street?: string;
+  city?: string;
+  country?: string;
+  postalCode?: string;
+}
+
+export interface ContactDto {
+  phoneNumber?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+}
+
+export interface BankDto {
+  iban?: string;
+  bankName?: string;
+}
+
+export interface DocumentDto {
+  id: string;
+  fileName: string;
+  filePath: string;
+  documentType?: string;
+  uploadedAt: string;
+}
+
 export enum NotificationChannel {
   InApp = 1,
   Email = 2
@@ -58,6 +100,22 @@ export interface NotificationSettingDto {
   channel: NotificationChannel;
   enabled: boolean;
   digest: DigestMode;
+}
+
+export interface NotificationDto {
+  id: number;
+  userId: string;
+  eventType: string;
+  title: string;
+  message: string;
+  type: 'Info' | 'Success' | 'Warning' | 'Error';
+  link?: string | null;
+  entityType?: string | null;
+  entityId?: string | null;
+  isRead: boolean;
+  seenAt?: string | null;
+  readAt?: string | null;
+  createdAt: string;
 }
 
 export interface ChangePasswordRequest {

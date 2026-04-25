@@ -2,6 +2,7 @@
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Admin.Models;
 using ERPSystem.Modules.UserProfile.Models;
+using ERPSystem.Shared.Notifications;
 using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,15 +14,19 @@ namespace ERPSystem.Modules.Admin
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly NotificationsService _notificationService;
+
 
         public AdminService(
             ApplicationDbContext applicationDbContex,
             UserManager<ApplicationUser> userManager,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            NotificationsService notificationService)
         {
             _applicationDbContext = applicationDbContex;
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
+            _notificationService = notificationService;
         }
 
         public async Task<IResult> GetDashboardAsync()
@@ -105,7 +110,33 @@ namespace ERPSystem.Modules.Admin
                         e.HireDate,
                         e.Salary,
                         e.ContractType,
-                        e.EmploymentStatus
+                        e.EmploymentStatus,
+
+                        Address = e.Address == null ? null : new AddressDto(
+                            e.Address.Street,
+                            e.Address.City,
+                            e.Address.Country,
+                            e.Address.PostalCode
+                        ),
+
+                        Contact = e.Contact == null ? null : new ContactDto(
+                            e.Contact.PhoneNumber,
+                            e.Contact.EmergencyContactName,
+                            e.Contact.EmergencyContactPhone
+                        ),
+
+                        Bank = e.Bank == null ? null : new BankDto(
+                            e.Bank.IBAN,
+                            e.Bank.BankName
+                        ),
+
+                        Documents = e.Documents.Select(d => new DocumentDto(
+                            d.Id,
+                            d.FileName,
+                            d.FilePath,
+                            d.DocumentType,
+                            d.UploadedAt
+                        )).ToList()
                     })
                     .FirstOrDefaultAsync();
 
@@ -124,12 +155,18 @@ namespace ERPSystem.Modules.Admin
                     user.LastLoginAt,
                     user.AvatarUrl,
                     unreadNotifications,
+
                     employee?.Id,
                     employee?.JobTitle,
                     employee?.HireDate,
                     employee?.Salary,
                     employee?.ContractType,
-                    employee?.EmploymentStatus
+                    employee?.EmploymentStatus,
+
+                    employee?.Address,
+                    employee?.Contact,
+                    employee?.Bank,
+                    employee?.Documents
                 );
 
                 return response.SetSuccess(result);
@@ -164,6 +201,19 @@ namespace ERPSystem.Modules.Admin
                     user.IsActive
                         ? $"Contul utilizatorului {user.Email} a fost activat."
                         : $"Contul utilizatorului {user.Email} a fost dezactivat."
+                );
+
+                await _notificationService.CreateNotificationAsync(
+                    userId: user.Id,
+                    eventType:  NotificationEvents.UserActivity,
+                    title: user.IsActive ? "Cont activat" : "Cont dezactivat",
+                    message: user.IsActive
+                        ? "Contul tău a fost activat."
+                        : "Contul tău a fost dezactivat.",
+                    type: user.IsActive ? "Success" : "Warning",
+                    link: "/profil-user",
+                    entityType: "User",
+                    entityId: user.Id
                 );
 
                 return response.SetSuccess(new
@@ -208,6 +258,17 @@ namespace ERPSystem.Modules.Admin
                      $"Rolurile utilizatorului {user.Email} au fost modificate din [{string.Join(", ", oldRoles)}] în [{string.Join(", ", request.Roles)}]."
                  );
 
+                await _notificationService.CreateNotificationAsync(
+                    userId: user.Id,
+                    eventType: NotificationEvents.UserActivity,
+                    title: "Roluri actualizate",
+                    message: $"Rolurile contului tău au fost actualizate: {string.Join(", ", request.Roles)}.",
+                    type: "Info",
+                    link: "/profil-user",
+                    entityType: "User",
+                    entityId: user.Id
+                );
+
                 return response.SetSuccess(new
                 {
                     user.Id,
@@ -243,6 +304,17 @@ namespace ERPSystem.Modules.Admin
                     "UserEmailConfirmed",
                     $"Emailul utilizatorului {user.Email} a fost confirmat manual."
                 );
+
+                await _notificationService.CreateNotificationAsync(
+                     userId: user.Id,
+                     eventType: NotificationEvents.UserActivity,
+                     title: "Email confirmat",
+                     message: "Emailul contului tău a fost confirmat.",
+                     type: "Success",
+                     link: "/profil-user",
+                     entityType: "User",
+                     entityId: user.Id
+                 );
 
                 return response.SetSuccess(new
                 {
@@ -291,10 +363,7 @@ namespace ERPSystem.Modules.Admin
                 ?? "system";
         }
 
-        private async Task AddActivityLogAsync(
-            string entityId,
-            string action,
-            string description)
+        private async Task AddActivityLogAsync( string entityId,string action, string description)
         {
             _applicationDbContext.ActivityLog.Add(new ActivityLog
             {

@@ -1,6 +1,6 @@
 <div class="profile-wrapper">
 
-  <div class="profile-card">
+  <div class="profile-card" [formGroup]="form">
 
     <!-- HEADER -->
     <div class="profile-header">
@@ -12,7 +12,6 @@
           {{ form.value.firstName?.charAt(0) || '?' }}
         </div>
 
-        <!-- Edit avatar doar in edit mode -->
         <input *ngIf="editMode && activeTab === 'info'" formControlName="avatarUrl" placeholder="Avatar URL" />
       </div>
 
@@ -38,167 +37,314 @@
         Parolă
       </button>
 
-      <button [class.active]="activeTab === 'notifications'" (click)="setTab('notifications')">
-        Notificări
-      </button>
-
-      <button [class.active]="activeTab === 'leaves'" (click)="setTab('leaves')">
+        <button [class.active]="activeTab === 'leaves'" (click)="setTab('leaves')">
         Concedii
       </button>
+
+      <button [class.active]="activeTab === 'notifications'" (click)="setTab('notifications')">
+       Setari notificări
+      </button>
+
+    
 
     </div>
 
     <!-- ================= INFO TAB ================= -->
 
     <!-- VIEW MODE -->
-    <div *ngIf="form && !loading && activeTab === 'info' && !editMode" class="info-grid">
+    <div *ngIf="form && !loading && activeTab === 'info' && !editMode">
 
-      <div>
-        <strong>Prenume:</strong>
-        {{ form.get('firstName')?.value }}
+      <div class="info-grid">
+        <div>
+          <strong>Prenume:</strong>
+          {{ form.get('firstName')?.value }}
+        </div>
+
+        <div>
+          <strong>Nume:</strong>
+          {{ form.get('lastName')?.value }}
+        </div>
+
+        <div>
+          <strong>Username:</strong>
+          {{ originalData.username }}
+        </div>
+
+        <div>
+          <strong>Email:</strong>
+          {{ originalData.email }}
+        </div>
+
+        <div>
+          <strong>Telefon:</strong>
+          {{ form.get('phoneNumber')?.value || '-' }}
+        </div>
+
+        <div>
+          <strong>Functie:</strong>
+          <span class="role-badge">
+            {{ originalData?.roles?.join(', ') }}
+          </span>
+        </div>
+
+        <div>
+          <strong>Status cont:</strong>
+          <span class="status" [class.active]="originalData?.isActive" [class.inactive]="!originalData?.isActive">
+            {{ originalData?.isActive ? 'Activ' : 'Inactiv' }}
+          </span>
+        </div>
+
+        <div>
+          <strong>Data nașterii:</strong>
+          {{ originalData?.birthdayDate | date:'dd MMM yyyy' }}
+        </div>
+
+        <div>
+          <strong>Creat la:</strong>
+          {{ originalData?.createdAt | date:'dd MMM yyyy HH:mm' }}
+        </div>
+
+        <div>
+          <strong>Ultima autentificare:</strong>
+          {{ originalData?.lastLoginAt | date:'dd MMM yyyy HH:mm' }}
+        </div>
+
+        <div>
+          <strong>Funcție HR:</strong>
+          {{ originalData?.jobTitle }}
+        </div>
+
+        <div>
+          <strong>Data angajării:</strong>
+          {{ originalData?.hireDate | date:'dd MMM yyyy' }}
+        </div>
+
+        <div>
+          <strong>Salariu:</strong>
+          {{ originalData?.salary || '-' }}
+        </div>
+
+        <div>
+          <strong>Tip contract:</strong>
+          {{ originalData?.contractType || '-' }}
+        </div>
+
+        <div>
+          <strong>Status angajare:</strong>
+          {{ originalData?.employmentStatus }}
+        </div>
+
+
       </div>
 
-      <div>
-        <strong>Nume:</strong>
-        {{ form.get('lastName')?.value }}
+      <!-- CONTACT -->
+      <div class="section">
+        <h3>Date de contact</h3>
+
+        <div class="info-grid small">
+          <div>
+            <strong>Telefon:</strong>
+            <span>{{ originalData?.contact?.phoneNumber || '-' }}</span>
+          </div>
+
+          <div>
+            <strong>Contact urgență:</strong>
+            <span>{{ originalData?.contact?.emergencyContactName || '-' }}</span>
+          </div>
+
+          <div>
+            <strong>Telefon urgență:</strong>
+            <span>{{ originalData?.contact?.emergencyContactPhone || '-' }}</span>
+          </div>
+        </div>
       </div>
 
-      <div>
-        <strong>Username:</strong>
-        {{ originalData.username }}
+
+      <!-- ADRESA -->
+      <div class="section">
+        <h3>Adresă</h3>
+
+        <div class="info-grid small">
+          <div>
+            <strong>Stradă:</strong>
+            <span>{{ originalData?.address?.street || '-' }}</span>
+          </div>
+
+          <div>
+            <strong>Oraș:</strong>
+            <span>{{ originalData?.address?.city || '-' }}</span>
+          </div>
+
+          <div>
+            <strong>Țară:</strong>
+            <span>{{ originalData?.address?.country || '-' }}</span>
+          </div>
+
+          <div>
+            <strong>Cod poștal:</strong>
+            <span>{{ originalData?.address?.postalCode || '-' }}</span>
+          </div>
+        </div>
       </div>
 
-      <div>
-        <strong>Email:</strong>
-        {{ originalData.email }}
+
+      <!-- BANCA -->
+      <div class="section">
+        <h3>Informații bancare</h3>
+
+        <div class="info-grid small">
+          <div>
+            <strong>IBAN:</strong>
+            <span>{{ originalData?.bank?.iban || '-' }}</span>
+          </div>
+
+          <div>
+            <strong>Bancă:</strong>
+            <span>{{ originalData?.bank?.bankName || '-' }}</span>
+          </div>
+        </div>
       </div>
 
-      <div>
-        <strong>Telefon:</strong>
-        {{ form.get('phoneNumber')?.value || '-' }}
-      </div>
 
-      <div>
-        <strong>Functie:</strong>
-        <span class="role-badge">
-          {{ originalData?.roles?.join(', ') }}
-        </span>
-      </div>
+      <!-- DOCUMENTE -->
+      <div class="section">
+        <h3>Documente</h3>
 
-      <div>
-        <strong>Status cont:</strong>
-        <span class="status" [class.active]="originalData?.isActive" [class.inactive]="!originalData?.isActive">
-          {{ originalData?.isActive ? 'Activ' : 'Inactiv' }}
-        </span>
-      </div>
+        <div *ngIf="!originalData?.documents?.length" class="empty-text">
+          Nu există documente.
+        </div>
 
-      <div>
-        <strong>Data nașterii:</strong>
-        {{ originalData?.birthdayDate | date:'dd MMM yyyy' }}
-      </div>
+        <div class="documents" *ngIf="originalData?.documents?.length">
 
-      <div>
-        <strong>Creat la:</strong>
-        {{ originalData?.createdAt | date:'dd MMM yyyy HH:mm' }}
-      </div>
+          <div class="doc-card" *ngFor="let doc of originalData.documents">
 
-      <div>
-        <strong>Ultima autentificare:</strong>
-        {{ originalData?.lastLoginAt | date:'dd MMM yyyy HH:mm' }}
-      </div>
+            <div class="doc-info">
+              <strong>{{ doc.fileName }}</strong>
+              <span>{{ doc.documentType }}</span>
+            </div>
 
-      <div>
-        <strong>Funcție HR:</strong>
-        {{ originalData?.jobTitle }}
-      </div>
+            <div class="doc-actions">
+              <button type="button" (click)="openDocument(doc)">
+                Vizualizează
+              </button>
 
-      <div>
-        <strong>Data angajării:</strong>
-        {{ originalData?.hireDate | date:'dd MMM yyyy' }}
-      </div>
+              <button type="button" class="download-btn" (click)="downloadDocument(doc)">
+                Descarcă
+              </button>
+            </div>
 
-      <div>
-        <strong>Salariu:</strong>
-        {{ originalData?.salary || '-' }}
-      </div>
+          </div>
 
-      <div>
-        <strong>Tip contract:</strong>
-        {{ originalData?.contractType || '-' }}
-      </div>
-
-      <div>
-        <strong>Status angajare:</strong>
-        {{ originalData?.employmentStatus }}
+        </div>
       </div>
 
     </div>
 
     <!-- EDIT MODE -->
-    <form *ngIf="activeTab === 'info' && editMode" [formGroup]="form" (ngSubmit)="save()">
+    <form *ngIf="activeTab === 'info' && editMode" [formGroup]="form" (ngSubmit)="save()" class="edit-form">
 
-      <div class="grid">
+      <div class="edit-section">
+        <h3>Informații personale</h3>
 
-        <div class="form-group">
-          <label>Prenume</label>
-          <input formControlName="firstName" />
-        </div>
+        <div class="grid">
+          <div class="form-group">
+            <label>Prenume</label>
+            <input formControlName="firstName" />
+          </div>
 
-        <div class="form-group">
-          <label>Nume</label>
-          <input formControlName="lastName" />
-        </div>
+          <div class="form-group">
+            <label>Nume</label>
+            <input formControlName="lastName" />
+          </div>
 
-        <div class="form-group">
-          <label>Telefon</label>
-          <input formControlName="phoneNumber" />
-        </div>
+          <div class="form-group">
+            <label>Telefon</label>
+            <input formControlName="phoneNumber" />
+          </div>
 
-        <div class="form-group">
-          <label>Data nașterii</label>
-          <input type="date" formControlName="birthdayDate" />
-        </div>
+          <div class="form-group">
+            <label>Data nașterii</label>
+            <input type="date" formControlName="birthdayDate" />
+          </div>
 
-        <div class="form-group">
-          <label>Avatar URL</label>
-          <input formControlName="avatarUrl" />
-        </div>
-
-        <div class="form-group">
-          <label>Email</label>
-          <div class="readonly-field">
-            {{ originalData?.email }}
+          <div class="form-group full">
+            <label>Avatar URL</label>
+            <input formControlName="avatarUrl" />
           </div>
         </div>
+      </div>
 
-        <div class="form-group">
-          <label>Rol</label>
-          <div class="readonly-field">
-            {{ originalData?.roles?.join(', ') }}
-            <span class="role-badge">Setat de administrator</span>
+      <div class="edit-section">
+        <h3>Adresă</h3>
+
+        <div class="grid">
+          <div class="form-group">
+            <label>Stradă</label>
+            <input formControlName="street" />
+          </div>
+
+          <div class="form-group">
+            <label>Oraș</label>
+            <input formControlName="city" />
+          </div>
+
+          <div class="form-group">
+            <label>Țară</label>
+            <input formControlName="country" />
+          </div>
+
+          <div class="form-group">
+            <label>Cod poștal</label>
+            <input formControlName="postalCode" />
           </div>
         </div>
+      </div>
 
-        <div class="form-group">
-          <label>Status cont</label>
-          <div class="readonly-field">
-            {{ originalData?.isActive ? 'Activ' : 'Inactiv' }}
+      <div class="edit-section">
+        <h3>Contact de urgență</h3>
+
+        <div class="grid">
+          <div class="form-group">
+            <label>Persoană contact</label>
+            <input formControlName="emergencyContactName" />
+          </div>
+
+          <div class="form-group">
+            <label>Telefon urgență</label>
+            <input formControlName="emergencyContactPhone" />
           </div>
         </div>
+      </div>
 
+      <div class="edit-section readonly-section">
+        <h3>Date administrate de sistem</h3>
 
+        <div class="readonly-grid">
+          <div>
+            <label>Email</label>
+            <span>{{ originalData?.email }}</span>
+          </div>
+
+          <div>
+            <label>Rol</label>
+            <span>{{ originalData?.roles?.join(', ') }}</span>
+          </div>
+
+          <div>
+            <label>Status cont</label>
+            <span>{{ originalData?.isActive ? 'Activ' : 'Inactiv' }}</span>
+          </div>
+        </div>
       </div>
 
       <div class="actions">
-
         <button type="button" class="cancel" (click)="cancelEdit()">
-          Cancel
+          Anulează
         </button>
 
-        <button type="submit">
-          Save
+        <button type="submit" class="save">
+          Salvează
         </button>
-
       </div>
 
     </form>
@@ -241,7 +387,12 @@
       <div class="leave-header">
         <h3>Concediile mele</h3>
 
-        <button class="btn primary" (click)="openLeaveModal()">
+        <div *ngIf="isTerminated()" class="terminated-banner">
+          Angajatul nu mai este actiiv. Nu mai poți crea, modifica sau anula cereri de concediu.
+        </div>
+
+        <button class="btn primary" (click)="openLeaveModal()" [disabled]="isTerminated()"
+          [title]="isTerminated() ? 'Angajatul este inactiv' : ''">
           + Cerere concediu
         </button>
 
@@ -276,12 +427,14 @@
           </span>
           <div class="leave-actions">
             <!-- 🔥 BUTON EDIT -->
-            <button *ngIf="leave.status === 'Pending'" class="edit-btn" (click)="editLeave(leave)">
-              ✏️Editeaza
+            <button *ngIf="leave.status === 'Pending'" class="edit-btn" (click)="editLeave(leave)"
+              [disabled]="isTerminated()">
+              ✏️ Editează
             </button>
-            <!-- CANCEL -->
-            <button *ngIf="canCancel(leave)" class="cancel-btn" (click)="cancelLeave(leave)">
-              ❌Anuleaza
+
+            <button *ngIf="canCancel(leave)" class="cancel-btn" (click)="cancelLeave(leave)"
+              [disabled]="isTerminated()">
+              ❌ Anulează
             </button>
           </div>
 
@@ -331,52 +484,66 @@
 
     <!-- ================= NOTIFICATIONS TAB ================= -->
 
-    <div *ngIf="activeTab === 'notifications'">
+    <div *ngIf="activeTab === 'notifications'" class="notifications-section">
 
-      <div *ngIf="loadingNotifications">
-        Se încarcă notificările...
-      </div>
+ 
+  <div *ngIf="loadingNotifications" class="notifications-loading">
+    Se încarcă notificările...
+  </div>
 
-      <form *ngIf="!loadingNotifications" [formGroup]="notificationForm">
+  <form *ngIf="!loadingNotifications" [formGroup]="notificationForm">
 
-        <div formArrayName="settings">
+     <p>Alege cum vrei să primești notificările pentru activitățile interne.</p>
 
-          <div *ngFor="let group of settings.controls; let i = index" [formGroupName]="i" class="notification-item">
+    <div formArrayName="settings" class="notifications-list">
 
-            <strong>{{ group.value.eventType }}</strong>
+      <div
+        *ngFor="let group of settings.controls; let i = index"
+        [formGroupName]="i"
+        class="notification-card"
+      >
 
-            <label>
-              Activ
-              <input type="checkbox" formControlName="enabled">
-            </label>
-
-            <label>
-              Canal
-              <select formControlName="channel">
-                <option [value]="NotificationChannel.InApp">InApp</option>
-                <option [value]="NotificationChannel.Email">Email</option>
-              </select>
-            </label>
-
-            <label>
-              Digest
-              <select formControlName="digest">
-                <option [value]="DigestMode.Immediate">Immediate</option>
-                <option [value]="DigestMode.Daily">Daily</option>
-              </select>
-            </label>
-
+        <div class="notification-main">
+          <div>
+            <h3>{{ getNotificationLabel(group.value.eventType) }}</h3>
+            <span class="notification-channel">
+              {{ getChannelLabel(group.value.channel) }}
+            </span>
           </div>
 
+          <label class="switch-row">
+            <input type="checkbox" formControlName="enabled">
+            <span>Primește notificări</span>
+          </label>
         </div>
 
-        <button type="button" (click)="saveNotifications()" [disabled]="savingNotifications">
-          Salvează notificări
-        </button>
+        <div class="notification-options">
+          <label>
+            Frecvență notificare
+            <select formControlName="digest">
+              <option [ngValue]="DigestMode.Immediate">Imediat</option>
+              <option [ngValue]="DigestMode.Daily">Zilnic - rezumat</option>
+            </select>
+          </label>
+        </div>
 
-      </form>
+      </div>
 
     </div>
+
+    <div class="notifications-actions">
+      <button
+        type="button"
+        (click)="saveNotifications()"
+        [disabled]="savingNotifications"
+      >
+        {{ savingNotifications ? 'Se salvează...' : 'Salvează modificările' }}
+      </button>
+    </div>
+
+  </form>
+
+</div>
 
   </div>
 

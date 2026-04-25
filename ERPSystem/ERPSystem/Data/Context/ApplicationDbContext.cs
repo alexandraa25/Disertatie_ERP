@@ -12,6 +12,8 @@ namespace ERPSystem.Data.Context
     {
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
         public DbSet<UserNotificationSetting> UserNotificationSettings { get; set; }
+
+        public DbSet<Notification> Notifications { get; set; }
         public DbSet<ActivityLog> ActivityLog { get; set; }
         public DbSet<Student> Students => Set<Student>();
         public DbSet<Guardian> Guardians => Set<Guardian>();
@@ -44,6 +46,8 @@ namespace ERPSystem.Data.Context
 
         public DbSet<PublicHoliday> PublicHolidays { get; set; }
 
+
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         }
@@ -62,6 +66,60 @@ namespace ERPSystem.Data.Context
 
                 entity.Property(x => x.Digest)
                       .HasConversion<string>();
+            });
+
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.UserId)
+                      .IsRequired()
+                      .HasMaxLength(450);
+
+                entity.Property(x => x.EventType)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(x => x.Title)
+                      .IsRequired()
+                      .HasMaxLength(200);
+
+                entity.Property(x => x.Message)
+                      .IsRequired()
+                      .HasMaxLength(1000);
+
+                entity.Property(x => x.IsRead)
+                      .HasDefaultValue(false);
+
+                entity.Property(x => x.CreatedAt)
+                      .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne<ApplicationUser>()
+                      .WithMany()
+                      .HasForeignKey(x => x.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(x => new { x.UserId, x.CreatedAt });
+
+                entity.HasIndex(x => new { x.UserId, x.IsRead });
+
+                entity.Property(x => x.Type)
+                      .IsRequired()
+                      .HasMaxLength(30)
+                      .HasDefaultValue("Info");
+
+                entity.Property(x => x.Link)
+                      .HasMaxLength(500);
+
+                entity.Property(x => x.EntityType)
+                      .HasMaxLength(100);
+
+                entity.Property(x => x.EntityId)
+                      .HasMaxLength(100);
+
+                entity.HasIndex(x => new { x.UserId, x.IsRead, x.CreatedAt });
+
+                entity.HasIndex(x => new { x.EntityType, x.EntityId });
             });
 
             modelBuilder.Entity<ActivityLog>()
@@ -265,27 +323,22 @@ namespace ERPSystem.Data.Context
 
             modelBuilder.Entity<Payment>(entity =>
             {
-                // 🔹 relație cu Contract
                 entity.HasOne(p => p.Contract)
                     .WithMany()
                     .HasForeignKey(p => p.ContractId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                // 🔹 relație cu Installment (optională)
                 entity.HasOne(p => p.Installment)
                     .WithMany()
                     .HasForeignKey(p => p.InstallmentId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                // 🔹 indexuri (important pentru performanță)
                 entity.HasIndex(p => p.ContractId);
                 entity.HasIndex(p => p.InstallmentId);
 
-                // 🔹 precision pentru bani (FOARTE IMPORTANT)
                 entity.Property(p => p.Amount)
                     .HasPrecision(18, 2);
 
-                // 🔹 default value
                 entity.Property(p => p.Status)
                     .HasDefaultValue("Completed");
             });
@@ -379,14 +432,12 @@ namespace ERPSystem.Data.Context
                 {
                     var propName = property.Metadata.Name;
 
-                    // 🔥 IGNORE
                     if (propName == "UpdatedAtUtc")
                         continue;
 
                     if (property.Metadata.IsForeignKey())
                         continue;
 
-                    // 🔑 PRIMARY KEY
                     if (property.Metadata.IsPrimaryKey())
                     {
                         auditEntry.KeyValues[propName] = property.CurrentValue!;
@@ -427,7 +478,6 @@ namespace ERPSystem.Data.Context
 
             foreach (var entry in auditEntries)
             {
-                // 🔥 IMPORTANT: actualizează ID după save (pentru Create)
                 entry.UpdateKeyValues();
 
                 var log = new ActivityLog
@@ -441,7 +491,7 @@ namespace ERPSystem.Data.Context
                         New = entry.NewValues
                     }),
                     CreatedAtUtc = DateTime.UtcNow,
-                    PerformedBy = "system" // 🔥 schimbă ulterior cu user real
+                    PerformedBy = "system" 
                 };
 
                 Set<ActivityLog>().Add(log);

@@ -20,5 +20,72 @@
       </ng-container>
 
     </ul>
+
+   <div class="navbar-notifications">
+
+  <button
+    type="button"
+    class="notification-bell"
+    (click)="toggleNotifications()"
+  >
+    🔔
+
+    <span *ngIf="unreadCount > 0" class="notification-badge">
+      {{ unreadCount }}
+    </span>
+  </button>
+
+  <div *ngIf="notificationsOpen" class="notifications-dropdown">
+
+    <div class="notifications-dropdown-header">
+      <div>
+        <h3>Notificări</h3>
+        <span>{{ unreadCount }} necitite</span>
+      </div>
+
+      <button
+        *ngIf="unreadCount > 0"
+        type="button"
+        (click)="markAllAsRead()"
+      >
+        Marchează toate ca citite
+      </button>
+    </div>
+
+    <div *ngIf="notifications.length === 0" class="empty-notifications">
+      Nu ai notificări momentan.
+    </div>
+
+    <div
+      *ngFor="let notification of notifications"
+      class="notification-row"
+      [class.unread]="!notification.isRead"
+      [class.info]="notification.type === 'Info'"
+      [class.success]="notification.type === 'Success'"
+      [class.warning]="notification.type === 'Warning'"
+      [class.error]="notification.type === 'Error'"
+      (click)="openNotification(notification)"
+    >
+      <div class="notification-icon">
+        {{ getNotificationIcon(notification.type) }}
+      </div>
+
+      <div class="notification-content">
+        <div class="notification-title-row">
+          <strong>{{ notification.title }}</strong>
+          <span *ngIf="!notification.isRead" class="notification-dot"></span>
+        </div>
+
+        <p>{{ notification.message }}</p>
+
+        <span class="notification-time">
+          {{ getTimeAgo(notification.createdAt) }}
+        </span>
+      </div>
+    </div>
+
+  </div>
+
+</div>
   </div>
 </nav>

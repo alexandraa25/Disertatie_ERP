@@ -46,6 +46,28 @@ uploadEmployeeDocuments(formData: FormData) {
   return this.http.get<PublicResponse<SimpleUser[]>>(`${this.baseUrl}/users`);
 }
 
+getEmployeeActivity(employeeId: string) {
+  return this.http.get<any>(`${this.baseUrl}/activity/Employee/${employeeId}`);
+}
 
+viewDocument(documentId: string) {
+  return this.http.get(
+    `${this.baseUrl}/documents/${documentId}/view`,
+    { responseType: 'blob' }
+  );
+}
+
+downloadDocument(documentId: string) {
+  return this.http.get(
+    `${this.baseUrl}/documents/${documentId}/download`,
+    { responseType: 'blob' }
+  );
+}
+
+deleteDocument(documentId: string) {
+  return this.http.delete<any>(
+    `${this.baseUrl}/documents/${documentId}`
+  );
+}
 
 }

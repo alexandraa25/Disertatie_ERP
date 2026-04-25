@@ -1,12 +1,13 @@
-﻿using ERPSystem.Data.Context;
+﻿using ClosedXML.Excel;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Student.Models;
 using ERPSystem.Modules.Students.Models;
+using ERPSystem.Shared.Notifications;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
 using SendGrid.Helpers.Mail;
-using ClosedXML.Excel;
 
 
 namespace ERPSystem.Modules.Student;
@@ -15,12 +16,14 @@ public class StudentsService
 {
     private readonly ApplicationDbContext _db;
     private readonly ILogger<StudentsService> _logger;
+    private readonly NotificationsService _notificationService;
 
 
-    public StudentsService(ApplicationDbContext db, ILogger<StudentsService> logger)
+    public StudentsService(ApplicationDbContext db, ILogger<StudentsService> logger, NotificationsService notificationservice)
     {
         _db = db;
         _logger = logger;
+        _notificationService = notificationservice;
     }
 
     public async Task<PublicResponse> GetStudentsAsync(  string? q,  int page,   int pageSize,  string? sortBy,  string? sortDir,  int? recentDays,  bool? onlyRecent, int? sessionId)
@@ -164,6 +167,27 @@ public class StudentsService
 
             _db.Students.Add(s);
             await _db.SaveChangesAsync();
+
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = "Student",
+                EntityId = s.Id.ToString(),
+                Action = "Create",
+                Description = $"Cursantul {s.FullName} a fost creat.",
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
+            await _notificationService.CreateNotificationForRolesAsync(
+                 roleNames: new[] { "Admin", "Secretary" },
+                 eventType: NotificationEvents.StudentActivity,
+                 title: "Date cursant actualizate",
+                 message: $"Datele cursantului {s.FullName} au fost actualizate.",
+                 type: "Info",
+                 link: $"/students/{s.Id}",
+                 entityType: "Student",
+                 entityId: s.Id.ToString()
+             );
             await transaction.CommitAsync();
 
             return response.SetCreated(new { id = s.Id });
@@ -190,13 +214,11 @@ public class StudentsService
             if (s is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
 
-            // 🔥 salvăm tutorii vechi (pentru comparație)
             var oldGuardians = s.StudentGuardians
                 .Select(x => x.Guardian.Email)
                 .OrderBy(x => x)
                 .ToList();
 
-            // 🔥 UPDATE
             s.FullName = dto.FullName.Trim();
             s.FirstName = string.IsNullOrWhiteSpace(dto.FirstName) ? null : dto.FirstName.Trim();
             s.LastName = string.IsNullOrWhiteSpace(dto.LastName) ? null : dto.LastName.Trim();
@@ -207,7 +229,6 @@ public class StudentsService
             s.IsActive = dto.IsActive;
             s.UpdatedAtUtc = DateTime.UtcNow;
 
-            // 🔥 VALIDARE BUSINESS
             if (s.IsMinor && (dto.Guardians == null || dto.Guardians.Count == 0))
                 return response.SetError(ErrorCodes.InvalidParameters,
                     "Student minor trebuie să aibă cel puțin un părinte.");
@@ -254,14 +275,36 @@ public class StudentsService
                 }
             }
 
-            // 🔥 detectăm schimbare tutori
             newGuardians = newGuardians.OrderBy(x => x).ToList();
             var guardiansChanged = !oldGuardians.SequenceEqual(newGuardians);
 
-            // 🔥 SAVE (audit automat)
             await _db.SaveChangesAsync();
 
-            // 🔥 log user-friendly DOAR dacă s-au schimbat tutorii
+            
+
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = "Student",
+                EntityId = s.Id.ToString(),
+                Action = "Update",
+                Description = $"Datele cursantului {s.FullName} au fost actualizate.",
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
+            await _db.SaveChangesAsync();
+
+            await _notificationService.CreateNotificationForRolesAsync(
+                 roleNames: new[] { "Admin", "Secretary" },
+                 eventType: NotificationEvents.StudentActivity,
+                 title: "Date cursant actualizate",
+                 message: $"Datele cursantului {s.FullName} au fost actualizate.",
+                 type: "Info",
+                 link: $"/students/{s.Id}",
+                 entityType: "Student",
+                 entityId: s.Id.ToString()
+             );
+
             if (guardiansChanged)
             {
                 var added = newGuardians.Except(oldGuardians).ToList();
@@ -291,6 +334,22 @@ public class StudentsService
                 });
 
                 await _db.SaveChangesAsync();
+
+                
+
+                await _db.SaveChangesAsync();
+
+
+                await _notificationService.CreateNotificationForRolesAsync(
+                    roleNames: new[] { "Admin", "Secretary" },
+                    eventType: NotificationEvents.StudentActivity,
+                    title: "Tutori cursant actualizați",
+                    message: $"Tutorii cursantului {s.FullName} au fost actualizați.",
+                    type: "Warning",
+                    link: $"/students/{s.Id}",
+                    entityType: "Student",
+                    entityId: s.Id.ToString()
+                );
             }
 
             return response.SetSuccess(true);
@@ -315,6 +374,29 @@ public class StudentsService
             s.IsActive = false;
             s.UpdatedAtUtc = DateTime.UtcNow;
             await _db.SaveChangesAsync();
+
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = "Student",
+                EntityId = s.Id.ToString(),
+                Action = "Deactivate",
+                Description = $"Cursantul {s.FullName} a fost dezactivat.",
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
+            await _db.SaveChangesAsync();
+
+            await _notificationService.CreateNotificationForRolesAsync(
+                 roleNames: new[] { "Admin", "Secretary" },
+                 eventType: NotificationEvents.StudentActivity,
+                 title: "Cursant dezactivat",
+                 message: $"Cursantul {s.FullName} a fost dezactivat.",
+                 type: "Warning",
+                 link: $"/students/{s.Id}",
+                 entityType: "Student",
+                 entityId: s.Id.ToString()
+             );
 
             return response.SetSuccess(true);
         }
@@ -424,7 +506,6 @@ public class StudentsService
         // 🔥 reutilizezi metoda ta existentă
         return await GetStudentCoursesAsync(studentId);
     }
-
 
     public async Task<PublicResponse> GetPrimaryGuardianAsync(int studentId)
     {

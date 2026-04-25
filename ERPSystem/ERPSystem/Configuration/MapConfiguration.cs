@@ -37,8 +37,16 @@ namespace ERPSystem.Configuration
 
             ActivityLogEndpoint.Map(generalGroup);
 
+            var notificationsGroup = app.CreateApiGroup(
+               route: "/notifications",
+               tag: "Notifications",
+               requireAuth: false,
+               description: "Notifications"
+           );
 
-            // ✅ GROUP pentru profil (necesită autentificare)
+            NotificationsEndpoint.Map(notificationsGroup);
+
+
             var meGroup = app.CreateApiGroup(
                 route: "/me",
                 tag: "Me",

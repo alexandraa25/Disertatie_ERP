@@ -26,6 +26,15 @@ namespace ERPSystem.Utils.Constants
                 public const string FILLTER_OPTIONS = "/fillter";
             }
 
+            public static class Notification
+            {
+                public const string GET_MY_NOTIFICATIONS = "/";
+                public const string MARK_AS_READ = "/{id}/read";
+                public const string MARK_ALL_AS_READ = "/read-all";
+                public const string GET_UNREAD_COUNT = "/unread-count";
+                public const string MARK_ALL_AS_SEEN = "/seen-all";
+            }
+
             public static class Profile
             {
                 public const string PROFILE = "/profile";
@@ -64,6 +73,11 @@ namespace ERPSystem.Utils.Constants
                 public const string TERMINATE_EMPLOYEE = "/{id}/terminate";
                 public const string HR_DASHBOARD = "/dashboard";
                 public const string USERS = "/users";
+                public const string EMPLOYEE_DOCUMENT_VIEW = "/documents/{documentId}/view";
+                public const string EMPLOYEE_DOCUMENT_DOWNLOAD = "/documents/{documentId}/download";
+                public const string EMPLOYEE_DOCUMENT_DELETE = "/documents/{documentId}";
+
+
 
             }
 

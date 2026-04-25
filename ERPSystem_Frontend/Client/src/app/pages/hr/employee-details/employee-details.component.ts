@@ -6,11 +6,14 @@ import { LeaveService } from '../../services/leave.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivityLogService} from '../../services/activity-log.service'
+import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
+import { ConfirmService } from '../../services/confirm.service';
 
 @Component({
   selector: 'app-employee-details',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule,FormsModule, ConfirmCustomModalComponent],
   templateUrl: './employee-details.component.html',
   styleUrls: ['./employee-details.component.css']
 })
@@ -35,16 +38,15 @@ activityLoaded = false;
     private route: ActivatedRoute,
     private employeeService: EmployeeService,
     private leaveService:LeaveService, 
-    private activityLogService:ActivityLogService
+    private activityLogService:ActivityLogService, 
+    private snackbar: SnackbarService, private confirmService: ConfirmService
   ) {}
 
   ngOnInit(): void {
   this.loadEmployee();
 }
 
-  openDocument(path: string) {
-  window.open(path, '_blank');
-}
+
 
 approveLeave(id: string) {
   this.leaveService.approve(id).subscribe(() => {
@@ -176,6 +178,62 @@ getResolvedDocType(): string {
     return this.customDocumentType || 'Custom';
   }
   return this.documentType;
+}
+
+ openDocument(doc: any): void {
+  this.employeeService.viewDocument(doc.id).subscribe({
+    next: (blob) => {
+      const fileUrl = URL.createObjectURL(blob);
+      window.open(fileUrl, '_blank');
+    },
+    error: () => {
+      alert('Documentul nu a putut fi deschis.');
+    }
+  });
+}
+downloadDocument(doc: any): void {
+  this.employeeService.downloadDocument(doc.id).subscribe({
+    next: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = doc.fileName; // 🔥 numele real
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+    },
+    error: () => {
+      alert('Documentul nu a putut fi descărcat.');
+    }
+  });
+}
+
+async deleteDocument(doc: any): Promise<void> {
+
+  const confirmed = await this.confirmService.confirm(
+    'Confirmare ștergere',
+    `Sigur vrei să ștergi documentul "${doc.fileName}"?`
+  );
+
+  if (!confirmed) return;
+
+  this.employeeService.deleteDocument(doc.id).subscribe({
+    next: (res: any) => {
+      if (res.isSuccess === false) {
+        this.snackbar.showError(res.error?.errorMessage || 'Nu s-a putut șterge documentul.', 2500);
+        return;
+      }
+
+      this.employee.documents =
+        this.employee.documents?.filter((x: any) => x.id !== doc.id) ?? [];
+
+      this.snackbar.showSuccess('Document șters cu succes.', 1800);
+    },
+    error: () => {
+      this.snackbar.showError('Eroare la ștergerea documentului.', 2500);
+    }
+  });
 }
 
 

@@ -1,6 +1,7 @@
 ﻿using ClosedXML.Excel;
 using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
+using ERPSystem.Models.Notifications;
 using ERPSystem.Modules.Leaves.Models;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
@@ -13,15 +14,16 @@ namespace ERPSystem.Modules.Leaves
         private readonly ApplicationDbContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly HolidayService _holidayService;
-        
+        private readonly NotificationsService _notificationService;
 
 
-        public LeavesService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, HolidayService holidayService)
+
+        public LeavesService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, HolidayService holidayService, NotificationsService notificationService)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _holidayService = holidayService;
-            
+            _notificationService = notificationService;
         }
 
         private string GetUserId()
@@ -43,6 +45,9 @@ namespace ERPSystem.Modules.Leaves
 
                 if (employee == null)
                     return response.SetError("NOT_FOUND", "Employee not found");
+
+                if (employee.EmploymentStatus == "Terminated")
+                    return response.SetError("FORBIDDEN", "Nu poți crea concediu pentru un angajat inactiv.");
 
                 if (dto.StartDate < DateTime.Today)
                     return response.SetError("VALIDATION", "Nu poți selecta trecut");
@@ -104,6 +109,17 @@ namespace ERPSystem.Modules.Leaves
                 _context.EmployeeLeaves.Add(leave);
                 await _context.SaveChangesAsync();
 
+                await _notificationService.CreateNotificationForRolesAsync(
+                    roleNames: new[] { "HR", "Admin", "Secretary" },
+                    eventType: NotificationEvents.Leave,
+                    title: "Cerere nouă de concediu",
+                    message: $"{employee.FirstName} {employee.LastName} a trimis o cerere de concediu pentru perioada {leave.StartDate:dd.MM.yyyy} - {leave.EndDate:dd.MM.yyyy}.",
+                    type: "Info",
+                    link: "/all-leaves",
+                    entityType: "EmployeeLeave",
+                    entityId: leave.Id.ToString()
+                );
+
                 await AddEmployeeLeaveActivityLogAsync(
                     leave.EmployeeId,
                     "LeaveCreated",
@@ -131,6 +147,9 @@ namespace ERPSystem.Modules.Leaves
 
                 if (employee == null)
                     return response.SetError("NOT_FOUND", "Employee not found");
+
+                if (employee.EmploymentStatus == "Terminated")
+                    return response.SetError("FORBIDDEN", "Nu poți modifica concediul.");
 
                 var leave = await _context.EmployeeLeaves
                     .FirstOrDefaultAsync(l => l.Id == id && l.EmployeeId == employee.Id);
@@ -197,6 +216,17 @@ namespace ERPSystem.Modules.Leaves
 
                 await _context.SaveChangesAsync();
 
+                await _notificationService.CreateNotificationForRolesAsync(
+                    roleNames: new[] { "HR", "Admin", "Secretary" },
+                    eventType: NotificationEvents.Leave,
+                    title: "Cerere de concediu actualizată",
+                    message: $"{employee.FirstName} {employee.LastName} a actualizat cererea de concediu pentru perioada {leave.StartDate:dd.MM.yyyy} - {leave.EndDate:dd.MM.yyyy}.",
+                    type: "Warning",
+                    link: "/all-leaves",
+                    entityType: "EmployeeLeave",
+                    entityId: leave.Id.ToString()
+                );
+
                 await AddEmployeeLeaveActivityLogAsync(
                     leave.EmployeeId,
                     "LeaveUpdated",
@@ -225,6 +255,9 @@ namespace ERPSystem.Modules.Leaves
                 if (employee == null)
                     return response.SetError("NOT_FOUND", "Employee not found");
 
+                if (employee.EmploymentStatus == "Terminated")
+                    return response.SetError("FORBIDDEN", "Nu poți anula concediul.");
+
                 var leave = await _context.EmployeeLeaves
                     .FirstOrDefaultAsync(l => l.Id == id && l.EmployeeId == employee.Id);
 
@@ -240,6 +273,17 @@ namespace ERPSystem.Modules.Leaves
                 leave.Status = "Cancelled";
 
                 await _context.SaveChangesAsync();
+
+                await _notificationService.CreateNotificationForRolesAsync(
+                     roleNames: new[] { "HR", "Admin", "Secretary" },
+                     eventType: NotificationEvents.Leave,
+                     title: "Cerere de concediu anulată",
+                     message: $"{employee.FirstName} {employee.LastName} a anulat cererea de concediu pentru perioada {leave.StartDate:dd.MM.yyyy} - {leave.EndDate:dd.MM.yyyy}.",
+                     type: "Warning",
+                     link: "/all-leaves",
+                     entityType: "EmployeeLeave",
+                     entityId: leave.Id.ToString()
+                 );
 
                 await AddEmployeeLeaveActivityLogAsync(
                     leave.EmployeeId,
@@ -377,6 +421,17 @@ namespace ERPSystem.Modules.Leaves
 
                 await _context.SaveChangesAsync();
 
+                await _notificationService.CreateNotificationAsync(
+                    userId: leave.Employee.UserId,
+                    eventType: NotificationEvents.Leave,
+                    title: "Cerere de concediu aprobată",
+                    message: $"Cererea ta de concediu din perioada {leave.StartDate:dd.MM.yyyy} - {leave.EndDate:dd.MM.yyyy} a fost aprobată.",
+                    type: "Success",
+                    link: "/profil-user",
+                    entityType: "EmployeeLeave",
+                    entityId: leave.Id.ToString()
+                );
+
                 await AddEmployeeLeaveActivityLogAsync(
                     leave.EmployeeId,
                     "LeaveApproved",
@@ -399,8 +454,10 @@ namespace ERPSystem.Modules.Leaves
             {
                 var userId = GetUserId();
 
-                var leave = await _context.EmployeeLeaves.FindAsync(id);
-
+                var leave = await _context.EmployeeLeaves
+                   .Include(l => l.Employee)
+                   .FirstOrDefaultAsync(l => l.Id == id);
+                   
                 if (leave == null)
                     return response.SetError("NOT_FOUND", "Concediul nu a fost găsit");
 
@@ -412,6 +469,19 @@ namespace ERPSystem.Modules.Leaves
                 leave.ReasonUpdate = reason; 
 
                 await _context.SaveChangesAsync();
+
+                await _notificationService.CreateNotificationAsync(
+                    userId: leave.Employee.UserId,
+                    eventType: NotificationEvents.Leave,
+                    title: "Cerere de concediu respinsă",
+                    message: string.IsNullOrWhiteSpace(reason)
+                        ? $"Cererea ta de concediu din perioada {leave.StartDate:dd.MM.yyyy} - {leave.EndDate:dd.MM.yyyy} a fost respinsă."
+                        : $"Cererea ta de concediu din perioada {leave.StartDate:dd.MM.yyyy} - {leave.EndDate:dd.MM.yyyy} a fost respinsă. Motiv: {reason}",
+                    type: "Warning",
+                    link: "/profil-user",
+                    entityType: "EmployeeLeave",
+                    entityId: leave.Id.ToString()
+                );
 
                 await AddEmployeeLeaveActivityLogAsync(
                     leave.EmployeeId,
@@ -428,7 +498,6 @@ namespace ERPSystem.Modules.Leaves
                 return response.SetError("SERVER", ex.Message);
             }
         }
-
 
         public async Task<PublicResponse> GetAllLeaves(GetLeavesQuery query)
         {
@@ -618,10 +687,7 @@ namespace ERPSystem.Modules.Leaves
                 ?? "system";
         }
 
-        private async Task AddEmployeeLeaveActivityLogAsync(
-    Guid employeeId,
-    string action,
-    string description)
+        private async Task AddEmployeeLeaveActivityLogAsync( Guid employeeId, string action, string description)
         {
             _context.ActivityLog.Add(new ActivityLog
             {
@@ -635,6 +701,9 @@ namespace ERPSystem.Modules.Leaves
 
             await _context.SaveChangesAsync();
         }
+
+
+
 
     }
 }
