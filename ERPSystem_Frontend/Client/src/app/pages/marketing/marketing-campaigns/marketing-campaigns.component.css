@@ -606,3 +606,111 @@ textarea:focus {
   font-size: 14px;
   background: #fafafa;
 }
+
+
+/* BACKDROP */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* MODAL BOX */
+.modal {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: fadeInScale 0.2s ease;
+}
+
+/* TITLE */
+.modal h3 {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
+}
+
+/* BODY */
+.modal-body {
+  margin-bottom: 20px;
+}
+
+.modal-body p {
+  margin-bottom: 10px;
+  color: #555;
+}
+
+/* INPUT */
+.modal-body input {
+  width: 70%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: border 0.2s;
+}
+
+.modal-body input:focus {
+  border-color: #4cafef;
+  outline: none;
+}
+
+/* ACTIONS */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* BUTTONS */
+.modal-actions button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+/* CANCEL */
+.modal-actions button:first-child {
+  background: #f1f1f1;
+  color: #333;
+}
+
+.modal-actions button:first-child:hover {
+  background: #e0e0e0;
+}
+
+/* CONFIRM */
+.modal-actions button:last-child {
+  background: #4cafef;
+  color: white;
+}
+
+.modal-actions button:last-child:hover {
+  background: #2196f3;
+}
+
+/* ANIMATION */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class ConfirmService {
 
-  private resolver!: (value: boolean) => void;
+  private resolver?: (value: boolean) => void;
 
   isOpen = false;
   message = '';
@@ -21,8 +21,16 @@ export class ConfirmService {
     });
   }
 
-  resolve(result: boolean) {
+  open(title: string, message: string): Promise<boolean> {
+    return this.confirm(message, title);
+  }
+
+  resolve(result: boolean): void {
     this.isOpen = false;
-    this.resolver(result);
+
+    if (this.resolver) {
+      this.resolver(result);
+      this.resolver = undefined;
+    }
   }
 }

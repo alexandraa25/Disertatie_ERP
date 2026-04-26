@@ -159,72 +159,92 @@
       <input type="number" formControlName="installments" min="1" />
     </div>
   </section>
-
+  
   <section class="card">
+  <div class="section-header">
+    <h3>Campanie marketing</h3>
+  </div>
 
-    <div class="section-header">
-      <h3>Discounturi</h3>
+  <div class="field">
+    <label>Campanie disponibilă</label>
 
-      <button type="button" (click)="addDiscount()">
-        + Adaugă
-      </button>
-    </div>
+    <select formControlName="marketingCampaignId"
+            (change)="onMarketingCampaignChange()">
+      <option [ngValue]="null">Fără campanie</option>
 
-    <div formArrayName="discounts">
+      <option *ngFor="let c of availableCampaigns" [ngValue]="c.id">
+        {{ c.name }} -
+        {{ getDiscountLabel(c.discountType, c.discountValue) }}
+      </option>
+    </select>
+  </div>
 
-      <div *ngFor="let d of discounts.controls; let i = index" [formGroupName]="i" class="discount-card">
+  <div class="info" *ngIf="availableCampaigns.length === 0">
+    Nu există campanii disponibile pentru cursurile selectate.
+  </div>
+</section>
 
-        <!-- TIP -->
-        <select formControlName="type">
-          <option value="Percentage">%</option>
-          <option value="FixedAmount">RON</option>
-        </select>
+  <section class="card" *ngIf="!contractForm.get('marketingCampaignId')?.value">
 
-        <!-- VALOARE -->
-        <input type="number" formControlName="value" placeholder="Valoare" />
+  <div class="section-header">
+    <h3>Discounturi</h3>
 
-        <div class="error" *ngIf="d.get('value')?.errors?.['max']">
-          Maxim 100%
-        </div>
+    <button type="button" (click)="addDiscount()">
+      + Adaugă
+    </button>
+  </div>
 
-        <!-- SCOPE -->
-        <select formControlName="scope">
-          <option value="Total">Total</option>
+  <div formArrayName="discounts">
 
-          <option value="Subscription" [disabled]="!hasSubscription">
-            Abonament
-          </option>
+    <div *ngFor="let d of discounts.controls; let i = index"
+         [formGroupName]="i"
+         class="discount-card">
 
-          <option value="Package" [disabled]="!hasPackage">
-            Pachet
-          </option>
-        </select>
+      <select formControlName="type">
+        <option value="Percentage">%</option>
+        <option value="FixedAmount">RON</option>
+      </select>
 
-        <!-- IMPACT -->
-        <div class="discount-impact">
-          -{{ getDiscountImpact(d) | number:'1.2-2' }} RON
-        </div>
+      <input type="number" formControlName="value" placeholder="Valoare" />
 
-        <!-- MOTIV -->
-        <input type="text" formControlName="reason" placeholder="Motiv" />
-
-        <button type="button" (click)="removeDiscount(i)">
-          ✕
-        </button>
-
+      <div class="error" *ngIf="d.get('value')?.errors?.['max']">
+        Maxim 100%
       </div>
 
+      <select formControlName="scope">
+        <option value="Total">Total</option>
+
+        <option value="Subscription" [disabled]="!hasSubscription">
+          Abonament
+        </option>
+
+        <option value="Package" [disabled]="!hasPackage">
+          Pachet
+        </option>
+      </select>
+
+      <div class="discount-impact">
+        -{{ getDiscountImpact(d) | number:'1.2-2' }} RON
+      </div>
+
+      <input type="text" formControlName="reason" placeholder="Motiv" />
+
+      <button type="button" (click)="removeDiscount(i)">
+        ✕
+      </button>
+
     </div>
 
-    <!-- TOTAL -->
-    <div class="estimated-total">
-      Total estimat:
-      {{ finalTotal !== null
-      ? (finalTotal | number:'1.2-2') + ' RON'
-      : (monthlyAmount | number:'1.2-2') + ' RON / lună' }}
-    </div>
+  </div>
 
-  </section>
+</section>
+
+<div class="estimated-total">
+  Total estimat:
+  {{ finalTotal !== null
+    ? (finalTotal | number:'1.2-2') + ' RON'
+    : (monthlyAmount | number:'1.2-2') + ' RON / lună' }}
+</div>
 
   <!-- SUBMIT -->
   <button type="submit" class="btn-primary" [disabled]="isSubmitting">

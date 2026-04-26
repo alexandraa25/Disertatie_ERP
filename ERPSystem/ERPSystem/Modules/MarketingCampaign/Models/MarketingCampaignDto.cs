@@ -45,4 +45,12 @@ namespace ERPSystem.Modules.MarketingCampaign.Models
         public int Page { get; set; } = 1;
         public int PageSize { get; set; } = 10;
     }
+
+    public record AvailableCampaignsRequest(List<int> CourseSessionIds);
+
+
+    public class ToggleCampaignRequest
+    {
+        public DateTime? EndDate { get; set; }
+    }
 }

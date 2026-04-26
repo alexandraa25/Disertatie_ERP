@@ -16,4 +16,6 @@ export class ConfirmCustomModalComponent {
   close(result: boolean) {
     this.confirmService.resolve(result);
   }
+
+  
 }

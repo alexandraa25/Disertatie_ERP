@@ -102,6 +102,7 @@ public record CreateContractDto(
     DateTime? EndDate,
     bool IsUnlimited,
     int Installments,
+    int? MarketingCampaignId,
     List<int> CourseSessionIds,
     List<CreateDiscountDto>? Discounts
 );
@@ -118,6 +119,7 @@ public record UpdateContractDto(
     DateTime? EndDate,
     bool IsUnlimited,
     int Installments,
+    int? MarketingCampaignId,
     List<int> CourseSessionIds,
     List<CreateDiscountDto>? Discounts
 );

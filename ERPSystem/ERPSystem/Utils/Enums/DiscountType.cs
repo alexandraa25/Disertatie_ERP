@@ -2,7 +2,7 @@
 {
     public enum DiscountType
     {
-        Percentage,
-        FixedAmount
+        FixedAmount = 0,   // 🔥 lei
+        Percentage = 1     // 🔥 %
     }
 }

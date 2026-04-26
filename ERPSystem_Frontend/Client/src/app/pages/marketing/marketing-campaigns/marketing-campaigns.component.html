@@ -77,7 +77,7 @@
 
                 <td class="actions">
                     <button type="button" class="approve-btn" title="Activează / Dezactivează"
-                        (click)="toggleActive(c.id)">
+                        (click)="toggleActive(c)">
                         ⟳
                     </button>
 
@@ -225,5 +225,30 @@
             </div>
         </div>
     </div>
+
+
+    <div class="modal-backdrop" *ngIf="showEndDateModal">
+  <div class="modal">
+    <h3>Activare campanie</h3>
+
+    <div class="modal-body">
+      <p>Introdu data de final pentru campanie:</p>
+
+      <input type="date" [(ngModel)]="tempEndDate"  [min]="today">
+    </div>
+
+    <div class="modal-actions">
+      <button (click)="showEndDateModal = false">
+        Anulează
+      </button>
+
+      <button (click)="confirmActivate()">
+        Activează
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-confirm-custom-modal></app-confirm-custom-modal>
 
 </div>

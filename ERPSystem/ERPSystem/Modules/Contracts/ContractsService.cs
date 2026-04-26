@@ -207,7 +207,45 @@ public class ContractsService
                 });
             }
 
-            if (dto.Discounts != null)
+            Data.Entities.MarketingCampaign? marketingCampaign = null;
+
+            if (dto.MarketingCampaignId.HasValue)
+            {
+                marketingCampaign = await _db.MarketingCampaigns
+                    .Include(x => x.CourseSessions)
+                    .FirstOrDefaultAsync(x =>
+                        x.Id == dto.MarketingCampaignId.Value &&
+                        x.IsActive &&
+                        x.StartDate <= DateTime.Today &&
+                        x.EndDate >= DateTime.Today);
+
+                if (marketingCampaign is null)
+                    return response.SetError(ErrorCodes.InvalidParameters, "Campania nu este validă sau nu mai este activă.");
+
+                var selectedSessionIds = sessions.Select(x => x.Id).ToList();
+
+                var campaignSessionIds = marketingCampaign.CourseSessions
+                    .Select(x => x.CourseSessionId)
+                    .ToList();
+
+                var campaignApplies = selectedSessionIds.Any(id => campaignSessionIds.Contains(id));
+
+                if (!campaignApplies)
+                    return response.SetError(ErrorCodes.InvalidParameters, "Campania nu se aplică sesiunilor selectate.");
+            }
+
+            if (marketingCampaign != null)
+            {
+                contract.Discounts.Add(new ContractDiscount
+                {
+                    Type = marketingCampaign.DiscountType,
+                    Value = marketingCampaign.DiscountValue,
+                    Reason = $"Campanie marketing: {marketingCampaign.Name}",
+                    Scope = marketingCampaign.DiscountScope,
+                    MarketingCampaignId = marketingCampaign.Id
+                });
+            }
+            else if (dto.Discounts != null)
             {
                 foreach (var d in dto.Discounts)
                 {
@@ -385,9 +423,47 @@ public class ContractsService
         contract.Installments = dto.Installments <= 0 ? 1 : dto.Installments;
         contract.UpdatedAtUtc = DateTime.UtcNow;
 
+        ERPSystem.Data.Entities.MarketingCampaign? marketingCampaign = null;
+
+        if (dto.MarketingCampaignId.HasValue)
+        {
+            marketingCampaign = await _db.MarketingCampaigns
+                .Include(x => x.CourseSessions)
+                .FirstOrDefaultAsync(x =>
+                    x.Id == dto.MarketingCampaignId.Value &&
+                    x.IsActive &&
+                    x.StartDate <= DateTime.Today &&
+                    x.EndDate >= DateTime.Today);
+
+            if (marketingCampaign is null)
+                return response.SetError(ErrorCodes.InvalidParameters, "Campania nu este validă sau nu mai este activă.");
+
+            var selectedSessionIds = sessions.Select(x => x.Id).ToList();
+
+            var campaignSessionIds = marketingCampaign.CourseSessions
+                .Select(x => x.CourseSessionId)
+                .ToList();
+
+            var campaignApplies = selectedSessionIds.Any(id => campaignSessionIds.Contains(id));
+
+            if (!campaignApplies)
+                return response.SetError(ErrorCodes.InvalidParameters, "Campania nu se aplică sesiunilor acestui contract.");
+        }
+
         contract.Discounts.Clear();
 
-        if (dto.Discounts != null)
+        if (marketingCampaign is not null)
+        {
+            contract.Discounts.Add(new ContractDiscount
+            {
+                Type = marketingCampaign.DiscountType,
+                Value = marketingCampaign.DiscountValue,
+                Reason = $"Campanie marketing: {marketingCampaign.Name}",
+                Scope = marketingCampaign.DiscountScope,
+                MarketingCampaignId = marketingCampaign.Id
+            });
+        }
+        else if (dto.Discounts != null)
         {
             foreach (var d in dto.Discounts)
             {
@@ -395,7 +471,8 @@ public class ContractsService
                 {
                     Type = Enum.Parse<DiscountType>(d.Type),
                     Value = d.Value,
-                    Reason = d.Reason
+                    Reason = d.Reason,
+                    Scope = Enum.Parse<DiscountScope>(d.Scope)
                 });
             }
         }

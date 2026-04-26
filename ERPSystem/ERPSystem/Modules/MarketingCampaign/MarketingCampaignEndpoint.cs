@@ -1,14 +1,7 @@
 ﻿
-using ERPSystem.Data.Entities;
 using ERPSystem.Extensions;
-
-using ERPSystem.Modules.Admin;
-using ERPSystem.Modules.Employees;
-
-using ERPSystem.Modules.Leaves.Models;
 using ERPSystem.Modules.MarketingCampaign.Models;
-using ERPSystem.Shared.BusinessLogic;
-using static ERPSystem.Utils.Constants.General.Route;
+using Microsoft.AspNetCore.Mvc;
 using Route = ERPSystem.Utils.Constants.General.Route.MkCampaign;
 
 namespace ERPSystem.Modules.MarketingCampaign
@@ -44,13 +37,13 @@ namespace ERPSystem.Modules.MarketingCampaign
                .WithDefaultApiSettings("DeleteCampaign", "Șterge campanie marketing", "DELETE_CAMPAIGN", true);
 
             group.MapPut(Route.CAMPAIGN_STATUS,
-                async (int id, MarketingCampaignService service)
-                    => await service.ToggleActiveAsync(id))
+                async (int id, ToggleCampaignRequest request, MarketingCampaignService service)
+                     => await service.ToggleActiveAsync(id, request.EndDate))
                 .WithDefaultApiSettings("ToggleCampaign", "Activează/Dezactivează campanie", "TOGGLE_CAMPAIGN", true);
 
-            group.MapGet(Route.CAMPAIGN_AVAILABLE,
-                async (  int? courseId, int? courseSessionId, DiscountScope scope,MarketingCampaignService service)
-                    => await service.GetAvailableCampaignsAsync(courseId, courseSessionId, scope))
+            group.MapPost(Route.CAMPAIGN_AVAILABLE,
+                  async ([FromBody] AvailableCampaignsRequest request, MarketingCampaignService service)
+                     => await service.GetAvailableCampaignsAsync(request.CourseSessionIds))
                 .WithDefaultApiSettings( "GetAvailableCampaigns","Campanii disponibile pentru contract", "GET_AVAILABLE_CAMPAIGNS", true);
         }
     }

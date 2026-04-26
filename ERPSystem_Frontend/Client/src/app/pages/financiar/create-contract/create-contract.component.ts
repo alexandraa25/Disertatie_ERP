@@ -6,6 +6,7 @@ import { StudentCourseDetailsDto } from '../../models/student.model';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MarketingCampaignService } from '../../services/marketing.service';
 
 @Component({
   selector: 'app-create-contract',
@@ -35,12 +36,15 @@ export class CreateContractComponent implements OnInit {
   hasPackage = false;
   packageAmount = 0;
 
+  availableCampaigns: any[] = [];
+
   constructor(
     private fb: FormBuilder,
     private contractsService: ContractsService,
     private studentsService: StudentsService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private marketingService: MarketingCampaignService
   ) { }
 
   ngOnInit(): void {
@@ -147,6 +151,7 @@ export class CreateContractComponent implements OnInit {
       guardianId: [null],
       studentIds: [[], Validators.required],
       courseSessionIds: [[], Validators.required],
+      marketingCampaignId: [null],
       startDate: [null, Validators.required],
       endDate: [null],
       isUnlimited: [false],
@@ -231,93 +236,140 @@ export class CreateContractComponent implements OnInit {
     this.discounts.removeAt(index);
   }
 
-  calculatePricingPreview() {
+ calculatePricingPreview() {
 
-    this.subtotal = 0;
+  this.subtotal = 0;
+  this.monthlyAmount = 0;
+  this.finalTotal = null;
+
+  const isUnlimited = this.contractForm.get('isUnlimited')?.value;
+  const start = this.contractForm.get('startDate')?.value;
+  const end = this.contractForm.get('endDate')?.value;
+
+  this.subtotal = this.studentCourses.reduce((sum, c) => {
+    return sum + (c.price ?? 0);
+  }, 0);
+
+  this.monthlyAmount = this.subtotal;
+
+  let months = 0;
+
+  if (!isUnlimited && start && end) {
+    const d1 = new Date(start);
+    const d2 = new Date(end);
+
+    months =
+      (d2.getFullYear() - d1.getFullYear()) * 12 +
+      (d2.getMonth() - d1.getMonth()) + 1;
+  }
+
+  this.finalTotal = isUnlimited ? null : this.monthlyAmount * months;
+  this.packageAmount = this.finalTotal ?? 0;
+
+  this.discounts.controls.forEach(ctrl => {
+
+    const type = ctrl.value.type;
+    const value = Number(ctrl.value.value);
+    const scope = ctrl.value.scope;
+
+    const apply = (amount: number) => {
+      if (type === 'Percentage') {
+        return amount - amount * (value / 100);
+      } else {
+        return amount - value;
+      }
+    };
+
+    if (scope === 'Total') {
+
+      if (this.finalTotal != null)
+        this.finalTotal = apply(this.finalTotal);
+
+      this.monthlyAmount = apply(this.monthlyAmount);
+
+    } else if (scope === 'Subscription') {
+
+      this.monthlyAmount = apply(this.monthlyAmount);
+
+      if (this.finalTotal != null && !isUnlimited) {
+        this.finalTotal = apply(this.finalTotal);
+      }
+
+    } else if (scope === 'Package') {
+
+      if (this.finalTotal != null)
+        this.finalTotal = apply(this.finalTotal);
+    }
+  });
+
+  const campaignId = this.contractForm.get('marketingCampaignId')?.value;
+
+  if (campaignId) {
+    const campaign = this.availableCampaigns.find(c => c.id === Number(campaignId));
+
+    if (campaign) {
+
+      const type = campaign.discountType; // 1 = %, altfel fix
+      const value = Number(campaign.discountValue);
+      const scope = campaign.discountScope;
+
+     const apply = (amount: number) => {
+  if (Number(type) === 1) { // 🔥 Percentage
+    return amount - amount * (value / 100);
+  }
+
+  return amount - value; // 🔥 FixedAmount
+};
+
+      // 0 = Total
+      if (scope === 0) {
+
+        if (this.finalTotal != null)
+          this.finalTotal = apply(this.finalTotal);
+
+        this.monthlyAmount = apply(this.monthlyAmount);
+      }
+
+      // 1 = Package
+      if (scope === 1) {
+
+        if (this.finalTotal != null)
+          this.finalTotal = apply(this.finalTotal);
+      }
+
+      // 2 = Subscription
+      if (scope === 2) {
+
+        this.monthlyAmount = apply(this.monthlyAmount);
+
+        if (this.finalTotal != null && !isUnlimited) {
+          this.finalTotal = apply(this.finalTotal);
+        }
+      }
+    }
+  }
+
+  if (this.finalTotal != null && this.finalTotal < 0)
+    this.finalTotal = 0;
+
+  if (this.monthlyAmount < 0)
     this.monthlyAmount = 0;
-    this.finalTotal = null;
-    const isUnlimited = this.contractForm.get('isUnlimited')?.value;
-    const start = this.contractForm.get('startDate')?.value;
-    const end = this.contractForm.get('endDate')?.value;
 
-    this.subtotal = this.studentCourses.reduce((sum, c) => {
-      return sum + (c.price ?? 0);
-    }, 0);
+  this.hasSubscription = this.monthlyAmount > 0;
+  this.hasPackage = this.finalTotal !== null;
 
-    this.monthlyAmount = this.subtotal;
+  this.discounts.controls.forEach(ctrl => {
+    const scope = ctrl.get('scope')?.value;
 
-    let months = 0;
-
-    if (!isUnlimited && start && end) {
-      const d1 = new Date(start);
-      const d2 = new Date(end);
-
-      months =
-        (d2.getFullYear() - d1.getFullYear()) * 12 +
-        (d2.getMonth() - d1.getMonth()) + 1;
+    if (scope === 'Package' && !this.hasPackage) {
+      ctrl.get('scope')?.setValue('Total');
     }
 
-    this.finalTotal = isUnlimited ? null : this.monthlyAmount * months;
-    this.packageAmount = this.finalTotal ?? 0;
-
-    this.discounts.controls.forEach(ctrl => {
-
-      const type = ctrl.value.type;
-      const value = Number(ctrl.value.value);
-      const scope = ctrl.value.scope;
-
-      const apply = (amount: number) => {
-        if (type === 'Percentage') {
-          return amount - amount * (value / 100);
-        } else {
-          return amount - value;
-        }
-      };
-
-      if (scope === 'Total') {
-
-        if (this.finalTotal != null)
-          this.finalTotal = apply(this.finalTotal);
-
-        this.monthlyAmount = apply(this.monthlyAmount);
-
-      } else if (scope === 'Subscription') {
-
-        this.monthlyAmount = apply(this.monthlyAmount);
-
-        if (this.finalTotal != null && !this.contractForm.get('isUnlimited')?.value) {
-          this.finalTotal = apply(this.finalTotal);
-        }
-
-      } else if (scope === 'Package') {
-
-        if (this.finalTotal != null)
-          this.finalTotal = apply(this.finalTotal);
-      }
-
-    });
-
-    if (this.finalTotal != null && this.finalTotal < 0)
-      this.finalTotal = 0;
-
-    if (this.monthlyAmount < 0)
-      this.monthlyAmount = 0;
-
-    this.hasSubscription = this.monthlyAmount > 0;
-    this.hasPackage = this.finalTotal !== null;
-
-    this.discounts.controls.forEach(ctrl => {
-      const scope = ctrl.get('scope')?.value;
-
-      if (scope === 'Package' && !this.hasPackage) {
-        ctrl.get('scope')?.setValue('Total');
-      }
-
-      if (scope === 'Subscription' && !this.hasSubscription) {
-        ctrl.get('scope')?.setValue('Total');
-      }
-    });
-  }
+    if (scope === 'Subscription' && !this.hasSubscription) {
+      ctrl.get('scope')?.setValue('Total');
+    }
+  });
+}
 
   prefillFromStudent(studentId: number) {
 
@@ -364,8 +416,41 @@ export class CreateContractComponent implements OnInit {
         courseSessionIds: sessionIds
       });
 
+      this.loadAvailableCampaigns();
+
     });
   }
+
+  loadAvailableCampaigns(): void {
+    const sessionIds = this.contractForm.get('courseSessionIds')?.value ?? [];
+
+    if (!sessionIds.length) {
+      this.availableCampaigns = [];
+      return;
+    }
+
+    this.marketingService.getAvailableCampaigns(sessionIds).subscribe({
+      next: (res: any) => {
+        this.availableCampaigns = res.isSuccess ? res.value : [];
+      }
+    });
+  }
+
+  onMarketingCampaignChange(): void {
+    const campaignId = this.contractForm.get('marketingCampaignId')?.value;
+
+    if (campaignId) {
+      this.discounts.clear();
+    }
+
+    this.calculatePricingPreview();
+  }
+
+  getDiscountLabel(type: number, value: number): string {
+  return type === 1
+    ? `${value}%`      // Percentage
+    : `${value} RON`;  // Fixed
+}
 
   submit() {
 
@@ -384,6 +469,7 @@ export class CreateContractComponent implements OnInit {
       isUnlimited: formValue.isUnlimited,
       installments: formValue.installments,
       courseSessionIds: formValue.courseSessionIds,
+      marketingCampaignId: formValue.marketingCampaignId,
       discounts: formValue.discounts
 
     };
@@ -453,4 +539,20 @@ export class CreateContractComponent implements OnInit {
     if (!date) return null;
     return date.substring(0, 10); // 👈 MAGIC
   }
+
+  getCampaignDiscountLabel(c: any): string {
+    return c.discountType === 1
+      ? `${c.discountValue}%`
+      : `${c.discountValue} RON`;
+  }
+
+  getSelectedCampaign(): any | null {
+  const campaignId = this.contractForm.get('marketingCampaignId')?.value;
+
+  if (!campaignId) {
+    return null;
+  }
+
+  return this.availableCampaigns.find(x => x.id === Number(campaignId)) ?? null;
+}
 }

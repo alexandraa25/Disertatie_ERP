@@ -3,11 +3,15 @@ import { MarketingCampaignService } from '../../services/marketing.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CoursesService } from '../../services/courses.service';
+import { ConfirmService } from '../../services/confirm.service';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
+import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
+
 
 @Component({
   selector: 'app-marketing-campaigns',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, ConfirmCustomModalComponent],
   templateUrl: './marketing-campaigns.component.html',
   styleUrl: './marketing-campaigns.component.css'
 })
@@ -21,6 +25,8 @@ export class MarketingCampaignsComponent implements OnInit {
 
   showCreateModal = false;
   selectedCampaign: any = null;
+
+  today: string = new Date().toISOString().split('T')[0];
 
   filters = {
   Search: '',
@@ -37,9 +43,14 @@ export class MarketingCampaignsComponent implements OnInit {
   courses: any[] = [];
   courseSessions: any[] = [];
 
+  showEndDateModal = false;
+tempEndDate: string = '';
+
   constructor(
     private campaignService: MarketingCampaignService,
-    private courseService: CoursesService
+    private courseService: CoursesService, 
+    public confirmService: ConfirmService,
+  private snackbar: SnackbarService
   ) {}
 
   ngOnInit(): void {
@@ -126,30 +137,32 @@ export class MarketingCampaignsComponent implements OnInit {
   this.showCreateModal = true;
 }
 
-  saveCampaign(): void {
-    if (!this.campaignForm.courseSessionIds || this.campaignForm.courseSessionIds.length === 0) {
-      alert('Trebuie să selectezi cel puțin o sesiune de curs.');
-      return;
-    }
-
-    if (this.selectedCampaign) {
-      this.campaignService.update(this.selectedCampaign.id, this.campaignForm).subscribe({
-        next: () => {
-          this.closeCreateModal();
-          this.loadCampaigns();
-        }
-      });
-
-      return;
-    }
-
-    this.campaignService.create(this.campaignForm).subscribe({
-      next: () => {
-        this.closeCreateModal();
-        this.loadCampaigns();
-      }
-    });
+ saveCampaign(): void {
+  if (!this.campaignForm.courseSessionIds || this.campaignForm.courseSessionIds.length === 0) {
+    alert('Trebuie să selectezi cel puțin o sesiune de curs.');
+    return;
   }
+
+  const request$ = this.selectedCampaign
+    ? this.campaignService.update(this.selectedCampaign.id, this.campaignForm)
+    : this.campaignService.create(this.campaignForm);
+
+  request$.subscribe({
+    next: (res: any) => {
+      if (res?.isSuccess === false) {
+        alert(res?.error?.errorMessage || 'Campania nu a putut fi salvată.');
+        return;
+      }
+
+      this.closeCreateModal();
+      this.loadCampaigns();
+    },
+    error: (err) => {
+      console.error(err);
+      alert('Eroare la salvarea campaniei.');
+    }
+  });
+}
 
   closeCreateModal(): void {
     this.showCreateModal = false;
@@ -233,23 +246,77 @@ loadSessionsForSelectedCourses(resetSelectedSessions: boolean = false): void {
   });
 }
 
-  toggleActive(id: number): void {
-    this.campaignService.toggleActive(id).subscribe({
-      next: () => this.loadCampaigns()
-    });
+async toggleActive(campaign: any): Promise<void> {
+  if (!campaign.isActive) {
+    this.selectedCampaign = campaign;
+    this.tempEndDate = '';
+    this.showEndDateModal = true;
+    return;
   }
 
-  deleteCampaign(id: number): void {
-  if (!confirm('Sigur vrei să ștergi această campanie?')) return;
+  const confirmed = await this.confirmService.open(
+    'Dezactivare campanie',
+    'Ești sigur că vrei să dezactivezi această campanie?'
+  );
 
-  this.campaignService.delete(id).subscribe({
+  if (!confirmed) return;
+
+  this.campaignService.toggleActive(campaign.id, null).subscribe({
     next: (res: any) => {
-      if (!res.isSuccess) {
-        alert(res.error?.errorMessage || 'Campania nu a putut fi ștearsă.');
+      if (res?.isSuccess === false) {
+        this.snackbar.showError(res.error?.errorMessage || 'Campania nu a putut fi dezactivată.');
         return;
       }
 
+      this.snackbar.showSuccess('Campania a fost dezactivată cu succes.');
       this.loadCampaigns();
+    },
+    error: () => {
+      this.snackbar.showError('Eroare la dezactivarea campaniei.');
+    }
+  });
+}
+confirmActivate(): void {
+  if (!this.tempEndDate) {
+    alert('Selectează data de final.');
+    return;
+  }
+
+  if (this.tempEndDate < this.today) {
+    alert('Data trebuie să fie în viitor.');
+    return;
+  }
+
+  this.campaignService.toggleActive(
+    this.selectedCampaign.id,
+    this.tempEndDate
+  ).subscribe({
+    next: () => {
+      this.showEndDateModal = false;
+      this.loadCampaigns();
+    }
+  });
+}
+async deleteCampaign(id: number): Promise<void> {
+  const confirmed = await this.confirmService.open(
+    'Ștergere campanie',
+    'Ești sigur că vrei să ștergi această campanie?'
+  );
+
+  if (!confirmed) return;
+
+  this.campaignService.delete(id).subscribe({
+    next: (res: any) => {
+      if (res?.isSuccess === false) {
+        this.snackbar.showError(res.error?.errorMessage || 'Campania nu a putut fi ștearsă.');
+        return;
+      }
+
+      this.snackbar.showSuccess('Campania a fost ștearsă cu succes.');
+      this.loadCampaigns();
+    },
+    error: () => {
+      this.snackbar.showError('Eroare la ștergerea campaniei.');
     }
   });
 }

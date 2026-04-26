@@ -1,8 +1,6 @@
-﻿using DocumentFormat.OpenXml.Bibliography;
-using ERPSystem.Data.Context;
+﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.MarketingCampaign.Models;
-using ERPSystem.Modules.Student.Models;
 using ERPSystem.Utils.Enums;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +15,10 @@ public class MarketingCampaignService
     }
 
     public async Task<PublicResponse> GetAllAsync(MarketingCampaignQuery query)
+
     {
+        await DeactivateExpiredCampaignsAsync();
+
         if (query.Page <= 0) query.Page = 1;
         if (query.PageSize <= 0) query.PageSize = 10;
 
@@ -126,7 +127,12 @@ public class MarketingCampaignService
         _context.MarketingCampaigns.Add(campaign);
         await _context.SaveChangesAsync();
 
-        return new PublicResponse(true).SetCreated(campaign);
+        return new PublicResponse(true)
+            .SetCreated(new
+            {
+                campaign.Id,
+                campaign.Name
+            });
     }
 
     public async Task<PublicResponse> UpdateAsync(int id, MarketingCampaignDto dto)
@@ -166,7 +172,12 @@ public class MarketingCampaignService
 
         await _context.SaveChangesAsync();
 
-        return new PublicResponse(true).SetSuccess(campaign);
+        return new PublicResponse(true)
+            .SetSuccess(new
+            {
+                campaign.Id,
+                campaign.Name
+            });
     }
 
     public async Task<PublicResponse> DeleteAsync(int id)
@@ -195,7 +206,7 @@ public class MarketingCampaignService
             .SetSuccess("Campania a fost ștearsă cu succes.");
     }
 
-    public async Task<PublicResponse> ToggleActiveAsync(int id)
+    public async Task<PublicResponse> ToggleActiveAsync(int id, DateTime? endDate)
     {
         var campaign = await _context.MarketingCampaigns.FindAsync(id);
 
@@ -203,12 +214,29 @@ public class MarketingCampaignService
             return new PublicResponse(false)
                 .BadRequest("Campania nu a fost găsită.", "CampaignNotFound");
 
-        campaign.IsActive = !campaign.IsActive;
+        // 🔥 dacă o activezi
+        if (!campaign.IsActive)
+        {
+            if (!endDate.HasValue)
+                return new PublicResponse(false)
+                    .BadRequest("Data de final este obligatorie.", "EndDateRequired");
+
+            if (endDate.Value < DateTime.Today)
+                return new PublicResponse(false)
+                    .BadRequest("Data de final trebuie să fie în viitor.", "InvalidEndDate");
+
+            campaign.EndDate = endDate.Value;
+            campaign.IsActive = true;
+        }
+        else
+        {
+            // 🔴 dezactivare simplă
+            campaign.IsActive = false;
+        }
 
         await _context.SaveChangesAsync();
 
-        return new PublicResponse(true)
-            .SetSuccess(campaign);
+        return new PublicResponse(true).SetSuccess();
     }
 
     private static PublicResponse ValidateCampaign(MarketingCampaignDto dto)
@@ -236,27 +264,52 @@ public class MarketingCampaignService
         return new PublicResponse(true).SetSuccess();
     }
 
-    public async Task<PublicResponse> GetAvailableCampaignsAsync( int? courseId, int? courseSessionId, DiscountScope scope)
+    public async Task<PublicResponse> GetAvailableCampaignsAsync( List<int> courseSessionIds)
     {
+        await DeactivateExpiredCampaignsAsync();
+
         var today = DateTime.Today;
 
         var campaigns = await _context.MarketingCampaigns
-            .Include(x => x.CourseSessions)
-                .ThenInclude(x => x.CourseSession)
-                    .ThenInclude(x => x.Course)
+            .AsNoTracking()
             .Where(x => x.IsActive)
             .Where(x => x.StartDate <= today && x.EndDate >= today)
-            .Where(x => x.DiscountScope == scope)
-            .Where(x =>
-                (courseSessionId.HasValue &&
-                 x.CourseSessions.Any(cs => cs.CourseSessionId == courseSessionId.Value))
-                ||
-                (courseId.HasValue &&
-                 x.CourseSessions.Any(cs => cs.CourseSession.CourseId == courseId.Value)))
+            .Where(x => x.CourseSessions.Any(cs =>
+                courseSessionIds.Contains(cs.CourseSessionId)))
             .OrderBy(x => x.EndDate)
+            .Select(x => new
+            {
+                x.Id,
+                x.Name,
+                x.DiscountType,
+                x.DiscountValue,
+                x.DiscountScope,
+                x.StartDate,
+                x.EndDate
+            })
             .ToListAsync();
 
         return new PublicResponse(true).SetSuccess(campaigns);
+    }
+
+
+    private async Task DeactivateExpiredCampaignsAsync()
+    {
+        var today = DateTime.Today;
+
+        var expiredCampaigns = await _context.MarketingCampaigns
+            .Where(x => x.IsActive && x.EndDate < today)
+            .ToListAsync();
+
+        if (!expiredCampaigns.Any())
+            return;
+
+        foreach (var campaign in expiredCampaigns)
+        {
+            campaign.IsActive = false;
+        }
+
+        await _context.SaveChangesAsync();
     }
 
 
