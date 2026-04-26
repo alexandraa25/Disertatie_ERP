@@ -18,17 +18,23 @@ public class NotificationsService
 
     private string GetUserId()
     {
-        var user = _httpContextAccessor.HttpContext?.User;
+        try
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
 
-        var userId =
-            user?.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
-            user?.FindFirst("sub")?.Value ??
-            user?.FindFirst("uid")?.Value;
+            var userId =
+                user?.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+                user?.FindFirst("sub")?.Value ??
+                user?.FindFirst("uid")?.Value;
 
-        if (string.IsNullOrWhiteSpace(userId))
-            throw new UnauthorizedAccessException("Utilizatorul nu este autentificat.");
+            if (string.IsNullOrWhiteSpace(userId))
+                throw new UnauthorizedAccessException("Utilizatorul nu este autentificat.");
 
-        return userId;
+            return userId;
+        }catch(Exception ex)
+        {
+            return "string";
+        }
     }
 
     public async Task<List<Notification>> GetMyNotifications()
@@ -132,5 +138,32 @@ public class NotificationsService
         });
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task CreateNotificationForRolesAsync(  string[] roleNames, string eventType,  string title, string message, string type = "Info", string? link = null, string? entityType = null,  string? entityId = null)
+    {
+        var userIds = await _context.UserRoles
+            .Join(_context.Roles,
+                userRole => userRole.RoleId,
+                role => role.Id,
+                (userRole, role) => new { userRole.UserId, role.Name })
+            .Where(x => roleNames.Contains(x.Name!))
+            .Select(x => x.UserId)
+            .Distinct()
+            .ToListAsync();
+
+        foreach (var userId in userIds)
+        {
+            await CreateNotificationAsync(
+                userId: userId,
+                eventType: eventType,
+                title: title,
+                message: message,
+                type: type,
+                link: link,
+                entityType: entityType,
+                entityId: entityId
+            );
+        }
     }
 }

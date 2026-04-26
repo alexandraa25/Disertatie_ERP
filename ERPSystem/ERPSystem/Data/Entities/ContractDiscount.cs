@@ -15,6 +15,9 @@ namespace ERPSystem.Data.Entities
         public string Reason { get; set; } = default!;
 
         public DiscountScope Scope { get; set; }
+
+        public int? MarketingCampaignId { get; set; }
+        public MarketingCampaign? MarketingCampaign { get; set; }
     }
 
     public enum DiscountScope

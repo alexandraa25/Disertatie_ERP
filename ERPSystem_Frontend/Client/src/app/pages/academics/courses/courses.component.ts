@@ -29,6 +29,7 @@ export class CoursesComponent implements OnInit {
 
   statusFilter = '';
   deleteStatusFilter = 'notDeleted';
+  scopeFilter: string = '';
 
   constructor(private courses: CoursesService, private dialog: MatDialog, private router: Router, private snackbar: SnackbarService, private confirmService: ConfirmService) { }
 
@@ -47,21 +48,31 @@ export class CoursesComponent implements OnInit {
     this.searchSubject.next(term);
   }
 
-  loadCourses(): void {
-    this.loading = true;
 
-    this.courses.list(this.q, this.statusFilter, this.deleteStatusFilter).subscribe({
-      next: (res: any) => {
-        const data = res?.value ?? res?.data ?? res;
-        this.items = Array.isArray(data) ? data : [];
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-        this.snackbar.showError('Eroare la încărcare cursuri.', 2500);
-      }
-    });
-  }
+loadCourses(): void {
+  this.loading = true;
+
+  const scope = this.scopeFilter !== ''
+    ? Number(this.scopeFilter)
+    : undefined;
+
+  this.courses.list(
+    this.q,
+    this.statusFilter,
+    this.deleteStatusFilter,
+    scope
+  ).subscribe({
+    next: (res: any) => {
+      const data = res?.value ?? res?.data ?? res;
+      this.items = Array.isArray(data) ? data : [];
+      this.loading = false;
+    },
+    error: () => {
+      this.loading = false;
+      this.snackbar.showError('Eroare la încărcare cursuri.', 2500);
+    }
+  });
+}
 
   onStatusFilterChange() {
     this.loadCourses();
@@ -70,6 +81,10 @@ export class CoursesComponent implements OnInit {
   onDeleteStatusFilterChange() {
     this.loadCourses();
   }
+
+    onScopeFilterChange(): void {
+  this.loadCourses();
+}
 
   openCreate() {
     const dialogRef = this.dialog.open(CourseFormComponent, {

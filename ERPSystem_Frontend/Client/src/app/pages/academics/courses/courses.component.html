@@ -17,7 +17,13 @@
         <option value="all">Toate</option>
       </select>
 
-       <button class="primary" (click)="openCreate()">+ Adaugă curs</button>
+      <select [(ngModel)]="scopeFilter" (change)="onScopeFilterChange()" class="filter">
+        <option value="">Toate tipurile</option>
+        <option value="1">Pachet</option>
+        <option value="2">Abonament</option>
+      </select>
+
+      <button class="primary" (click)="openCreate()">+ Adaugă curs</button>
     </div>
   </div>
 

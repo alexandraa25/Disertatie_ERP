@@ -30,7 +30,8 @@ export const routes: Routes = [
   { path: 'admin/users', loadComponent: () => import('./pages/admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent) },
   { path: 'user-details/:id',  loadComponent: () => import('./pages/admin/user-details/user-details.component')  .then(c => c.UserDetailsComponent)},
   { path: 'company', loadComponent: () => import('./pages/admin/company/company.component') .then(m => m.CompanyComponent) }, 
-  { path: 'log-activity', loadComponent: () => import('./pages/admin/admin-activity/admin-activity.component') .then(m => m.AdminActivityComponent) }
+  { path: 'log-activity', loadComponent: () => import('./pages/admin/admin-activity/admin-activity.component') .then(m => m.AdminActivityComponent) }, 
+  { path: 'mk-campaign', loadComponent: () => import('./pages/marketing/marketing-campaigns/marketing-campaigns.component') .then(m => m.MarketingCampaignsComponent) }
 
 
 ];

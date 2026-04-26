@@ -1,0 +1,229 @@
+<div class="page">
+
+    <h2>Campanii marketing</h2>
+
+    <div class="top-bar">
+        <div class="filters-left">
+            <div class="filters">
+                <input type="text" placeholder="Caută campanie..." [(ngModel)]="searchTerm"
+                    (ngModelChange)="onSearchChange()">
+
+                <select [(ngModel)]="filters.IsActive" (ngModelChange)="onFilterChange()">
+                    <option value="">Status</option>
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+
+                <select [(ngModel)]="filters.Scope" (ngModelChange)="onFilterChange()">
+                    <option value="">Aplicabilitate</option>
+                    <option value="0">Total</option>
+                    <option value="1">Pachet</option>
+                    <option value="2">Abonament</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="check-action">
+            <button type="button" class="check-period-btn" (click)="openCreateModal()">
+                + Adaugă campanie
+            </button>
+        </div>
+    </div>
+
+    <table class="leave-table">
+        <thead>
+            <tr>
+                <th (click)="sortBy('name')">Nume ⬍</th>
+                <th>Curs / Sesiune</th>
+                <th>Discount</th>
+                <th>Aplicabilitate</th>
+                <th (click)="sortBy('startDate')">Data început ⬍</th>
+                <th (click)="sortBy('endDate')">Data sfârșit ⬍</th>
+                <th>Status</th>
+                <th>Acțiuni</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let c of campaigns">
+                <td>{{ c.name }}</td>
+
+                <td>
+                    <div *ngIf="c.courseSessions?.length > 0; else noSessions">
+                        <div *ngFor="let s of c.courseSessions">
+                            <strong>{{ s.courseName }}</strong> - {{ s.title }}
+                        </div>
+                    </div>
+
+                    <ng-template #noSessions>-</ng-template>
+                </td>
+
+                <td>
+                    {{ getDiscountLabel(c.discountType, c.discountValue) }}
+                </td>
+
+                <td>
+                    {{ getScopeLabel(c.discountScope) }}
+                </td>
+
+                <td>{{ c.startDate | date:'dd MMM yyyy' }}</td>
+                <td>{{ c.endDate | date:'dd MMM yyyy' }}</td>
+
+                <td>
+                    <span class="status" [ngClass]="c.isActive ? 'approved' : 'cancelled'">
+                        {{ c.isActive ? 'Activă' : 'Inactivă' }}
+                    </span>
+                </td>
+
+                <td class="actions">
+                    <button type="button" class="approve-btn" title="Activează / Dezactivează"
+                        (click)="toggleActive(c.id)">
+                        ⟳
+                    </button>
+
+                    <button type="button" class="edit-btn" title="Editează" (click)="openEditModal(c)">
+                        ✎
+                    </button>
+
+                    <button type="button" class="reject-btn" title="Șterge" (click)="deleteCampaign(c.id)">
+                        ✖
+                    </button>
+                </td>
+            </tr>
+
+            <tr *ngIf="!loading && campaigns.length === 0">
+                <td colspan="8" class="empty-state">
+                    Nu există campanii pentru criteriile selectate.
+                </td>
+            </tr>
+
+            <tr *ngIf="loading">
+                <td colspan="8" class="empty-state">
+                    Se încarcă...
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination" *ngIf="totalPages > 1">
+        <button type="button" [disabled]="filters.Page === 1" (click)="changePage(filters.Page - 1)">
+            ←
+        </button>
+
+        <span>Pagina {{ filters.Page }} din {{ totalPages }}</span>
+
+        <button type="button" [disabled]="filters.Page === totalPages" (click)="changePage(filters.Page + 1)">
+            →
+        </button>
+    </div>
+
+    <div class="modal-backdrop" *ngIf="showCreateModal">
+        <div class="modal">
+            <h3>Adaugă campanie marketing</h3>
+
+            <div class="modal-body">
+                <p class="modal-subtitle">
+                    Completează detaliile campaniei și discountul asociat.
+                </p>
+
+                <div class="modal-form">
+                    <div class="form-group">
+                        <label>Nume campanie</label>
+                        <input type="text" [(ngModel)]="campaignForm.name">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descriere</label>
+                        <textarea [(ngModel)]="campaignForm.description"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Data început</label>
+                        <input type="date" [(ngModel)]="campaignForm.startDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Data sfârșit</label>
+                        <input type="date" [(ngModel)]="campaignForm.endDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tip discount</label>
+                        <select [(ngModel)]="campaignForm.discountType">
+                            <option [ngValue]="0">Fix</option>
+                            <option [ngValue]="1">Procent</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Valoare discount</label>
+                        <input type="number" [(ngModel)]="campaignForm.discountValue">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Aplicabilitate</label>
+                        <select [(ngModel)]="campaignForm.discountScope" (ngModelChange)="onScopeChange()">
+                            <option [ngValue]="0">Total</option>
+                            <option [ngValue]="1">Pachet</option>
+                            <option [ngValue]="2">Abonament</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cursuri</label>
+
+                        <div class="checkbox-list">
+                            <label class="checkbox-item" *ngFor="let course of courses">
+                                <input type="checkbox" [checked]="campaignForm.courseIds.includes(course.id)"
+                                    (change)="toggleCourse(course.id, $event)" />
+
+                                <span>{{ course.name }}</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sesiuni curs</label>
+
+                        <div class="checkbox-list" *ngIf="courseSessions.length > 0">
+                            <label class="checkbox-item" *ngFor="let session of courseSessions">
+                                <input type="checkbox" [checked]="campaignForm.courseSessionIds.includes(session.id)"
+                                    (change)="toggleSession(session.id, $event)" />
+
+                                <span>
+                                    {{ session.title || 'Sesiune' }}
+                                    <small>
+                                        {{ session.startTime }} - {{ session.endTime }}
+                                    </small>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="empty-mini" *ngIf="courseSessions.length === 0">
+                            Selectează cel puțin un curs pentru a vedea sesiunile.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Activă</label>
+                        <select [(ngModel)]="campaignForm.isActive">
+                            <option [ngValue]="true">Da</option>
+                            <option [ngValue]="false">Nu</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="secondary-btn" (click)="closeCreateModal()">
+                    Anulează
+                </button>
+
+                <button type="button" class="close-btn" (click)="saveCampaign()">
+                    Salvează
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>

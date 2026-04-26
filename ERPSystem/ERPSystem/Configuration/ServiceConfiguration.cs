@@ -61,6 +61,8 @@ namespace ERPSystem.Configuration
             builder.Services.AddScoped<CompanyService>();
             builder.Services.AddScoped<ActivityLogService>();
             builder.Services.AddScoped<NotificationsService>();
+            builder.Services.AddScoped<MarketingCampaignService>();
+            
         }
 
         public static void ConfigureSettings(this WebApplicationBuilder builder)

@@ -1975,7 +1975,7 @@ public class ContractsService
     }
 
 
-    private async Task NotifyAdminsAsync(
+    public async Task NotifyAdminsAsync(
     string eventType,
     string title,
     string message,

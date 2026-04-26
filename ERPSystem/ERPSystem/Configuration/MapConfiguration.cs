@@ -7,6 +7,7 @@ using ERPSystem.Modules.Contracts;
 using ERPSystem.Modules.Courses;
 using ERPSystem.Modules.Employees;
 using ERPSystem.Modules.Leaves;
+using ERPSystem.Modules.MarketingCampaign;
 using ERPSystem.Modules.Payments;
 using ERPSystem.Modules.Students;
 using ERPSystem.Modules.UserProfile;
@@ -148,6 +149,16 @@ namespace ERPSystem.Configuration
           );
 
             CompanyEndpoints.Map(companyGroup);
+
+
+            var marketingGroup = app.CreateApiGroup(
+            route: "/mk-campaign",
+            tag: "mk-campaign",
+            requireAuth: false, // temporar, ca la students
+            description: "Marketing Campaigns endpoints"
+         );
+
+            MarketingCampaignEndpoint.Map(marketingGroup);
         }
     }
 }

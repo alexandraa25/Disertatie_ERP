@@ -1,4 +1,5 @@
-﻿using ERPSystem.Extensions;
+﻿using ERPSystem.Data.Entities;
+using ERPSystem.Extensions;
 using ERPSystem.Modules.Course.Models;
 using ERPSystem.Shared.BusinessLogic;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -11,8 +12,8 @@ public static class CoursesEndpoints
     public static void Map(RouteGroupBuilder group)
     {
         group.MapGet(Route.COURSES,
-            async (string? q, string? status, string? deleteStatus, CoursesService service)
-                 => await service.ListAsync(q, status, deleteStatus))
+            async (string? q, string? status, string? deleteStatus, DiscountScope? scope, CoursesService service)
+                 => await service.ListAsync(q, status, deleteStatus,  scope))
             .WithDefaultApiSettings("GetAllCourses", "Lista cursuri", "GET", false);
 
         group.MapGet(Route.COURSE_BY_ID,

@@ -26,7 +26,7 @@ public class CoursesService
         _notificationService = notificationService;
     }
 
-    public async Task<PublicResponse> ListAsync(string? q, string? status, string? deleteStatus)
+    public async Task<PublicResponse> ListAsync(string? q, string? status, string? deleteStatus, DiscountScope? scope)
     {
         var response = new PublicResponse(true);
 
@@ -54,6 +54,18 @@ public class CoursesService
 
             if (deleteStatus == "all")
                 query = query;
+
+            if (scope == DiscountScope.Package)
+            {
+                query = query.Where(c =>
+                    c.Sessions.Any(s => s.FeeType == CourseFeeType.FixedPackage));
+            }
+
+            if (scope == DiscountScope.Subscription)
+            {
+                query = query.Where(c =>
+                    c.Sessions.Any(s => s.FeeType == CourseFeeType.Monthly));
+            }
 
             var items = await query
                 .OrderBy(x => x.IsDeleted)
@@ -104,6 +116,7 @@ public class CoursesService
                 .Select(s => new CourseSessionDto
                 {
                     Id = s.Id,
+                    Title = s.Title,
                     DayOfWeek = s.DayOfWeek,
                     StartTime = s.StartTime.ToString("HH:mm"),
                     EndTime = s.EndTime.ToString("HH:mm"),

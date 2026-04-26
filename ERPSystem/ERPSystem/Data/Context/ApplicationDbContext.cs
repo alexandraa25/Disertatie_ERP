@@ -31,6 +31,9 @@ namespace ERPSystem.Data.Context
         public DbSet<SigningToken> SigningTokens { get; set; }
         public DbSet<ContractAdditionalAct> ContractAdditionalAct { get; set; }
         public DbSet<ContractAdditionalActItem> ContractAdditionalActItem { get; set; }
+
+        public DbSet<MarketingCampaign> MarketingCampaigns { get; set; }
+        public DbSet<MarketingCampaignCourseSessions> MarketingCampaignCourseSessions { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Employee> Employees { get; set; }
 
@@ -261,6 +264,40 @@ namespace ERPSystem.Data.Context
 
                 entity.Property(e => e.Reason)
                     .HasMaxLength(300);
+            });
+
+            modelBuilder.Entity<ContractDiscount>()
+               .HasOne(cd => cd.MarketingCampaign)
+               .WithMany(mc => mc.ContractDiscounts)
+               .HasForeignKey(cd => cd.MarketingCampaignId)
+               .OnDelete(DeleteBehavior.NoAction);
+            
+            modelBuilder.Entity<MarketingCampaign>(entity =>
+            {
+                entity.Property(x => x.Name)
+                    .IsRequired()
+                    .HasMaxLength(150);
+
+                entity.Property(x => x.Description)
+                    .HasMaxLength(1000);
+
+                entity.Property(x => x.DiscountValue)
+                    .HasPrecision(18, 2);
+            });
+
+            modelBuilder.Entity<MarketingCampaignCourseSessions>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+
+                entity.HasOne(x => x.MarketingCampaign)
+                    .WithMany(x => x.CourseSessions)
+                    .HasForeignKey(x => x.MarketingCampaignId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.CourseSession)
+                    .WithMany()
+                    .HasForeignKey(x => x.CourseSessionId)
+                    .OnDelete(DeleteBehavior.NoAction);
             });
 
             modelBuilder.Entity<ContractInstallment>()

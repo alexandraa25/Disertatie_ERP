@@ -6,12 +6,10 @@ using ERPSystem.Modules.Contracts.Models;
 using ERPSystem.Shared.BusinessLogic;
 using ERPSystem.Shared.DTOs.PDF;
 using ERPSystem.Shared.Notifications;
-using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Enums;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace ERPSystem.Modules.AdditionalAct
 {

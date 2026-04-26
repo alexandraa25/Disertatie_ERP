@@ -62,6 +62,19 @@ namespace ERPSystem.Utils.Constants
 
             }
 
+            public static class MkCampaign
+            {
+                public const string ALL_CAMPAIGN = "/";
+                public const string CAMPAIGN_BY_ID = "/{id:int}";
+                public const string CREATE_CAMPAIGN = "/create";
+                public const string UPDATE_CAMPAIGN = "/{id:int}/update";
+                public const string DELETE_CAMPAIGN = "/{id:int}/delete";
+                public const string CAMPAIGN_STATUS = "/{id:int}/toggle-active";
+                public const string CAMPAIGN_AVAILABLE = "/available";
+
+            }
+
+
 
             public static class Employee
             {

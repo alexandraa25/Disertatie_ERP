@@ -59,6 +59,7 @@ public class CourseSessionUpsertDto
 public class CourseSessionDto
 {
     public int Id { get; set; }
+    public string Title { get; set; }
 
     public int DayOfWeek { get; set; }
     public string StartTime { get; set; }

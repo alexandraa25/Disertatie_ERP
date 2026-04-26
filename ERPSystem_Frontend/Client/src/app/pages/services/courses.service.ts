@@ -18,16 +18,21 @@ export class CoursesService {
 
   constructor(private http: HttpClient) { }
 
-  list(q?: string, status?: string, deleteStatus: string = 'notDeleted') {
-  let params: any = {
-    deleteStatus
-  };
+  list(q?: string,
+    status?: string,
+    deleteStatus: string = 'notDeleted',
+    scope?: number) {
 
-  if (q) params.q = q;
-  if (status) params.status = status;
+    let params: any = {
+      deleteStatus
+    };
 
-  return this.http.get<any>(`${this.baseUrl}`, { params });
-}
+    if (q) params.q = q;
+    if (status) params.status = status;
+    if (scope !== undefined && scope !== null) params.scope = scope;
+
+    return this.http.get<any>(`${this.baseUrl}`, { params });
+  }
 
   get(id: number): Observable<CourseDetailsDto> {
     return this.http.get<CourseDetailsDto>(`${this.baseUrl}/${id}`);
@@ -45,21 +50,17 @@ export class CoursesService {
     return this.http.get<TeacherOptionDto[]>(`${this.baseUrl}/teachers`);
   }
 
-  // ========================
-  // ENROLLMENTS
-  // ========================
-
   listEnrollments(courseId: number): Observable<EnrollmentDto[]> {
     return this.http.get<EnrollmentDto[]>(
       `${this.baseUrl}/${courseId}/enrollments`
     );
   }
 
-  enroll( courseId: number,body: CourseEnrollRequest): Observable<void> {
-    return this.http.post<void>( `${this.baseUrl}/${courseId}/enrollments`, body);
+  enroll(courseId: number, body: CourseEnrollRequest): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${courseId}/enrollments`, body);
   }
 
-  setEnrollmentActive( courseId: number, sessionId: number,studentId: number, isActive: boolean): Observable<void> {
+  setEnrollmentActive(courseId: number, sessionId: number, studentId: number, isActive: boolean): Observable<void> {
     return this.http.put<void>(
       `${this.baseUrl}/${courseId}/enrollments/${sessionId}/${studentId}?isActive=${isActive}`,
       {}
@@ -74,15 +75,15 @@ export class CoursesService {
   }
 
   deleteCourse(id: number) {
-  return this.http.delete<any>(`${this.baseUrl}/${id}/delete`);
-}
+    return this.http.delete<any>(`${this.baseUrl}/${id}/delete`);
+  }
 
-restoreCourse(id: number) {
-  return this.http.post<any>(`${this.baseUrl}/${id}/restore`, {});
-}
-toggleCourseStatus(id: number) {
-  return this.http.post<any>(`${this.baseUrl}/${id}/toggle-status`, {});
-}
+  restoreCourse(id: number) {
+    return this.http.post<any>(`${this.baseUrl}/${id}/restore`, {});
+  }
+  toggleCourseStatus(id: number) {
+    return this.http.post<any>(`${this.baseUrl}/${id}/toggle-status`, {});
+  }
 
 }
 
