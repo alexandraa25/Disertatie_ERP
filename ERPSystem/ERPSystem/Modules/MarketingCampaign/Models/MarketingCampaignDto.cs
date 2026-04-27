@@ -37,6 +37,8 @@ namespace ERPSystem.Modules.MarketingCampaign.Models
         public int? CourseId { get; set; }
         public int? CourseSessionId { get; set; }
 
+        public string? PeriodStatus { get; set; }
+
         public DiscountScope? Scope { get; set; }
 
         public string? SortBy { get; set; } // name, startDate, endDate

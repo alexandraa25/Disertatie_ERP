@@ -45,6 +45,26 @@ namespace ERPSystem.Modules.MarketingCampaign
                   async ([FromBody] AvailableCampaignsRequest request, MarketingCampaignService service)
                      => await service.GetAvailableCampaignsAsync(request.CourseSessionIds))
                 .WithDefaultApiSettings( "GetAvailableCampaigns","Campanii disponibile pentru contract", "GET_AVAILABLE_CAMPAIGNS", true);
+
+            group.MapPost(Route.SEND_NEWSLETTER,
+                  async ([FromBody] SendCampaignNewsletterRequest request, MarketingCampaignService service)
+                      => await service.SendNewsletterAsync(request))
+                  .WithDefaultApiSettings( "SendNewsletter", "Trimite newsletter pentru campanie","SEND_CAMPAIGN_NEWSLETTER", true);
+
+            group.MapGet(Route.CAMPAIGN_NEWSLETTER_TEMPLATE,
+                  async (int campaignId, MarketingCampaignService service)
+                      => await service.GetCampaignNewsletterTemplateAsync(campaignId))
+                  .WithDefaultApiSettings(  "GetCampaignNewsletterTemplate", "Template newsletter campanie", "GET_CAMPAIGN_NEWSLETTER_TEMPLATE", true );
+
+            group.MapPost(Route.EMAIL_LOGS,
+                  async ([FromBody] EmailLogsRequest request, MarketingCampaignService service)
+                      => await service.GetEmailLogsAsync(request))
+                  .WithDefaultApiSettings( "GetEmailLogs", "Listare emailuri trimise",  "GET_EMAIL_LOGS",true );
+
+            group.MapGet(Route.EMAIL_LOG_DETAILS,
+                async (int id, MarketingCampaignService service)
+                    => await service.GetEmailLogDetailsAsync(id))
+                .WithDefaultApiSettings( "GetEmailLogDetails", "Detalii email trimis","GET_EMAIL_LOG_DETAILS", true  );
         }
     }
 }

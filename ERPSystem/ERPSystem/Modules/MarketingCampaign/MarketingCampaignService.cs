@@ -1,17 +1,23 @@
 ﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.MarketingCampaign.Models;
+using ERPSystem.Shared.BusinessLogic;
+using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Enums;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+
 
 public class MarketingCampaignService 
 {
     private readonly ApplicationDbContext _context;
+    private readonly EmailBusinessLogic _emailBusinessLogic;
 
-    public MarketingCampaignService(ApplicationDbContext context)
+    public MarketingCampaignService(ApplicationDbContext context, EmailBusinessLogic emailBusinessLogic)
     {
         _context = context;
+        _emailBusinessLogic = emailBusinessLogic;
     }
 
     public async Task<PublicResponse> GetAllAsync(MarketingCampaignQuery query)
@@ -43,6 +49,28 @@ public class MarketingCampaignService
         if (query.Scope.HasValue)
             campaigns = campaigns.Where(x => x.DiscountScope == query.Scope.Value);
 
+        var today = DateTime.Today;
+
+        if (!string.IsNullOrWhiteSpace(query.PeriodStatus))
+        {
+            campaigns = query.PeriodStatus.ToLower() switch
+            {
+                "active" => campaigns.Where(x =>
+                    x.IsActive &&
+                    x.StartDate <= today &&
+                    x.EndDate >= today),
+
+                "expired" => campaigns.Where(x =>
+                    x.EndDate < today),
+
+                "scheduled" => campaigns.Where(x =>
+                    x.IsActive &&
+                    x.StartDate > today),
+
+                _ => campaigns
+            };
+        }
+
         campaigns = query.SortBy?.ToLower() switch
         {
             "name" => query.Desc ? campaigns.OrderByDescending(x => x.Name) : campaigns.OrderBy(x => x.Name),
@@ -66,6 +94,15 @@ public class MarketingCampaignService
                 c.DiscountType,
                 c.DiscountValue,
                 c.DiscountScope,
+                Status = !c.IsActive
+                  ? "Inactive"
+                  : c.StartDate > DateTime.Today
+                      ? "Scheduled"
+                      : c.EndDate < DateTime.Today
+                          ? "Expired"
+                          : "Active",
+                
+                UsedInContractsCount = c.ContractDiscounts.Count(),
                 CourseSessions = c.CourseSessions.Select(cs => new
                 {
                     cs.CourseSessionId,
@@ -245,6 +282,18 @@ public class MarketingCampaignService
             return new PublicResponse(false)
                 .BadRequest("Numele campaniei este obligatoriu.", "CampaignNameRequired");
 
+        if (dto.Name.Length > 150)
+            return new PublicResponse(false)
+                .BadRequest("Numele campaniei nu poate depăși 150 de caractere.", "CampaignNameTooLong");
+
+        if (dto.StartDate == default)
+            return new PublicResponse(false)
+                .BadRequest("Data de început este obligatorie.", "StartDateRequired");
+
+        if (dto.EndDate == default)
+            return new PublicResponse(false)
+                .BadRequest("Data de final este obligatorie.", "EndDateRequired");
+
         if (dto.EndDate < dto.StartDate)
             return new PublicResponse(false)
                 .BadRequest("Data de final nu poate fi înainte de data de început.", "InvalidCampaignPeriod");
@@ -292,7 +341,6 @@ public class MarketingCampaignService
         return new PublicResponse(true).SetSuccess(campaigns);
     }
 
-
     private async Task DeactivateExpiredCampaignsAsync()
     {
         var today = DateTime.Today;
@@ -311,6 +359,305 @@ public class MarketingCampaignService
 
         await _context.SaveChangesAsync();
     }
+
+    public async Task<PublicResponse> SendNewsletterAsync(SendCampaignNewsletterRequest request)
+    {
+        PublicResponse response = new(true);
+
+        var campaign = await _context.MarketingCampaigns
+            .FirstOrDefaultAsync(x => x.Id == request.CampaignId);
+
+        if (campaign == null)
+            return response.SetError("CampaignNotFound", "Campania nu a fost găsită.");
+
+        var today = DateTime.UtcNow.Date;
+
+        var isActive = campaign.IsActive
+            && campaign.StartDate.Date <= today
+            && campaign.EndDate.Date >= today;
+
+        var isScheduled = campaign.IsActive
+            && campaign.StartDate.Date > today;
+
+        if (!isActive && !isScheduled)
+        {
+            return response.SetError(
+                "InvalidCampaignStatus",
+                "Newsletterul poate fi trimis doar pentru campanii active sau programate."
+            );
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Subject))
+            return response.SetError("SubjectRequired", "Subiectul emailului este obligatoriu.");
+
+        if (string.IsNullOrWhiteSpace(request.HtmlContent))
+            return response.SetError("ContentRequired", "Conținutul emailului este obligatoriu.");
+
+        IQueryable<Student> studentsQuery = _context.Students
+            .Where(x => !string.IsNullOrEmpty(x.Email));
+
+        if (request.RecipientMode == "active")
+        {
+            studentsQuery = studentsQuery.Where(x => x.IsActive);
+        }
+        else if (request.RecipientMode == "inactive")
+        {
+            studentsQuery = studentsQuery.Where(x => !x.IsActive);
+        }
+        else if (request.RecipientMode == "manual")
+        {
+            if (request.StudentIds == null || !request.StudentIds.Any())
+                return response.SetError("NoStudentsSelected", "Nu ai selectat niciun cursant.");
+
+            studentsQuery = studentsQuery.Where(x => request.StudentIds.Contains(x.Id));
+        }
+
+        var students = await studentsQuery
+            .Select(x => new
+            {
+                x.Id,
+                x.FullName,
+                x.Email
+            })
+            .Distinct()
+            .ToListAsync();
+
+        if (!students.Any())
+            return response.SetError("NoRecipients", "Nu există destinatari validați pentru newsletter.");
+
+        var emailLog = new EmailLog
+        {
+            Type = EmailLogTypes.CampaignNewsletter,
+            ReferenceId = campaign.Id,
+            Subject = request.Subject,
+            HtmlContent = request.HtmlContent,
+            RecipientMode = request.RecipientMode,
+            TotalRecipients = students.Count,
+            SentCount = 0,
+            FailedCount = 0,
+            SentAt = DateTime.UtcNow
+        };
+
+        _context.EmailLogs.Add(emailLog);
+        await _context.SaveChangesAsync();
+
+        int sentCount = 0;
+        int failedCount = 0;
+
+        foreach (var student in students)
+        {
+            var recipientLog = new EmailRecipientLog
+            {
+                EmailLogId = emailLog.Id,
+                StudentId = student.Id,
+                Email = student.Email,
+                Name = student.FullName,
+                IsSent = false
+            };
+
+            try
+            {
+                var emailResponse = await _emailBusinessLogic.SendEmailAsync(
+                    request.Subject,
+                    request.HtmlContent,
+                    new List<string> { student.Email }
+                );
+
+                if (emailResponse.IsSuccess)
+                {
+                    recipientLog.IsSent = true;
+                    recipientLog.SentAt = DateTime.UtcNow;
+                    sentCount++;
+                }
+                else
+                {
+                    recipientLog.IsSent = false;
+                    recipientLog.ErrorMessage = "Emailul nu a putut fi trimis.";
+                    failedCount++;
+                }
+            }
+            catch (Exception ex)
+            {
+                recipientLog.IsSent = false;
+                recipientLog.ErrorMessage = ex.Message;
+                failedCount++;
+            }
+
+            _context.EmailRecipientLogs.Add(recipientLog);
+        }
+
+        emailLog.SentCount = sentCount;
+        emailLog.FailedCount = failedCount;
+
+        await _context.SaveChangesAsync();
+
+        return response.SetSuccess(new
+        {
+            EmailLogId = emailLog.Id,
+            TotalRecipients = emailLog.TotalRecipients,
+            SentCount = emailLog.SentCount,
+            FailedCount = emailLog.FailedCount
+        });
+    }
+
+    public async Task<PublicResponse> GetCampaignNewsletterTemplateAsync(int campaignId)
+    {
+        PublicResponse response = new(true);
+
+        var campaign = await _context.MarketingCampaigns
+         .Include(x => x.CourseSessions)
+             .ThenInclude(x => x.CourseSession)
+                 .ThenInclude(cs => cs.Course) // dacă vrei și numele cursului
+         .FirstOrDefaultAsync(x => x.Id == campaignId);
+
+        if (campaign == null)
+            return response.SetError("CampaignNotFound", "Campania nu a fost găsită.");
+
+        var template = await _context.EmailTemplates
+            .FirstOrDefaultAsync(x =>
+                x.TemplateCode == TemplateCode.CAMPAIGN_NEWSLETTER &&
+                x.IsActive);
+
+        if (template == null)
+            return response.SetError("EmailTemplateNotFound", "Template-ul de email nu a fost găsit.");
+
+        var discount = campaign.DiscountType == DiscountType.Percentage
+            ? $"{campaign.DiscountValue}%"
+            : $"{campaign.DiscountValue} lei";
+
+        string sessionsHtml = "";
+
+        if (campaign.CourseSessions != null && campaign.CourseSessions.Any())
+        {
+            sessionsHtml = "<ul>";
+
+            foreach (var rel in campaign.CourseSessions)
+            {
+                var session = rel.CourseSession;
+
+                if (session == null) continue;
+
+                sessionsHtml += $@"
+            <li>
+                <strong> {session.Title}
+            </li>";
+            }
+
+            sessionsHtml += "</ul>";
+        }
+        else
+        {
+            sessionsHtml = "<p>Campania este disponibilă pentru toate sesiunile eligibile.</p>";
+        }
+
+        var htmlContent = template.HtmlContent
+            .Replace(EmailConstants.CAMPAIGN_NAME, campaign.Name)
+            .Replace(EmailConstants.CAMPAIGN_DESCRIPTION, campaign.Description ?? "")
+            .Replace(EmailConstants.DISCOUNT, discount)
+            .Replace(EmailConstants.START_DATE, campaign.StartDate.ToString("dd.MM.yyyy"))
+            .Replace(EmailConstants.END_DATE, campaign.EndDate.ToString("dd.MM.yyyy"))
+            .Replace(EmailConstants.CAMPAIGN_SESSIONS, sessionsHtml)
+            .Replace(EmailConstants.YEAR, DateTime.UtcNow.Year.ToString());
+
+        return response.SetSuccess(new
+        {
+            subject = template.Subject,
+            htmlContent
+        });
+    }
+
+    public async Task<PublicResponse> GetEmailLogsAsync(EmailLogsRequest request)
+    {
+        PublicResponse response = new(true);
+
+        var query = _context.EmailLogs
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(request.Type))
+        {
+            query = query.Where(x => x.Type == request.Type);
+        }
+
+        if (request.ReferenceId.HasValue)
+        {
+            query = query.Where(x => x.ReferenceId == request.ReferenceId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.Search))
+        {
+            query = query.Where(x =>
+                x.Subject.Contains(request.Search));
+        }
+
+        var total = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((request.Page - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .Select(x => new
+            {
+                x.Id,
+                x.Type,
+                x.ReferenceId,
+                x.Subject,
+                x.RecipientMode,
+                x.TotalRecipients,
+                x.SentCount,
+                x.FailedCount,
+                x.CreatedAt,
+                x.SentAt
+            })
+            .ToListAsync();
+
+        return response.SetSuccess(new
+        {
+            request.Page,
+            request.PageSize,
+            Total = total,
+            Items = items
+        });
+    }
+
+    public async Task<PublicResponse> GetEmailLogDetailsAsync(int emailLogId)
+    {
+        PublicResponse response = new(true);
+
+        var emailLog = await _context.EmailLogs
+            .Where(x => x.Id == emailLogId)
+            .Select(x => new
+            {
+                x.Id,
+                x.Type,
+                x.ReferenceId,
+                x.Subject,
+                x.HtmlContent,
+                x.RecipientMode,
+                x.TotalRecipients,
+                x.SentCount,
+                x.FailedCount,
+                x.CreatedAt,
+                x.SentAt,
+                Recipients = x.Recipients.Select(r => new
+                {
+                    r.Id,
+                    r.StudentId,
+                    r.Name,
+                    r.Email,
+                    r.IsSent,
+                    r.ErrorMessage,
+                    r.SentAt
+                }).ToList()
+            })
+            .FirstOrDefaultAsync();
+
+        if (emailLog == null)
+            return response.SetError("EmailLogNotFound", "Emailul nu a fost găsit.");
+
+        return response.SetSuccess(emailLog);
+    }
+
+
 
 
 }

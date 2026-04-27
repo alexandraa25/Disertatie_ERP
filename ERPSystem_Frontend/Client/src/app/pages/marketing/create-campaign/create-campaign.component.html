@@ -1,0 +1,108 @@
+<div class="modal-backdrop" >
+        <div class="modal">
+            <h3>Adaugă campanie marketing</h3>
+
+            <div class="modal-body">
+                <p class="modal-subtitle">
+                    Completează detaliile campaniei și discountul asociat.
+                </p>
+
+                <div class="modal-form">
+                    <div class="form-group">
+                        <label>Nume campanie</label>
+                        <input type="text" [(ngModel)]="campaignForm.name">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descriere</label>
+                        <textarea [(ngModel)]="campaignForm.description"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Data început</label>
+                        <input type="date" [(ngModel)]="campaignForm.startDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Data sfârșit</label>
+                        <input type="date" [(ngModel)]="campaignForm.endDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tip discount</label>
+                        <select [(ngModel)]="campaignForm.discountType">
+                            <option [ngValue]="0">Fix</option>
+                            <option [ngValue]="1">Procent</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Valoare discount</label>
+                        <input type="number" [(ngModel)]="campaignForm.discountValue">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Aplicabilitate</label>
+                        <select [(ngModel)]="campaignForm.discountScope" (ngModelChange)="onScopeChange()">
+                            <option [ngValue]="0">Total</option>
+                            <option [ngValue]="1">Pachet</option>
+                            <option [ngValue]="2">Abonament</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cursuri</label>
+
+                        <div class="checkbox-list">
+                            <label class="checkbox-item" *ngFor="let course of courses">
+                                <input type="checkbox" [checked]="campaignForm.courseIds.includes(course.id)"
+                                    (change)="toggleCourse(course.id, $event)" />
+
+                                <span>{{ course.name }}</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sesiuni curs</label>
+
+                        <div class="checkbox-list" *ngIf="courseSessions.length > 0">
+                            <label class="checkbox-item" *ngFor="let session of courseSessions">
+                                <input type="checkbox" [checked]="campaignForm.courseSessionIds.includes(session.id)"
+                                    (change)="toggleSession(session.id, $event)" />
+
+                                <span>
+                                    {{ session.title || 'Sesiune' }}
+                                    <small>
+                                        {{ session.startTime }} - {{ session.endTime }}
+                                    </small>
+                                </span>
+                            </label>
+                        </div>
+
+                        <div class="empty-mini" *ngIf="courseSessions.length === 0">
+                            Selectează cel puțin un curs pentru a vedea sesiunile.
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Activă</label>
+                        <select [(ngModel)]="campaignForm.isActive">
+                            <option [ngValue]="true">Da</option>
+                            <option [ngValue]="false">Nu</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="secondary-btn" (click)="closeCreateModal()">
+                    Anulează
+                </button>
+
+                <button type="button" class="close-btn" (click)="saveCampaign()">
+                    Salvează
+                </button>
+            </div>
+        </div>
+    </div>

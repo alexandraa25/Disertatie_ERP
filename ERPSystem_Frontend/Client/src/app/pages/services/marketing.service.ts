@@ -41,8 +41,25 @@ export class MarketingCampaignService {
     return this.http.put<any>(`${this.baseUrl}/${id}/toggle-active`, {endDate});
   }
 
-
   getAvailableCampaigns(courseSessionIds: number[]) {
     return this.http.post<any>( `${this.baseUrl}/available`, { courseSessionIds } );
   }
+
+  sendNewsletter(dto: any) {
+  return this.http.post(`${this.baseUrl}/send-newsletter`, dto);
 }
+
+getNewsletterTemplate(campaignId: number) {
+  return this.http.get(`${this.baseUrl}/newsletter-template`, {
+    params: { campaignId }
+  });
+}
+
+getEmailLogs(dto: any) {
+  return this.http.post(`${this.baseUrl}/email-logs`, dto);
+}
+
+getEmailLogDetails(id: number) {
+  return this.http.get(`${this.baseUrl}/email-logs/${id}`);
+}
+} 

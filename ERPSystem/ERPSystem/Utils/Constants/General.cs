@@ -71,6 +71,10 @@ namespace ERPSystem.Utils.Constants
                 public const string DELETE_CAMPAIGN = "/{id:int}/delete";
                 public const string CAMPAIGN_STATUS = "/{id:int}/toggle-active";
                 public const string CAMPAIGN_AVAILABLE = "/available";
+                public const string SEND_NEWSLETTER = "/send-newsletter";
+                public const string CAMPAIGN_NEWSLETTER_TEMPLATE = "/newsletter-template";
+                public const string EMAIL_LOGS = "/email-logs";
+                public const string EMAIL_LOG_DETAILS = "/email-logs/{id:int}";
 
             }
 
@@ -89,6 +93,7 @@ namespace ERPSystem.Utils.Constants
                 public const string EMPLOYEE_DOCUMENT_VIEW = "/documents/{documentId}/view";
                 public const string EMPLOYEE_DOCUMENT_DOWNLOAD = "/documents/{documentId}/download";
                 public const string EMPLOYEE_DOCUMENT_DELETE = "/documents/{documentId}";
+               
 
 
 

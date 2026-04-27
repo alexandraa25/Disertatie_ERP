@@ -11,6 +11,9 @@ namespace ERPSystem.Data.Context
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<EmailTemplate> EmailTemplates { get; set; }
+        public DbSet<EmailLog> EmailLogs { get; set; }
+
+        public DbSet<EmailRecipientLog> EmailRecipientLogs { get; set; }
         public DbSet<UserNotificationSetting> UserNotificationSettings { get; set; }
 
         public DbSet<Notification> Notifications { get; set; }
@@ -425,6 +428,13 @@ namespace ERPSystem.Data.Context
                 .HasOne(e => e.Contact)
                 .WithOne(c => c.Employee)
                 .HasForeignKey<EmployeeContact>(c => c.EmployeeId);
+
+
+            modelBuilder.Entity<EmailLog>()
+    .HasMany(x => x.Recipients)
+    .WithOne(x => x.EmailLog)
+    .HasForeignKey(x => x.EmailLogId)
+    .OnDelete(DeleteBehavior.Cascade);
 
         }
 

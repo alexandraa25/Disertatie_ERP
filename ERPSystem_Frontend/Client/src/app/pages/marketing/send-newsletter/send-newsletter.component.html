@@ -1,0 +1,163 @@
+<div class="modal-backdrop">
+    <div class="modal">
+        <h3>Trimite newsletter</h3>
+
+        <div class="modal-body" *ngIf="campaign">
+            <p>
+                Campanie:
+                <strong>{{ campaign.name }}</strong>
+            </p>
+
+            <div class="form-group">
+                <label>Destinatari</label>
+
+                <select [(ngModel)]="recipientMode" (ngModelChange)="onRecipientModeChange()">
+                    <option value="active">Doar cursanți activi</option>
+                    <option value="inactive">Doar cursanți inactivi</option>
+                    <option value="all">Toți cursanții</option>
+                    <option value="manual">Selectare manuală</option>
+                </select>
+            </div>
+
+            <p class="newsletter-warning" *ngIf="recipientMode === 'inactive' || recipientMode === 'all'">
+                Atenție: newsletterul poate fi trimis și către cursanți inactivi.
+            </p>
+
+            <div class="form-group" *ngIf="recipientMode === 'manual'">
+                <label>Cursanți</label>
+
+                <div class="manual-actions">
+                    <button type="button" class="secondary-btn" (click)="selectAllStudents()">
+                        Selectează toți
+                    </button>
+
+                    <button type="button" class="secondary-btn" (click)="clearSelectedStudents()">
+                        Deselectează toți
+                    </button>
+                </div>
+
+                <div class="form-group" *ngIf="recipientMode === 'manual'">
+                    <label>Caută cursant</label>
+
+                    <input type="text" placeholder="Caută după nume, email sau telefon..." [(ngModel)]="searchTerm"
+                        (ngModelChange)="onStudentSearchChange()">
+                </div>
+
+                <div class="filters-row" *ngIf="recipientMode === 'manual'">
+                    <div class="form-group">
+                        <label>Status cursant</label>
+
+                        <select [(ngModel)]="studentStatus" (ngModelChange)="onStudentFilterChange()">
+                            <option value="all">Toți</option>
+                            <option value="active">Activi</option>
+                            <option value="inactive">Inactivi</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" *ngIf="campaignSessions.length > 0">
+                        <label>Sesiune</label>
+
+                        <select [(ngModel)]="selectedSessionId" (ngModelChange)="onStudentFilterChange()">
+                            <option [ngValue]="null">Toate sesiunile</option>
+
+                            <option *ngFor="let s of campaignSessions" [ngValue]="s.courseSessionId || s.id">
+                                {{ s.courseName }} - {{ s.title }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="manual-actions" *ngIf="recipientMode === 'manual'">
+                    <button type="button" class="secondary-btn" (click)="selectVisibleStudents()">
+                        Selectează vizibili
+                    </button>
+
+                    <button type="button" class="secondary-btn" (click)="clearVisibleStudents()">
+                        Deselectează vizibili
+                    </button>
+
+                    <button type="button" class="secondary-btn" (click)="clearAllSelectedStudents()">
+                        Golește selecția
+                    </button>
+                </div>
+
+                <p class="selected-count" *ngIf="recipientMode === 'manual'">
+                    Selectați: {{ selectedStudentIds.length }}
+                </p>
+
+                <div class="checkbox-list" *ngIf="recipientMode === 'manual'">
+                    <div class="empty-mini" *ngIf="loadingStudents">
+                        Se încarcă...
+                    </div>
+
+                    <div class="empty-mini" *ngIf="!loadingStudents && students.length === 0">
+                        Nu există cursanți pentru filtrele selectate.
+                    </div>
+
+                    <label class="checkbox-item" *ngFor="let student of students">
+                        <input type="checkbox" [checked]="selectedStudentIds.includes(student.id)"
+                            (change)="toggleStudent(student.id, $event)">
+
+                        <span>
+                            {{ student.fullName }}
+                            <small>
+                                {{ student.email || 'Fără email' }} —
+                                {{ student.isActive ? 'Activ' : 'Inactiv' }}
+                            </small>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="students-pagination" *ngIf="recipientMode === 'manual' && studentsTotalPages > 1">
+                    <button type="button" [disabled]="studentsPage === 1"
+                        (click)="changeStudentsPage(studentsPage - 1)">
+                        ←
+                    </button>
+
+                    <span>Pagina {{ studentsPage }} din {{ studentsTotalPages }}</span>
+
+                    <button type="button" [disabled]="studentsPage === studentsTotalPages"
+                        (click)="changeStudentsPage(studentsPage + 1)">
+                        →
+                    </button>
+                </div>
+            </div>
+            
+            <div class="empty-mini" *ngIf="loadingTemplate">
+                Se încarcă template-ul emailului...
+            </div>
+
+            <div class="form-group">
+                <label>Subiect email</label>
+
+                <input type="text" [(ngModel)]="subject" placeholder="Subiect email">
+            </div>
+
+            <div class="form-group">
+                <label>Conținut email</label>
+
+                <textarea [(ngModel)]="htmlContent" rows="10" placeholder="Conținut email"> </textarea>
+            </div>
+
+            <div class="newsletter-preview">
+                <h4>Preview email</h4>
+
+                <div class="email-subject">
+                    <strong>Subiect:</strong> {{ subject }}
+                </div>
+
+                <div class="email-preview" [innerHTML]="htmlContent"></div>
+            </div>
+        </div>
+
+        <div class="modal-actions">
+            <button type="button" class="secondary-btn" (click)="close()" [disabled]="sending">
+                Anulează
+            </button>
+
+            <button type="button" class="send-btn" (click)="sendNewsletter()" [disabled]="sending">
+                {{ sending ? 'Se trimite...' : 'Trimite newsletter' }}
+            </button>
+        </div>
+    </div>
+</div>

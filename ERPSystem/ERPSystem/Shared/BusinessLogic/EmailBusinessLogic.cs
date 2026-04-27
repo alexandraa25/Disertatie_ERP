@@ -3,6 +3,7 @@ using ERPSystem.Data.Entities;
 using ERPSystem.Modules.AdditionalAct.Models;
 using ERPSystem.Modules.Authentification.Models;
 using ERPSystem.Modules.Contracts.Models;
+using ERPSystem.Modules.MarketingCampaign.Models;
 using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Response;
@@ -156,6 +157,18 @@ namespace ERPSystem.Shared.BusinessLogic
                     .Replace(EmailConstants.ACT_NUMBER, model.ActNumber)
                     .Replace(EmailConstants.DESCRIPTION, model.Description ?? "")
                     .Replace(EmailConstants.SIGN_URL, url)
+                    .Replace(EmailConstants.YEAR, DateTime.UtcNow.Year.ToString());
+            }
+            else if (templateCode == TemplateCode.CAMPAIGN_NEWSLETTER)
+            {
+                var model = JsonConvert.DeserializeObject<CampaignNewsletterEmailModel>(tableRow);
+
+                template = emailTemplate.HtmlContent
+                    .Replace(EmailConstants.CAMPAIGN_NAME, model.CampaignName)
+                    .Replace(EmailConstants.CAMPAIGN_DESCRIPTION, model.CampaignDescription ?? "")
+                    .Replace(EmailConstants.DISCOUNT, model.Discount)
+                    .Replace(EmailConstants.START_DATE, model.StartDate)
+                    .Replace(EmailConstants.END_DATE, model.EndDate)
                     .Replace(EmailConstants.YEAR, DateTime.UtcNow.Year.ToString());
             }
 

@@ -1,0 +1,157 @@
+<div class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3>Istoric emailuri</h3>
+        <p *ngIf="campaign">
+          Campanie: <strong>{{ campaign.name }}</strong>
+        </p>
+      </div>
+
+      <button type="button" class="icon-btn" (click)="close()">✕</button>
+    </div>
+
+    <div class="modal-body" *ngIf="!selectedLog">
+      <div class="filters">
+        <input
+          type="text"
+          placeholder="Caută după subiect..."
+          [(ngModel)]="search"
+          (ngModelChange)="onSearchChange()">
+      </div>
+
+      <div class="empty-state" *ngIf="loading">
+        Se încarcă...
+      </div>
+
+      <div class="empty-state" *ngIf="!loading && logs.length === 0">
+        Nu există emailuri trimise pentru această campanie.
+      </div>
+
+      <table class="logs-table" *ngIf="!loading && logs.length > 0">
+        <thead>
+          <tr>
+            <th>Subiect</th>
+            <th>Destinatari</th>
+            <th>Trimise</th>
+            <th>Eșuate</th>
+            <th>Status</th>
+            <th>Data</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let log of logs">
+            <td>{{ log.subject }}</td>
+            <td>{{ log.totalRecipients }}</td>
+            <td>{{ log.sentCount }}</td>
+            <td>{{ log.failedCount }}</td>
+            <td>
+              <span class="status" [ngClass]="getStatusClass(log)">
+                {{ getStatusLabel(log) }}
+              </span>
+            </td>
+            <td>{{ log.createdAt | date:'dd MMM yyyy, HH:mm' }}</td>
+            <td>
+              <button type="button" class="details-btn" (click)="openDetails(log)">
+                Detalii
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button
+          type="button"
+          [disabled]="page === 1"
+          (click)="changePage(page - 1)">
+          ←
+        </button>
+
+        <span>Pagina {{ page }} din {{ totalPages }}</span>
+
+        <button
+          type="button"
+          [disabled]="page === totalPages"
+          (click)="changePage(page + 1)">
+          →
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-body" *ngIf="selectedLog">
+      <button type="button" class="secondary-btn" (click)="backToList()">
+        ← Înapoi la listă
+      </button>
+
+      <div class="details-card">
+        <h4>{{ selectedLog.subject }}</h4>
+
+        <p>
+          <strong>Destinatari:</strong>
+          {{ selectedLog.totalRecipients }}
+        </p>
+
+        <p>
+          <strong>Trimise:</strong>
+          {{ selectedLog.sentCount }}
+        </p>
+
+        <p>
+          <strong>Eșuate:</strong>
+          {{ selectedLog.failedCount }}
+        </p>
+
+        <p>
+          <strong>Data:</strong>
+          {{ selectedLog.createdAt | date:'dd MMM yyyy, HH:mm' }}
+        </p>
+      </div>
+
+      <div class="email-preview">
+        <h4>Conținut email</h4>
+        <div [innerHTML]="selectedLog.htmlContent"></div>
+      </div>
+
+      <h4>Destinatari</h4>
+
+      <div class="empty-state" *ngIf="loadingDetails">
+        Se încarcă detaliile...
+      </div>
+
+      <table class="logs-table" *ngIf="!loadingDetails">
+        <thead>
+          <tr>
+            <th>Nume</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Eroare</th>
+            <th>Trimis la</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let r of selectedLog.recipients">
+            <td>{{ r.name || '-' }}</td>
+            <td>{{ r.email }}</td>
+            <td>
+              <span class="status" [ngClass]="r.isSent ? 'sent' : 'failed'">
+                {{ r.isSent ? 'Trimis' : 'Eșuat' }}
+              </span>
+            </td>
+            <td>{{ r.errorMessage || '-' }}</td>
+            <td>{{ r.sentAt ? (r.sentAt | date:'dd MMM yyyy, HH:mm') : '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="secondary-btn" (click)="close()">
+        Închide
+      </button>
+    </div>
+  </div>
+</div>

@@ -24,41 +24,41 @@ export class StudentsService {
       recentDays: String(recentDays)
     })
 
-     if (sessionId !== null && sessionId !== undefined) {
-    params.append('sessionId', String(sessionId));
+    if (sessionId !== null && sessionId !== undefined) {
+      params.append('sessionId', String(sessionId));
+    }
+
+    return this.http.get<PagedResult<StudentListItemDto>>(
+      `${this.baseUrl}?${params.toString()}`
+    );
   }
 
-     return this.http.get<PagedResult<StudentListItemDto>>(
-    `${this.baseUrl}?${params.toString()}`
-  );
+  exportExcel(
+    q = '',
+    sortBy = 'createdAt',
+    sortDir = 'desc',
+    onlyRecent = false,
+    recentDays = 30,
+    sessionId?: number | null
+  ) {
+    const params = new URLSearchParams({
+      q,
+      sortBy,
+      sortDir,
+      onlyRecent: String(onlyRecent),
+      recentDays: String(recentDays)
+    });
+
+    // 🔥 IMPORTANT
+    if (sessionId !== null && sessionId !== undefined) {
+      params.append('sessionId', String(sessionId));
+    }
+
+    return this.http.get(
+      `${this.baseUrl}/ /export?${params.toString()}`,
+      { responseType: 'blob' }
+    );
   }
-
-exportExcel(
-  q = '',
-  sortBy = 'createdAt',
-  sortDir = 'desc',
-  onlyRecent = false,
-  recentDays = 30,
-  sessionId?: number | null
-) {
-  const params = new URLSearchParams({
-    q,
-    sortBy,
-    sortDir,
-    onlyRecent: String(onlyRecent),
-    recentDays: String(recentDays)
-  });
-
-  // 🔥 IMPORTANT
-  if (sessionId !== null && sessionId !== undefined) {
-    params.append('sessionId', String(sessionId));
-  }
-
-  return this.http.get(
-    `${this.baseUrl}/ /export?${params.toString()}`,
-    { responseType: 'blob' }
-  );
-}
 
   get(id: number): Observable<StudentDetailsDto> {
     return this.http
@@ -91,10 +91,10 @@ exportExcel(
   }
 
   getSessions() {
-  return this.http
-    .get<any>(`${this.baseUrl}/sessions`)
-    .pipe(map(res => res.value));
-}
+    return this.http
+      .get<any>(`${this.baseUrl}/sessions`)
+      .pipe(map(res => res.value));
+  }
 
   search(q: string = ''): Observable<StudentOption[]> {
     return this.http.get<StudentOption[]>(
@@ -103,27 +103,31 @@ exportExcel(
   }
 
   getPrimaryGuardian(studentId: number) {
-  return this.http
-    .get<any>(`${this.baseUrl}/${studentId}/primary-guardian`)
-    .pipe(map(res => res.value));
-}
-
-   getById(id: number) {
-  return this.http.get<any>(`${this.baseUrl}/${id}`);
-}
-
-getAvailableCoursesForStudent(studentId: number, q: string = '') {
-  let url = `${this.baseUrl}/${studentId}/available-courses`;
-
-  if (q) {
-    url += `?q=${q}`;
+    return this.http
+      .get<any>(`${this.baseUrl}/${studentId}/primary-guardian`)
+      .pipe(map(res => res.value));
   }
 
-  return this.http.get<any>(url);
-}
+  getById(id: number) {
+    return this.http.get<any>(`${this.baseUrl}/${id}`);
+  }
+
+  getAvailableCoursesForStudent(studentId: number, q: string = '') {
+    let url = `${this.baseUrl}/${studentId}/available-courses`;
+
+    if (q) {
+      url += `?q=${q}`;
+    }
+
+    return this.http.get<any>(url);
+  }
 
 
-getStudentCoursesByContract(contractId: number) {
-  return this.http.get<any>(`${this.baseUrl}/by-contract/${contractId}`);
+  getStudentCoursesByContract(contractId: number) {
+    return this.http.get<any>(`${this.baseUrl}/by-contract/${contractId}`);
+  }
+
+  getStudents(params: any) {
+  return this.http.get(`${this.baseUrl}`, { params });
 }
 }
