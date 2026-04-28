@@ -3,6 +3,7 @@ using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Course.Models;
 using ERPSystem.Shared.ActivityLogs;
 using ERPSystem.Shared.Notifications;
+using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Identity;
@@ -698,30 +699,53 @@ public class CoursesService
         return response.SetSuccess(true);
     }
 
-    public async Task<PublicResponse> ListEnrollmentsAsync(int courseId)
+    public async Task<PublicResponse> ListEnrollmentsAsync(int courseId, int? sessionId = null)
     {
         var response = new PublicResponse(true);
 
         try
         {
-            var items = await _db.CourseEnrollments.AsNoTracking()
-           .Include(x => x.Student)
-           .Include(x => x.Session)
-           .Where(x => x.CourseId == courseId) 
-           .OrderByDescending(x => x.IsActive)
-           .ThenBy(x => x.Student.FullName)
-           .Select(x => new EnrollmentDto(
-               x.StudentId,
-               x.Student.FullName,
-               x.Student.Email,
-               x.EnrolledAtUtc,
-               x.IsActive,
-               x.CourseSessionId,                         
-               x.Session.DayOfWeek,
-               x.Session.StartTime.ToString("HH:mm"),
-               x.Session.EndTime.ToString("HH:mm")
-           ))
-           .ToListAsync();
+            var query = _db.CourseEnrollments.AsNoTracking()
+                .Include(x => x.Student)
+                .Include(x => x.Session)
+                .Where(x => x.CourseId == courseId);
+
+            if (sessionId.HasValue)
+            {
+                query = query.Where(x => x.CourseSessionId == sessionId.Value);
+            }
+
+            var items = await query
+                .OrderByDescending(x => x.IsActive)
+                .ThenBy(x => x.Student.FullName)
+                .Select(x => new EnrollmentDto(
+                    x.StudentId,
+                    x.Student.FullName,
+                    x.Student.Email,
+                    x.EnrolledAtUtc,
+                    x.IsActive,
+                    x.CourseSessionId,
+                    x.Session.DayOfWeek,
+                    x.Session.StartTime.ToString("HH:mm"),
+                    x.Session.EndTime.ToString("HH:mm"),
+
+                    _db.EmailRecipientLogs.Any(r =>
+                        r.StudentId == x.StudentId &&
+                        r.IsSent &&
+                        r.EmailLog.Type == EmailLogTypes.FeedbackForm &&
+                        r.EmailLog.ReferenceId == x.CourseSessionId),
+
+                    _db.EmailRecipientLogs
+                        .Where(r =>
+                            r.StudentId == x.StudentId &&
+                            r.IsSent &&
+                            r.EmailLog.Type == EmailLogTypes.FeedbackForm &&
+                            r.EmailLog.ReferenceId == x.CourseSessionId)
+                        .OrderByDescending(r => r.SentAt)
+                        .Select(r => r.SentAt)
+                        .FirstOrDefault()
+                ))
+                .ToListAsync();
 
             return response.SetSuccess(items);
         }

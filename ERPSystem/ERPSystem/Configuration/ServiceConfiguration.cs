@@ -7,9 +7,11 @@ using ERPSystem.Modules.Company;
 using ERPSystem.Modules.Contracts;
 using ERPSystem.Modules.Dashboard;
 using ERPSystem.Modules.Employees;
+using ERPSystem.Modules.Feedback;
+using ERPSystem.Modules.Leaves;
+using ERPSystem.Modules.Payments;
 using ERPSystem.Modules.Student;
 using ERPSystem.Modules.UserProfile;
-using ERPSystem.Modules.Payments;
 using ERPSystem.Shared.BusinessLogic;
 using ERPSystem.Utils.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,7 +20,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
-using ERPSystem.Modules.Leaves;
 
 
 namespace ERPSystem.Configuration
@@ -62,7 +63,8 @@ namespace ERPSystem.Configuration
             builder.Services.AddScoped<ActivityLogService>();
             builder.Services.AddScoped<NotificationsService>();
             builder.Services.AddScoped<MarketingCampaignService>();
-            
+            builder.Services.AddScoped<FeedbackService>();
+
         }
 
         public static void ConfigureSettings(this WebApplicationBuilder builder)

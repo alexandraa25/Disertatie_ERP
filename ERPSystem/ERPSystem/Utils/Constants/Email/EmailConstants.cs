@@ -20,5 +20,10 @@
         public const string DISCOUNT = "{{DISCOUNT}}";
         public const string START_DATE = "{{START_DATE}}";
         public const string END_DATE = "{{END_DATE}}";
+
+        public const string COURSE_NAME = "{{COURSE_NAME}}";
+        public const string SESSION_TITLE = "{{SESSION_TITLE}}";
+        public const string TEACHER_NAME = "{{TEACHER_NAME}}";
+        public const string FEEDBACK_URL = "{{FEEDBACK_URL}}";
     }
 }

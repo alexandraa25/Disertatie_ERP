@@ -3,6 +3,7 @@ using ERPSystem.Data.Entities;
 using ERPSystem.Modules.AdditionalAct.Models;
 using ERPSystem.Modules.Authentification.Models;
 using ERPSystem.Modules.Contracts.Models;
+using ERPSystem.Modules.Feedback.Models;
 using ERPSystem.Modules.MarketingCampaign.Models;
 using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Constants.Error;
@@ -169,6 +170,17 @@ namespace ERPSystem.Shared.BusinessLogic
                     .Replace(EmailConstants.DISCOUNT, model.Discount)
                     .Replace(EmailConstants.START_DATE, model.StartDate)
                     .Replace(EmailConstants.END_DATE, model.EndDate)
+                    .Replace(EmailConstants.YEAR, DateTime.UtcNow.Year.ToString());
+            }
+            else if (templateCode == TemplateCode.FEEDBACK_FORM_REQUEST)
+            {
+                var model = JsonConvert.DeserializeObject<FeedbackFormEmailModel>(tableRow);
+
+                template = emailTemplate.HtmlContent
+                    .Replace(EmailConstants.COURSE_NAME, model.CourseName)
+                    .Replace(EmailConstants.SESSION_TITLE, model.SessionTitle)
+                    .Replace(EmailConstants.TEACHER_NAME, model.TeacherName)
+                    .Replace(EmailConstants.FEEDBACK_URL, url)
                     .Replace(EmailConstants.YEAR, DateTime.UtcNow.Year.ToString());
             }
 

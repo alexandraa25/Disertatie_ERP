@@ -1,0 +1,119 @@
+<p>send-feedback-forms works!</p>
+<div class="modal-backdrop">
+  <div class="modal">
+    <h3>Trimite formulare feedback</h3>
+
+    <div class="modal-body">
+      <div class="session-info" *ngIf="session">
+        <p>
+          <strong>Sesiune:</strong>
+          {{ session.title || '-' }}
+        </p>
+
+        <p>
+          <strong>Profesor:</strong>
+          {{ session.teacherName || '-' }}
+        </p>
+
+        <p>
+          <strong>Interval:</strong>
+          {{ session.startTime }} - {{ session.endTime }}
+        </p>
+      </div>
+
+      <div class="filters">
+        <label class="checkbox-line">
+          <input
+            type="checkbox"
+            [(ngModel)]="onlyActive"
+            (ngModelChange)="onFilterChange()">
+
+          <span>Doar cursanți activi</span>
+        </label>
+
+        <label class="checkbox-line">
+          <input
+            type="checkbox"
+            [(ngModel)]="onlyNotSent"
+            (ngModelChange)="onFilterChange()">
+
+          <span>Doar cursanți fără formular trimis</span>
+        </label>
+      </div>
+
+      <div class="manual-actions">
+        <button type="button" class="secondary-btn" (click)="selectRecommended()">
+          Selectează recomandați
+        </button>
+
+        <button type="button" class="secondary-btn" (click)="selectAllVisible()">
+          Selectează vizibili
+        </button>
+
+        <button type="button" class="secondary-btn" (click)="clearSelection()">
+          Golește selecția
+        </button>
+      </div>
+
+      <p class="selected-count">
+        Selectați: {{ selectedStudentIds.length }}
+      </p>
+
+      <div class="empty-mini" *ngIf="loading">
+        Se încarcă...
+      </div>
+
+      <div class="empty-mini" *ngIf="!loading && filteredEnrollments.length === 0">
+        Nu există cursanți pentru filtrele selectate.
+      </div>
+
+      <div class="students-list" *ngIf="!loading && filteredEnrollments.length > 0">
+        <label class="student-item" *ngFor="let e of filteredEnrollments">
+          <input
+            type="checkbox"
+            [checked]="selectedStudentIds.includes(e.studentId)"
+            (change)="toggleStudent(e.studentId, $event)">
+
+          <span>
+            <strong>{{ e.studentName }}</strong>
+
+            <small>
+              {{ e.studentEmail || 'Fără email' }} —
+              {{ e.isActive ? 'Activ' : 'Inactiv' }}
+            </small>
+
+            <small *ngIf="e.feedbackSent" class="sent-info">
+              Formular trimis la {{ e.feedbackSentAt | date:'dd.MM.yyyy HH:mm' }}
+            </small>
+
+            <small *ngIf="!e.feedbackSent" class="not-sent-info">
+              Formular netrimis
+            </small>
+          </span>
+        </label>
+      </div>
+
+      <p class="warning">
+        Feedbackul primit va fi anonim. Aici se păstrează doar evidența emailurilor trimise.
+      </p>
+    </div>
+
+    <div class="modal-actions">
+      <button
+        type="button"
+        class="secondary-btn"
+        (click)="close()"
+        [disabled]="sending">
+        Anulează
+      </button>
+
+      <button
+        type="button"
+        class="send-btn"
+        (click)="sendForms()"
+        [disabled]="sending">
+        {{ sending ? 'Se trimite...' : 'Trimite formulare' }}
+      </button>
+    </div>
+  </div>
+</div>

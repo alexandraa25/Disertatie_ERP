@@ -50,10 +50,14 @@ export class CoursesService {
     return this.http.get<TeacherOptionDto[]>(`${this.baseUrl}/teachers`);
   }
 
-  listEnrollments(courseId: number): Observable<EnrollmentDto[]> {
-    return this.http.get<EnrollmentDto[]>(
-      `${this.baseUrl}/${courseId}/enrollments`
-    );
+  listEnrollments(courseId: number, sessionId?: number): Observable<EnrollmentDto[]> {
+    const params: any = {};
+
+    if (sessionId) {
+      params.sessionId = sessionId;
+    }
+
+    return this.http.get<EnrollmentDto[]>( `${this.baseUrl}/${courseId}/enrollments`,  { params } );
   }
 
   enroll(courseId: number, body: CourseEnrollRequest): Observable<void> {

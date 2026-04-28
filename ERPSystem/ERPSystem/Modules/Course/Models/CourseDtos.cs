@@ -87,7 +87,9 @@ public record EnrollmentDto(
     int SessionId,
     int DayOfWeek,
     string StartTime,
-    string EndTime
+    string EndTime,
+    bool FeedbackSent,
+    DateTime? FeedbackSentAt
 );
 
 public record EnrollStudentRequest(int StudentId, int SessionId);

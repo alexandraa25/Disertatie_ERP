@@ -1,0 +1,76 @@
+<div class="feedback-page">
+  <div class="feedback-card" *ngIf="loading">
+    Se încarcă formularul...
+  </div>
+
+  <div class="feedback-card error-card" *ngIf="!loading && errorMessage && !formDetails">
+    {{ errorMessage }}
+  </div>
+
+  <div class="feedback-card success-card" *ngIf="submitted">
+    <h2>Mulțumim!</h2>
+    <p>Feedbackul tău a fost trimis cu succes.</p>
+  </div>
+
+  <div
+    class="feedback-card"
+    *ngIf="!loading && formDetails && !submitted">
+
+    <h2>Feedback curs</h2>
+
+    <p class="subtitle">
+      Feedbackul este anonim. Linkul poate fi folosit o singură dată.
+    </p>
+
+    <div class="course-box">
+      <p><strong>Curs:</strong> {{ formDetails.courseName }}</p>
+      <p><strong>Sesiune:</strong> {{ formDetails.sessionTitle }}</p>
+      <p><strong>Profesor:</strong> {{ formDetails.teacherName }}</p>
+    </div>
+
+    <div class="blocked-box" *ngIf="formDetails.isCompleted">
+      Acest formular a fost deja completat.
+    </div>
+
+    <div class="blocked-box" *ngIf="formDetails.isExpired">
+      Acest formular a expirat.
+    </div>
+
+    <div *ngIf="!formDetails.isCompleted && !formDetails.isExpired">
+      <div class="form-group">
+        <label>Rating</label>
+
+        <div class="stars">
+          <button
+            type="button"
+            *ngFor="let star of [1,2,3,4,5]"
+            [class.active]="star <= rating"
+            (click)="setRating(star)">
+            ★
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Comentariu</label>
+
+        <textarea
+          [(ngModel)]="comment"
+          placeholder="Scrie feedbackul tău aici...">
+        </textarea>
+      </div>
+
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <button
+        type="button"
+        class="submit-btn"
+        (click)="submit()"
+        [disabled]="submitting">
+        {{ submitting ? 'Se trimite...' : 'Trimite feedback' }}
+      </button>
+    </div>
+  </div>
+</div>

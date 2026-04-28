@@ -9,5 +9,6 @@
         public const string CONTRACT_SIGN_REQUEST = "CONTRACT_SIGN_REQUEST";
         public const string ADDITIONAL_ACT_SIGN_REQUEST = "ADDITIONAL_ACT_SIGN_REQUEST";
         public const string CAMPAIGN_NEWSLETTER = "CAMPAIGN_NEWSLETTER";
+        public const string FEEDBACK_FORM_REQUEST = "FEEDBACK_FORM_REQUEST";
     }
 }

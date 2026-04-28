@@ -39,7 +39,7 @@
                 <div class="price-main">
                   {{ s.fee }} RON
                 </div>
-                <span class="badge" *ngIf="s.feeType === 1">Pachet: {{ s.totalSessions }} ședințe  </span>
+                <span class="badge" *ngIf="s.feeType === 1">Pachet: {{ s.totalSessions }} ședințe </span>
               </ng-container>
 
               <ng-container *ngIf="s.feeType === 2">
@@ -49,7 +49,7 @@
                 <span class="badge blue" *ngIf="s.feeType === 2">Abonament lunar</span>
               </ng-container>
             </td>
-            
+
             <td>
               <ng-container *ngIf="!s.capacity">
                 <span class="unlimited">Nelimitat</span>
@@ -78,11 +78,20 @@
               <button class="secondary small" (click)="toggleSession(s.id)">
                 {{ expandedSessionId === s.id ? 'Ascunde' : 'Cursanți' }}
               </button>
+
+              <!-- 🔥 NOU -->
+              <button class="feedback-btn small" (click)="openFeedbackModal(s)">
+                Trimite feedback
+              </button>
+
+              <button class="reviews-btn small" (click)="openReviewsModal(s)">
+                Vezi feedback
+              </button>
             </td>
           </tr>
 
           <tr *ngIf="expandedSessionId === s.id">
-            <td colspan="5" class="expand-cell">
+            <td colspan="6" class="expand-cell">
 
               <div *ngIf="loadingEnrollments">Se încarcă...</div>
 
@@ -123,3 +132,11 @@
   </div>
 
 </div>
+
+<app-send-feedback-forms *ngIf="showFeedbackModal" [courseId]="course.id" [session]="selectedFeedbackSession"
+  (closed)="closeFeedbackModal()" (sent)="onFeedbackFormsSent()">
+</app-send-feedback-forms>
+
+<app-session-feedback-reviews *ngIf="showReviewsModal" [session]="selectedReviewsSession"
+  (closed)="closeReviewsModal()">
+</app-session-feedback-reviews>

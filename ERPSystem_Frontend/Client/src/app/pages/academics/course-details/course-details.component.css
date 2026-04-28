@@ -1,484 +1,21 @@
-/* =========================
-   Layout general
-========================= */
-
 .page {
-  max-width: 1100px;
-  margin: 100px auto 80px auto;
+  max-width: 1280px;
+  margin: 80px auto;
   padding: 0 24px;
 }
-
-/* =========================
-   Back button
-========================= */
-
-.back-btn {
-  margin-bottom: 24px;
-}
-
-/* =========================
-   Card principal
-========================= */
-
-.card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
-  animation: fadeIn 0.2s ease-out;
-}
-
-.card h2 {
-  margin: 0 0 10px 0;
-  font-size: 28px;
-  font-weight: 600;
-}
-
-.description {
-  color: #666;
-  margin-bottom: 24px;
-}
-
-/* =========================
-   Meta info
-========================= */
-
-.meta {
-  display: flex;
-  gap: 40px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-}
-
-.meta div {
-  background: #f8f9fa;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 14px;
-}
-
-/* =========================
-   Table principal
-========================= */
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead th {
-  text-align: left;
-  font-size: 13px;
-  font-weight: 600;
-  color: #666;
-  padding: 14px 10px;
-  border-bottom: 1px solid #eee;
-}
-
-tbody td {
-  padding: 16px 10px;
-  border-bottom: 1px solid #f2f2f2;
-  vertical-align: top;
-}
-
-/* =========================
-   Session row
-========================= */
-
-.session-row {
-  background: #fafbff;
-  transition: background 0.2s ease;
-}
-
-.session-row:hover {
-  background: #f0f3ff;
-}
-
-/* =========================
-   Capacity
-========================= */
-
-.unlimited {
-  background: #eef2ff;
-  color: #3b5bdb;
-  padding: 4px 10px;
-  border-radius: 14px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.capacity-bar {
-  width: 100%;
-  height: 6px;
-  background: #e9ecef;
-  border-radius: 6px;
-  margin-top: 6px;
-  overflow: hidden;
-}
-
-.capacity-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #3b5bdb, #5c7cfa);
-  transition: width 0.3s ease;
-}
-
-.remaining {
-  display: block;
-  font-size: 12px;
-  color: #666;
-  margin-top: 4px;
-}
-
-/* =========================
-   Expand section
-========================= */
-
-.expand-cell {
-  background: #f5f7fb;
-  padding: 24px;
-  border-radius: 12px;
-}
-
-.expand-cell table {
-  margin-top: 12px;
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.expand-cell th,
-.expand-cell td {
-  padding: 12px;
-  font-size: 14px;
-}
-
-/* =========================
-   Buttons
-========================= */
-
-button {
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 500;
-}
-
-.small {
-  padding: 6px 12px;
-  font-size: 12px;
-  border-radius: 8px;
-}
-
-.primary.small {
-  background: #3b5bdb;
-  color: white;
-}
-
-.primary.small:hover {
-  background: #2f4ecb;
-}
-
-.secondary.small {
-  background: #e9ecef;
-  color: #333;
-}
-
-.secondary.small:hover {
-  background: #dce1e6;
-}
-
-.danger.small {
-  background: #e03131;
-  color: white;
-}
-
-.danger.small:hover {
-  background: #c92a2a;
-}
-
-/* =========================
-   Animatie
-========================= */
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* =========================
-   Responsive
-========================= */
-
-@media (max-width: 768px) {
-
-  .meta {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  table {
-    font-size: 13px;
-  }
-
-}
-
-
-/* =========================
-   Layout general
-========================= */
-
-.page {
-  max-width: 1100px;
-  margin: 100px auto 80px auto;
-  padding: 0 24px;
-}
-
-/* =========================
-   Back button
-========================= */
-
-.back-btn {
-  margin-bottom: 24px;
-}
-
-/* =========================
-   Card principal
-========================= */
-
-.card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
-  animation: fadeIn 0.2s ease-out;
-}
-
-.card h2 {
-  margin: 0 0 10px 0;
-  font-size: 28px;
-  font-weight: 600;
-}
-
-.description {
-  color: #666;
-  margin-bottom: 24px;
-}
-
-/* =========================
-   Meta info
-========================= */
-
-.meta {
-  display: flex;
-  gap: 40px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-}
-
-.meta div {
-  background: #f8f9fa;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 14px;
-}
-
-/* =========================
-   Table principal
-========================= */
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead th {
-  text-align: left;
-  font-size: 13px;
-  font-weight: 600;
-  color: #666;
-  padding: 14px 10px;
-  border-bottom: 1px solid #eee;
-}
-
-tbody td {
-  padding: 16px 10px;
-  border-bottom: 1px solid #f2f2f2;
-  vertical-align: top;
-}
-
-/* =========================
-   Session row
-========================= */
-
-.session-row {
-  background: #fafbff;
-  transition: background 0.2s ease;
-}
-
-.session-row:hover {
-  background: #f0f3ff;
-}
-
-/* =========================
-   Capacity
-========================= */
-
-.unlimited {
-  background: #eef2ff;
-  color: #3b5bdb;
-  padding: 4px 10px;
-  border-radius: 14px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.capacity-bar {
-  width: 100%;
-  height: 6px;
-  background: #e9ecef;
-  border-radius: 6px;
-  margin-top: 6px;
-  overflow: hidden;
-}
-
-.capacity-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #3b5bdb, #5c7cfa);
-  transition: width 0.3s ease;
-}
-
-.remaining {
-  display: block;
-  font-size: 12px;
-  color: #666;
-  margin-top: 4px;
-}
-
-/* =========================
-   Expand section
-========================= */
-
-.expand-cell {
-  background: #f5f7fb;
-  padding: 24px;
-  border-radius: 12px;
-}
-
-.expand-cell table {
-  margin-top: 12px;
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.expand-cell th,
-.expand-cell td {
-  padding: 12px;
-  font-size: 14px;
-}
-
-/* =========================
-   Buttons
-========================= */
-
-button {
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 500;
-}
-
-.small {
-  padding: 6px 12px;
-  font-size: 12px;
-  border-radius: 8px;
-}
-
-.primary.small {
-  background: #3b5bdb;
-  color: white;
-}
-
-.primary.small:hover {
-  background: #2f4ecb;
-}
-
-.secondary.small {
-  background: #e9ecef;
-  color: #333;
-}
-
-.secondary.small:hover {
-  background: #dce1e6;
-}
-
-.danger.small {
-  background: #e03131;
-  color: white;
-}
-
-.danger.small:hover {
-  background: #c92a2a;
-}
-
-/* =========================
-   Animatie
-========================= */
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* =========================
-   Responsive
-========================= */
-
-@media (max-width: 768px) {
-
-  .meta {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  table {
-    font-size: 13px;
-  }
-
-}
-
-/* =========================
-   Back Button Premium
-========================= */
 
 .back-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-
+  margin-bottom: 24px;
   background: transparent;
   border: none;
-
-  font-size: 14px;
-  font-weight: 500;
   color: #3b5bdb;
-
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  padding: 6px 4px;
-
-  transition: all 0.2s ease;
+  transition: 0.2s;
 }
 
 .back-btn:hover {
@@ -486,29 +23,242 @@ button {
   color: #2f4ecb;
 }
 
+.card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 32px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
+}
+
+.card h2 {
+  margin: 0 0 10px;
+  font-size: 30px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.description {
+  color: #666;
+  margin-bottom: 24px;
+}
+
+.meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+
+.meta div {
+  background: #f8f9fa;
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.card h3 {
+  margin-bottom: 16px;
+  font-size: 22px;
+  color: #111827;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th {
+  text-align: left;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  padding: 14px;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: 18px 14px;
+  border-bottom: 1px solid #eef0f4;
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+.session-row {
+  background: #fafbff;
+}
+
+.session-row:hover {
+  background: #f2f5ff;
+}
+
 .price-cell {
-  min-width: 120px;
+  min-width: 130px;
 }
 
 .price-main {
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: #1e293b;
-}
-
-.price-sub {
-  font-size: 11px;
-  color: #64748b;
+  margin-bottom: 4px;
 }
 
 .badge {
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 6px;
+  display: inline-block;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
   background: #e2e8f0;
-  margin-left: 4px;
+  color: #334155;
 }
 
 .badge.blue {
   background: #dbeafe;
   color: #2563eb;
+}
+
+.unlimited {
+  display: inline-block;
+  background: #eef2ff;
+  color: #3b5bdb;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.capacity-bar {
+  width: 150px;
+  height: 7px;
+  background: #e9ecef;
+  border-radius: 999px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.capacity-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b5bdb, #5c7cfa);
+}
+
+.remaining {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 5px;
+}
+
+.actions-cell {
+  min-width: 420px;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.small {
+  min-height: 36px;
+  padding: 8px 14px;
+  font-size: 13px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.primary.small {
+  background: #3b5bdb;
+  color: white;
+}
+
+.primary.small:hover {
+  background: #2f4ecb;
+}
+
+.secondary.small {
+  background: #e9ecef;
+  color: #333;
+}
+
+.secondary.small:hover {
+  background: #dce1e6;
+}
+
+.danger.small {
+  background: #e03131;
+  color: white;
+}
+
+.danger.small:hover {
+  background: #c92a2a;
+}
+
+.feedback-btn {
+  background: #6c5ce7;
+  color: white;
+}
+
+.feedback-btn:hover {
+  background: #5a4bd1;
+}
+
+.reviews-btn {
+  background: #00b894;
+  color: white;
+}
+
+.reviews-btn:hover {
+  background: #009f7a;
+}
+
+.expand-cell {
+  background: #f5f7fb;
+  padding: 24px;
+}
+
+.expand-cell table {
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+}
+
+.expand-cell th,
+.expand-cell td {
+  padding: 14px;
+  font-size: 14px;
+}
+
+@media (max-width: 1100px) {
+  .card {
+    overflow-x: auto;
+  }
+
+  table {
+    min-width: 1100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    margin: 40px auto;
+    padding: 0 16px;
+  }
+
+  .card {
+    padding: 22px;
+  }
+
+  .meta {
+    flex-direction: column;
+  }
 }

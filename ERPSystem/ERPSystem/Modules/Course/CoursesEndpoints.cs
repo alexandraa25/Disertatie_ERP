@@ -47,8 +47,8 @@ public static class CoursesEndpoints
             .WithDefaultApiSettings("RestoreCourse", "Restore curs", "RESTORE", false);
 
         group.MapGet(Route.COURSE_ENROLLMENTS,
-            async (int id, CoursesService service)
-                => await service.ListEnrollmentsAsync(id))
+            async (int courseId, int? sessionId, CoursesService service)
+                => await service.ListEnrollmentsAsync(courseId, sessionId))
             .WithDefaultApiSettings("GetCourseEnrollments", "Lista inscrieri curs", "ENROLLMENTS_LIST", false);
 
         group.MapPost(Route.COURSE_ENROLLMENTS,

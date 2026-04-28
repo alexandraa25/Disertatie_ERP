@@ -1,0 +1,192 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  padding: 16px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+.modal {
+  background: white;
+  width: 620px;
+  max-width: 100%;
+  max-height: calc(100vh - 80px);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+  overflow: hidden;
+}
+
+.modal h3 {
+  margin: 0 0 14px;
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.session-info {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.session-info p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.checkbox-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.checkbox-line input {
+  width: 16px;
+  height: 16px;
+}
+
+.manual-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.secondary-btn,
+.send-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.secondary-btn {
+  background: #dfe6e9;
+  color: #333;
+}
+
+.secondary-btn:hover {
+  background: #cfd8dc;
+}
+
+.send-btn {
+  background: #6c5ce7;
+  color: white;
+}
+
+.send-btn:hover {
+  opacity: 0.92;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.selected-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+}
+
+.students-list {
+  border: 1px solid #dcdcdc;
+  border-radius: 12px;
+  padding: 10px;
+  max-height: 280px;
+  overflow-y: auto;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.student-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.student-item:hover {
+  background: #f5f6fa;
+}
+
+.student-item input {
+  margin-top: 4px;
+  width: 16px;
+  height: 16px;
+}
+
+.student-item span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.student-item small {
+  color: #777;
+  font-size: 12px;
+}
+
+.sent-info {
+  color: #27ae60 !important;
+}
+
+.not-sent-info {
+  color: #e67e22 !important;
+}
+
+.empty-mini {
+  border: 1px dashed #dcdcdc;
+  border-radius: 12px;
+  padding: 14px;
+  color: #777;
+  font-size: 14px;
+  background: #fafafa;
+  margin-bottom: 12px;
+}
+
+.warning {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fff4e5;
+  color: #c26d00;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}

@@ -6,6 +6,7 @@ using ERPSystem.Modules.Authentificate;
 using ERPSystem.Modules.Contracts;
 using ERPSystem.Modules.Courses;
 using ERPSystem.Modules.Employees;
+using ERPSystem.Modules.Feedback;
 using ERPSystem.Modules.Leaves;
 using ERPSystem.Modules.MarketingCampaign;
 using ERPSystem.Modules.Payments;
@@ -153,12 +154,21 @@ namespace ERPSystem.Configuration
 
             var marketingGroup = app.CreateApiGroup(
             route: "/mk-campaign",
-            tag: "mk-campaign",
+            tag: "Marketing Campaigns",
             requireAuth: false, // temporar, ca la students
             description: "Marketing Campaigns endpoints"
          );
 
             MarketingCampaignEndpoint.Map(marketingGroup);
+
+            var feedbackGroup = app.CreateApiGroup(
+           route: "/feedbak",
+           tag: "Feedback",
+           requireAuth: false, 
+           description: "Feedback endpoints"
+        );
+
+            FeedbackEndpoint.Map(feedbackGroup);
         }
     }
 }

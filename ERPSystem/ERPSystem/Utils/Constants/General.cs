@@ -138,7 +138,7 @@ namespace ERPSystem.Utils.Constants
             {
                 public const string COURSES = "";
                 public const string COURSE_BY_ID = "/{id:int}";
-                public const string COURSE_ENROLLMENTS = "/{id:int}/enrollments";
+                public const string COURSE_ENROLLMENTS = "/{courseId:int}/enrollments";
                 public const string COURSE_ENROLLMENT_BY_SESSION_STUDENT = "/{id:int}/enrollments/{sessionId:int}/{studentId:int}";
                 public const string COURSE_TEACHERS = "/teachers";
                 public const string COURSE_AVAILABLE_STUDENTS ="{id}/sessions/{sessionId}/available-students";
@@ -197,6 +197,18 @@ namespace ERPSystem.Utils.Constants
                 
 
             }
+
+            public static class Feedback
+            {
+                public const string SEND_FEEDBACK_FORMS = "/send";
+                public const string GET_FEEDBACK_FORM = "/{token}";
+                public const string SUBMIT_FEEDBACK_FORM = "/submit";
+                public const string SESSION_REVIEWS = "sessions/{sessionId:int}/reviews";
+
+
+            }
+
+
 
 
         }

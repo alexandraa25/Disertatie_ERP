@@ -4,12 +4,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CoursesService } from '../../services/courses.service';
 import { MatDialog } from '@angular/material/dialog';
 import { EnrollStudentsComponent } from '../enroll-students/enroll-students.component';
+import { SendFeedbackFormsComponent } from '../../feedback/send-feedback-forms/send-feedback-forms.component';
+import { SessionFeedbackReviewsComponent } from '../../feedback/session-feedback-reviews/session-feedback-reviews.component';
 
 
 @Component({
   standalone: true,
   selector: 'app-course-details',
-  imports: [CommonModule],
+  imports: [CommonModule, SendFeedbackFormsComponent, SessionFeedbackReviewsComponent],
   templateUrl: './course-details.component.html',
   styleUrls: ['./course-details.component.css']
 })
@@ -20,6 +22,12 @@ export class CourseDetailsComponent implements OnInit {
   expandedSessionId: number | null = null;
   loadingEnrollments = false;
   enrollments: { [sessionId: number]: any[] } = {};
+
+showFeedbackModal = false;
+selectedFeedbackSession: any = null;
+
+showReviewsModal = false;
+selectedReviewsSession: any = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -63,24 +71,22 @@ export class CourseDetailsComponent implements OnInit {
   }
 
   loadEnrollments(sessionId: number) {
+  this.loadingEnrollments = true;
 
-    this.loadingEnrollments = true;
+  this.courses.listEnrollments(this.course.id, sessionId).subscribe({
+    next: (res: any) => {
+      const list = res?.value ?? res;
 
-    this.courses.listEnrollments(this.course.id).subscribe({
-      next: (res: any) => {
-        const list = res?.value ?? res;
+      this.enrollments[sessionId] = list;
 
-        this.enrollments[sessionId] =
-          list.filter((x: any) => x.sessionId === sessionId);
-
-        this.loadingEnrollments = false;
-      },
-      error: () => {
-        this.loadingEnrollments = false;
-        alert('Eroare la încărcare cursanți.');
-      }
-    });
-  }
+      this.loadingEnrollments = false;
+    },
+    error: () => {
+      this.loadingEnrollments = false;
+      alert('Eroare la încărcare cursanți.');
+    }
+  });
+}
 
   toggleEnrollment(sessionId: number, enrollment: any) {
     this.courses.setEnrollmentActive(
@@ -125,4 +131,34 @@ export class CourseDetailsComponent implements OnInit {
 
     return days[day] || '-';
   }
+
+  openFeedbackModal(session: any): void {
+  this.selectedFeedbackSession = session;
+  this.showFeedbackModal = true;
+}
+
+closeFeedbackModal(): void {
+  this.showFeedbackModal = false;
+  this.selectedFeedbackSession = null;
+}
+
+onFeedbackFormsSent(): void {
+  const sessionId = this.selectedFeedbackSession?.id;
+
+  this.closeFeedbackModal();
+
+  if (sessionId) {
+    this.loadEnrollments(sessionId);
+  }
+}
+
+openReviewsModal(session: any): void {
+  this.selectedReviewsSession = session;
+  this.showReviewsModal = true;
+}
+
+closeReviewsModal(): void {
+  this.showReviewsModal = false;
+  this.selectedReviewsSession = null;
+}
 }

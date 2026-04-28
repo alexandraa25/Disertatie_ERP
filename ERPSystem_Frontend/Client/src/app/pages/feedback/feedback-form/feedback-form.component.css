@@ -1,0 +1,116 @@
+.feedback-page {
+  min-height: 100vh;
+  padding: 30px;
+  background: #f5f6fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedback-card {
+  width: 520px;
+  max-width: 100%;
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.feedback-card h2 {
+  margin-top: 0;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 14px;
+}
+
+.course-box {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 14px;
+  margin: 18px 0;
+}
+
+.course-box p {
+  margin: 6px 0;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.stars {
+  display: flex;
+  gap: 6px;
+}
+
+.stars button {
+  border: none;
+  background: transparent;
+  color: #dcdde1;
+  font-size: 34px;
+  cursor: pointer;
+}
+
+.stars button.active {
+  color: #f1c40f;
+}
+
+textarea {
+  width: 100%;
+  min-height: 140px;
+  border: 1px solid #dcdcdc;
+  border-radius: 12px;
+  padding: 12px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+textarea:focus {
+  border-color: #6c5ce7;
+}
+
+.submit-btn {
+  width: 100%;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: #6c5ce7;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message,
+.error-card {
+  color: #e74c3c;
+}
+
+.success-card {
+  text-align: center;
+  color: #27ae60;
+}
+
+.blocked-box {
+  padding: 12px;
+  border-radius: 10px;
+  background: #fff4e5;
+  color: #c26d00;
+  font-weight: 600;
+}

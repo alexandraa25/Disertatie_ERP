@@ -1,0 +1,84 @@
+<div class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3>Feedbackuri sesiune</h3>
+
+        <p *ngIf="session">
+          {{ session.title || 'Sesiune' }} —
+          {{ session.teacherName || '-' }}
+        </p>
+      </div>
+
+      <button type="button" class="icon-btn" (click)="close()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="summary-card">
+        <div>
+          <strong>Total feedbackuri</strong>
+          <span>{{ reviews.length }}</span>
+        </div>
+
+        <div>
+          <strong>Rating mediu</strong>
+          <span>{{ getAverageRating() || '-' }}</span>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="loading">
+        Se încarcă...
+      </div>
+
+      <div class="empty-state" *ngIf="!loading && reviews.length === 0">
+        Nu există feedbackuri pentru această sesiune.
+      </div>
+
+      <div class="reviews-list" *ngIf="!loading && reviews.length > 0">
+        <div class="review-card" *ngFor="let r of reviews">
+          <div class="review-header">
+            <div class="rating">
+              <span *ngFor="let star of [1,2,3,4,5]" [class.active]="star <= r.rating">
+                ★
+              </span>
+            </div>
+
+            <span class="date">
+              {{ r.createdAt | date:'dd.MM.yyyy HH:mm' }}
+            </span>
+          </div>
+
+          <p class="comment">
+            {{ r.comment }}
+          </p>
+
+          <div class="analysis-row">
+            <span
+              class="sentiment"
+              [ngClass]="getSentimentClass(r.sentiment)">
+              {{ getSentimentLabel(r.sentiment) }}
+            </span>
+
+            <span class="score" *ngIf="r.sentimentScore !== null && r.sentimentScore !== undefined">
+              Scor: {{ r.sentimentScore }}
+            </span>
+          </div>
+
+          <div class="keywords" *ngIf="parseKeywords(r.keywords).length > 0">
+            <span
+              class="keyword"
+              *ngFor="let k of parseKeywords(r.keywords)">
+              {{ k }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="secondary-btn" (click)="close()">
+        Închide
+      </button>
+    </div>
+  </div>
+</div>

@@ -52,6 +52,10 @@ namespace ERPSystem.Data.Context
 
         public DbSet<PublicHoliday> PublicHolidays { get; set; }
 
+        public DbSet<FeedbackForm> FeedbackForms { get; set; }
+
+        public DbSet<CourseReview> CourseReviews { get; set; }
+
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
