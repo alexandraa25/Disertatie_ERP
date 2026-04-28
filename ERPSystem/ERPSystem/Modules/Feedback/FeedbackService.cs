@@ -93,7 +93,7 @@ namespace ERPSystem.Modules.Feedback
                 _context.FeedbackForms.Add(feedbackForm);
                 await _context.SaveChangesAsync();
 
-                var feedbackUrl = $"http://localhost:4200/#/feedback/{token}";
+                var feedbackUrl = $"http://localhost:4200/feedback/{token}";
 
                 var emailModel = new FeedbackFormEmailModel
                 {
@@ -200,7 +200,17 @@ namespace ERPSystem.Modules.Feedback
             {
                 CourseSessionId = form.CourseSessionId,
                 FeedbackFormId = form.Id,
+
                 Rating = request.Rating,
+
+                CourseStructureRating = request.CourseStructureRating,
+                CoursePaceRating = request.CoursePaceRating,
+                MaterialsRating = request.MaterialsRating,
+
+                TeacherClarityRating = request.TeacherClarityRating,
+                TeacherEngagementRating = request.TeacherEngagementRating,
+                TeacherSupportRating = request.TeacherSupportRating,
+
                 Comment = request.Comment,
                 CreatedAt = DateTime.UtcNow
             };
@@ -239,6 +249,15 @@ namespace ERPSystem.Modules.Feedback
                 {
                     Id = x.Id,
                     Rating = x.Rating,
+
+                    CourseStructureRating = x.CourseStructureRating,
+                    CoursePaceRating = x.CoursePaceRating,
+                    MaterialsRating = x.MaterialsRating,
+
+                    TeacherClarityRating = x.TeacherClarityRating,
+                    TeacherEngagementRating = x.TeacherEngagementRating,
+                    TeacherSupportRating = x.TeacherSupportRating,
+
                     Comment = x.Comment,
                     Sentiment = x.Sentiment,
                     SentimentScore = x.SentimentScore,

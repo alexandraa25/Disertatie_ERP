@@ -17,6 +17,13 @@ export class FeedbackFormComponent implements OnInit {
   formDetails: any = null;
 
   rating = 5;
+  courseStructureRating = 5;
+coursePaceRating = 5;
+materialsRating = 5;
+
+teacherClarityRating = 5;
+teacherEngagementRating = 5;
+teacherSupportRating = 5;
   comment = '';
 
   loading = false;
@@ -72,10 +79,19 @@ export class FeedbackFormComponent implements OnInit {
     this.submitting = true;
 
     const dto = {
-      token: this.token,
-      rating: this.rating,
-      comment: this.comment
-    };
+  token: this.token,
+  rating: this.rating,
+
+  courseStructureRating: this.courseStructureRating,
+  coursePaceRating: this.coursePaceRating,
+  materialsRating: this.materialsRating,
+
+  teacherClarityRating: this.teacherClarityRating,
+  teacherEngagementRating: this.teacherEngagementRating,
+  teacherSupportRating: this.teacherSupportRating,
+
+  comment: this.comment
+};
 
     this.feedbackService.submitFeedback(dto).subscribe({
       next: () => {

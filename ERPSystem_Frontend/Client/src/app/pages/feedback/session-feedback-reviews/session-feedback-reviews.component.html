@@ -48,14 +48,28 @@
             </span>
           </div>
 
+          <div class="review-scores">
+            <div>
+              <strong>Curs</strong>
+              <span>Structură: {{ r.courseStructureRating || '-' }}</span>
+              <span>Ritm: {{ r.coursePaceRating || '-' }}</span>
+              <span>Materiale: {{ r.materialsRating || '-' }}</span>
+            </div>
+
+            <div>
+              <strong>Profesor</strong>
+              <span>Claritate: {{ r.teacherClarityRating || '-' }}</span>
+              <span>Implicare: {{ r.teacherEngagementRating || '-' }}</span>
+              <span>Suport: {{ r.teacherSupportRating || '-' }}</span>
+            </div>
+          </div>
+
           <p class="comment">
             {{ r.comment }}
           </p>
 
           <div class="analysis-row">
-            <span
-              class="sentiment"
-              [ngClass]="getSentimentClass(r.sentiment)">
+            <span class="sentiment" [ngClass]="getSentimentClass(r.sentiment)">
               {{ getSentimentLabel(r.sentiment) }}
             </span>
 
@@ -65,9 +79,7 @@
           </div>
 
           <div class="keywords" *ngIf="parseKeywords(r.keywords).length > 0">
-            <span
-              class="keyword"
-              *ngFor="let k of parseKeywords(r.keywords)">
+            <span class="keyword" *ngFor="let k of parseKeywords(r.keywords)">
               {{ k }}
             </span>
           </div>

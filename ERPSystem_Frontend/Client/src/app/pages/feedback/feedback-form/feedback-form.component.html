@@ -12,10 +12,7 @@
     <p>Feedbackul tău a fost trimis cu succes.</p>
   </div>
 
-  <div
-    class="feedback-card"
-    *ngIf="!loading && formDetails && !submitted">
-
+  <div class="feedback-card" *ngIf="!loading && formDetails && !submitted">
     <h2>Feedback curs</h2>
 
     <p class="subtitle">
@@ -37,23 +34,103 @@
     </div>
 
     <div *ngIf="!formDetails.isCompleted && !formDetails.isExpired">
-      <div class="form-group">
-        <label>Rating</label>
 
+     
+
+      <div class="form-group">
+        <label>Rating general</label>
         <div class="stars">
-          <button
-            type="button"
-            *ngFor="let star of [1,2,3,4,5]"
+          <button type="button" *ngFor="let star of [1,2,3,4,5]"
             [class.active]="star <= rating"
-            (click)="setRating(star)">
+            (click)="rating = star">
             ★
           </button>
         </div>
       </div>
 
+      <div class="ratings-grid">
+
+  <!-- STÂNGA: CURS -->
+  <div class="rating-column">
+    <h3>Evaluare curs</h3>
+
+    <div class="form-group">
+      <label>Cursul a fost bine structurat</label>
+      <div class="stars">
+        <button *ngFor="let star of [1,2,3,4,5]"
+          [class.active]="star <= courseStructureRating"
+          (click)="courseStructureRating = star">
+          ★
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Ritmul cursului</label>
+      <div class="stars">
+        <button *ngFor="let star of [1,2,3,4,5]"
+          [class.active]="star <= coursePaceRating"
+          (click)="coursePaceRating = star">
+          ★
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Materialele</label>
+      <div class="stars">
+        <button *ngFor="let star of [1,2,3,4,5]"
+          [class.active]="star <= materialsRating"
+          (click)="materialsRating = star">
+          ★
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DREAPTA: PROFESOR -->
+  <div class="rating-column">
+    <h3>Evaluare profesor</h3>
+
+    <div class="form-group">
+      <label>Claritate explicații</label>
+      <div class="stars">
+        <button *ngFor="let star of [1,2,3,4,5]"
+          [class.active]="star <= teacherClarityRating"
+          (click)="teacherClarityRating = star">
+          ★
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Interes / implicare</label>
+      <div class="stars">
+        <button *ngFor="let star of [1,2,3,4,5]"
+          [class.active]="star <= teacherEngagementRating"
+          (click)="teacherEngagementRating = star">
+          ★
+        </button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Suport oferit</label>
+      <div class="stars">
+        <button *ngFor="let star of [1,2,3,4,5]"
+          [class.active]="star <= teacherSupportRating"
+          (click)="teacherSupportRating = star">
+          ★
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
       <div class="form-group">
         <label>Comentariu</label>
-
         <textarea
           [(ngModel)]="comment"
           placeholder="Scrie feedbackul tău aici...">

@@ -4,7 +4,7 @@ import { AuthGuard } from './components/auth-guard';
 import { unsavedChangesGuard } from './components/guards/unsaved-changes.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'register', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', loadComponent: () => import('./pages/account/login/login.component').then(c => c.LoginComponent) },
   { path: 'register', loadComponent: () => import('./pages/account/register/register.component').then(c => c.RegisterComponent) },
   { path: 'profil-user', loadComponent: () => import('./pages/account/profil-user/profil-user.component').then(m => m.ProfilUserComponent), canActivate: [AuthGuard] },
@@ -32,8 +32,9 @@ export const routes: Routes = [
   { path: 'company', loadComponent: () => import('./pages/admin/company/company.component') .then(m => m.CompanyComponent) }, 
   { path: 'log-activity', loadComponent: () => import('./pages/admin/admin-activity/admin-activity.component') .then(m => m.AdminActivityComponent) }, 
   { path: 'mk-campaign', loadComponent: () => import('./pages/marketing/marketing-campaigns/marketing-campaigns.component') .then(m => m.MarketingCampaignsComponent) }, 
-  { path: 'feedback/:token', loadComponent: () =>  import('./pages/feedback//feedback-form/feedback-form.component') .then(m => m.FeedbackFormComponent)
-}
+  { path: 'feedback/:token', loadComponent: () =>  import('./pages/feedback/feedback-form/feedback-form.component') .then(m => m.FeedbackFormComponent)}, 
+  { path: '**', redirectTo: 'login' }
+
 
 
 ];

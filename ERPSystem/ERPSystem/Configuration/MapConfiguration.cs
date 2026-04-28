@@ -162,7 +162,7 @@ namespace ERPSystem.Configuration
             MarketingCampaignEndpoint.Map(marketingGroup);
 
             var feedbackGroup = app.CreateApiGroup(
-           route: "/feedbak",
+           route: "/feedback",
            tag: "Feedback",
            requireAuth: false, 
            description: "Feedback endpoints"
