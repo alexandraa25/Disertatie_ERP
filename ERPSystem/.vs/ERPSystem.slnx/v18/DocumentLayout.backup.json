@@ -701,8 +701,7 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\StudentEvaluation.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAYwB0AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-30T16:43:06.957Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-30T16:43:06.957Z"
             },
             {
               "$type": "Document",
@@ -714,8 +713,7 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Feedback\\Models\\CourseReviewDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-28T13:50:51.59Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-28T13:50:51.59Z"
             },
             {
               "$type": "Document",
@@ -739,8 +737,7 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Constants\\General.cs",
               "ViewState": "AgIAAL4AAAAAAAAAAAAcwNAAAABkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-28T17:40:07.266Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-02-28T17:40:07.266Z"
             },
             {
               "$type": "Document",
@@ -752,8 +749,7 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Feedback\\FeedbackEndpoint.cs",
               "ViewState": "AgIAABEAAAAAAAAAAAAkwCwAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-28T12:53:31.934Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-28T12:53:31.934Z"
             },
             {
               "$type": "Document",
@@ -765,8 +761,7 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Feedback\\FeedbackService.cs",
               "ViewState": "AgIAAC0BAAAAAAAAAAAgwGwBAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-28T12:53:18.803Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-28T12:53:18.803Z"
             },
             {
               "$type": "Document",
@@ -778,8 +773,7 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\CourseSession.cs",
               "ViewState": "AgIAAA4AAAAAAAAAAAA2wBcAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T14:19:22.498Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-26T14:19:22.498Z"
             },
             {
               "$type": "Document",
@@ -791,8 +785,7 @@
               "RelativeToolTip": "ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
               "ViewState": "AgIAACoAAAAAAAAAAAAIwDoAAABIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T14:05:36.716Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-04-26T14:05:36.716Z"
             },
             {
               "$type": "Document",
