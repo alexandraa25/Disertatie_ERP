@@ -27,7 +27,7 @@
 
         public int? CourseStructureRating { get; set; }
         public int? CoursePaceRating { get; set; }
-        public int? MaterialsRating { get; set; }
+        public int?     MaterialsRating { get; set; }
 
         public int? TeacherClarityRating { get; set; }
         public int? TeacherEngagementRating { get; set; }

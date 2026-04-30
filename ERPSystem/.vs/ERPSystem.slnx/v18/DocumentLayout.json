@@ -676,7 +676,8 @@
               "ViewState": "AgIAAEUAAAAAAAAAAAAYwEsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-23T21:11:40.332Z",
-              "IsPinned": true
+              "IsPinned": true,
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -738,7 +739,7 @@
               "RelativeDocumentMoniker": "ERPSystem\\Modules\\Feedback\\Models\\SendFeedbackForms.cs",
               "ToolTip": "C:\\Project\\Disertatie_ERP\\ERPSystem\\ERPSystem\\Modules\\Feedback\\Models\\SendFeedbackForms.cs",
               "RelativeToolTip": "ERPSystem\\Modules\\Feedback\\Models\\SendFeedbackForms.cs",
-              "ViewState": "AgIAABEAAAAAAAAAAAA1wBwAAAAyAAAAAAAAAA==",
+              "ViewState": "AgIAABIAAAAAAAAAAAAQwBoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-28T12:54:15.68Z",
               "EditorCaption": ""
@@ -805,7 +806,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Feedback\\FeedbackEndpoint.cs",
               "ViewState": "AgIAABEAAAAAAAAAAAAkwCwAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-28T12:53:31.934Z"
+              "WhenOpened": "2026-04-28T12:53:31.934Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -817,7 +819,8 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Constants\\General.cs",
               "ViewState": "AgIAAL4AAAAAAAAAAAAcwNAAAABkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-28T17:40:07.266Z"
+              "WhenOpened": "2026-02-28T17:40:07.266Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -829,7 +832,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Feedback\\Models\\CourseReviewDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-28T13:50:51.59Z"
+              "WhenOpened": "2026-04-28T13:50:51.59Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -841,7 +845,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\CourseSession.cs",
               "ViewState": "AgIAAA4AAAAAAAAAAAA2wBcAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T14:19:22.498Z"
+              "WhenOpened": "2026-04-26T14:19:22.498Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -853,7 +858,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Context\\ApplicationDbContext.cs",
               "ViewState": "AgIAACoAAAAAAAAAAAAIwDoAAABIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T14:05:36.716Z"
+              "WhenOpened": "2026-04-26T14:05:36.716Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -865,7 +871,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Feedback\\Models\\FeedbackFormEmailModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-28T12:53:43.611Z"
+              "WhenOpened": "2026-04-28T12:53:43.611Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -877,7 +884,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\FeedbackForm.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-28T12:49:06.37Z"
+              "WhenOpened": "2026-04-28T12:49:06.37Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -889,7 +897,8 @@
               "RelativeToolTip": "ERPSystem\\Shared\\Notifications\\NotificationsEndpoint.cs",
               "ViewState": "AgIAABAAAAAAAAAAAAAAACoAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-25T10:28:57.572Z"
+              "WhenOpened": "2026-04-25T10:28:57.572Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -901,7 +910,8 @@
               "RelativeToolTip": "ERPSystem\\Configuration\\MapConfiguration.cs",
               "ViewState": "AgIAAJUAAAAAAAAAAAArwK4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-07T09:01:06.82Z"
+              "WhenOpened": "2026-03-07T09:01:06.82Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -913,7 +923,8 @@
               "RelativeToolTip": "ERPSystem\\Shared\\Notifications\\NotificationsService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T13:58:07.725Z"
+              "WhenOpened": "2026-04-26T13:58:07.725Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -938,7 +949,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Course\\CoursesEndpoints.cs",
               "ViewState": "AgIAABkAAAAAAAAAAAAQwDAAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T13:05:25.466Z"
+              "WhenOpened": "2026-03-02T13:05:25.466Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -950,7 +962,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Course\\Models\\CourseDtos.cs",
               "ViewState": "AgIAAEYAAAAAAAAAAAA+wFsAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T12:44:26.686Z"
+              "WhenOpened": "2026-03-02T12:44:26.686Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -962,7 +975,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\MarketingCampaign\\MarketingCampaignEndpoint.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T12:04:50.228Z"
+              "WhenOpened": "2026-04-26T12:04:50.228Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -974,7 +988,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\MarketingCampaign\\MarketingCampaignService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T12:04:35.546Z"
+              "WhenOpened": "2026-04-26T12:04:35.546Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -986,7 +1001,8 @@
               "RelativeToolTip": "ERPSystem\\Shared\\BusinessLogic\\EmailBusinessLogic.cs",
               "ViewState": "AgIAAJ4AAAAAAAAAAAArwLsAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-05T10:26:47.677Z"
+              "WhenOpened": "2026-03-05T10:26:47.677Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -998,7 +1014,8 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Constants\\Email\\TemplateCode.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T15:27:50.309Z"
+              "WhenOpened": "2026-03-08T15:27:50.309Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1010,7 +1027,8 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Constants\\Email\\EmailConstants.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAuwBcAAAAHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T15:51:21.086Z"
+              "WhenOpened": "2026-03-08T15:51:21.086Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1022,7 +1040,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\MarketingCampaign\\Models\\SendCampaignNewsletterRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-27T12:38:32.963Z"
+              "WhenOpened": "2026-04-27T12:38:32.963Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1034,7 +1053,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\MarketingCampaign\\Models\\EmailLogsRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-27T14:14:12.609Z"
+              "WhenOpened": "2026-04-27T14:14:12.609Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1046,7 +1066,8 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Constants\\Email\\EmailLogTypes.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-27T13:25:09.834Z"
+              "WhenOpened": "2026-04-27T13:25:09.834Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1058,7 +1079,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmailRecipientLog.cs",
               "ViewState": "AgIAAAQAAAAAAAAAAAAzwA0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-27T13:23:57.902Z"
+              "WhenOpened": "2026-04-27T13:23:57.902Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1070,7 +1092,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmailLog.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-27T13:23:37.573Z"
+              "WhenOpened": "2026-04-27T13:23:37.573Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1082,7 +1105,8 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Enums\\DiscountType.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T18:29:49.779Z"
+              "WhenOpened": "2026-04-26T18:29:49.779Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1094,7 +1118,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\ContractDiscount.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T17:52:58.395Z"
+              "WhenOpened": "2026-03-26T17:52:58.395Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1106,7 +1131,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Students\\StudentsService.cs",
               "ViewState": "AgIAAA4AAAAAAAAAAAAxwJcBAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T13:03:48.58Z"
+              "WhenOpened": "2026-03-02T13:03:48.58Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1118,7 +1144,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\MarketingCampaign.cs",
               "ViewState": "AgIAAAsAAAAAAAAAAAAgwBAAAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T14:09:20Z"
+              "WhenOpened": "2026-04-26T14:09:20Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1130,7 +1157,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\MarketingCampaign\\Models\\CampaignNewsletterEmailModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-27T12:45:00.135Z"
+              "WhenOpened": "2026-04-27T12:45:00.135Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1142,7 +1170,8 @@
               "RelativeToolTip": "ERPSystem\\Shared\\DTOs\\Email\\EmailRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-13T12:13:53.204Z"
+              "WhenOpened": "2026-03-13T12:13:53.204Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1154,7 +1183,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\MarketingCampaign\\Models\\MarketingCampaignDto.cs",
               "ViewState": "AgIAABoAAAAAAAAAAAAIwC4AAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T12:03:44.219Z"
+              "WhenOpened": "2026-04-26T12:03:44.219Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1166,7 +1196,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmailTemplate.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T09:59:46.042Z"
+              "WhenOpened": "2026-03-04T09:59:46.042Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1178,7 +1209,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\MarketingCampaignCourseSession.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAuwAcAAABDAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-26T14:06:09.442Z"
+              "WhenOpened": "2026-04-26T14:06:09.442Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1190,7 +1222,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\AdditionalAct\\AdditionalActEndpoints.cs",
               "ViewState": "AgIAABYAAAAAAAAAAAAQwBAAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-23T21:11:23.996Z"
+              "WhenOpened": "2026-03-23T21:11:23.996Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1202,7 +1235,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\ContractCourse.cs",
               "ViewState": "AgIAAAwAAAAAAAAAAAAkwBEAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T19:15:38.659Z"
+              "WhenOpened": "2026-03-26T19:15:38.659Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1214,7 +1248,8 @@
               "RelativeToolTip": "ERPSystem\\Program.cs",
               "ViewState": "AgIAABIAAAAAAAAAAAArwB0AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-07T20:10:09.255Z"
+              "WhenOpened": "2026-03-07T20:10:09.255Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1226,7 +1261,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Contracts\\Models\\ContractDtos.cs",
               "ViewState": "AgIAAGUAAAAAAAAAAADwv3MAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T13:19:23.901Z"
+              "WhenOpened": "2026-03-17T13:19:23.901Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1238,7 +1274,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Contracts\\ContractsService.cs",
               "ViewState": "AgIAAMoBAAAAAAAAAAAkwNMBAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-26T13:47:33.057Z"
+              "WhenOpened": "2026-02-26T13:47:33.057Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1250,7 +1287,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\Notification.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-25T10:24:16.859Z"
+              "WhenOpened": "2026-04-25T10:24:16.859Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1275,7 +1313,8 @@
               "RelativeToolTip": "ERPSystem\\.gitignore",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-03-07T10:28:30.271Z"
+              "WhenOpened": "2026-03-07T10:28:30.271Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1287,7 +1326,8 @@
               "RelativeToolTip": "ERPSystem\\Shared\\ActivityLogs\\ActivityLogDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-18T12:51:11.586Z"
+              "WhenOpened": "2026-03-18T12:51:11.586Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1299,7 +1339,8 @@
               "RelativeToolTip": "ERPSystem\\Shared\\ActivityLogs\\ActivityLogEndpoint.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-18T12:55:59.614Z"
+              "WhenOpened": "2026-03-18T12:55:59.614Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1311,7 +1352,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Leaves\\HolidayService.cs.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-29T10:10:24.67Z"
+              "WhenOpened": "2026-03-29T10:10:24.67Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1323,7 +1365,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Leaves\\LeavesEndpoints.cs",
               "ViewState": "AgIAADQAAAAAAAAAAAAQwB4AAABnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T20:57:43.654Z"
+              "WhenOpened": "2026-03-28T20:57:43.654Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1335,7 +1378,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Dashboard\\DashboardService.cs",
               "ViewState": "AgIAAEsAAAAAAAAAAAAYwBYAAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T14:23:09.059Z"
+              "WhenOpened": "2026-03-02T14:23:09.059Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1347,7 +1391,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Dashboard\\DashboardEndpoints.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T14:23:52.704Z"
+              "WhenOpened": "2026-03-02T14:23:52.704Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1359,7 +1404,8 @@
               "RelativeToolTip": "ERPSystem\\Extensions\\EndpointExtensions.cs",
               "ViewState": "AgIAABwAAAAAAAAAAAAQwC8AAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-07T09:01:59.304Z"
+              "WhenOpened": "2026-03-07T09:01:59.304Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1371,7 +1417,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\CompanySettings.cs",
               "ViewState": "AgIAAAoAAAAAAAAAAAA5wBIAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-14T16:31:00.513Z"
+              "WhenOpened": "2026-03-14T16:31:00.513Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1383,7 +1430,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\ApplicationUser.cs",
               "ViewState": "AgIAABcAAAAAAAAAAAAMwCUAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-26T12:02:43.81Z"
+              "WhenOpened": "2026-02-26T12:02:43.81Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1395,7 +1443,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\ActivityLog.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAuwBQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T19:05:09.24Z"
+              "WhenOpened": "2026-03-17T19:05:09.24Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1407,7 +1456,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Audit\\AuditEntry.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-18T12:22:43.388Z"
+              "WhenOpened": "2026-03-18T12:22:43.388Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1419,7 +1469,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\Course.cs",
               "ViewState": "AgIAAAcAAAAAAAAAAAAQwBsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T12:42:37.369Z"
+              "WhenOpened": "2026-03-02T12:42:37.369Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1431,7 +1482,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Employees\\EmployeeEndpoints.cs",
               "ViewState": "AgIAABAAAAAAAAAAAAArwD4AAABKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T13:05:58.866Z"
+              "WhenOpened": "2026-03-09T13:05:58.866Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1443,7 +1495,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Employees\\Models\\EmployeeListRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T20:08:20.483Z"
+              "WhenOpened": "2026-04-21T20:08:20.483Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1455,7 +1508,8 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Response\\PagedResult.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-21T20:11:27.955Z"
+              "WhenOpened": "2026-04-21T20:11:27.955Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1467,7 +1521,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Company\\CompanyService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-14T16:38:08.629Z"
+              "WhenOpened": "2026-03-14T16:38:08.629Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1505,7 +1560,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\UserProfile\\Models\\NotificationSettingDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-25T09:58:52.184Z"
+              "WhenOpened": "2026-04-25T09:58:52.184Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1517,7 +1573,8 @@
               "RelativeToolTip": "ERPSystem\\Shared\\ActivityLogs\\ActivityLogService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAADgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-18T12:52:09.105Z"
+              "WhenOpened": "2026-03-18T12:52:09.105Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1529,7 +1586,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\UserProfile\\Models\\UserProfileDto.cs",
               "ViewState": "AgIAADkAAAAAAAAAAAAYwE4AAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T12:21:20.641Z"
+              "WhenOpened": "2026-03-04T12:21:20.641Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1541,7 +1599,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\UserProfile\\UserProfileEndpoints.cs",
               "ViewState": "AgIAAA4AAAAAAAAAAAArwCUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T12:34:47.296Z"
+              "WhenOpened": "2026-03-04T12:34:47.296Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1553,7 +1612,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\UserNotificationSetting.cs",
               "ViewState": "AgIAAAUAAAAAAAAAAAAAwBEAAAA4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T12:57:47.754Z"
+              "WhenOpened": "2026-03-04T12:57:47.754Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1565,7 +1625,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmployeeContact.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T16:39:02.784Z"
+              "WhenOpened": "2026-03-28T16:39:02.784Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1577,7 +1638,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmployeeBank.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T16:39:43.387Z"
+              "WhenOpened": "2026-03-28T16:39:43.387Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1589,7 +1651,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmployeeAddress.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T16:39:26.22Z"
+              "WhenOpened": "2026-03-28T16:39:26.22Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1601,7 +1664,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Company\\CompanyEndpoints.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAuwBkAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-14T16:38:00.571Z"
+              "WhenOpened": "2026-03-14T16:38:00.571Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1613,7 +1677,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Payments\\PaymentsEndpoints.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-25T20:00:02.263Z"
+              "WhenOpened": "2026-03-25T20:00:02.263Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1625,7 +1690,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Payments\\PaymentsService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAFEAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-25T19:59:43.964Z"
+              "WhenOpened": "2026-03-25T19:59:43.964Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1637,7 +1703,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Admin\\AdminEndpoints.cs",
               "ViewState": "AgIAAB4AAAAAAAAAAAAUwCkAAAB2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T16:35:56.129Z"
+              "WhenOpened": "2026-03-08T16:35:56.129Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1649,7 +1716,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Admin\\Models\\AdminUserDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T16:26:03.061Z"
+              "WhenOpened": "2026-03-08T16:26:03.061Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1661,7 +1729,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Admin\\Models\\UpdateUserRolesRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-24T19:01:01.028Z"
+              "WhenOpened": "2026-04-24T19:01:01.028Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1673,7 +1742,8 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Settings\\JwtSettings.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-24T18:18:35.097Z"
+              "WhenOpened": "2026-04-24T18:18:35.097Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1685,7 +1755,8 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Settings\\EmailConnectionSettings.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-24T18:18:34.286Z"
+              "WhenOpened": "2026-04-24T18:18:34.286Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1697,7 +1768,8 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Settings\\AirlineSystemSettings.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-24T18:18:32.354Z"
+              "WhenOpened": "2026-04-24T18:18:32.354Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1709,7 +1781,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Students\\StudentsEndpoints.cs",
               "ViewState": "AgIAAEAAAAAAAAAAAAAQwFEAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T14:23:29.968Z"
+              "WhenOpened": "2026-03-02T14:23:29.968Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1721,7 +1794,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Employees\\Models\\UploadEmployeeDocsRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-23T13:38:03.659Z"
+              "WhenOpened": "2026-04-23T13:38:03.659Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1733,7 +1807,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmployeeLeave.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAABMAAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T11:43:48.668Z"
+              "WhenOpened": "2026-03-09T11:43:48.668Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1745,7 +1820,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Employees\\Models\\TerminateEmployeeRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T13:37:03.542Z"
+              "WhenOpened": "2026-03-09T13:37:03.542Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1757,7 +1833,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Employees\\Models\\CreateEmployeeRequest.cs",
               "ViewState": "AgIAABQAAAAAAAAAAAAUwCIAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T13:06:39.572Z"
+              "WhenOpened": "2026-03-09T13:06:39.572Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1769,7 +1846,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\Employee.cs",
               "ViewState": "AgIAACYAAAAAAAAAAAAmwC4AAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T11:38:47.009Z"
+              "WhenOpened": "2026-03-09T11:38:47.009Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1781,7 +1859,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Employees\\Models\\UpdateEmployeeRequest.cs",
               "ViewState": "AgIAAA4AAAAAAAAAAAAswBUAAAA6AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-23T12:22:32.484Z"
+              "WhenOpened": "2026-04-23T12:22:32.484Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1793,7 +1872,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmployeeDocument.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T11:44:10.098Z"
+              "WhenOpened": "2026-03-09T11:44:10.098Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1805,7 +1885,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Employees\\Models\\HrDashboardDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T13:39:31.108Z"
+              "WhenOpened": "2026-03-09T13:39:31.108Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1817,7 +1898,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Students\\Models\\StudentDtos.cs",
               "ViewState": "AgIAAE8AAAAAAAAAAAAqwFwAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-02T13:04:31.42Z"
+              "WhenOpened": "2026-03-02T13:04:31.42Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1829,7 +1911,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Students\\Models\\SessionDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T12:45:02.298Z"
+              "WhenOpened": "2026-03-28T12:45:02.298Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1841,7 +1924,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Employees\\Models\\EmployeeDto.cs",
               "ViewState": "AgIAAAsAAAAAAAAAAAAgwBIAAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T13:36:02.768Z"
+              "WhenOpened": "2026-03-09T13:36:02.768Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1853,7 +1937,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Authentification\\AuthenticationEndpoints.cs",
               "ViewState": "AgIAACwAAAAAAAAAAAAkwD8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-07T10:43:58.488Z"
+              "WhenOpened": "2026-03-07T10:43:58.488Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1865,7 +1950,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Leaves\\Models\\GetLeavesQuery.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-29T13:25:19.93Z"
+              "WhenOpened": "2026-03-29T13:25:19.93Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1877,7 +1963,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260329124309_AddReasonLeaves.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-29T12:43:09.933Z"
+              "WhenOpened": "2026-03-29T12:43:09.933Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1889,7 +1976,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Leaves\\Models\\CreateLeaveDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T21:01:22.126Z"
+              "WhenOpened": "2026-03-28T21:01:22.126Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1901,7 +1989,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Leaves\\Models\\NagerHoliday.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-29T10:01:02.652Z"
+              "WhenOpened": "2026-03-29T10:01:02.652Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1913,7 +2002,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260329101518_AddLeavesHoliday.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-29T10:15:18.253Z"
+              "WhenOpened": "2026-03-29T10:15:18.253Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1925,7 +2015,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\PublicHoliday.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-29T09:55:20.428Z"
+              "WhenOpened": "2026-03-29T09:55:20.428Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1937,7 +2028,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260328190957_FixEmployeeRelations.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T19:09:57.194Z"
+              "WhenOpened": "2026-03-28T19:09:57.194Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1949,7 +2041,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\EmployeeContracts.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAIBJwBQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T11:42:15.558Z"
+              "WhenOpened": "2026-03-09T11:42:15.558Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1961,7 +2054,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260328170934_AddEmployees.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T17:09:34.758Z"
+              "WhenOpened": "2026-03-28T17:09:34.758Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1973,7 +2067,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\Student.cs",
               "ViewState": "AgIAAA4AAAAAAAAAAAAgwB8AAABFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-28T12:32:26.358Z"
+              "WhenOpened": "2026-03-28T12:32:26.358Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1985,7 +2080,8 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Enums\\PaymentType.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T17:55:09.167Z"
+              "WhenOpened": "2026-03-26T17:55:09.167Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -1997,7 +2093,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Payments\\Models\\PayInstallmentDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-25T20:00:20.908Z"
+              "WhenOpened": "2026-03-25T20:00:20.908Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2009,7 +2106,8 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Enums\\ContractStatus.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAuwAcAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-28T17:45:10.755Z"
+              "WhenOpened": "2026-02-28T17:45:10.755Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2021,7 +2119,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\CourseEnrollment.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-20T22:31:23.974Z"
+              "WhenOpened": "2026-03-20T22:31:23.974Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2033,7 +2132,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Contracts\\ContractsEndpoints.cs",
               "ViewState": "AgIAABwAAAAAAAAAAAAQwDMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-26T12:03:26.859Z"
+              "WhenOpened": "2026-02-26T12:03:26.859Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2045,7 +2145,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\ContractInstallment.cs",
               "ViewState": "AgIAABAAAAAAAAAAAAAQwBoAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-20T17:28:37.975Z"
+              "WhenOpened": "2026-03-20T17:28:37.975Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2057,7 +2158,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260327185756_AddStatusPayment.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-27T18:57:56.559Z"
+              "WhenOpened": "2026-03-27T18:57:56.559Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2069,7 +2171,8 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Enums\\AdditionalActStatus.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-21T20:56:32.285Z"
+              "WhenOpened": "2026-03-21T20:56:32.285Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2081,7 +2184,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260326201343_UpdateCreateContract.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T20:13:43.737Z"
+              "WhenOpened": "2026-03-26T20:13:43.737Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2093,7 +2197,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\StudentContract.cs",
               "ViewState": "AgIAAA0AAAAAAAAAAAAQwBQAAAAuAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-13T11:41:29.416Z"
+              "WhenOpened": "2026-03-13T11:41:29.416Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2105,7 +2210,8 @@
               "RelativeToolTip": "ERPSystem\\Shared\\BusinessLogic\\PdfService.cs",
               "ViewState": "AgIAALYAAAAAAAAAAAAcwOQAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-21T19:43:36.019Z"
+              "WhenOpened": "2026-03-21T19:43:36.019Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2117,7 +2223,8 @@
               "RelativeToolTip": "ERPSystem\\Shared\\DTOs\\PDF\\PdfDocumentModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-21T19:44:08.595Z"
+              "WhenOpened": "2026-03-21T19:44:08.595Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2129,7 +2236,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Contracts\\Models\\PricingResult.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T17:58:08.873Z"
+              "WhenOpened": "2026-03-26T17:58:08.873Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2141,7 +2249,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260326163805_UpdateCourses.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-26T16:38:06.124Z"
+              "WhenOpened": "2026-03-26T16:38:06.124Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2153,7 +2262,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260325195336_AddPayments.cs",
               "ViewState": "AgIAABwAAAAAAAAAAAAQwBkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-25T19:53:36.714Z"
+              "WhenOpened": "2026-03-25T19:53:36.714Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2165,7 +2275,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\Payment.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-25T19:41:47.341Z"
+              "WhenOpened": "2026-03-25T19:41:47.341Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2177,7 +2288,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\ContractAdditionalAct.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAYwAwAAAA4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-20T23:04:08.838Z"
+              "WhenOpened": "2026-03-20T23:04:08.838Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2189,7 +2301,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\AdditionalAct\\Models\\AdditionalActSignEmailModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-25T09:27:43.575Z"
+              "WhenOpened": "2026-03-25T09:27:43.575Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2201,7 +2314,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260325093033_UpdateActAdd.cs",
               "ViewState": "AgIAACUAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-25T09:30:33.274Z"
+              "WhenOpened": "2026-03-25T09:30:33.274Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2213,7 +2327,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Contracts\\ContractExpirationService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-23T20:59:16.483Z"
+              "WhenOpened": "2026-03-23T20:59:16.483Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2225,7 +2340,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Contracts\\Models\\ContractSignEmailModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-13T12:16:42.818Z"
+              "WhenOpened": "2026-03-13T12:16:42.818Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2237,7 +2353,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Contracts\\Models\\SignContractDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-13T11:39:47.819Z"
+              "WhenOpened": "2026-03-13T11:39:47.819Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2249,7 +2366,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\SigningToken.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-13T11:35:53.274Z"
+              "WhenOpened": "2026-03-13T11:35:53.274Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2261,7 +2379,8 @@
               "RelativeToolTip": "ERPSystem\\Utils\\Enums\\AdditionalActType.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-20T23:04:41.975Z"
+              "WhenOpened": "2026-03-20T23:04:41.975Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2273,7 +2392,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\AdditionalAct\\Models\\CreateAdditionalActDto.cs",
               "ViewState": "AgIAABAAAAAAAAAAAAAkwCQAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-21T16:04:49.334Z"
+              "WhenOpened": "2026-03-21T16:04:49.334Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2285,7 +2405,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\ContractAdditionalActItem.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-21T20:53:49.839Z"
+              "WhenOpened": "2026-03-21T20:53:49.839Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2297,7 +2418,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260321214933_MoveTypeToItem.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-21T21:49:33.838Z"
+              "WhenOpened": "2026-03-21T21:49:33.838Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2309,7 +2431,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260321210533_AddActAdd.cs",
               "ViewState": "AgIAABYAAAAAAAAAAAAQwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-21T21:05:33.472Z"
+              "WhenOpened": "2026-03-21T21:05:33.472Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2332,7 +2455,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260320230903_AddAdditionalActs.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAEgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-20T23:09:03.843Z"
+              "WhenOpened": "2026-03-20T23:09:03.843Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2344,7 +2468,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260320174525_AddInstallmentsAndBodyEdit.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-20T17:45:25.866Z"
+              "WhenOpened": "2026-03-20T17:45:25.866Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2356,7 +2481,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260320172123_updatebodycontract.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-20T17:21:24.024Z"
+              "WhenOpened": "2026-03-20T17:21:24.024Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2368,7 +2494,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260318121523_UpdateAuditLog.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-18T12:15:23.258Z"
+              "WhenOpened": "2026-03-18T12:15:23.258Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2380,7 +2507,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260318115351_Add1.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAABFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-18T11:53:52.116Z"
+              "WhenOpened": "2026-03-18T11:53:52.116Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2392,7 +2520,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260317190740_AddActivityLog.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-17T19:07:40.926Z"
+              "WhenOpened": "2026-03-17T19:07:40.926Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2404,7 +2533,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Authentification\\Models\\UserCredentialsEmailModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T16:00:55.265Z"
+              "WhenOpened": "2026-03-08T16:00:55.265Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2416,7 +2546,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Authentification\\Models\\ResetPasswordRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-07T21:16:50.607Z"
+              "WhenOpened": "2026-03-07T21:16:50.607Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2428,7 +2559,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Authentification\\Models\\RegisterRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T09:19:26.352Z"
+              "WhenOpened": "2026-03-04T09:19:26.352Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2440,7 +2572,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Authentification\\Models\\ChangePasswordRequest.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-07T21:17:15.605Z"
+              "WhenOpened": "2026-03-07T21:17:15.605Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2452,7 +2585,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Company\\Models\\CompanySettingsDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-14T16:38:50.274Z"
+              "WhenOpened": "2026-03-14T16:38:50.274Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2464,7 +2598,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260316153604_PDF.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-16T15:36:04.588Z"
+              "WhenOpened": "2026-03-16T15:36:04.588Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2476,7 +2611,8 @@
               "RelativeToolTip": "ERPSystem\\Data\\Entities\\ContractTemplate.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-16T13:48:49.107Z"
+              "WhenOpened": "2026-03-16T13:48:49.107Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2488,7 +2624,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260316143722_AddContractSnapshots.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-16T14:37:22.64Z"
+              "WhenOpened": "2026-03-16T14:37:22.64Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2500,7 +2637,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260316145103_AddContractSnapshots1.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-16T14:51:03.765Z"
+              "WhenOpened": "2026-03-16T14:51:03.765Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2512,7 +2650,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260316135148_AddContractTemplates.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAIBJwBoAAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-16T13:51:48.437Z"
+              "WhenOpened": "2026-03-16T13:51:48.437Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2524,7 +2663,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260314163259_AddCompanySettings.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAABbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-14T16:32:59.401Z"
+              "WhenOpened": "2026-03-14T16:32:59.401Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2536,7 +2676,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260313114945_AddClientSignatureToContract.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-13T11:49:45.683Z"
+              "WhenOpened": "2026-03-13T11:49:45.683Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2548,7 +2689,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260309130153_AddHRRelationships1.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T13:01:53.528Z"
+              "WhenOpened": "2026-03-09T13:01:53.528Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2560,7 +2702,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260309114910_AddHRRelationships.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T11:49:10.94Z"
+              "WhenOpened": "2026-03-09T11:49:10.94Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2572,7 +2715,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260309101417_UpdateApplicationUserFields.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-09T10:14:17.128Z"
+              "WhenOpened": "2026-03-09T10:14:17.128Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2584,7 +2728,8 @@
               "RelativeToolTip": "ERPSystem\\Modules\\Admin\\Models\\AdminDashboardDto.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-08T16:51:51.889Z"
+              "WhenOpened": "2026-03-08T16:51:51.889Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2596,7 +2741,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260306140213_FixCascade.cs",
               "ViewState": "AgIAAAgAAAAAAAAAAAAAwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-06T14:02:13.095Z"
+              "WhenOpened": "2026-03-06T14:02:13.095Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2617,7 +2763,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260304130942_AddUserProfileTable.cs",
               "ViewState": "AgIAABYAAAAAAAAAAAAQwDMAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T13:09:42.806Z"
+              "WhenOpened": "2026-03-04T13:09:42.806Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -2629,7 +2776,8 @@
               "RelativeToolTip": "ERPSystem\\Migrations\\20260304090221_InitialCreate.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAABCAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-04T09:02:21.522Z"
+              "WhenOpened": "2026-03-04T09:02:21.522Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
