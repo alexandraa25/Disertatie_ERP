@@ -3,6 +3,7 @@ using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Feedback.Models;
 using ERPSystem.Shared.BusinessLogic;
+using ERPSystem.Shared.Notifications;
 using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
@@ -133,6 +134,13 @@ namespace ERPSystem.Modules.Feedback
             emailLog.SentCount = sentCount;
             emailLog.FailedCount = failedCount;
 
+            await AddActivityLogAsync(
+                "FeedbackForms",
+                session.Id.ToString(),
+                "FeedbackFormsSent",
+                $"Au fost trimise formulare de feedback pentru sesiunea '{session.Title}' ({session.Course.Name}). Destinatari: {students.Count}, trimise: {sentCount}, eșuate: {failedCount}."
+            );
+
             await _context.SaveChangesAsync();
 
             return response.SetSuccess(new
@@ -223,7 +231,40 @@ namespace ERPSystem.Modules.Feedback
             // pentru anonimitate
             form.StudentId = null;
 
-            await _context.SaveChangesAsync();
+            await AddActivityLogAsync(
+                "CourseReview",
+                review.Id.ToString(),
+                "FeedbackSubmitted",
+                $"A fost înregistrat feedback anonim pentru sesiunea #{form.CourseSessionId} cu rating {request.Rating}/5."
+            );
+
+            if (request.Rating <= 2)
+            {
+                await _notificationService.CreateNotificationForRolesAsync(
+                    roleNames: new[] { "Admin", "Secretary" },
+                    eventType: NotificationEvents.Feedback,
+                    title: "Feedback negativ",
+                    message: $"A fost primit un feedback negativ ({request.Rating}/5) pentru sesiunea #{form.CourseSessionId}.",
+                    type: "Warning",
+                    link: $"/courses/{form.CourseSessionId}",
+                    entityType: "CourseReview",
+                    entityId: review.Id.ToString()
+                );
+            }
+
+            if (request.Rating == 5)
+            {
+                await _notificationService.CreateNotificationForRolesAsync(
+                    roleNames: new[] { "Admin" },
+                    eventType: NotificationEvents.Feedback,
+                    title: "Feedback excelent",
+                    message: $"Sesiunea #{form.CourseSessionId} a primit un feedback de 5/5.",
+                    type: "Success",
+                    link: $"/courses/{form.CourseSessionId}",
+                    entityType: "CourseReview",
+                    entityId: review.Id.ToString()
+                );
+            }
 
             return response.SetSuccess(new
             {
@@ -268,6 +309,139 @@ namespace ERPSystem.Modules.Feedback
                 .ToListAsync();
 
             return response.SetSuccess(items);
+        }
+
+        public async Task<PublicResponse> CreateStudentEvaluationAsync(CreateStudentEvaluationRequest request)
+        {
+            PublicResponse response = new(true);
+
+            var session = await _context.CourseSessions
+                .Include(x => x.Teacher)
+                .FirstOrDefaultAsync(x => x.Id == request.CourseSessionId);
+
+            if (session == null)
+                return response.SetError("SessionNotFound", "Sesiunea nu a fost găsită.");
+
+            var studentExists = await _context.Students
+                .AnyAsync(x => x.Id == request.StudentId);
+
+            if (!studentExists)
+                return response.SetError("StudentNotFound", "Cursantul nu a fost găsit.");
+
+            if (request.Rating < 1 || request.Rating > 5)
+                return response.SetError("InvalidRating", "Ratingul trebuie să fie între 1 și 5.");
+
+            var evaluation = new StudentEvaluation
+            {
+                StudentId = request.StudentId,
+                CourseSessionId = request.CourseSessionId,
+                TeacherUserId = session.TeacherUserId,
+
+                Rating = request.Rating,
+                AttendanceScore = request.AttendanceScore,
+                BehaviorScore = request.BehaviorScore,
+                ProgressScore = request.ProgressScore,
+
+                Comment = request.Comment,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.StudentEvaluations.Add(evaluation);
+
+            
+            await _context.SaveChangesAsync();
+
+            await AddActivityLogAsync(
+                 "StudentEvaluation",
+                 evaluation.Id.ToString(),
+                 "StudentEvaluated",
+                 $"Profesorul a evaluat cursantul #{request.StudentId} la sesiunea #{request.CourseSessionId}. Rating: {request.Rating}/5."
+             );
+
+            if (request.Rating <= 2 ||
+              (request.ProgressScore.HasValue && request.ProgressScore <= 2) ||
+              (request.BehaviorScore.HasValue && request.BehaviorScore <= 2))
+            {
+                await _notificationService.CreateNotificationForRolesAsync(
+                    roleNames: new[] { "Admin", "Secretary" },
+                    eventType: NotificationEvents.Feedback,
+                    title: "Cursant în risc",
+                    message: $"Cursantul #{request.StudentId} are o evaluare scăzută la sesiunea #{request.CourseSessionId}.",
+                    type: "Warning",
+                    link: $"/students/{request.StudentId}",
+                    entityType: "StudentEvaluation",
+                    entityId: evaluation.Id.ToString()
+                );
+            }
+
+            return response.SetSuccess(new
+            {
+                evaluation.Id,
+                Message = "Evaluarea cursantului a fost salvată."
+            });
+        }
+
+        public async Task<PublicResponse> GetStudentEvaluationsAsync(int studentId, int? sessionId = null)
+        {
+            PublicResponse response = new(true);
+
+            var query =
+                from ev in _context.StudentEvaluations
+                join st in _context.Students on ev.StudentId equals st.Id
+                join cs in _context.CourseSessions on ev.CourseSessionId equals cs.Id
+                join teacher in _context.Users on ev.TeacherUserId equals teacher.Id
+                where ev.StudentId == studentId
+                select new
+                {
+                    ev,
+                    StudentName = st.FullName,
+                    TeacherName = teacher.FirstName + " " + teacher.LastName
+                };
+
+            if (sessionId.HasValue)
+            {
+                query = query.Where(x => x.ev.CourseSessionId == sessionId.Value);
+            }
+
+            var items = await query
+                .OrderByDescending(x => x.ev.CreatedAt)
+                .Select(x => new StudentEvaluationDto
+                {
+                    Id = x.ev.Id,
+                    StudentId = x.ev.StudentId,
+                    StudentName = x.StudentName,
+                    CourseSessionId = x.ev.CourseSessionId,
+                    TeacherName = x.TeacherName,
+
+                    Rating = x.ev.Rating,
+                    AttendanceScore = x.ev.AttendanceScore,
+                    BehaviorScore = x.ev.BehaviorScore,
+                    ProgressScore = x.ev.ProgressScore,
+
+                    Comment = x.ev.Comment,
+                    Sentiment = x.ev.Sentiment,
+                    SentimentScore = x.ev.SentimentScore,
+                    Keywords = x.ev.Keywords,
+                    CreatedAt = x.ev.CreatedAt
+                })
+                .ToListAsync();
+
+            return response.SetSuccess(items);
+        }
+
+        private async Task AddActivityLogAsync(string entityType, string entityId, string action, string description)
+        {
+            _context.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = entityType,
+                EntityId = entityId,
+                Action = action,
+                Description = description,
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
+            await _context.SaveChangesAsync();
         }
 
 

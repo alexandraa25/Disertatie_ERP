@@ -238,6 +238,17 @@ button {
   font-size: 14px;
 }
 
+.evaluation-btn {
+  background: #f39c12;
+  color: white;
+  border: none;
+  margin-left: 6px;
+}
+
+.evaluation-btn:hover {
+  background: #d68910;
+}
+
 @media (max-width: 1100px) {
   .card {
     overflow-x: auto;

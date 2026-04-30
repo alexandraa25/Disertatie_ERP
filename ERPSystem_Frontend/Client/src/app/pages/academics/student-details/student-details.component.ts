@@ -17,6 +17,7 @@ import { PaymentsService } from '../../services/payments.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { PayModalComponent } from '../../financiar/pay-modal/pay-modal.component';
 import { FormsModule } from '@angular/forms';
+import { FeedbackService } from '../../services/feedback.service';
 
 @Component({
   selector: 'app-student-details',
@@ -30,7 +31,7 @@ export class StudentDetailsComponent implements OnInit {
   student!: StudentDetailsDto;
   loading = true;
 
-  tabs = ['Informații', 'Cursuri', 'Financiar', 'Istoric'];
+  tabs = ['Informații', 'Cursuri', 'Financiar', 'Istoric', 'Evaluări profesor'];
   activeTab = 'Informații';
 
   courses: StudentCourseDetailsDto[] = [];
@@ -51,6 +52,9 @@ export class StudentDetailsComponent implements OnInit {
   paid = 0;
   remaining = 0;
 
+  studentEvaluations: any[] = [];
+loadingEvaluations = false;
+
   objectKeys = Object.keys;
 
   constructor(
@@ -63,7 +67,8 @@ export class StudentDetailsComponent implements OnInit {
     private additionalActService: AdditionalActService,
     private dialog: MatDialog,
     private activityService: ActivityLogService, 
-    private confirmService: ConfirmService
+    private confirmService: ConfirmService, 
+    private feedbackService: FeedbackService
   ) { }
 
   ngOnInit(): void {
@@ -103,7 +108,10 @@ export class StudentDetailsComponent implements OnInit {
 
      if (tab === 'Istoric') {
     this.loadActivity();
-  }
+     }
+     if (tab === 'Evaluări profesor') {
+    this.loadStudentEvaluations();
+     }
   }
 
   loadCourses() {
@@ -590,6 +598,25 @@ export class StudentDetailsComponent implements OnInit {
       this.activityLogs = res;
     });
 }
+
+loadStudentEvaluations(): void {
+  if (!this.student?.id) return;
+
+  this.loadingEvaluations = true;
+
+  this.feedbackService.getStudentEvaluations(this.student.id).subscribe({
+    next: (res: any) => {
+      const data = res?.value ?? res?.data ?? res;
+      this.studentEvaluations = Array.isArray(data) ? data : [];
+      this.loadingEvaluations = false;
+    },
+    error: () => {
+      this.loadingEvaluations = false;
+      alert('Eroare la încărcarea evaluărilor.');
+    }
+  });
+}
+
 
 }
 

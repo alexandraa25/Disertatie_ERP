@@ -12,6 +12,7 @@
         public const string CourseActivity = "CourseActivity";
         public const string StudentActivity = "StudentActivity";
         public const string ContractActivity = "ContractActivity";
+        public const string Feedback = "Feedback";
 
 
         public static readonly string[] All =
@@ -24,7 +25,8 @@
             Leave,
             Employee,
             StudentActivity,
-            ContractActivity
+            ContractActivity, 
+            Feedback
         };
     }
 }

@@ -31,6 +31,16 @@ namespace ERPSystem.Modules.Feedback
                     => await service.GetSessionReviewsAsync(sessionId))
                 .WithDefaultApiSettings( "GetSessionReviews", "Listare feedbackuri sesiune", "GET_SESSION_REVIEWS",  true );
 
+            group.MapPost(Route.CREATE_STUDENT_EVALUATION,
+               async ([FromBody] CreateStudentEvaluationRequest request, FeedbackService service)
+                   => await service.CreateStudentEvaluationAsync(request))
+               .WithDefaultApiSettings( "CreateStudentEvaluation","Adaugă evaluare profesor pentru cursant","CREATE_STUDENT_EVALUATION",true );
+           
+            group.MapGet(Route.GET_STUDENT_EVALUATIONS,
+                async (int studentId, int? sessionId, FeedbackService service)
+                    => await service.GetStudentEvaluationsAsync(studentId, sessionId))
+                .WithDefaultApiSettings( "GetStudentEvaluations", "Listare evaluări cursant", "GET_STUDENT_EVALUATIONS", true);
+
         }
     }
 }

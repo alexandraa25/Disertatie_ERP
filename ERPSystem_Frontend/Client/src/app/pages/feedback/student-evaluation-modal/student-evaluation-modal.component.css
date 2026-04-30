@@ -1,0 +1,131 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  padding: 16px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+
+.modal {
+  background: white;
+  width: 560px;
+  max-width: 100%;
+  max-height: calc(100vh - 80px);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.16);
+  overflow: hidden;
+}
+
+.modal h3 {
+  margin: 0 0 14px;
+}
+
+.modal-body {
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 6px;
+}
+
+.info-box {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.info-box p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.scores-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
+
+.stars {
+  display: flex;
+  gap: 4px;
+}
+
+.stars button {
+  border: none;
+  background: transparent;
+  color: #dcdde1;
+  font-size: 30px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.stars button.active,
+.stars button:hover {
+  color: #f1c40f;
+}
+
+textarea {
+  width: 100%;
+  min-height: 120px;
+  border: 1px solid #dcdcdc;
+  border-radius: 10px;
+  padding: 12px;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+textarea:focus {
+  border-color: #6c5ce7;
+}
+
+.modal-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.secondary-btn,
+.save-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.secondary-btn {
+  background: #dfe6e9;
+  color: #333;
+}
+
+.save-btn {
+  background: #6c5ce7;
+  color: white;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

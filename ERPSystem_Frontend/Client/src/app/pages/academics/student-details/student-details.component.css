@@ -833,3 +833,109 @@ button:disabled {
   border-color: #4CAF50;
   box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
 }
+
+.evaluation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.evaluation-card {
+  background: #ffffff;
+  border: 1px solid #eee;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+}
+
+.evaluation-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.sub {
+  color: #777;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.rating-badge {
+  background: #eef2ff;
+  color: #4b4bd6;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.evaluation-scores {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.evaluation-scores div {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.evaluation-scores label {
+  display: block;
+  color: #777;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.evaluation-comment {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 12px;
+  color: #333;
+  line-height: 1.5;
+}
+
+.analysis-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.sentiment {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sentiment.positive {
+  background: #eafaf1;
+  color: #27ae60;
+}
+
+.sentiment.negative {
+  background: #fdecea;
+  color: #e74c3c;
+}
+
+.sentiment.neutral {
+  background: #eef2ff;
+  color: #4b4bd6;
+}
+
+.score {
+  color: #777;
+  font-size: 12px;
+}
+
+@media (max-width: 700px) {
+  .evaluation-scores {
+    grid-template-columns: 1fr;
+  }
+}

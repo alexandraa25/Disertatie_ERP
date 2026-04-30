@@ -205,6 +205,9 @@ namespace ERPSystem.Utils.Constants
                 public const string SUBMIT_FEEDBACK_FORM = "/submit";
                 public const string SESSION_REVIEWS = "sessions/{sessionId:int}/reviews";
 
+                public const string CREATE_STUDENT_EVALUATION = "student-evaluations";
+                public const string GET_STUDENT_EVALUATIONS = "student-evaluations/{studentId:int}";
+
 
             }
 

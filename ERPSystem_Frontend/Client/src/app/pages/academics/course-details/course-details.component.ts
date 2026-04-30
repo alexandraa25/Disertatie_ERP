@@ -6,12 +6,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { EnrollStudentsComponent } from '../enroll-students/enroll-students.component';
 import { SendFeedbackFormsComponent } from '../../feedback/send-feedback-forms/send-feedback-forms.component';
 import { SessionFeedbackReviewsComponent } from '../../feedback/session-feedback-reviews/session-feedback-reviews.component';
+import { StudentEvaluationModalComponent } from '../../feedback/student-evaluation-modal/student-evaluation-modal.component';
 
 
 @Component({
   standalone: true,
   selector: 'app-course-details',
-  imports: [CommonModule, SendFeedbackFormsComponent, SessionFeedbackReviewsComponent],
+  imports: [CommonModule, SendFeedbackFormsComponent, SessionFeedbackReviewsComponent, StudentEvaluationModalComponent],
   templateUrl: './course-details.component.html',
   styleUrls: ['./course-details.component.css']
 })
@@ -28,6 +29,10 @@ selectedFeedbackSession: any = null;
 
 showReviewsModal = false;
 selectedReviewsSession: any = null;
+
+showStudentEvaluationModal = false;
+selectedEvaluationStudent: any = null;
+selectedEvaluationSession: any = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -160,5 +165,21 @@ openReviewsModal(session: any): void {
 closeReviewsModal(): void {
   this.showReviewsModal = false;
   this.selectedReviewsSession = null;
+}
+
+openStudentEvaluationModal(session: any, enrollment: any): void {
+  this.selectedEvaluationSession = session;
+  this.selectedEvaluationStudent = enrollment;
+  this.showStudentEvaluationModal = true;
+}
+
+closeStudentEvaluationModal(): void {
+  this.showStudentEvaluationModal = false;
+  this.selectedEvaluationStudent = null;
+  this.selectedEvaluationSession = null;
+}
+
+onStudentEvaluationSaved(): void {
+  this.closeStudentEvaluationModal();
 }
 }

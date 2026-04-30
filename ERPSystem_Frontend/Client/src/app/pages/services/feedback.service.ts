@@ -24,4 +24,18 @@ export class FeedbackService {
   getSessionReviews(sessionId: number) {
   return this.http.get(`${this.baseUrl}/sessions/${sessionId}/reviews`);
 }
+
+createStudentEvaluation(dto: any) {
+  return this.http.post(`${this.baseUrl}/student-evaluations`, dto);
+}
+
+getStudentEvaluations(studentId: number, sessionId?: number) {
+  const params: any = {};
+
+  if (sessionId) {
+    params.sessionId = sessionId;
+  }
+
+  return this.http.get(`${this.baseUrl}/student-evaluations/${studentId}`, { params });
+}
 }

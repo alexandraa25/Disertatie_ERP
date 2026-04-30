@@ -56,6 +56,8 @@ namespace ERPSystem.Data.Context
 
         public DbSet<CourseReview> CourseReviews { get; set; }
 
+        public DbSet<StudentEvaluation> StudentEvaluations { get; set; }
+
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)

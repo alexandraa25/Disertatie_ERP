@@ -1,0 +1,109 @@
+<div class="modal-backdrop">
+  <div class="modal">
+    <h3>Evaluare cursant</h3>
+
+    <div class="modal-body">
+      <div class="info-box">
+        <p>
+          <strong>Cursant:</strong>
+          {{ student?.studentName }}
+        </p>
+
+        <p>
+          <strong>Sesiune:</strong>
+          {{ session?.title || 'Sesiune' }}
+        </p>
+
+        <p>
+          <strong>Profesor:</strong>
+          {{ session?.teacherName || '-' }}
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label>Rating general</label>
+
+        <div class="stars">
+          <button
+            type="button"
+            *ngFor="let star of [1,2,3,4,5]"
+            [class.active]="star <= rating"
+            (click)="setRating('rating', star)">
+            ★
+          </button>
+        </div>
+      </div>
+
+      <div class="scores-grid">
+        <div class="form-group">
+          <label>Prezență</label>
+
+          <div class="stars">
+            <button
+              type="button"
+              *ngFor="let star of [1,2,3,4,5]"
+              [class.active]="star <= attendanceScore"
+              (click)="setRating('attendanceScore', star)">
+              ★
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Comportament</label>
+
+          <div class="stars">
+            <button
+              type="button"
+              *ngFor="let star of [1,2,3,4,5]"
+              [class.active]="star <= behaviorScore"
+              (click)="setRating('behaviorScore', star)">
+              ★
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Progres</label>
+
+          <div class="stars">
+            <button
+              type="button"
+              *ngFor="let star of [1,2,3,4,5]"
+              [class.active]="star <= progressScore"
+              (click)="setRating('progressScore', star)">
+              ★
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Comentariu profesor</label>
+
+        <textarea
+          [(ngModel)]="comment"
+          placeholder="Observații despre cursant...">
+        </textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button
+        type="button"
+        class="secondary-btn"
+        (click)="close()"
+        [disabled]="saving">
+        Anulează
+      </button>
+
+      <button
+        type="button"
+        class="save-btn"
+        (click)="save()"
+        [disabled]="saving">
+        {{ saving ? 'Se salvează...' : 'Salvează evaluarea' }}
+      </button>
+    </div>
+  </div>
+</div>

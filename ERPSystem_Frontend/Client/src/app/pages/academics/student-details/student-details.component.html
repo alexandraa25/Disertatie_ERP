@@ -452,5 +452,68 @@
         </div>
       </div>
 
+
+      <div *ngIf="activeTab === 'Evaluări profesor'" class="card">
+        <div class="section-header">
+          <h3>Evaluări primite de la profesori</h3>
+        </div>
+
+        <div *ngIf="loadingEvaluations">
+          Se încarcă evaluările...
+        </div>
+
+        <div *ngIf="!loadingEvaluations && !studentEvaluations?.length" class="empty-state">
+          Nu există evaluări pentru acest cursant.
+        </div>
+
+        <div class="evaluation-list" *ngIf="!loadingEvaluations && studentEvaluations?.length">
+          <div class="evaluation-card" *ngFor="let ev of studentEvaluations">
+            <div class="evaluation-top">
+              <div>
+                <strong>{{ ev.teacherName }}</strong>
+                <div class="sub">
+                  {{ ev.createdAt | date:'dd.MM.yyyy HH:mm' }}
+                </div>
+              </div>
+
+              <span class="rating-badge">
+                {{ ev.rating }}/5
+              </span>
+            </div>
+
+            <div class="evaluation-scores">
+              <div>
+                <label>Prezență</label>
+                <strong>{{ ev.attendanceScore || '-' }}/5</strong>
+              </div>
+
+              <div>
+                <label>Comportament</label>
+                <strong>{{ ev.behaviorScore || '-' }}/5</strong>
+              </div>
+
+              <div>
+                <label>Progres</label>
+                <strong>{{ ev.progressScore || '-' }}/5</strong>
+              </div>
+            </div>
+
+            <p class="evaluation-comment" *ngIf="ev.comment">
+              {{ ev.comment }}
+            </p>
+
+            <div class="analysis-row" *ngIf="ev.sentiment">
+              <span class="sentiment" [ngClass]="ev.sentiment">
+                {{ ev.sentiment }}
+              </span>
+
+              <span class="score" *ngIf="ev.sentimentScore !== null && ev.sentimentScore !== undefined">
+                Scor: {{ ev.sentimentScore }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>

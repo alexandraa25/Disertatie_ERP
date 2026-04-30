@@ -3,3 +3,15 @@
 ################################################################################
 
 /ERPSystem/.vs/ERPSystem.slnx/FileContentIndex
+
+# Visual Studio
+.vs/
+
+# Build folders
+bin/
+obj/
+
+# Pentru toate proiectele din soluție (recursiv)
+**/bin/
+**/obj/
+**/.vs/

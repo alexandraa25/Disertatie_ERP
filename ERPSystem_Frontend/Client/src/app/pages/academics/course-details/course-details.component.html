@@ -113,6 +113,10 @@
                       <button class="danger small" (click)="toggleEnrollment(s.id, e)">
                         {{ e.isActive ? 'Dezactivează' : 'Activează' }}
                       </button>
+
+                      <button class="evaluation-btn small" (click)="openStudentEvaluationModal(s, e)">
+                        Evaluare
+                      </button>
                     </td>
                   </tr>
                 </tbody>
@@ -140,3 +144,7 @@
 <app-session-feedback-reviews *ngIf="showReviewsModal" [session]="selectedReviewsSession"
   (closed)="closeReviewsModal()">
 </app-session-feedback-reviews>
+
+<app-student-evaluation-modal *ngIf="showStudentEvaluationModal" [student]="selectedEvaluationStudent"
+  [session]="selectedEvaluationSession" (closed)="closeStudentEvaluationModal()" (saved)="onStudentEvaluationSaved()">
+</app-student-evaluation-modal>
