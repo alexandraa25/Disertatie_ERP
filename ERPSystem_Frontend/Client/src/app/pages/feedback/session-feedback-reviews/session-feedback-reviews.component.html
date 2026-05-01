@@ -14,68 +14,126 @@
     </div>
 
     <div class="modal-body">
-      <div class="summary-card">
-        <div>
-          <strong>Total feedbackuri</strong>
-          <span>{{ reviews.length }}</span>
-        </div>
 
-        <div>
-          <strong>Rating mediu</strong>
-          <span>{{ getAverageRating() || '-' }}</span>
-        </div>
+  <div class="tabs">
+    <button
+      type="button"
+      [class.active]="activeTab === 'reviews'"
+      (click)="setTab('reviews')">
+      Feedbackuri
+    </button>
+
+    <button
+      type="button"
+      [class.active]="activeTab === 'analytics'"
+      (click)="setTab('analytics')">
+      Analiză AI
+    </button>
+  </div>
+
+  <div *ngIf="activeTab === 'reviews'">
+
+    <div class="summary-card">
+      <div>
+        <strong>Total feedbackuri</strong>
+        <span>{{ reviews.length }}</span>
       </div>
 
-      <div class="empty-state" *ngIf="loading">
-        Se încarcă...
+      <div>
+        <strong>Rating mediu</strong>
+        <span>{{ getAverageRating() || '-' }}</span>
       </div>
+    </div>
 
-      <div class="empty-state" *ngIf="!loading && reviews.length === 0">
-        Nu există feedbackuri pentru această sesiune.
-      </div>
+    <div class="empty-state" *ngIf="loading">
+      Se încarcă...
+    </div>
 
-      <div class="reviews-list" *ngIf="!loading && reviews.length > 0">
-        <div class="review-card" *ngFor="let r of reviews">
-          <div class="review-header">
-            <div class="rating">
-              <span *ngFor="let star of [1,2,3,4,5]" [class.active]="star <= r.rating">
-                ★
-              </span>
-            </div>
+    <div class="empty-state" *ngIf="!loading && reviews.length === 0">
+      Nu există feedbackuri pentru această sesiune.
+    </div>
 
-            <span class="date">
-              {{ r.createdAt | date:'dd.MM.yyyy HH:mm' }}
+    <div class="reviews-list" *ngIf="!loading && reviews.length > 0">
+      <div class="review-card" *ngFor="let r of reviews">
+
+        <div class="review-header">
+          <div class="rating">
+            <span *ngFor="let star of [1,2,3,4,5]" [class.active]="star <= r.rating">
+              ★
             </span>
           </div>
 
-          <div class="review-scores">
-            <div>
-              <strong>Curs</strong>
-              <span>Structură: {{ r.courseStructureRating || '-' }}</span>
-              <span>Ritm: {{ r.coursePaceRating || '-' }}</span>
-              <span>Materiale: {{ r.materialsRating || '-' }}</span>
-            </div>
+          <span class="date">
+            {{ r.createdAt | date:'dd.MM.yyyy HH:mm' }}
+          </span>
+        </div>
 
-            <div>
-              <strong>Profesor</strong>
-              <span>Claritate: {{ r.teacherClarityRating || '-' }}</span>
-              <span>Implicare: {{ r.teacherEngagementRating || '-' }}</span>
-              <span>Suport: {{ r.teacherSupportRating || '-' }}</span>
-            </div>
+        <div class="review-scores">
+          <div>
+            <strong>Curs</strong>
+            <span>Structură: {{ r.courseStructureRating || '-' }}</span>
+            <span>Ritm: {{ r.coursePaceRating || '-' }}</span>
+            <span>Materiale: {{ r.materialsRating || '-' }}</span>
           </div>
 
-          <p class="comment">
-            {{ r.comment }}
-          </p>
+          <div>
+            <strong>Profesor</strong>
+            <span>Claritate: {{ r.teacherClarityRating || '-' }}</span>
+            <span>Implicare: {{ r.teacherEngagementRating || '-' }}</span>
+            <span>Suport: {{ r.teacherSupportRating || '-' }}</span>
+          </div>
+        </div>
 
-          <div class="analysis-row">
+        <p class="comment">
+          {{ r.comment }}
+        </p>
+
+        <div class="ai-analysis" *ngIf="r.sentiment">
+          <div class="ai-header">
+            <strong>Analiză AI</strong>
+
             <span class="sentiment" [ngClass]="getSentimentClass(r.sentiment)">
               {{ getSentimentLabel(r.sentiment) }}
             </span>
+          </div>
 
-            <span class="score" *ngIf="r.sentimentScore !== null && r.sentimentScore !== undefined">
-              Scor: {{ r.sentimentScore }}
-            </span>
+          <div class="ai-grid">
+            <div>
+              <label>Scor sentiment</label>
+              <strong>{{ r.sentimentScore ?? '-' }}</strong>
+            </div>
+
+            <div>
+              <label>Pozitiv</label>
+              <strong>{{ r.positivePercent || 0 }}%</strong>
+            </div>
+
+            <div>
+              <label>Negativ</label>
+              <strong>{{ r.negativePercent || 0 }}%</strong>
+            </div>
+
+            <div>
+              <label>Emoție</label>
+              <strong>{{ r.emotion || '-' }}</strong>
+            </div>
+          </div>
+
+          <div class="ai-grid secondary">
+            <div>
+              <label>Scor profesor</label>
+              <strong>{{ r.teacherScore ?? '-' }}</strong>
+            </div>
+
+            <div>
+              <label>Scor curs</label>
+              <strong>{{ r.courseScore ?? '-' }}</strong>
+            </div>
+
+            <div>
+              <label>Comportament</label>
+              <strong>{{ r.behaviorScore ?? '-' }}</strong>
+            </div>
           </div>
 
           <div class="keywords" *ngIf="parseKeywords(r.keywords).length > 0">
@@ -84,8 +142,113 @@
             </span>
           </div>
         </div>
+
       </div>
     </div>
+
+  </div>
+
+ <div *ngIf="activeTab === 'analytics'">
+
+  <div class="empty-state" *ngIf="loadingAnalytics">
+    Se încarcă analiza AI...
+  </div>
+
+  <div class="empty-state" *ngIf="!loadingAnalytics && !analytics">
+    Nu există date suficiente pentru analiză.
+  </div>
+
+  <div *ngIf="!loadingAnalytics && analytics">
+
+    <div class="summary-card">
+      <div>
+        <strong>Scor curs</strong>
+        <span>{{ analytics.courseScore || 0 }}/5</span>
+      </div>
+
+      <div>
+        <strong>Rating mediu</strong>
+        <span>{{ analytics.averageRating || 0 }}/5</span>
+      </div>
+
+      <div>
+        <strong>Pozitiv</strong>
+        <span>{{ analytics.positivePercent || 0 }}%</span>
+      </div>
+
+      <div>
+        <strong>Negativ</strong>
+        <span>{{ analytics.negativePercent || 0 }}%</span>
+      </div>
+    </div>
+
+    <div class="ai-analysis" *ngIf="analytics.mainInsight">
+      <div class="ai-header">
+        <strong>Insight principal</strong>
+      </div>
+      <p>{{ analytics.mainInsight }}</p>
+    </div>
+
+    <div class="ai-analysis" *ngIf="analytics.summary">
+      <div class="ai-header">
+        <strong>Rezumat AI</strong>
+      </div>
+      <p>{{ analytics.summary }}</p>
+    </div>
+
+    <div class="ai-analysis" *ngIf="analytics.topProblems?.length">
+      <div class="ai-header">
+        <strong>Top probleme</strong>
+      </div>
+
+      <div class="problem-row" *ngFor="let p of analytics.topProblems">
+        <div>
+          <strong>{{ p.name }}</strong>
+          <span>{{ p.count }} mențiuni</span>
+        </div>
+
+        <div class="bar">
+          <div class="fill" [style.width.%]="p.percent"></div>
+        </div>
+
+        <span>{{ p.percent }}%</span>
+      </div>
+    </div>
+
+    <div class="ai-analysis" *ngIf="analytics.alerts?.length">
+      <div class="ai-header">
+        <strong>Alerte</strong>
+      </div>
+
+      <div class="alert-box" *ngFor="let a of analytics.alerts">
+        ⚠️ {{ a }}
+      </div>
+    </div>
+
+    <div class="ai-analysis" *ngIf="analytics.recommendations?.length">
+      <div class="ai-header">
+        <strong>Recomandări</strong>
+      </div>
+
+      <div class="recommendation-box" *ngFor="let r of analytics.recommendations">
+        🤖 {{ r }}
+      </div>
+    </div>
+
+    <div class="ai-analysis" *ngIf="analytics.trend?.length">
+      <div class="ai-header">
+        <strong>Trend în timp</strong>
+      </div>
+
+      <div class="chart-wrapper">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div>
 
     <div class="modal-actions">
       <button type="button" class="secondary-btn" (click)="close()">

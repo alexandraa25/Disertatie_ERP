@@ -457,60 +457,182 @@
         <div class="section-header">
           <h3>Evaluări primite de la profesori</h3>
         </div>
+        <div class="tabs">
+          <button [class.active]="studentTab === 'evaluations'" (click)="setStudentTab('evaluations')">
+            Evaluări
+          </button>
 
-        <div *ngIf="loadingEvaluations">
-          Se încarcă evaluările...
+          <button [class.active]="studentTab === 'analytics'" (click)="setStudentTab('analytics')">
+            Analiză AI
+          </button>
         </div>
+        <div *ngIf="studentTab === 'evaluations'">
 
-        <div *ngIf="!loadingEvaluations && !studentEvaluations?.length" class="empty-state">
-          Nu există evaluări pentru acest cursant.
-        </div>
+          <div *ngIf="loadingEvaluations">
+            Se încarcă evaluările...
+          </div>
 
-        <div class="evaluation-list" *ngIf="!loadingEvaluations && studentEvaluations?.length">
-          <div class="evaluation-card" *ngFor="let ev of studentEvaluations">
-            <div class="evaluation-top">
-              <div>
-                <strong>{{ ev.teacherName }}</strong>
-                <div class="sub">
-                  {{ ev.createdAt | date:'dd.MM.yyyy HH:mm' }}
+          <div *ngIf="!loadingEvaluations && !studentEvaluations?.length" class="empty-state">
+            Nu există evaluări pentru acest cursant.
+          </div>
+
+          <div class="evaluation-list" *ngIf="!loadingEvaluations && studentEvaluations?.length">
+            <div class="evaluation-card" *ngFor="let ev of studentEvaluations">
+              <div class="evaluation-top">
+                <div>
+                  <strong>{{ ev.teacherName }}</strong>
+                  <div class="sub">
+                    {{ ev.createdAt | date:'dd.MM.yyyy HH:mm' }}
+                  </div>
+                </div>
+
+                <span class="rating-badge">
+                  {{ ev.rating }}/5
+                </span>
+              </div>
+
+              <div class="evaluation-scores">
+                <div>
+                  <label>Prezență</label>
+                  <strong>{{ ev.attendanceScore || '-' }}/5</strong>
+                </div>
+
+                <div>
+                  <label>Comportament</label>
+                  <strong>{{ ev.behaviorScore || '-' }}/5</strong>
+                </div>
+
+                <div>
+                  <label>Progres</label>
+                  <strong>{{ ev.progressScore || '-' }}/5</strong>
                 </div>
               </div>
 
-              <span class="rating-badge">
-                {{ ev.rating }}/5
-              </span>
-            </div>
+              <p class="evaluation-comment" *ngIf="ev.comment">
+                {{ ev.comment }}
+              </p>
 
-            <div class="evaluation-scores">
+              <div class="ai-analysis" *ngIf="ev.sentiment">
+                <div class="ai-header">
+                  <strong>Analiză AI</strong>
+
+                  <span class="sentiment" [ngClass]="ev.sentiment">
+                    {{ ev.sentiment }}
+                  </span>
+                </div>
+
+                <div class="ai-grid">
+                  <div>
+                    <label>Scor sentiment</label>
+                    <strong>{{ ev.sentimentScore }}</strong>
+                  </div>
+
+                  <div>
+                    <label>Pozitiv</label>
+                    <strong>{{ ev.positivePercent || 0 }}%</strong>
+                  </div>
+
+                  <div>
+                    <label>Negativ</label>
+                    <strong>{{ ev.negativePercent || 0 }}%</strong>
+                  </div>
+
+                  <div>
+                    <label>Risc cursant</label>
+                    <strong>{{ ev.studentRiskScore || 0 }}%</strong>
+                  </div>
+                </div>
+
+                <div class="ai-tags" *ngIf="ev.keywords">
+                  <span *ngFor="let keyword of ev.keywords.split(',')">
+                    {{ keyword.trim() }}
+                  </span>
+                </div>
+
+                <div class="risk-warning" *ngIf="ev.studentRiskScore >= 60">
+                  ⚠️ Cursant cu risc ridicat
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="studentTab === 'analytics'">
+
+          <div *ngIf="loadingStudentAnalytics" class="empty-state">
+            Se încarcă analiza AI...
+          </div>
+
+          <div *ngIf="!loadingStudentAnalytics && !studentAnalytics" class="empty-state">
+            Nu există date suficiente.
+          </div>
+
+          <div *ngIf="!loadingStudentAnalytics && studentAnalytics">
+
+            <div class="summary-card">
               <div>
-                <label>Prezență</label>
-                <strong>{{ ev.attendanceScore || '-' }}/5</strong>
+                <strong>Rating mediu</strong>
+                <span>{{ studentAnalytics.averageRating }}/5</span>
               </div>
 
               <div>
-                <label>Comportament</label>
-                <strong>{{ ev.behaviorScore || '-' }}/5</strong>
+                <strong>Prezență</strong>
+                <span>{{ studentAnalytics.averageAttendanceScore }}/5</span>
               </div>
 
               <div>
-                <label>Progres</label>
-                <strong>{{ ev.progressScore || '-' }}/5</strong>
+                <strong>Progres</strong>
+                <span>{{ studentAnalytics.averageProgressScore }}/5</span>
+              </div>
+
+              <div>
+                <strong>Risc AI</strong>
+                <span>{{ studentAnalytics.averageRiskScore }}%</span>
               </div>
             </div>
 
-            <p class="evaluation-comment" *ngIf="ev.comment">
-              {{ ev.comment }}
-            </p>
-
-            <div class="analysis-row" *ngIf="ev.sentiment">
-              <span class="sentiment" [ngClass]="ev.sentiment">
-                {{ ev.sentiment }}
-              </span>
-
-              <span class="score" *ngIf="ev.sentimentScore !== null && ev.sentimentScore !== undefined">
-                Scor: {{ ev.sentimentScore }}
-              </span>
+            <div class="ai-analysis">
+              <strong>Insight principal</strong>
+              <p>{{ studentAnalytics.mainInsight }}</p>
             </div>
+
+            <div class="ai-analysis">
+              <strong>Rezumat</strong>
+              <p>{{ studentAnalytics.summary }}</p>
+            </div>
+
+            <div class="ai-analysis" *ngIf="studentAnalytics.topProblems?.length">
+              <strong>Top probleme</strong>
+
+              <div *ngFor="let p of studentAnalytics.topProblems">
+                {{ p.name }} ({{ p.percent }}%)
+              </div>
+            </div>
+
+            <div class="ai-analysis" *ngIf="studentAnalytics.alerts?.length">
+              <strong>Alerte</strong>
+
+              <div *ngFor="let a of studentAnalytics.alerts">
+                ⚠️ {{ a }}
+              </div>
+            </div>
+
+            <div class="ai-analysis" *ngIf="studentAnalytics.recommendations?.length">
+              <strong>Recomandări</strong>
+
+              <div *ngFor="let r of studentAnalytics.recommendations">
+                🤖 {{ r }}
+              </div>
+            </div>
+
+            <div class="ai-analysis" *ngIf="studentAnalytics.trend?.length">
+              <strong>Trend</strong>
+
+              <div class="chart-wrapper">
+                <canvas id="studentTrendChart"></canvas>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

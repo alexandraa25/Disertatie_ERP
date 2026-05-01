@@ -12,7 +12,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<PdfService>();
 QuestPDF.Settings.License = LicenseType.Community;
 
-
+builder.Services.AddHttpClient<INlpAnalysisService, NlpAnalysisService>(client =>
+{
+    client.BaseAddress = new Uri("http://127.0.0.1:8000");
+});
 
 var app = builder.Build();
 

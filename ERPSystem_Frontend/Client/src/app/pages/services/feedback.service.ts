@@ -38,4 +38,41 @@ getStudentEvaluations(studentId: number, sessionId?: number) {
 
   return this.http.get(`${this.baseUrl}/student-evaluations/${studentId}`, { params });
 }
+
+
+getCourseAnalytics(courseSessionId: number) {
+  return this.http.get(`${this.baseUrl}/course-analytics/${courseSessionId}`);
+}
+
+getStudentAnalytics(studentId: number) {
+  return this.http.get(`${this.baseUrl}/student-analytics/${studentId}`);
+} 
+
+createExternalReview(dto: any) {
+  return this.http.post(`${this.baseUrl}/external-review`, dto);
+}
+
+getExternalReviews(targetType?: string, targetId?: string, source?: string) {
+  const params: any = {};
+
+  if (targetType) params.targetType = targetType;
+  if (targetId) params.targetId = targetId;
+  if (source) params.source = source;
+
+  return this.http.get(`${this.baseUrl}/external-reviews`, { params });
+}
+
+getExternalAnalytics(targetType?: string, targetId?: string, source?: string) {
+  const params: any = {};
+
+  if (targetType) params.targetType = targetType;
+  if (targetId) params.targetId = targetId;
+  if (source) params.source = source;
+
+  return this.http.get(`${this.baseUrl}/external-analytics`, { params });
+}
+
+getExternalReviewTargets(targetType: string) {
+  return this.http.get(`${this.baseUrl}/external-review-targets/${targetType}`);
+}
 }

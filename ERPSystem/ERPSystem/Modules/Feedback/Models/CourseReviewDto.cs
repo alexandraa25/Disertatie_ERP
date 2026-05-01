@@ -6,7 +6,7 @@
 
         public int Rating { get; set; }
 
-        public string Comment { get; set; }
+        public string Comment { get; set; } = string.Empty;
 
         public int? CourseStructureRating { get; set; }
         public int? CoursePaceRating { get; set; }
@@ -17,10 +17,19 @@
         public int? TeacherSupportRating { get; set; }
 
         public string? Sentiment { get; set; }
-
         public double? SentimentScore { get; set; }
 
+        public int? PositivePercent { get; set; }
+        public int? NegativePercent { get; set; }
+        public int? NeutralPercent { get; set; }
+
+        public string? Emotion { get; set; }
         public string? Keywords { get; set; }
+        public string? TopicsJson { get; set; }
+
+        public double? TeacherScore { get; set; }
+        public double? CourseScore { get; set; }
+        public double? BehaviorScore { get; set; }
 
         public DateTime CreatedAt { get; set; }
 

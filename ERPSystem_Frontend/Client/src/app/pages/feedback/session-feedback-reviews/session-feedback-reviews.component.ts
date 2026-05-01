@@ -2,6 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FeedbackService } from '../../services/feedback.service';
 import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-session-feedback-reviews',
@@ -12,11 +15,16 @@ import { SnackbarService } from '../../../components/snack-bar/snack-bar.service
 })
 export class SessionFeedbackReviewsComponent implements OnInit {
   @Input() session: any;
-
   @Output() closed = new EventEmitter<void>();
 
   reviews: any[] = [];
   loading = false;
+
+  activeTab: 'reviews' | 'analytics' = 'reviews';
+
+  analytics: any = null;
+  loadingAnalytics = false;
+  trendChart: Chart | null = null;
 
   constructor(
     private feedbackService: FeedbackService,
@@ -45,7 +53,81 @@ export class SessionFeedbackReviewsComponent implements OnInit {
     });
   }
 
+  setTab(tab: 'reviews' | 'analytics'): void {
+    this.activeTab = tab;
+
+    if (tab === 'analytics' && !this.analytics) {
+      this.loadAnalytics();
+    }
+
+    if (tab === 'analytics' && this.analytics) {
+      setTimeout(() => this.createTrendChart(), 0);
+    }
+  }
+
+  loadAnalytics(): void {
+    if (!this.session?.id) return;
+
+    this.loadingAnalytics = true;
+
+    this.feedbackService.getCourseAnalytics(this.session.id).subscribe({
+      next: (res: any) => {
+        this.analytics = res?.value ?? res?.data ?? res;
+        this.loadingAnalytics = false;
+
+        setTimeout(() => this.createTrendChart(), 0);
+      },
+      error: () => {
+        this.loadingAnalytics = false;
+        this.snackbar.showError('Nu s-a putut încărca analiza AI.');
+      }
+    });
+  }
+
+  createTrendChart(): void {
+    if (!this.analytics?.trend?.length) return;
+
+    const canvas = document.getElementById('trendChart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    if (this.trendChart) {
+      this.trendChart.destroy();
+    }
+
+    this.trendChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: this.analytics.trend.map((x: any) => x.month),
+        datasets: [
+          {
+            label: 'Rating mediu',
+            data: this.analytics.trend.map((x: any) => x.averageRating),
+            tension: 0.3
+          },
+          {
+            label: 'Pozitiv %',
+            data: this.analytics.trend.map((x: any) => x.positivePercent),
+            tension: 0.3
+          },
+          {
+            label: 'Negativ %',
+            data: this.analytics.trend.map((x: any) => x.negativePercent),
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
+  }
+
   close(): void {
+    if (this.trendChart) {
+      this.trendChart.destroy();
+    }
+
     this.closed.emit();
   }
 
@@ -58,27 +140,19 @@ export class SessionFeedbackReviewsComponent implements OnInit {
 
   getSentimentLabel(sentiment: string): string {
     switch (sentiment) {
-      case 'positive':
-        return 'Pozitiv';
-      case 'negative':
-        return 'Negativ';
-      case 'neutral':
-        return 'Neutru';
-      default:
-        return 'Neanalizat';
+      case 'pozitiv': return 'Pozitiv';
+      case 'negativ': return 'Negativ';
+      case 'neutru': return 'Neutru';
+      default: return 'Neanalizat';
     }
   }
 
   getSentimentClass(sentiment: string): string {
     switch (sentiment) {
-      case 'positive':
-        return 'positive';
-      case 'negative':
-        return 'negative';
-      case 'neutral':
-        return 'neutral';
-      default:
-        return 'unknown';
+      case 'pozitiv': return 'positive';
+      case 'negativ': return 'negative';
+      case 'neutru': return 'neutral';
+      default: return 'unknown';
     }
   }
 

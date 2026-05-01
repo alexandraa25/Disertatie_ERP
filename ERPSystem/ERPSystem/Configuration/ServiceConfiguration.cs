@@ -8,6 +8,7 @@ using ERPSystem.Modules.Contracts;
 using ERPSystem.Modules.Dashboard;
 using ERPSystem.Modules.Employees;
 using ERPSystem.Modules.Feedback;
+using ERPSystem.Modules.Feedback.Analytics;
 using ERPSystem.Modules.Leaves;
 using ERPSystem.Modules.Payments;
 using ERPSystem.Modules.Student;
@@ -64,6 +65,8 @@ namespace ERPSystem.Configuration
             builder.Services.AddScoped<NotificationsService>();
             builder.Services.AddScoped<MarketingCampaignService>();
             builder.Services.AddScoped<FeedbackService>();
+            builder.Services.AddScoped<CourseAnalyticsService>();
+            builder.Services.AddScoped<ExternalAnalyticsService>();
 
         }
 

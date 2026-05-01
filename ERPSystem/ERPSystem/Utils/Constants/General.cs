@@ -203,16 +203,20 @@ namespace ERPSystem.Utils.Constants
                 public const string SEND_FEEDBACK_FORMS = "/send";
                 public const string GET_FEEDBACK_FORM = "/{token}";
                 public const string SUBMIT_FEEDBACK_FORM = "/submit";
-                public const string SESSION_REVIEWS = "sessions/{sessionId:int}/reviews";
+                public const string SESSION_REVIEWS = "/sessions/{sessionId:int}/reviews";
+                public const string GET_COURSE_ANALYTICS = "/course-analytics/{courseSessionId:int}";
 
-                public const string CREATE_STUDENT_EVALUATION = "student-evaluations";
-                public const string GET_STUDENT_EVALUATIONS = "student-evaluations/{studentId:int}";
+                public const string CREATE_STUDENT_EVALUATION = "/student-evaluations";
+                public const string GET_STUDENT_EVALUATIONS = "/student-evaluations/{studentId:int}";
+                public const string GET_STUDENT_ANALYTICS = "/student-analytics/{studentId:int}";
+
+                public const string CREATE_EXTERNAL_REVIEW = "/external-review";
+                public const string GET_EXTERNAL_REVIEWS = "/external-reviews";
+                public const string GET_EXTERNAL_ANALYTICS = "/external-analytics";
+                public const string GET_EXTERNAL_REVIEW_TARGETS = "/external-review-targets/{targetType}";
 
 
             }
-
-
-
 
         }
 

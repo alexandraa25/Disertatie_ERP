@@ -18,15 +18,17 @@ namespace ERPSystem.Modules.Feedback
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly NotificationsService _notificationService;
         private readonly EmailBusinessLogic _emailBusinessLogic;
+        private readonly INlpAnalysisService _nlpAnalysisService;
 
 
 
-        public FeedbackService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, NotificationsService notificationService, EmailBusinessLogic emailBusinessLogic)
+        public FeedbackService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, NotificationsService notificationService, EmailBusinessLogic emailBusinessLogic, INlpAnalysisService nlpAnalysisService)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _notificationService = notificationService;
             _emailBusinessLogic = emailBusinessLogic;
+            _nlpAnalysisService = nlpAnalysisService;
         }
 
 
@@ -228,8 +230,33 @@ namespace ERPSystem.Modules.Feedback
             form.IsCompleted = true;
             form.CompletedAt = DateTime.UtcNow;
 
-            // pentru anonimitate
             form.StudentId = null;
+
+            await _context.SaveChangesAsync();
+
+            var analysis = await _nlpAnalysisService.AnalyzeAsync(review.Comment, "course_review");
+
+            if (analysis != null)
+            {
+                review.Sentiment = analysis.Sentiment;
+                review.SentimentScore = analysis.SentimentScore;
+
+                review.PositivePercent = analysis.PositivePercent;
+                review.NegativePercent = analysis.NegativePercent;
+                review.NeutralPercent = analysis.NeutralPercent;
+
+                review.Emotion = analysis.Emotion;
+                review.Keywords = analysis.Keywords;
+                review.TopicsJson = JsonConvert.SerializeObject(analysis.Topics);
+
+                review.TeacherScore = analysis.TeacherScore;
+                review.CourseScore = analysis.CourseScore;
+                review.BehaviorScore = analysis.BehaviorScore;
+
+                review.AnalyzedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+            }
 
             await AddActivityLogAsync(
                 "CourseReview",
@@ -238,13 +265,13 @@ namespace ERPSystem.Modules.Feedback
                 $"A fost înregistrat feedback anonim pentru sesiunea #{form.CourseSessionId} cu rating {request.Rating}/5."
             );
 
-            if (request.Rating <= 2)
+            if (request.Rating <= 2 || review.Sentiment == "negativ" || review.NegativePercent >= 40)
             {
                 await _notificationService.CreateNotificationForRolesAsync(
                     roleNames: new[] { "Admin", "Secretary" },
                     eventType: NotificationEvents.Feedback,
                     title: "Feedback negativ",
-                    message: $"A fost primit un feedback negativ ({request.Rating}/5) pentru sesiunea #{form.CourseSessionId}.",
+                    message: $"A fost primit un feedback negativ pentru sesiunea #{form.CourseSessionId}. Rating: {request.Rating}/5, sentiment: {review.Sentiment}.",
                     type: "Warning",
                     link: $"/courses/{form.CourseSessionId}",
                     entityType: "CourseReview",
@@ -252,13 +279,13 @@ namespace ERPSystem.Modules.Feedback
                 );
             }
 
-            if (request.Rating == 5)
+            if (request.Rating == 5 || review.Sentiment == "pozitiv")
             {
                 await _notificationService.CreateNotificationForRolesAsync(
                     roleNames: new[] { "Admin" },
                     eventType: NotificationEvents.Feedback,
-                    title: "Feedback excelent",
-                    message: $"Sesiunea #{form.CourseSessionId} a primit un feedback de 5/5.",
+                    title: "Feedback pozitiv",
+                    message: $"Sesiunea #{form.CourseSessionId} a primit feedback pozitiv. Rating: {request.Rating}/5.",
                     type: "Success",
                     link: $"/courses/{form.CourseSessionId}",
                     entityType: "CourseReview",
@@ -286,26 +313,39 @@ namespace ERPSystem.Modules.Feedback
             var items = await _context.CourseReviews
                 .Where(x => x.CourseSessionId == sessionId)
                 .OrderByDescending(x => x.CreatedAt)
-                .Select(x => new CourseReviewDto
-                {
-                    Id = x.Id,
-                    Rating = x.Rating,
+               .Select(x => new CourseReviewDto
+               {
+                   Id = x.Id,
+                   Rating = x.Rating,
 
-                    CourseStructureRating = x.CourseStructureRating,
-                    CoursePaceRating = x.CoursePaceRating,
-                    MaterialsRating = x.MaterialsRating,
+                   CourseStructureRating = x.CourseStructureRating,
+                   CoursePaceRating = x.CoursePaceRating,
+                   MaterialsRating = x.MaterialsRating,
 
-                    TeacherClarityRating = x.TeacherClarityRating,
-                    TeacherEngagementRating = x.TeacherEngagementRating,
-                    TeacherSupportRating = x.TeacherSupportRating,
+                   TeacherClarityRating = x.TeacherClarityRating,
+                   TeacherEngagementRating = x.TeacherEngagementRating,
+                   TeacherSupportRating = x.TeacherSupportRating,
 
-                    Comment = x.Comment,
-                    Sentiment = x.Sentiment,
-                    SentimentScore = x.SentimentScore,
-                    Keywords = x.Keywords,
-                    CreatedAt = x.CreatedAt,
-                    AnalyzedAt = x.AnalyzedAt
-                })
+                   Comment = x.Comment,
+
+                   Sentiment = x.Sentiment,
+                   SentimentScore = x.SentimentScore,
+
+                   PositivePercent = x.PositivePercent,
+                   NegativePercent = x.NegativePercent,
+                   NeutralPercent = x.NeutralPercent,
+
+                   Emotion = x.Emotion,
+                   Keywords = x.Keywords,
+                   TopicsJson = x.TopicsJson,
+
+                   TeacherScore = x.TeacherScore,
+                   CourseScore = x.CourseScore,
+                   BehaviorScore = x.BehaviorScore,
+
+                   CreatedAt = x.CreatedAt,
+                   AnalyzedAt = x.AnalyzedAt
+               })
                 .ToListAsync();
 
             return response.SetSuccess(items);
@@ -351,6 +391,33 @@ namespace ERPSystem.Modules.Feedback
             
             await _context.SaveChangesAsync();
 
+            var analysis = await _nlpAnalysisService.AnalyzeAsync(
+                evaluation.Comment ?? "",
+                "student_evaluation"
+            );
+
+            if (analysis != null)
+            {
+                evaluation.Sentiment = analysis.Sentiment;
+                evaluation.SentimentScore = analysis.SentimentScore;
+
+                evaluation.PositivePercent = analysis.PositivePercent;
+                evaluation.NegativePercent = analysis.NegativePercent;
+                evaluation.NeutralPercent = analysis.NeutralPercent;
+
+                evaluation.Emotion = analysis.Emotion;
+                evaluation.Keywords = analysis.Keywords;
+                evaluation.TopicsJson = JsonConvert.SerializeObject(analysis.Topics);
+
+                evaluation.StudentRiskScore = analysis.StudentRiskScore;
+                evaluation.BehaviorScoreNlp = analysis.BehaviorScoreNlp;
+                evaluation.ProgressScoreNlp = analysis.ProgressScoreNlp;
+
+                evaluation.AnalyzedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+            }
+
             await AddActivityLogAsync(
                  "StudentEvaluation",
                  evaluation.Id.ToString(),
@@ -359,14 +426,17 @@ namespace ERPSystem.Modules.Feedback
              );
 
             if (request.Rating <= 2 ||
-              (request.ProgressScore.HasValue && request.ProgressScore <= 2) ||
-              (request.BehaviorScore.HasValue && request.BehaviorScore <= 2))
+                (request.ProgressScore.HasValue && request.ProgressScore <= 2) ||
+                (request.BehaviorScore.HasValue && request.BehaviorScore <= 2) ||
+                evaluation.Sentiment == "negativ" ||
+                evaluation.NegativePercent >= 40 ||
+                evaluation.StudentRiskScore >= 60)
             {
                 await _notificationService.CreateNotificationForRolesAsync(
                     roleNames: new[] { "Admin", "Secretary" },
                     eventType: NotificationEvents.Feedback,
                     title: "Cursant în risc",
-                    message: $"Cursantul #{request.StudentId} are o evaluare scăzută la sesiunea #{request.CourseSessionId}.",
+                    message: $"Cursantul #{request.StudentId} are risc crescut la sesiunea #{request.CourseSessionId}. Rating: {request.Rating}/5, risc AI: {evaluation.StudentRiskScore}%.",
                     type: "Warning",
                     link: $"/students/{request.StudentId}",
                     entityType: "StudentEvaluation",
@@ -419,15 +489,243 @@ namespace ERPSystem.Modules.Feedback
                     ProgressScore = x.ev.ProgressScore,
 
                     Comment = x.ev.Comment,
+
                     Sentiment = x.ev.Sentiment,
                     SentimentScore = x.ev.SentimentScore,
                     Keywords = x.ev.Keywords,
+
+                    PositivePercent = x.ev.PositivePercent,
+                    NegativePercent = x.ev.NegativePercent,
+                    NeutralPercent = x.ev.NeutralPercent,
+                    Emotion = x.ev.Emotion,
+                    TopicsJson = x.ev.TopicsJson,
+
+                    StudentRiskScore = x.ev.StudentRiskScore,
+                    BehaviorScoreNlp = x.ev.BehaviorScoreNlp,
+                    ProgressScoreNlp = x.ev.ProgressScoreNlp,
+
                     CreatedAt = x.ev.CreatedAt
                 })
                 .ToListAsync();
 
             return response.SetSuccess(items);
         }
+
+        public async Task<PublicResponse> CreateExternalReviewAsync(CreateExternalReviewRequest request)
+        {
+            PublicResponse response = new(true);
+
+            if (string.IsNullOrWhiteSpace(request.Source))
+                return response.SetError("SourceRequired", "Sursa feedback-ului este obligatorie.");
+
+            if (string.IsNullOrWhiteSpace(request.Comment))
+                return response.SetError("CommentRequired", "Comentariul este obligatoriu.");
+
+            if (request.Rating.HasValue && (request.Rating < 1 || request.Rating > 5))
+                return response.SetError("InvalidRating", "Ratingul trebuie să fie între 1 și 5.");
+
+            var allowedTargets = new[] { "General", "Course", "CourseSession", "Teacher", "Student" };
+
+            if (string.IsNullOrWhiteSpace(request.TargetType))
+                request.TargetType = "General";
+
+            if (!allowedTargets.Contains(request.TargetType))
+                return response.SetError("InvalidTargetType", "Tipul țintei nu este valid.");
+
+            if (request.TargetType != "General" && string.IsNullOrWhiteSpace(request.TargetId))
+                return response.SetError("TargetIdRequired", "TargetId este obligatoriu pentru acest tip de feedback.");
+
+            if (request.TargetType == "General")
+                request.TargetId = null;
+
+            var externalReview = new ExternalReview
+            {
+                Source = request.Source,
+                TargetType = request.TargetType,
+                TargetId = request.TargetId,
+
+                Rating = request.Rating,
+                Comment = request.Comment,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.ExternalReviews.Add(externalReview);
+            await _context.SaveChangesAsync();
+
+            var analysis = await _nlpAnalysisService.AnalyzeAsync(
+                externalReview.Comment,
+                "external_review"
+            );
+
+            if (analysis != null)
+            {
+                externalReview.Sentiment = analysis.Sentiment;
+                externalReview.SentimentScore = analysis.SentimentScore;
+
+                externalReview.PositivePercent = analysis.PositivePercent;
+                externalReview.NegativePercent = analysis.NegativePercent;
+                externalReview.NeutralPercent = analysis.NeutralPercent;
+
+                externalReview.Emotion = analysis.Emotion;
+                externalReview.Keywords = analysis.Keywords;
+                externalReview.TopicsJson = JsonConvert.SerializeObject(analysis.Topics);
+
+                externalReview.PublicPerceptionScore = analysis.PublicPerceptionScore;
+
+                externalReview.AnalyzedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+            }
+
+            await AddActivityLogAsync(
+                "ExternalReview",
+                externalReview.Id.ToString(),
+                "ExternalReviewCreated",
+                $"A fost adăugat feedback extern din sursa '{request.Source}' pentru ținta '{externalReview.TargetType}' #{externalReview.TargetId}."
+            );
+
+            if (externalReview.Rating <= 2 ||
+                externalReview.Sentiment == "negativ" ||
+                externalReview.NegativePercent >= 40)
+            {
+                await _notificationService.CreateNotificationForRolesAsync(
+                    roleNames: new[] { "Admin", "Secretary" },
+                    eventType: NotificationEvents.Feedback,
+                    title: "Feedback extern negativ",
+                    message: $"A fost primit feedback extern negativ din {request.Source}. Țintă: {externalReview.TargetType}.",
+                    type: "Warning",
+                    link: "/feedback/external",
+                    entityType: "ExternalReview",
+                    entityId: externalReview.Id.ToString()
+                );
+            }
+
+            return response.SetSuccess(new
+            {
+                externalReview.Id,
+                Message = "Feedbackul extern a fost salvat."
+            });
+        }
+
+        public async Task<PublicResponse> GetExternalReviewsAsync(string? targetType = null, string? targetId = null)
+        {
+            PublicResponse response = new(true);
+
+            var query = _context.ExternalReviews.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(targetType))
+            {
+                query = query.Where(x => x.TargetType == targetType);
+            }
+
+            if (!string.IsNullOrWhiteSpace(targetId))
+            {
+                query = query.Where(x => x.TargetId == targetId);
+            }
+
+            var items = await query
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(x => new ExternalReviewDto
+                {
+                    Id = x.Id,
+                    Source = x.Source,
+                    TargetType = x.TargetType,
+                    TargetId = x.TargetId,
+                    Rating = x.Rating,
+                    Comment = x.Comment,
+
+                    Sentiment = x.Sentiment,
+                    SentimentScore = x.SentimentScore,
+                    PositivePercent = x.PositivePercent,
+                    NegativePercent = x.NegativePercent,
+                    NeutralPercent = x.NeutralPercent,
+                    Emotion = x.Emotion,
+                    Keywords = x.Keywords,
+                    TopicsJson = x.TopicsJson,
+
+                    PublicPerceptionScore = x.PublicPerceptionScore,
+
+                    CreatedAt = x.CreatedAt,
+                    AnalyzedAt = x.AnalyzedAt
+                })
+                .ToListAsync();
+
+            return response.SetSuccess(items);
+        }
+
+
+        public async Task<PublicResponse> GetExternalReviewTargetsAsync(string targetType)
+        {
+            PublicResponse response = new(true);
+
+            if (string.IsNullOrWhiteSpace(targetType) || targetType == "General")
+                return response.SetSuccess(new List<object>());
+
+            if (targetType == "Course")
+            {
+                var items = await _context.Courses
+                    .OrderBy(x => x.Name)
+                    .Select(x => new
+                    {
+                        id = x.Id,
+                        name = x.Name
+                    })
+                    .ToListAsync();
+
+                return response.SetSuccess(items);
+            }
+
+            if (targetType == "CourseSession")
+            {
+                var items = await _context.CourseSessions
+                    .Include(x => x.Course)
+                    .Include(x => x.Teacher)
+                    .OrderByDescending(x => x.Id)
+                    .Select(x => new
+                    {
+                        id = x.Id,
+                        name = x.Course.Name + " - " + x.Title + " - " + x.Teacher.FullName
+                    })
+                    .ToListAsync();
+
+                return response.SetSuccess(items);
+            }
+
+            if (targetType == "Teacher")
+            {
+                var items = await (
+                    from user in _context.Users
+                    join userRole in _context.UserRoles on user.Id equals userRole.UserId
+                    join role in _context.Roles on userRole.RoleId equals role.Id
+                    where role.Name == "Teacher"
+                    orderby user.FirstName
+                    select new
+                    {
+                        id = user.Id,
+                        name = user.FirstName + " " + user.LastName
+                    }
+                ).ToListAsync();
+
+                return response.SetSuccess(items);
+            }
+
+            if (targetType == "Student")
+            {
+                var items = await _context.Students
+                    .OrderBy(x => x.FullName)
+                    .Select(x => new
+                    {
+                        id = x.Id,
+                        name = x.FullName
+                    })
+                    .ToListAsync();
+
+                return response.SetSuccess(items);
+            }
+
+            return response.SetError("InvalidTargetType", "Tipul țintei nu este valid.");
+        }
+
 
         private async Task AddActivityLogAsync(string entityType, string entityId, string action, string description)
         {

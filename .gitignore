@@ -361,3 +361,37 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# ========================
+# Python (NLP Microservice)
+# ========================
+venv/
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.cache/
+.ipynb_checkpoints/
+
+# ========================
+# Angular / Frontend
+# ========================
+node_modules/
+dist/
+.angular/
+coverage/
+
+# ========================
+# Environment / Secrets
+# ========================
+appsettings.Development.json
+.env.local
+.env.development
+.env.production
+
+# ========================
+# OS
+# ========================
+.DS_Store
+Thumbs.db

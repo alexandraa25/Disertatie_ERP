@@ -45,6 +45,15 @@
 
         public string? Keywords { get; set; }
 
+        public int? PositivePercent { get; set; }
+        public int? NegativePercent { get; set; }
+        public int? NeutralPercent { get; set; }
+        public string? Emotion { get; set; }
+        public string? TopicsJson { get; set; }
+        public double? StudentRiskScore { get; set; }
+        public double? BehaviorScoreNlp { get; set; }
+        public double? ProgressScoreNlp { get; set; }
+
         public DateTime CreatedAt { get; set; }
     }
 }

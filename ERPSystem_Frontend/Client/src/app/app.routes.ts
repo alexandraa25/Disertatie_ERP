@@ -33,6 +33,7 @@ export const routes: Routes = [
   { path: 'log-activity', loadComponent: () => import('./pages/admin/admin-activity/admin-activity.component') .then(m => m.AdminActivityComponent) }, 
   { path: 'mk-campaign', loadComponent: () => import('./pages/marketing/marketing-campaigns/marketing-campaigns.component') .then(m => m.MarketingCampaignsComponent) }, 
   { path: 'feedback/:token', loadComponent: () =>  import('./pages/feedback/feedback-form/feedback-form.component') .then(m => m.FeedbackFormComponent)}, 
+   { path: 'external-feedback', loadComponent: () =>  import('./pages/feedback/external-feedback/external-feedback.component') .then(m => m.ExternalFeedbackComponent)}, 
   { path: '**', redirectTo: 'login' }
 
 

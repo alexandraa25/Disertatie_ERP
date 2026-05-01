@@ -18,6 +18,9 @@ import { ConfirmService } from '../../services/confirm.service';
 import { PayModalComponent } from '../../financiar/pay-modal/pay-modal.component';
 import { FormsModule } from '@angular/forms';
 import { FeedbackService } from '../../services/feedback.service';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-student-details',
@@ -33,6 +36,12 @@ export class StudentDetailsComponent implements OnInit {
 
   tabs = ['Informații', 'Cursuri', 'Financiar', 'Istoric', 'Evaluări profesor'];
   activeTab = 'Informații';
+
+  studentTab: 'evaluations' | 'analytics' = 'evaluations';
+
+  studentAnalytics: any = null;
+loadingStudentAnalytics = false;
+studentChart: any;
 
   courses: StudentCourseDetailsDto[] = [];
   inactiveCourses: StudentCourseDetailsDto[] = [];
@@ -617,6 +626,72 @@ loadStudentEvaluations(): void {
   });
 }
 
+
+loadStudentAnalytics(): void {
+  if (!this.student?.id) return;
+
+  this.loadingStudentAnalytics = true;
+
+  this.feedbackService.getStudentAnalytics(this.student.id).subscribe({
+    next: (res: any) => {
+      this.studentAnalytics = res?.value ?? res?.data ?? res;
+      this.loadingStudentAnalytics = false;
+
+      setTimeout(() => this.createStudentChart(), 0);
+    },
+    error: () => {
+      this.loadingStudentAnalytics = false;
+    }
+  });
+}
+
+setStudentTab(tab: 'evaluations' | 'analytics') {
+  this.studentTab = tab;
+
+  if (tab === 'analytics' && !this.studentAnalytics) {
+    this.loadStudentAnalytics();
+  }
+}
+
+createStudentChart(): void {
+  if (!this.studentAnalytics?.trend?.length) return;
+
+  const canvas = document.getElementById('studentTrendChart') as HTMLCanvasElement;
+
+  if (!canvas) return;
+
+  if (this.studentChart) {
+    this.studentChart.destroy();
+  }
+
+  this.studentChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: this.studentAnalytics.trend.map((x: any) => x.month),
+      datasets: [
+        {
+          label: 'Rating',
+          data: this.studentAnalytics.trend.map((x: any) => x.averageRating),
+          tension: 0.3
+        },
+        {
+          label: 'Pozitiv %',
+          data: this.studentAnalytics.trend.map((x: any) => x.positivePercent),
+          tension: 0.3
+        },
+        {
+          label: 'Negativ %',
+          data: this.studentAnalytics.trend.map((x: any) => x.negativePercent),
+          tension: 0.3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false
+    }
+  });
+}
 
 }
 

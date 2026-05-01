@@ -1,0 +1,146 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2>Feedback extern</h2>
+      <p>Monitorizare feedback extern și reputație publică</p>
+    </div>
+
+  </div>
+
+  <div class="toolbar">
+  <select [(ngModel)]="filter.targetType" (change)="onFilterTargetTypeChange()">
+    <option value="">Toate țintele</option>
+    <option value="General">General</option>
+    <option value="Course">Curs</option>
+    <option value="CourseSession">Sesiune</option>
+    <option value="Teacher">Profesor</option>
+    <option value="Student">Cursant</option>
+  </select>
+
+  <select
+    [(ngModel)]="filter.targetId"
+    (change)="onFilterChange()"
+    [disabled]="!filter.targetType || filter.targetType === 'General'">
+
+    <option [ngValue]="null">
+      {{ filter.targetType && filter.targetType !== 'General' ? 'Toate' : 'Fără țintă' }}
+    </option>
+
+    <option *ngFor="let item of filterTargetOptions" [ngValue]="item.id">
+      {{ item.name }}
+    </option>
+  </select>
+
+  <select [(ngModel)]="filter.source" (change)="onFilterChange()">
+    <option value="">Toate sursele</option>
+    <option value="Manual">Manual</option>
+    <option value="Google">Google</option>
+    <option value="Facebook">Facebook</option>
+    <option value="CSV">CSV</option>
+  </select>
+
+  <button class="primary-btn add-btn" (click)="openCreateModal()">
+    + Adaugă feedback extern
+  </button>
+</div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>Feedbackuri externe</h3>
+      <span>{{ reviews.length }} rezultate</span>
+    </div>
+
+    <div *ngIf="loadingReviews">Se încarcă...</div>
+
+    <div *ngIf="!loadingReviews && reviews.length === 0" class="empty">
+      Nu există feedbackuri externe.
+    </div>
+
+    <div class="review" *ngFor="let r of reviews">
+      <div class="review-top">
+        <strong>{{ r.source }}</strong>
+        <span>{{ r.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
+      </div>
+
+      <div class="meta">
+        {{ r.targetType }} <span *ngIf="r.targetId">#{{ r.targetId }}</span>
+        · Rating: {{ r.rating || '-' }}/5
+      </div>
+
+      <p>{{ r.comment }}</p>
+
+      <div class="ai-row" *ngIf="r.sentiment">
+        <span class="sentiment" [ngClass]="r.sentiment">{{ r.sentiment }}</span>
+        <span>Scor: {{ r.sentimentScore }}</span>
+        <span>Percepție: {{ r.publicPerceptionScore }}</span>
+      </div>
+
+      <div class="tags" *ngIf="parseKeywords(r.keywords).length">
+        <span *ngFor="let k of parseKeywords(r.keywords)">
+          {{ k }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="showCreateModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h3>Adaugă feedback extern</h3>
+        <p>Feedback manual sau din surse externe</p>
+      </div>
+
+      <button type="button" class="icon-btn" (click)="closeCreateModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <label>Sursă</label>
+      <select [(ngModel)]="form.source">
+        <option value="Manual">Manual</option>
+        <option value="Google">Google</option>
+        <option value="Facebook">Facebook</option>
+        <option value="CSV">CSV</option>
+      </select>
+
+      <label>Tip țintă</label>
+      <select [(ngModel)]="form.targetType" (change)="onTargetTypeChange()">
+        <option value="General">General</option>
+        <option value="Course">Curs</option>
+        <option value="CourseSession">Sesiune</option>
+        <option value="Teacher">Profesor</option>
+        <option value="Student">Cursant</option>
+      </select>
+
+      <div *ngIf="form.targetType !== 'General'">
+        <label>Alege ținta</label>
+
+        <div *ngIf="loadingTargets">Se încarcă...</div>
+
+        <select [(ngModel)]="form.targetId" *ngIf="!loadingTargets">
+          <option [ngValue]="null">Selectează...</option>
+          <option *ngFor="let item of targetOptions" [ngValue]="item.id">
+            {{ item.name }}
+          </option>
+        </select>
+      </div>
+
+      <label>Rating</label>
+      <input type="number" min="1" max="5" [(ngModel)]="form.rating">
+
+      <label>Comentariu</label>
+      <textarea rows="5" [(ngModel)]="form.comment"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="secondary-btn" (click)="closeCreateModal()">
+        Anulează
+      </button>
+
+      <button class="primary-btn" (click)="save()" [disabled]="saving">
+        {{ saving ? 'Se salvează...' : 'Salvează' }}
+      </button>
+    </div>
+  </div>
+</div>
