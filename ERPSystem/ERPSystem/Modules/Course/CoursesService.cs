@@ -1,14 +1,14 @@
-﻿using ERPSystem.Data.Context;
+﻿using ClosedXML.Excel;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Course.Models;
-using ERPSystem.Shared.ActivityLogs;
 using ERPSystem.Shared.Notifications;
 using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
+using ClosedXML.Excel;
 
 namespace ERPSystem.Shared.BusinessLogic;
 
@@ -1137,4 +1137,196 @@ public class CoursesService
             );
         }
     }
+
+    public async Task<IResult> ExportCoursesExcelAsync( string? q,string? status, string? deleteStatus, DiscountScope? scope)
+    {
+        var query = _db.Courses
+            .Include(x => x.Sessions)
+                .ThenInclude(x => x.Teacher)
+            .Include(x => x.Sessions)
+                .ThenInclude(x => x.Enrollments)
+            .Include(x => x.Enrollments)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            q = q.Trim();
+            query = query.Where(x => x.Name.Contains(q));
+        }
+
+        if (status == "active")
+            query = query.Where(x => x.IsActive);
+
+        if (status == "inactive")
+            query = query.Where(x => !x.IsActive);
+
+        if (string.IsNullOrWhiteSpace(deleteStatus) || deleteStatus == "notDeleted")
+            query = query.Where(x => !x.IsDeleted);
+
+        if (deleteStatus == "deleted")
+            query = query.Where(x => x.IsDeleted);
+
+        if (scope == DiscountScope.Package)
+        {
+            query = query.Where(c =>
+                c.Sessions.Any(s => s.FeeType == CourseFeeType.FixedPackage));
+        }
+
+        if (scope == DiscountScope.Subscription)
+        {
+            query = query.Where(c =>
+                c.Sessions.Any(s => s.FeeType == CourseFeeType.Monthly));
+        }
+
+        var courses = await query
+            .OrderBy(x => x.IsDeleted)
+            .ThenByDescending(x => x.IsActive)
+            .ThenBy(x => x.Name)
+            .ToListAsync();
+
+        using var wb = new XLWorkbook();
+
+        var coursesWs = wb.Worksheets.Add("Cursuri");
+        var sessionsWs = wb.Worksheets.Add("Sesiuni");
+
+        var courseHeaders = new[]
+        {
+        "ID", "Nume curs", "Descriere", "Status", "Șters",
+        "Nr. sesiuni", "Sesiuni active",
+        "Nr. înscrieri", "Înscrieri active",
+        "Creat la", "Actualizat la", "Șters la"
+    };
+
+        for (int i = 0; i < courseHeaders.Length; i++)
+            coursesWs.Cell(1, i + 1).Value = courseHeaders[i];
+
+        var row = 2;
+
+        foreach (var c in courses)
+        {
+            coursesWs.Cell(row, 1).Value = c.Id;
+            coursesWs.Cell(row, 2).Value = c.Name;
+            coursesWs.Cell(row, 3).Value = c.Description ?? "";
+            coursesWs.Cell(row, 4).Value = c.IsActive ? "Activ" : "Inactiv";
+            coursesWs.Cell(row, 5).Value = c.IsDeleted ? "Da" : "Nu";
+            coursesWs.Cell(row, 6).Value = c.Sessions.Count;
+            coursesWs.Cell(row, 7).Value = c.Sessions.Count(s => s.IsActive);
+            coursesWs.Cell(row, 8).Value = c.Enrollments.Count;
+            coursesWs.Cell(row, 9).Value = c.Enrollments.Count(e => e.IsActive);
+            coursesWs.Cell(row, 10).Value = c.CreatedAtUtc;
+            coursesWs.Cell(row, 11).Value = c.UpdatedAtUtc;
+            coursesWs.Cell(row, 12).Value = c.DeletedAtUtc;
+
+            row++;
+        }
+
+        var sessionHeaders = new[]
+        {
+        "ID sesiune", "ID curs", "Nume curs", "Titlu sesiune",
+        "Profesor", "Tip taxă", "Taxă", "Total ședințe",
+        "Zi", "Ora început", "Ora sfârșit",
+        "Capacitate", "Înscriși", "Locuri libere", "Status"
+    };
+
+        for (int i = 0; i < sessionHeaders.Length; i++)
+            sessionsWs.Cell(1, i + 1).Value = sessionHeaders[i];
+
+        row = 2;
+
+        foreach (var c in courses)
+        {
+            var sessions = c.Sessions.AsEnumerable();
+
+            if (scope == DiscountScope.Package)
+                sessions = sessions.Where(s => s.FeeType == CourseFeeType.FixedPackage);
+
+            if (scope == DiscountScope.Subscription)
+                sessions = sessions.Where(s => s.FeeType == CourseFeeType.Monthly);
+
+            foreach (var s in sessions.OrderBy(x => x.DayOfWeek).ThenBy(x => x.StartTime))
+            {
+                var activeEnrollments = s.Enrollments.Count(e => e.IsActive);
+
+                var freeSeats = s.Capacity.HasValue
+                    ? Math.Max(s.Capacity.Value - activeEnrollments, 0)
+                    : (int?)null;
+
+                sessionsWs.Cell(row, 1).Value = s.Id;
+                sessionsWs.Cell(row, 2).Value = c.Id;
+                sessionsWs.Cell(row, 3).Value = c.Name;
+                sessionsWs.Cell(row, 4).Value = s.Title;
+                sessionsWs.Cell(row, 5).Value = s.Teacher?.FullName ?? s.TeacherUserId;
+                sessionsWs.Cell(row, 6).Value = s.FeeType == CourseFeeType.FixedPackage ? "Pachet" : "Abonament";
+                sessionsWs.Cell(row, 7).Value = s.Fee;
+                sessionsWs.Cell(row, 8).Value = s.TotalSessions;
+                sessionsWs.Cell(row, 9).Value = GetRomanianDay(s.DayOfWeek);
+                sessionsWs.Cell(row, 10).Value = s.StartTime.ToString("HH:mm");
+                sessionsWs.Cell(row, 11).Value = s.EndTime.ToString("HH:mm");
+                sessionsWs.Cell(row, 12).Value = s.Capacity?.ToString() ?? "Nelimitat";
+                sessionsWs.Cell(row, 13).Value = activeEnrollments;
+                sessionsWs.Cell(row, 14).Value = freeSeats?.ToString() ?? "Nelimitat";
+                sessionsWs.Cell(row, 15).Value = s.IsActive ? "Activ" : "Inactiv";
+
+                row++;
+            }
+        }
+
+        FormatSheet(coursesWs);
+        FormatSheet(sessionsWs);
+
+        using var ms = new MemoryStream();
+        wb.SaveAs(ms);
+
+        return Results.File(
+            ms.ToArray(),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            $"cursuri_{DateTime.UtcNow:yyyyMMdd_HHmm}.xlsx"
+        );
+    }
+
+    private static string GetRomanianDay(int day)
+    {
+        return day switch
+        {
+            1 => "Luni",
+            2 => "Marți",
+            3 => "Miercuri",
+            4 => "Joi",
+            5 => "Vineri",
+            6 => "Sâmbătă",
+            7 => "Duminică",
+            _ => "-"
+        };
+    }
+
+    private static void FormatSheet(IXLWorksheet ws)
+    {
+        var usedRange = ws.RangeUsed();
+
+        if (usedRange == null)
+            return;
+
+        usedRange.SetAutoFilter();
+
+        var header = ws.Row(1);
+        header.Style.Font.Bold = true;
+        header.Style.Fill.BackgroundColor = XLColor.FromHtml("#1E293B");
+        header.Style.Font.FontColor = XLColor.White;
+        header.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+        usedRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+        usedRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+        usedRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+        ws.Columns().AdjustToContents();
+
+        foreach (var column in ws.Columns())
+        {
+            if (column.Width > 45)
+                column.Width = 45;
+        }
+
+        ws.SheetView.FreezeRows(1);
+    }
+
 }

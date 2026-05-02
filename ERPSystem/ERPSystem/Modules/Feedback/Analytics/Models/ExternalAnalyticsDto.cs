@@ -21,5 +21,16 @@
 
         public string Summary { get; set; } = string.Empty;
         public string MainInsight { get; set; } = string.Empty;
+        public int PositiveReviewsCount { get; set; }
+        public int NegativeReviewsCount { get; set; }
+        public int NeutralReviewsCount { get; set; }
+
+        public string ReputationRiskLevel { get; set; } = "low";
+        public bool UrgentResponseNeeded { get; set; }
+
+        public DateTime? LastReviewDate { get; set; }
+
+        public Dictionary<string, int> ReviewsBySource { get; set; } = new();
+        public Dictionary<string, int> ReviewsByTargetType { get; set; } = new();
     }
 }

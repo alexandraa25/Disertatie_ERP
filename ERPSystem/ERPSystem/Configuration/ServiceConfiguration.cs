@@ -66,7 +66,10 @@ namespace ERPSystem.Configuration
             builder.Services.AddScoped<MarketingCampaignService>();
             builder.Services.AddScoped<FeedbackService>();
             builder.Services.AddScoped<CourseAnalyticsService>();
+            builder.Services.AddScoped<StudentAnalyticsService>();
             builder.Services.AddScoped<ExternalAnalyticsService>();
+            builder.Services.AddScoped<FeedbackGlobalAnalyticsService>();
+            
 
         }
 

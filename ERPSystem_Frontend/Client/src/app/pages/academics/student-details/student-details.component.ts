@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StudentsService } from '../../services/students.service';
 import { ContractsService } from '../../services/contracts.service';
@@ -29,7 +29,7 @@ Chart.register(...registerables);
   templateUrl: './student-details.component.html',
   styleUrls: ['./student-details.component.css']
 })
-export class StudentDetailsComponent implements OnInit {
+export class StudentDetailsComponent implements OnInit, OnDestroy {
 
   student!: StudentDetailsDto;
   loading = true;
@@ -648,21 +648,26 @@ loadStudentAnalytics(): void {
 setStudentTab(tab: 'evaluations' | 'analytics') {
   this.studentTab = tab;
 
-  if (tab === 'analytics' && !this.studentAnalytics) {
-    this.loadStudentAnalytics();
+  if (tab === 'evaluations') {
+    this.destroyStudentChart();
+    return;
   }
+
+  if (!this.studentAnalytics) {
+    this.loadStudentAnalytics();
+    return;
+  }
+
+  setTimeout(() => this.createStudentChart(), 0);
 }
 
 createStudentChart(): void {
-  if (!this.studentAnalytics?.trend?.length) return;
+   if (!this.studentAnalytics?.trend?.length) return;
 
   const canvas = document.getElementById('studentTrendChart') as HTMLCanvasElement;
-
   if (!canvas) return;
 
-  if (this.studentChart) {
-    this.studentChart.destroy();
-  }
+  this.destroyStudentChart();
 
   this.studentChart = new Chart(canvas, {
     type: 'line',
@@ -693,5 +698,24 @@ createStudentChart(): void {
   });
 }
 
+ngOnDestroy(): void {
+  this.destroyStudentChart();
+}
+
+destroyStudentChart(): void {
+  if (this.studentChart) {
+    this.studentChart.destroy();
+    this.studentChart = null;
+  }
+}
+
+getRiskLabel(level: string): string {
+  switch (level) {
+    case 'high': return 'Ridicat';
+    case 'medium': return 'Mediu';
+    case 'low': return 'Scăzut';
+    default: return 'Necunoscut';
+  }
+}
 }
 

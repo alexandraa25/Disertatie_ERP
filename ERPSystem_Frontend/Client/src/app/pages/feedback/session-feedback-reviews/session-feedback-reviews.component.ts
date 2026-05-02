@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FeedbackService } from '../../services/feedback.service';
 import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 import { Chart, registerables } from 'chart.js';
@@ -13,7 +13,7 @@ Chart.register(...registerables);
   templateUrl: './session-feedback-reviews.component.html',
   styleUrl: './session-feedback-reviews.component.css'
 })
-export class SessionFeedbackReviewsComponent implements OnInit {
+export class SessionFeedbackReviewsComponent implements OnInit, OnDestroy {
   @Input() session: any;
   @Output() closed = new EventEmitter<void>();
 
@@ -54,16 +54,20 @@ export class SessionFeedbackReviewsComponent implements OnInit {
   }
 
   setTab(tab: 'reviews' | 'analytics'): void {
-    this.activeTab = tab;
+  this.activeTab = tab;
 
-    if (tab === 'analytics' && !this.analytics) {
-      this.loadAnalytics();
-    }
-
-    if (tab === 'analytics' && this.analytics) {
-      setTimeout(() => this.createTrendChart(), 0);
-    }
+  if (tab !== 'analytics') {
+    this.destroyTrendChart();
+    return;
   }
+
+  if (!this.analytics) {
+    this.loadAnalytics();
+    return;
+  }
+
+  setTimeout(() => this.createTrendChart(), 0);
+}
 
   loadAnalytics(): void {
     if (!this.session?.id) return;
@@ -90,9 +94,7 @@ export class SessionFeedbackReviewsComponent implements OnInit {
     const canvas = document.getElementById('trendChart') as HTMLCanvasElement;
     if (!canvas) return;
 
-    if (this.trendChart) {
-      this.trendChart.destroy();
-    }
+    this.destroyTrendChart();
 
     this.trendChart = new Chart(canvas, {
       type: 'line',
@@ -123,13 +125,21 @@ export class SessionFeedbackReviewsComponent implements OnInit {
     });
   }
 
-  close(): void {
-    if (this.trendChart) {
-      this.trendChart.destroy();
-    }
+  ngOnDestroy(): void {
+  this.destroyTrendChart();
+}
 
-    this.closed.emit();
+destroyTrendChart(): void {
+  if (this.trendChart) {
+    this.trendChart.destroy();
+    this.trendChart = null;
   }
+}
+
+close(): void {
+  this.destroyTrendChart();
+  this.closed.emit();
+}
 
   getAverageRating(): number {
     if (!this.reviews.length) return 0;
@@ -166,4 +176,32 @@ export class SessionFeedbackReviewsComponent implements OnInit {
       return keywords.split(',').map(x => x.trim()).filter(Boolean);
     }
   }
+
+  getRiskLevelLabel(level: string): string {
+  switch (level) {
+    case 'high': return 'Ridicat';
+    case 'medium': return 'Mediu';
+    case 'low': return 'Scăzut';
+    default: return 'Necunoscut';
+  }
+}
+
+getRiskLevelClass(level: string): string {
+  switch (level) {
+    case 'high': return 'risk-high';
+    case 'medium': return 'risk-medium';
+    case 'low': return 'risk-low';
+    default: return 'risk-unknown';
+  }
+}
+
+formatScore(value: number | null | undefined): string {
+  if (value === null || value === undefined) return '-';
+  return Number(value).toFixed(2);
+}
+
+formatPercent(value: number | null | undefined): string {
+  if (value === null || value === undefined) return '0%';
+  return `${Number(value).toFixed(2)}%`;
+}
 }

@@ -75,4 +75,8 @@ getExternalAnalytics(targetType?: string, targetId?: string, source?: string) {
 getExternalReviewTargets(targetType: string) {
   return this.http.get(`${this.baseUrl}/external-review-targets/${targetType}`);
 }
+
+getGlobalAnalytics() {
+  return this.http.get(`${this.baseUrl}/analytics/global`);
+}
 }

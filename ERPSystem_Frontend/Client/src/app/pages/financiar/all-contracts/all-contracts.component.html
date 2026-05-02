@@ -1,0 +1,132 @@
+<div class="page">
+ <div class="page-header">
+  <div>
+    <h2>Contracte</h2>
+    <p>Toate contractele și actele adiționale aferente</p>
+     <div *ngIf="!loading && contracts.length > 0" class="results-info">
+  {{ contracts.length }} contracte găsite · afișate {{ pagedContracts.length }}
+</div>
+  </div>
+ 
+
+ <div class="export-box">
+  <div class="date-range">
+    <label>Perioadă scadență</label>
+
+    <div class="date-inputs">
+      <input type="date" [(ngModel)]="exportFrom">
+      <span>—</span>
+      <input type="date" [(ngModel)]="exportTo">
+    </div>
+  </div>
+
+  <button class="primary-btn" (click)="exportContractsExcel()">
+  📊 Export Excel
+</button>
+
+</div>
+</div>
+
+  <div class="card">
+    <div *ngIf="loading" class="empty">
+      Se încarcă...
+    </div>
+
+    <div *ngIf="!loading && contracts.length === 0" class="empty">
+      Nu există contracte.
+    </div>
+
+    <div class="contract-card" *ngFor="let c of pagedContracts">
+      <div class="contract-top">
+        <div>
+          <h3>{{ c.contractNumber }}</h3>
+          <p>{{ c.beneficiaryName }} · {{ c.beneficiaryEmail }}</p>
+        </div>
+
+        <span class="status" [ngClass]="c.status">
+          {{ c.status }}
+        </span>
+      </div>
+
+      <div class="contract-grid">
+        <div>
+          <label>Perioadă</label>
+          <strong>
+            {{ c.startDate | date:'dd.MM.yyyy' }}
+            -
+            {{ c.endDate ? (c.endDate | date:'dd.MM.yyyy') : 'Nelimitat' }}
+          </strong>
+        </div>
+
+        <div>
+          <label>Total</label>
+          <strong>{{ c.totalAmount || 0 }} lei</strong>
+        </div>
+
+        <div>
+          <label>Lunar</label>
+          <strong>{{ c.monthlyAmount || 0 }} lei</strong>
+        </div>
+
+        <div>
+          <label>Rate plătite</label>
+          <strong>{{ c.paidInstallmentsCount }}/{{ c.installmentsCount }}</strong>
+        </div>
+      </div>
+
+      <div class="acts-section">
+        <div class="acts-header">
+          <strong>Acte adiționale</strong>
+          <span>{{ c.additionalActs.length }}</span>
+        </div>
+
+        <div *ngIf="c.additionalActs.length === 0" class="empty-small">
+          Nu există acte adiționale pentru acest contract.
+        </div>
+
+        <div class="act-row" *ngFor="let a of c.additionalActs">
+          <div>
+            <strong>{{ a.actNumber }}</strong>
+            <p>{{ a.description }}</p>
+            <span>{{ a.createdAtUtc | date:'dd.MM.yyyy' }} · {{ a.itemsCount }} modificări</span>
+          </div>
+
+          <div class="act-actions">
+            <span class="status small" [ngClass]="a.status">
+              {{ a.status }}
+            </span>
+
+            <button class="secondary-btn" (click)="openAct(a.id)">
+              Detalii
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="contract-actions">
+        <button class="primary-btn" (click)="openContract(c.id)">
+          Vezi contract
+        </button>
+      </div>
+    </div>
+    <div class="pagination" *ngIf="contracts.length > pageSize">
+  <button
+    class="secondary-btn"
+    (click)="previousPage()"
+    [disabled]="currentPage === 1">
+    Înapoi
+  </button>
+
+  <span>
+    Pagina {{ currentPage }} din {{ totalPages }}
+  </span>
+
+  <button
+    class="secondary-btn"
+    (click)="nextPage()"
+    [disabled]="currentPage === totalPages">
+    Înainte
+  </button>
+</div>
+  </div>
+</div>

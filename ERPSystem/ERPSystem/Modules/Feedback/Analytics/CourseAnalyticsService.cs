@@ -17,178 +17,129 @@ namespace ERPSystem.Modules.Feedback.Analytics
         }
 
         public async Task<PublicResponse> GetCourseAnalyticsAsync(int courseSessionId)
-            {
-                PublicResponse response = new(true);
-
-                var sessionExists = await _context.CourseSessions
-                    .AnyAsync(x => x.Id == courseSessionId);
-
-                if (!sessionExists)
-                    return response.SetError("SessionNotFound", "Sesiunea nu a fost găsită.");
-
-                var courseReviews = await _context.CourseReviews
-                    .Where(x => x.CourseSessionId == courseSessionId)
-                    .ToListAsync();
-
-                var studentEvaluations = await _context.StudentEvaluations
-                    .Where(x => x.CourseSessionId == courseSessionId)
-                    .ToListAsync();
-
-                var allPositive = new List<int>();
-                var allNegative = new List<int>();
-                var allNeutral = new List<int>();
-
-                allPositive.AddRange(courseReviews.Where(x => x.PositivePercent.HasValue).Select(x => x.PositivePercent!.Value));
-                allPositive.AddRange(studentEvaluations.Where(x => x.PositivePercent.HasValue).Select(x => x.PositivePercent!.Value));
-
-                allNegative.AddRange(courseReviews.Where(x => x.NegativePercent.HasValue).Select(x => x.NegativePercent!.Value));
-                allNegative.AddRange(studentEvaluations.Where(x => x.NegativePercent.HasValue).Select(x => x.NegativePercent!.Value));
-
-                allNeutral.AddRange(courseReviews.Where(x => x.NeutralPercent.HasValue).Select(x => x.NeutralPercent!.Value));
-                allNeutral.AddRange(studentEvaluations.Where(x => x.NeutralPercent.HasValue).Select(x => x.NeutralPercent!.Value));
-
-                var averageRating = CalculateAverageRating(courseReviews, studentEvaluations);
-                var courseScore = CalculateCourseScore(courseReviews, studentEvaluations);
-                var topProblems = ExtractTopTopics(courseReviews, studentEvaluations);
-
-                var dto = new CourseAnalyticsDto
-                {
-                    CourseSessionId = courseSessionId,
-                    AverageRating = averageRating,
-                    CourseScore = courseScore,
-
-                    PositivePercent = allPositive.Any() ? Math.Round(allPositive.Average(), 2) : 0,
-                    NegativePercent = allNegative.Any() ? Math.Round(allNegative.Average(), 2) : 0,
-                    NeutralPercent = allNeutral.Any() ? Math.Round(allNeutral.Average(), 2) : 0,
-
-                    TopProblems = topProblems,
-                    Trend = CalculateTrend(courseReviews, studentEvaluations)
-                };
-
-                dto.Alerts = GenerateAlerts(dto);
-                dto.Recommendations = GenerateRecommendations(dto.TopProblems);
-                dto.Summary = GenerateSummary(dto);
-                dto.MainInsight = GenerateMainInsight(dto);
-
-                return response.SetSuccess(dto);
-            }
-
-        public async Task<PublicResponse> GetStudentAnalyticsAsync(int studentId)
-            {
-                PublicResponse response = new(true);
-
-                var studentExists = await _context.Students.AnyAsync(x => x.Id == studentId);
-
-                if (!studentExists)
-                    return response.SetError("StudentNotFound", "Cursantul nu a fost găsit.");
-
-                var evaluations = await _context.StudentEvaluations
-                    .Where(x => x.StudentId == studentId)
-                    .OrderBy(x => x.CreatedAt)
-                    .ToListAsync();
-
-                if (!evaluations.Any())
-                    return response.SetError("NoEvaluations", "Nu există evaluări pentru acest cursant.");
-
-                var topProblems = ExtractStudentTopTopics(evaluations);
-
-                var dto = new StudentAnalyticsDto
-                {
-                    StudentId = studentId,
-
-                    AverageRating = Math.Round(evaluations.Average(x => x.Rating), 2),
-
-                    AverageAttendanceScore = Math.Round(
-                        evaluations.Where(x => x.AttendanceScore.HasValue)
-                            .Select(x => x.AttendanceScore!.Value)
-                            .DefaultIfEmpty(0)
-                            .Average(), 2),
-
-                    AverageBehaviorScore = Math.Round(
-                        evaluations.Where(x => x.BehaviorScore.HasValue)
-                            .Select(x => x.BehaviorScore!.Value)
-                            .DefaultIfEmpty(0)
-                            .Average(), 2),
-
-                    AverageProgressScore = Math.Round(
-                        evaluations.Where(x => x.ProgressScore.HasValue)
-                            .Select(x => x.ProgressScore!.Value)
-                            .DefaultIfEmpty(0)
-                            .Average(), 2),
-
-                    AverageRiskScore = Math.Round(
-                        evaluations.Where(x => x.StudentRiskScore.HasValue)
-                            .Select(x => x.StudentRiskScore!.Value)
-                            .DefaultIfEmpty(0)
-                            .Average(), 2),
-
-                    PositivePercent = Math.Round(
-                        evaluations.Where(x => x.PositivePercent.HasValue)
-                            .Select(x => x.PositivePercent!.Value)
-                            .DefaultIfEmpty(0)
-                            .Average(), 2),
-
-                    NegativePercent = Math.Round(
-                        evaluations.Where(x => x.NegativePercent.HasValue)
-                            .Select(x => x.NegativePercent!.Value)
-                            .DefaultIfEmpty(0)
-                            .Average(), 2),
-
-                    NeutralPercent = Math.Round(
-                        evaluations.Where(x => x.NeutralPercent.HasValue)
-                            .Select(x => x.NeutralPercent!.Value)
-                            .DefaultIfEmpty(0)
-                            .Average(), 2),
-
-                    TopProblems = topProblems,
-                    Trend = CalculateStudentTrend(evaluations)
-                };
-
-                dto.Alerts = GenerateStudentAlerts(dto);
-                dto.Recommendations = GenerateStudentRecommendations(dto);
-                dto.Summary = GenerateStudentSummary(dto);
-                dto.MainInsight = GenerateStudentMainInsight(dto);
-
-                return response.SetSuccess(dto);
-            }
-
-        private double CalculateAverageRating( List<Data.Entities.CourseReview> courseReviews, List<Data.Entities.StudentEvaluation> studentEvaluations)
-            {
-                var ratings = new List<int>();
-
-                ratings.AddRange(courseReviews.Select(x => x.Rating));
-                ratings.AddRange(studentEvaluations.Select(x => x.Rating));
-
-                return ratings.Any() ? Math.Round(ratings.Average(), 2) : 0;
-            }
-
-        private double CalculateCourseScore( List<CourseReview> courseReviews, List<StudentEvaluation> studentEvaluations)
         {
-            var studentFeedbackScore = courseReviews.Any()
-                ? courseReviews.Average(x => x.Rating)
-                : 0;
+            PublicResponse response = new(true);
 
-            var teacherFeedbackScore = studentEvaluations.Any()
-                ? studentEvaluations.Average(x => x.Rating)
-                : 0;
+            var sessionExists = await _context.CourseSessions
+                .AnyAsync(x => x.Id == courseSessionId);
 
-            var score =
-                studentFeedbackScore * 0.7 +
-                teacherFeedbackScore * 0.3;
+            if (!sessionExists)
+                return response.SetError("SessionNotFound", "Sesiunea nu a fost găsită.");
 
-            return Math.Round(score, 2);
+            var courseReviews = await _context.CourseReviews
+                .Where(x => x.CourseSessionId == courseSessionId)
+                .OrderBy(x => x.CreatedAt)
+                .ToListAsync();
+
+            if (!courseReviews.Any())
+                return response.SetError("NoCourseReviews", "Nu există recenzii pentru această sesiune.");
+
+            var percentages = NormalizePercentages(
+                courseReviews.Where(x => x.PositivePercent.HasValue).Select(x => x.PositivePercent!.Value),
+                courseReviews.Where(x => x.NegativePercent.HasValue).Select(x => x.NegativePercent!.Value),
+                courseReviews.Where(x => x.NeutralPercent.HasValue).Select(x => x.NeutralPercent!.Value)
+            );
+
+            var topProblems = ExtractTopTopics(courseReviews);
+
+            var dto = new CourseAnalyticsDto
+            {
+                CourseSessionId = courseSessionId,
+                TotalReviews = courseReviews.Count,
+
+                AverageRating = AverageOrZero(courseReviews.Select(x => x.Rating)),
+                CourseScore = CalculateCourseScore(courseReviews),
+
+                TeacherScore = AverageOrZero(
+                    courseReviews
+                        .Where(x => x.TeacherScore.HasValue)
+                        .Select(x => x.TeacherScore!.Value)),
+
+                BehaviorScore = AverageOrZero(
+                    courseReviews
+                        .Where(x => x.BehaviorScore.HasValue)
+                        .Select(x => x.BehaviorScore!.Value)),
+
+                PositivePercent = percentages.Positive,
+                NegativePercent = percentages.Negative,
+                NeutralPercent = percentages.Neutral,
+
+                PositiveReviewsCount = courseReviews.Count(x => x.Sentiment == "pozitiv"),
+                NegativeReviewsCount = courseReviews.Count(x => x.Sentiment == "negativ"),
+                NeutralReviewsCount = courseReviews.Count(x => x.Sentiment == "neutru"),
+
+                TopProblems = topProblems,
+                Trend = CalculateTrend(courseReviews)
+            };
+
+            dto.NeedsAttention =
+                dto.NegativePercent >= 40 ||
+                dto.AverageRating < 3 ||
+                dto.CourseScore < 0.6 ||
+                dto.TeacherScore < 0.6;
+
+            dto.RiskLevel = dto.NeedsAttention switch
+            {
+                true when dto.NegativePercent >= 50 || dto.AverageRating < 2.5 => "high",
+                true => "medium",
+                _ => "low"
+            };
+
+            dto.Alerts = GenerateAlerts(dto);
+            dto.Recommendations = GenerateRecommendations(dto.TopProblems);
+            dto.Summary = GenerateSummary(dto);
+            dto.MainInsight = GenerateMainInsight(dto);
+
+            return response.SetSuccess(dto);
         }
 
-        private List<TopicSummaryDto> ExtractTopTopics( List<CourseReview> courseReviews,List<StudentEvaluation> studentEvaluations)
+        private double CalculateCourseScore(List<CourseReview> reviews)
+        {
+            var ratingScore = AverageOrZero(reviews.Select(x => x.Rating)) / 5.0;
+
+            var nlpCourseScore = AverageOrZero(
+                reviews
+                    .Where(x => x.CourseScore.HasValue)
+                    .Select(x => x.CourseScore!.Value));
+
+            if (nlpCourseScore == 0)
+                nlpCourseScore = ratingScore;
+
+            var detailedScores = new List<double>();
+
+            var structure = AverageOrZero(
+                reviews.Where(x => x.CourseStructureRating.HasValue)
+                    .Select(x => x.CourseStructureRating!.Value)) / 5.0;
+
+            var pace = AverageOrZero(
+                reviews.Where(x => x.CoursePaceRating.HasValue)
+                    .Select(x => x.CoursePaceRating!.Value)) / 5.0;
+
+            var materials = AverageOrZero(
+                reviews.Where(x => x.MaterialsRating.HasValue)
+                    .Select(x => x.MaterialsRating!.Value)) / 5.0;
+
+            if (structure > 0) detailedScores.Add(structure);
+            if (pace > 0) detailedScores.Add(pace);
+            if (materials > 0) detailedScores.Add(materials);
+
+            var detailedScore = detailedScores.Any()
+                ? detailedScores.Average()
+                : ratingScore;
+
+            return Math.Round(
+                ratingScore * 0.4 +
+                detailedScore * 0.3 +
+                nlpCourseScore * 0.3,
+                2
+            );
+        }
+
+        private List<TopicSummaryDto> ExtractTopTopics(List<CourseReview> reviews)
         {
             var topicCounts = new Dictionary<string, int>();
 
-            var topicsJsonValues = new List<string?>();
-
-            topicsJsonValues.AddRange(courseReviews.Select(x => x.TopicsJson));
-            topicsJsonValues.AddRange(studentEvaluations.Select(x => x.TopicsJson));
-
-            foreach (var json in topicsJsonValues.Where(x => !string.IsNullOrWhiteSpace(x)))
+            foreach (var json in reviews.Select(x => x.TopicsJson).Where(x => !string.IsNullOrWhiteSpace(x)))
             {
                 try
                 {
@@ -201,10 +152,7 @@ namespace ERPSystem.Modules.Feedback.Analytics
                         if (string.IsNullOrWhiteSpace(name))
                             continue;
 
-                        if (!topicCounts.ContainsKey(name))
-                            topicCounts[name] = 0;
-
-                        topicCounts[name]++;
+                        topicCounts[name] = topicCounts.GetValueOrDefault(name) + 1;
                     }
                 }
                 catch
@@ -229,270 +177,134 @@ namespace ERPSystem.Modules.Feedback.Analytics
                 .ToList();
         }
 
-        private List<string> GenerateAlerts(CourseAnalyticsDto dto)
-            {
-                var alerts = new List<string>();
-
-                if (dto.NegativePercent > 40)
-                    alerts.Add("Sentimentul negativ depășește 40%.");
-
-                if (dto.AverageRating > 0 && dto.AverageRating < 3)
-                    alerts.Add("Ratingul mediu este sub 3.");
-
-                if (dto.TopProblems.Any(x => x.Name == "Ritm curs"))
-                    alerts.Add("Există probleme frecvente legate de ritmul cursului.");
-
-                return alerts;
-            }
-
-        private List<string> GenerateRecommendations(List<TopicSummaryDto> topics)
-            {
-                var recommendations = new List<string>();
-
-                if (topics.Any(x => x.Name == "Ritm curs"))
-                    recommendations.Add("Reduce ritmul cursului sau adaugă sesiuni de recapitulare.");
-
-                if (topics.Any(x => x.Name == "Materiale"))
-                    recommendations.Add("Îmbunătățește materialele de curs și adaugă exemple suplimentare.");
-
-                if (topics.Any(x => x.Name == "Exerciții practice"))
-                    recommendations.Add("Adaugă mai multe exerciții practice și aplicații.");
-
-                if (topics.Any(x => x.Name == "Calitate profesor"))
-                    recommendations.Add("Analizează claritatea explicațiilor și nivelul de suport oferit de profesor.");
-
-                return recommendations;
-            }
-
-        private string GenerateSummary(CourseAnalyticsDto dto)
-            {
-                if (dto.AverageRating == 0 && !dto.TopProblems.Any())
-                    return "Nu există suficiente date pentru generarea unui rezumat.";
-
-                var mainProblem = dto.TopProblems.FirstOrDefault()?.Name;
-
-                if (dto.NegativePercent > 40 && mainProblem != null)
-                {
-                    return $"Feedback-ul indică un nivel ridicat de nemulțumire. Principala problemă identificată este '{mainProblem}', iar ratingul mediu este {dto.AverageRating}/5.";
-                }
-
-                if (dto.PositivePercent > dto.NegativePercent && mainProblem != null)
-                {
-                    return $"Feedback-ul este predominant pozitiv, cu un rating mediu de {dto.AverageRating}/5. Totuși, tema '{mainProblem}' apare frecvent în comentarii și ar trebui monitorizată.";
-                }
-
-                if (dto.PositivePercent > 60)
-                {
-                    return $"Cursul are o percepție generală pozitivă, cu {dto.PositivePercent}% sentiment pozitiv și rating mediu {dto.AverageRating}/5.";
-                }
-
-                if (dto.NegativePercent > dto.PositivePercent)
-                {
-                    return $"Feedback-ul sugerează nemulțumiri recurente. Este recomandată analiza detaliată a comentariilor și a temelor identificate.";
-                }
-
-                return $"Feedback-ul este mixt. Ratingul mediu este {dto.AverageRating}/5, iar principalele teme identificate trebuie urmărite în evoluție.";
-            }
-
-        private List<TrendDto> CalculateTrend( List<CourseReview> courseReviews,List<StudentEvaluation> studentEvaluations)
+        private List<TrendDto> CalculateTrend(List<CourseReview> reviews)
         {
-            var items = new List<(DateTime CreatedAt, int? Rating, int? PositivePercent, int? NegativePercent)>();
-
-            items.AddRange(courseReviews.Select(x =>
-                (x.CreatedAt, (int?)x.Rating, x.PositivePercent, x.NegativePercent)));
-
-            items.AddRange(studentEvaluations.Select(x =>
-                (x.CreatedAt, (int?)x.Rating, x.PositivePercent, x.NegativePercent)));
-
-            return items
-                .Where(x => x.Rating.HasValue)
-                .GroupBy(x => new
-                {
-                    x.CreatedAt.Year,
-                    x.CreatedAt.Month
-                })
+            return reviews
+                .GroupBy(x => new { x.CreatedAt.Year, x.CreatedAt.Month })
                 .OrderBy(x => x.Key.Year)
                 .ThenBy(x => x.Key.Month)
                 .Select(g => new TrendDto
                 {
                     Month = $"{g.Key.Month:00}.{g.Key.Year}",
-                    AverageRating = Math.Round(g.Average(x => x.Rating!.Value), 2),
-                    PositivePercent = Math.Round(
-                        g.Where(x => x.PositivePercent.HasValue)
-                            .Select(x => x.PositivePercent!.Value)
-                            .DefaultIfEmpty(0)
-                            .Average(), 2),
-                    NegativePercent = Math.Round(
-                        g.Where(x => x.NegativePercent.HasValue)
-                            .Select(x => x.NegativePercent!.Value)
-                            .DefaultIfEmpty(0)
-                            .Average(), 2),
+                    AverageRating = Math.Round(g.Average(x => x.Rating), 2),
+                    PositivePercent = AverageOrZero(g.Where(x => x.PositivePercent.HasValue).Select(x => x.PositivePercent!.Value)),
+                    NegativePercent = AverageOrZero(g.Where(x => x.NegativePercent.HasValue).Select(x => x.NegativePercent!.Value)),
                     ReviewCount = g.Count()
                 })
                 .ToList();
         }
 
+        private List<string> GenerateAlerts(CourseAnalyticsDto dto)
+        {
+            var alerts = new List<string>();
+
+            if (dto.NegativePercent >= 40)
+                alerts.Add("Sentimentul negativ depășește 40%.");
+
+            if (dto.AverageRating > 0 && dto.AverageRating < 3)
+                alerts.Add("Ratingul mediu este sub 3.");
+
+            if (dto.CourseScore > 0 && dto.CourseScore < 0.6)
+                alerts.Add("Scorul general al cursului este scăzut.");
+
+            if (dto.TeacherScore > 0 && dto.TeacherScore < 0.6)
+                alerts.Add("Scorul profesorului este sub nivelul recomandat.");
+
+            if (dto.TopProblems.Any(x => x.Name == "Ritm curs"))
+                alerts.Add("Există probleme frecvente legate de ritmul cursului.");
+
+            return alerts;
+        }
+
+        private List<string> GenerateRecommendations(List<TopicSummaryDto> topics)
+        {
+            var recommendations = new List<string>();
+
+            if (topics.Any(x => x.Name == "Ritm curs"))
+                recommendations.Add("Reduce ritmul cursului sau adaugă sesiuni de recapitulare.");
+
+            if (topics.Any(x => x.Name == "Materiale"))
+                recommendations.Add("Îmbunătățește materialele de curs și adaugă exemple suplimentare.");
+
+            if (topics.Any(x => x.Name == "Exerciții practice"))
+                recommendations.Add("Adaugă mai multe exerciții practice și aplicații.");
+
+            if (topics.Any(x => x.Name == "Calitate profesor"))
+                recommendations.Add("Analizează claritatea explicațiilor și nivelul de suport oferit de profesor.");
+
+            if (topics.Any(x => x.Name == "Structură curs"))
+                recommendations.Add("Revizuiește structura cursului și ordinea capitolelor.");
+
+            if (!recommendations.Any())
+                recommendations.Add("Cursul are feedback stabil. Continuă monitorizarea recenziilor.");
+
+            return recommendations;
+        }
+
+        private string GenerateSummary(CourseAnalyticsDto dto)
+        {
+            var mainProblem = dto.TopProblems.FirstOrDefault()?.Name;
+
+            if (dto.NegativePercent >= 40 && mainProblem != null)
+                return $"Feedback-ul indică nemulțumire ridicată. Principala problemă este '{mainProblem}', iar ratingul mediu este {dto.AverageRating}/5.";
+
+            if (dto.PositivePercent >= 60)
+                return $"Cursul are o percepție pozitivă, cu {dto.PositivePercent}% sentiment pozitiv și rating mediu {dto.AverageRating}/5.";
+
+            if (dto.NegativePercent > dto.PositivePercent)
+                return "Feedback-ul sugerează nemulțumiri recurente și necesită analiză detaliată.";
+
+            return $"Feedback-ul este mixt. Ratingul mediu este {dto.AverageRating}/5.";
+        }
+
         private string GenerateMainInsight(CourseAnalyticsDto dto)
-            {
-                if (dto.NegativePercent > 40)
-                    return "Nivelul de feedback negativ este ridicat și necesită intervenție.";
+        {
+            if (dto.NegativePercent >= 40)
+                return "Nivelul de feedback negativ este ridicat și necesită intervenție.";
 
-                if (dto.CourseScore >= 4)
-                    return "Cursul are performanță bună și feedback favorabil.";
+            if (dto.CourseScore >= 0.8)
+                return "Cursul are performanță bună și feedback favorabil.";
 
-                if (dto.CourseScore > 0 && dto.CourseScore < 3)
-                    return "Scorul general al cursului este scăzut și necesită îmbunătățiri.";
+            if (dto.CourseScore > 0 && dto.CourseScore < 0.6)
+                return "Scorul general al cursului este scăzut și necesită îmbunătățiri.";
 
-                if (dto.TopProblems.Any())
-                    return $"Tema dominantă în feedback este: {dto.TopProblems.First().Name}.";
+            if (dto.TopProblems.Any())
+                return $"Tema dominantă în feedback este: {dto.TopProblems.First().Name}.";
 
-                return "Nu există încă suficiente date pentru un insight clar.";
-            }
+            return "Nu există încă suficiente date pentru un insight clar.";
+        }
 
-        private List<TopicSummaryDto> ExtractStudentTopTopics(List<Data.Entities.StudentEvaluation> evaluations)
-            {
-                var topicCounts = new Dictionary<string, int>();
+        private static double AverageOrZero(IEnumerable<int> values)
+        {
+            var list = values.ToList();
+            return list.Any() ? Math.Round(list.Average(), 2) : 0;
+        }
 
-                foreach (var json in evaluations
-                    .Select(x => x.TopicsJson)
-                    .Where(x => !string.IsNullOrWhiteSpace(x)))
-                {
-                    try
-                    {
-                        var topics = Newtonsoft.Json.Linq.JArray.Parse(json!);
+        private static double AverageOrZero(IEnumerable<double> values)
+        {
+            var list = values.ToList();
+            return list.Any() ? Math.Round(list.Average(), 2) : 0;
+        }
 
-                        foreach (var topic in topics)
-                        {
-                            var name = topic["name"]?.ToString();
+        private static (double Positive, double Negative, double Neutral) NormalizePercentages(
+            IEnumerable<int> positives,
+            IEnumerable<int> negatives,
+            IEnumerable<int> neutrals)
+        {
+            var positive = positives.Any() ? positives.Average() : 0;
+            var negative = negatives.Any() ? negatives.Average() : 0;
+            var neutral = neutrals.Any() ? neutrals.Average() : 0;
 
-                            if (string.IsNullOrWhiteSpace(name))
-                                continue;
+            var total = positive + negative + neutral;
 
-                            if (!topicCounts.ContainsKey(name))
-                                topicCounts[name] = 0;
+            if (total == 0)
+                return (0, 0, 0);
 
-                            topicCounts[name]++;
-                        }
-                    }
-                    catch
-                    {
-                    }
-                }
+            var normalizedPositive = Math.Round(positive / total * 100, 2);
+            var normalizedNegative = Math.Round(negative / total * 100, 2);
+            var normalizedNeutral = Math.Round(100 - normalizedPositive - normalizedNegative, 2);
 
-                var total = topicCounts.Values.Sum();
-
-                if (total == 0)
-                    return new List<TopicSummaryDto>();
-
-                return topicCounts
-                    .OrderByDescending(x => x.Value)
-                    .Take(5)
-                    .Select(x => new TopicSummaryDto
-                    {
-                        Name = x.Key,
-                        Count = x.Value,
-                        Percent = Math.Round((double)x.Value / total * 100, 2)
-                    })
-                    .ToList();
-            }
-
-        private List<TrendDto> CalculateStudentTrend(List<Data.Entities.StudentEvaluation> evaluations)
-            {
-                return evaluations
-                    .GroupBy(x => new
-                    {
-                        x.CreatedAt.Year,
-                        x.CreatedAt.Month
-                    })
-                    .OrderBy(x => x.Key.Year)
-                    .ThenBy(x => x.Key.Month)
-                    .Select(g => new TrendDto
-                    {
-                        Month = $"{g.Key.Month:00}.{g.Key.Year}",
-                        AverageRating = Math.Round(g.Average(x => x.Rating), 2),
-                        PositivePercent = Math.Round(
-                            g.Where(x => x.PositivePercent.HasValue)
-                                .Select(x => x.PositivePercent!.Value)
-                                .DefaultIfEmpty(0)
-                                .Average(), 2),
-                        NegativePercent = Math.Round(
-                            g.Where(x => x.NegativePercent.HasValue)
-                                .Select(x => x.NegativePercent!.Value)
-                                .DefaultIfEmpty(0)
-                                .Average(), 2),
-                        ReviewCount = g.Count()
-                    })
-                    .ToList();
-            }
-
-        private List<string> GenerateStudentAlerts(StudentAnalyticsDto dto)
-            {
-                var alerts = new List<string>();
-
-                if (dto.AverageRiskScore >= 70)
-                    alerts.Add("Cursantul are risc ridicat de abandon.");
-
-                if (dto.AverageProgressScore > 0 && dto.AverageProgressScore < 3)
-                    alerts.Add("Progresul cursantului este scăzut.");
-
-                if (dto.AverageAttendanceScore > 0 && dto.AverageAttendanceScore < 3)
-                    alerts.Add("Prezența cursantului este problematică.");
-
-                if (dto.NegativePercent > 40)
-                    alerts.Add("Evaluările profesorilor indică sentiment negativ ridicat.");
-
-                return alerts;
-            }
-
-        private List<string> GenerateStudentRecommendations(StudentAnalyticsDto dto)
-            {
-                var recommendations = new List<string>();
-
-                if (dto.AverageRiskScore >= 70)
-                    recommendations.Add("Recomandare: contactează cursantul și stabilește o discuție individuală.");
-
-                if (dto.AverageProgressScore > 0 && dto.AverageProgressScore < 3)
-                    recommendations.Add("Recomandare: oferă exerciții suplimentare și sesiuni de recapitulare.");
-
-                if (dto.AverageAttendanceScore > 0 && dto.AverageAttendanceScore < 3)
-                    recommendations.Add("Recomandare: verifică motivele absențelor și discută cu cursantul.");
-
-                if (dto.AverageBehaviorScore > 0 && dto.AverageBehaviorScore < 3)
-                    recommendations.Add("Recomandare: monitorizează comportamentul cursantului la următoarele sesiuni.");
-
-                if (!recommendations.Any())
-                    recommendations.Add("Cursantul are o evoluție stabilă. Continuă monitorizarea periodică.");
-
-                return recommendations;
-            }
-
-        private string GenerateStudentSummary(StudentAnalyticsDto dto)
-            {
-                if (dto.AverageRiskScore >= 70)
-                    return $"Cursantul prezintă risc ridicat, cu un scor AI mediu de {dto.AverageRiskScore}% și progres mediu {dto.AverageProgressScore}/5.";
-
-                if (dto.AverageProgressScore >= 4 && dto.AverageAttendanceScore >= 4)
-                    return $"Cursantul are o evoluție bună, cu prezență și progres peste medie.";
-
-                if (dto.NegativePercent > dto.PositivePercent)
-                    return "Evaluările indică dificultăți recurente care necesită monitorizare.";
-
-                return "Cursantul are o evoluție generală stabilă.";
-            } 
-
-        private string GenerateStudentMainInsight(StudentAnalyticsDto dto)
-            {
-                if (dto.AverageRiskScore >= 70)
-                    return "Risc ridicat de abandon.";
-
-                if (dto.AverageProgressScore < 3 && dto.AverageProgressScore > 0)
-                    return "Progres scăzut.";
-
-                if (dto.AverageAttendanceScore < 3 && dto.AverageAttendanceScore > 0)
-                    return "Prezență scăzută.";
-
-                return "Evoluție stabilă.";
-            }
+            return (normalizedPositive, normalizedNegative, normalizedNeutral);
         }
     }
-
+}

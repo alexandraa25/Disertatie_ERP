@@ -4,81 +4,282 @@
       <h2>Feedback extern</h2>
       <p>Monitorizare feedback extern și reputație publică</p>
     </div>
-
   </div>
 
-  <div class="toolbar">
-  <select [(ngModel)]="filter.targetType" (change)="onFilterTargetTypeChange()">
-    <option value="">Toate țintele</option>
-    <option value="General">General</option>
-    <option value="Course">Curs</option>
-    <option value="CourseSession">Sesiune</option>
-    <option value="Teacher">Profesor</option>
-    <option value="Student">Cursant</option>
-  </select>
+  <div class="tabs">
+    <button type="button" [class.active]="activeTab === 'reviews'" (click)="activeTab = 'reviews'">
+      Feedbackuri
+    </button>
 
-  <select
-    [(ngModel)]="filter.targetId"
-    (change)="onFilterChange()"
-    [disabled]="!filter.targetType || filter.targetType === 'General'">
+    <button type="button" [class.active]="activeTab === 'analytics'" (click)="setTab('analytics')">
+      Analiză reputație
+    </button>
+  </div>
 
-    <option [ngValue]="null">
-      {{ filter.targetType && filter.targetType !== 'General' ? 'Toate' : 'Fără țintă' }}
-    </option>
+  <div *ngIf="activeTab === 'reviews'">
+    <div class="toolbar">
+      <select [(ngModel)]="filter.targetType" (change)="onFilterTargetTypeChange()">
+        <option value="">Toate țintele</option>
+        <option value="General">General</option>
+        <option value="Course">Curs</option>
+        <option value="CourseSession">Sesiune</option>
+        <option value="Teacher">Profesor</option>
+        <option value="Student">Cursant</option>
+      </select>
 
-    <option *ngFor="let item of filterTargetOptions" [ngValue]="item.id">
-      {{ item.name }}
-    </option>
-  </select>
+      <select [(ngModel)]="filter.targetId" (change)="onFilterChange()"
+        [disabled]="!filter.targetType || filter.targetType === 'General'">
 
-  <select [(ngModel)]="filter.source" (change)="onFilterChange()">
-    <option value="">Toate sursele</option>
-    <option value="Manual">Manual</option>
-    <option value="Google">Google</option>
-    <option value="Facebook">Facebook</option>
-    <option value="CSV">CSV</option>
-  </select>
+        <option [ngValue]="null">
+          {{ filter.targetType && filter.targetType !== 'General' ? 'Toate' : 'Fără țintă' }}
+        </option>
 
-  <button class="primary-btn add-btn" (click)="openCreateModal()">
-    + Adaugă feedback extern
-  </button>
-</div>
+        <option *ngFor="let item of filterTargetOptions" [ngValue]="item.id">
+          {{ item.name }}
+        </option>
+      </select>
 
-  <div class="card">
-    <div class="card-header">
-      <h3>Feedbackuri externe</h3>
-      <span>{{ reviews.length }} rezultate</span>
+      <select [(ngModel)]="filter.source" (change)="onFilterChange()">
+        <option value="">Toate sursele</option>
+        <option value="Manual">Manual</option>
+        <option value="Google">Google</option>
+        <option value="Facebook">Facebook</option>
+        <option value="CSV">CSV</option>
+      </select>
+
+      <button class="primary-btn add-btn" (click)="openCreateModal()">
+        + Adaugă feedback extern
+      </button>
     </div>
 
-    <div *ngIf="loadingReviews">Se încarcă...</div>
-
-    <div *ngIf="!loadingReviews && reviews.length === 0" class="empty">
-      Nu există feedbackuri externe.
-    </div>
-
-    <div class="review" *ngFor="let r of reviews">
-      <div class="review-top">
-        <strong>{{ r.source }}</strong>
-        <span>{{ r.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
-      </div>
-
-      <div class="meta">
-        {{ r.targetType }} <span *ngIf="r.targetId">#{{ r.targetId }}</span>
-        · Rating: {{ r.rating || '-' }}/5
-      </div>
-
-      <p>{{ r.comment }}</p>
-
-      <div class="ai-row" *ngIf="r.sentiment">
-        <span class="sentiment" [ngClass]="r.sentiment">{{ r.sentiment }}</span>
-        <span>Scor: {{ r.sentimentScore }}</span>
-        <span>Percepție: {{ r.publicPerceptionScore }}</span>
-      </div>
-
-      <div class="tags" *ngIf="parseKeywords(r.keywords).length">
-        <span *ngFor="let k of parseKeywords(r.keywords)">
-          {{ k }}
+    <div class="card">
+      <div class="card-header">
+        <h3>Feedbackuri externe</h3>
+        <span>
+          {{ reviews.length }} rezultate · afișate {{ pagedReviews.length }}
         </span>
+      </div>
+
+      <div *ngIf="loadingReviews" class="empty">
+        Se încarcă...
+      </div>
+
+      <div *ngIf="!loadingReviews && reviews.length === 0" class="empty">
+        Nu există feedbackuri externe.
+      </div>
+
+      <div class="review" *ngFor="let r of pagedReviews">
+        <div class="review-top">
+          <strong>{{ r.source }}</strong>
+          <span>{{ r.createdAt | date:'dd.MM.yyyy HH:mm' }}</span>
+        </div>
+
+        <div class="meta">
+          {{ r.targetType }}
+          <span *ngIf="r.targetId">#{{ r.targetId }}</span>
+          · Rating: {{ r.rating || '-' }}/5
+        </div>
+
+        <p>{{ r.comment }}</p>
+
+        <button type="button" class="secondary-btn ai-toggle-btn" *ngIf="r.sentiment"
+          (click)="toggleReviewAnalysis(r.id)">
+          {{ isReviewAnalysisOpen(r.id) ? 'Ascunde analiza AI' : 'Vezi analiza AI' }}
+        </button>
+
+        <div class="ai-review" *ngIf="r.sentiment && isReviewAnalysisOpen(r.id)">
+          <div class="ai-review-header">
+            <strong>Analiză AI review</strong>
+
+            <span class="sentiment" [ngClass]="r.sentiment">
+              {{ r.sentiment }}
+            </span>
+          </div>
+
+          <div class="ai-grid">
+            <div>
+              <label>Scor sentiment</label>
+              <strong>{{ r.sentimentScore ?? '-' }}</strong>
+            </div>
+
+            <div>
+              <label>Pozitiv</label>
+              <strong>{{ r.positivePercent || 0 }}%</strong>
+            </div>
+
+            <div>
+              <label>Negativ</label>
+              <strong>{{ r.negativePercent || 0 }}%</strong>
+            </div>
+
+            <div>
+              <label>Neutru</label>
+              <strong>{{ r.neutralPercent || 0 }}%</strong>
+            </div>
+
+            <div>
+              <label>Emoție</label>
+              <strong>{{ r.emotion || '-' }}</strong>
+            </div>
+
+            <div>
+              <label>Percepție publică</label>
+              <strong>{{ r.publicPerceptionScore ?? '-' }}</strong>
+            </div>
+          </div>
+
+          <div class="tags" *ngIf="parseKeywords(r.keywords).length">
+            <span *ngFor="let k of parseKeywords(r.keywords)">
+              {{ k }}
+            </span>
+          </div>
+
+          <div class="tags" *ngIf="parseTopics(r.topicsJson).length">
+            <span *ngFor="let t of parseTopics(r.topicsJson)">
+              {{ t.name }} - {{ t.percent }}%
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pagination" *ngIf="reviews.length > pageSize">
+        <button type="button" class="secondary-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+          Înapoi
+        </button>
+
+        <span>
+          Pagina {{ currentPage }} din {{ totalPages }}
+        </span>
+
+        <button type="button" class="secondary-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+          Înainte
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'analytics'">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h3>Analiză reputație</h3>
+          <p>Analiză agregată pentru feedbackurile filtrate</p>
+        </div>
+
+        <span *ngIf="analytics" [ngClass]="analytics.reputationRiskLevel">
+          Risc: {{ analytics.reputationRiskLevel || 'low' }}
+        </span>
+      </div>
+
+      <p class="analytics-context">
+        Analiză bazată pe {{ reviews.length }} feedbackuri filtrate.
+      </p>
+
+      <div *ngIf="loadingAnalytics" class="empty">
+        Se încarcă analiza AI...
+      </div>
+
+      <div *ngIf="!loadingAnalytics && !analytics" class="empty">
+        Nu există date suficiente pentru analiza reputației.
+      </div>
+
+      <div *ngIf="!loadingAnalytics && analytics">
+        <div class="summary-card">
+          <div>
+            <strong>Total review-uri</strong>
+            <span>{{ analytics.totalReviews || 0 }}</span>
+          </div>
+
+          <div>
+            <strong>Rating mediu</strong>
+            <span>{{ analytics.averageRating || 0 }}/5</span>
+          </div>
+
+          <div>
+            <strong>Percepție publică</strong>
+            <span>{{ analytics.publicPerceptionScore || 0 }}</span>
+          </div>
+
+          <div>
+            <strong>Pozitiv</strong>
+            <span>{{ analytics.positivePercent || 0 }}%</span>
+          </div>
+
+          <div>
+            <strong>Negativ</strong>
+            <span>{{ analytics.negativePercent || 0 }}%</span>
+          </div>
+
+          <div>
+            <strong>Neutru</strong>
+            <span>{{ analytics.neutralPercent || 0 }}%</span>
+          </div>
+        </div>
+
+        <div class="alert-box" *ngIf="analytics.urgentResponseNeeded">
+          ⚠️ Este necesar un răspuns sau o acțiune rapidă pentru feedbackul extern.
+        </div>
+
+        <div class="ai-section" *ngIf="analytics.mainInsight">
+          <h4>Insight principal</h4>
+          <p>{{ analytics.mainInsight }}</p>
+        </div>
+
+        <div class="ai-section" *ngIf="analytics.summary">
+          <h4>Rezumat AI</h4>
+          <p>{{ analytics.summary }}</p>
+        </div>
+
+        <div class="ai-section" *ngIf="analytics.topTopics?.length">
+          <h4>Top teme</h4>
+
+          <div class="problem-row" *ngFor="let t of analytics.topTopics">
+            <div>
+              <strong>{{ t.name }}</strong>
+              <span>{{ t.count }} mențiuni</span>
+            </div>
+
+            <div class="bar">
+              <div class="fill" [style.width.%]="t.percent"></div>
+            </div>
+
+            <span>{{ t.percent }}%</span>
+          </div>
+        </div>
+
+        <div class="ai-section" *ngIf="analytics.alerts?.length">
+          <h4>Alerte</h4>
+
+          <div class="alert-box" *ngFor="let a of analytics.alerts">
+            ⚠️ {{ a }}
+          </div>
+        </div>
+
+        <div class="ai-section" *ngIf="analytics.recommendations?.length">
+          <h4>Recomandări</h4>
+
+          <div class="recommendation-box" *ngFor="let r of analytics.recommendations">
+            🤖 {{ r }}
+          </div>
+        </div>
+
+        <div class="ai-section" *ngIf="analytics.reviewsBySource">
+          <h4>Distribuție pe surse</h4>
+
+          <div class="source-row" *ngFor="let item of analytics.reviewsBySource | keyvalue">
+            <strong>{{ item.key }}</strong>
+            <span>{{ item.value }} review-uri</span>
+          </div>
+        </div>
+
+        <div class="ai-section" *ngIf="analytics.reviewsByTargetType">
+          <h4>Distribuție pe tip țintă</h4>
+
+          <div class="source-row" *ngFor="let item of analytics.reviewsByTargetType | keyvalue">
+            <strong>{{ item.key }}</strong>
+            <span>{{ item.value }} review-uri</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -105,4 +105,22 @@ finalizeAct(id: number) {
 getActs(contractId: number) {
   return this.http.get(`${this.baseUrl}/${contractId}/additional-acts`);
 }
+
+getContractsOverview() {
+  return this.http.get(`${this.baseUrl}/overview`);
+}
+
+exportContractsExcel(from?: string | null, to?: string | null) {
+  const params: any = {};
+
+  if (from) params.from = from;
+  if (to) params.to = to;
+
+  return this.http.get(`${this.baseUrl}/export`, {
+    params,
+    responseType: 'blob'
+  });
+}
+
+
 }

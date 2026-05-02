@@ -161,26 +161,81 @@
   <div *ngIf="!loadingAnalytics && analytics">
 
     <div class="summary-card">
-      <div>
-        <strong>Scor curs</strong>
-        <span>{{ analytics.courseScore || 0 }}/5</span>
-      </div>
+  <div>
+    <strong>Total feedbackuri</strong>
+    <span>{{ analytics.totalReviews || 0 }}</span>
+  </div>
 
-      <div>
-        <strong>Rating mediu</strong>
-        <span>{{ analytics.averageRating || 0 }}/5</span>
-      </div>
+  <div>
+    <strong>Scor curs</strong>
+    <span>{{ analytics.courseScore || 0 }}</span>
+  </div>
 
-      <div>
-        <strong>Pozitiv</strong>
-        <span>{{ analytics.positivePercent || 0 }}%</span>
-      </div>
+  <div>
+    <strong>Scor profesor</strong>
+    <span>{{ analytics.teacherScore || 0 }}</span>
+  </div>
 
-      <div>
-        <strong>Negativ</strong>
-        <span>{{ analytics.negativePercent || 0 }}%</span>
-      </div>
+  <div>
+    <strong>Rating mediu</strong>
+    <span>{{ analytics.averageRating || 0 }}/5</span>
+  </div>
+
+  <div>
+    <strong>Pozitiv</strong>
+    <span>{{ analytics.positivePercent || 0 }}%</span>
+  </div>
+
+  <div>
+    <strong>Negativ</strong>
+    <span>{{ analytics.negativePercent || 0 }}%</span>
+  </div>
+
+  <div>
+    <strong>Neutru</strong>
+    <span>{{ analytics.neutralPercent || 0 }}%</span>
+  </div>
+
+  <div>
+    <strong>Nivel risc</strong>
+    <span [ngClass]="analytics.riskLevel">
+      {{ analytics.riskLevel || 'low' }}
+    </span>
+  </div>
+</div>
+
+<div class="ai-analysis" *ngIf="analytics.needsAttention">
+  <div class="ai-header">
+    <strong>Necesită atenție</strong>
+  </div>
+
+  <div class="alert-box">
+    ⚠️ Această sesiune necesită monitorizare sau intervenție.
+  </div>
+</div>
+
+<div class="ai-analysis">
+  <div class="ai-header">
+    <strong>Distribuție feedbackuri</strong>
+  </div>
+
+  <div class="ai-grid">
+    <div>
+      <label>Pozitive</label>
+      <strong>{{ analytics.positiveReviewsCount || 0 }}</strong>
     </div>
+
+    <div>
+      <label>Negative</label>
+      <strong>{{ analytics.negativeReviewsCount || 0 }}</strong>
+    </div>
+
+    <div>
+      <label>Neutre</label>
+      <strong>{{ analytics.neutralReviewsCount || 0 }}</strong>
+    </div>
+  </div>
+</div>
 
     <div class="ai-analysis" *ngIf="analytics.mainInsight">
       <div class="ai-header">

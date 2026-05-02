@@ -383,26 +383,62 @@
   line-height: 1.5;
 }
 
-@media (max-width: 600px) {
+.risk-high {
+  color: #dc2626 !important;
+}
+
+.risk-medium {
+  color: #d97706 !important;
+}
+
+.risk-low {
+  color: #16a34a !important;
+}
+
+.risk-unknown {
+  color: #64748b !important;
+}
+
+.needs-attention {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.stat-danger {
+  background: #fef2f2 !important;
+  border-color: #fecaca !important;
+}
+
+.stat-warning {
+  background: #fffbeb !important;
+  border-color: #fde68a !important;
+}
+
+.stat-success {
+  background: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+}
+
+@media (max-width: 768px) {
+  .modal {
+    width: 100%;
+    max-height: calc(100vh - 32px);
+    padding: 14px;
+  }
+
+  .modal-header {
+    align-items: center;
+  }
+
+  .summary-card {
+    grid-template-columns: 1fr;
+  }
+
   .ai-grid,
   .ai-grid.secondary,
-  .problem-row {
-    grid-template-columns: 1fr;
-  }
-
-  .chart-wrapper {
-    height: 260px;
-  }
-}
-
-@media (max-width: 600px) {
+  .problem-row,
   .review-scores {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .summary-card {
     grid-template-columns: 1fr;
   }
 }

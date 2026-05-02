@@ -44,7 +44,12 @@ export class ExternalFeedbackComponent implements OnInit {
   loadingFilterTargets = false;
 
 
+  activeTab: 'reviews' | 'analytics' = 'reviews';
 
+  currentPage = 1;
+  pageSize = 5;
+
+  openedReviewAnalysisIds = new Set<number>();
 
   constructor(private feedbackService: FeedbackService) { }
 
@@ -66,6 +71,8 @@ export class ExternalFeedbackComponent implements OnInit {
         next: (res: any) => {
           const data = res?.value ?? res?.data ?? res;
           this.reviews = Array.isArray(data) ? data : [];
+          this.currentPage = 1;
+          this.openedReviewAnalysisIds.clear();
           this.loadingReviews = false;
         },
         error: () => {
@@ -160,7 +167,12 @@ export class ExternalFeedbackComponent implements OnInit {
     clearTimeout(this.filterTimeout);
 
     this.filterTimeout = setTimeout(() => {
-      this.loadData();
+      this.analytics = null;
+      this.loadReviews();
+
+      if (this.activeTab === 'analytics') {
+        this.loadAnalytics();
+      }
     }, 300);
   }
 
@@ -190,5 +202,57 @@ export class ExternalFeedbackComponent implements OnInit {
         this.loadingTargets = false;
       }
     });
+  }
+
+  setTab(tab: 'reviews' | 'analytics'): void {
+    this.activeTab = tab;
+
+    if (tab === 'analytics' && !this.analytics) {
+      this.loadAnalytics();
+    }
+  }
+
+  parseTopics(topicsJson: string | null): any[] {
+    if (!topicsJson) return [];
+
+    try {
+      const parsed = JSON.parse(topicsJson);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.reviews.length / this.pageSize) || 1;
+  }
+
+  get pagedReviews(): any[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.reviews.slice(start, start + this.pageSize);
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  toggleReviewAnalysis(reviewId: number): void {
+    if (this.openedReviewAnalysisIds.has(reviewId)) {
+      this.openedReviewAnalysisIds.delete(reviewId);
+    } else {
+      this.openedReviewAnalysisIds.add(reviewId);
+    }
+  }
+
+  isReviewAnalysisOpen(reviewId: number): boolean {
+    return this.openedReviewAnalysisIds.has(reviewId);
   }
 }

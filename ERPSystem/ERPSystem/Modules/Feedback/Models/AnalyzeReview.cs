@@ -18,16 +18,23 @@
         public string Emotion { get; set; } = string.Empty;
         public string Keywords { get; set; } = string.Empty;
 
-        public double TeacherScore { get; set; }
-        public double CourseScore { get; set; }
-        public double BehaviorScore { get; set; }
+        public double? TeacherScore { get; set; }
+        public double? CourseScore { get; set; }
+        public double? BehaviorScore { get; set; }
 
-        public double StudentRiskScore { get; set; }
-        public double BehaviorScoreNlp { get; set; }
-        public double ProgressScoreNlp { get; set; }
+        public double? StudentRiskScore { get; set; }
+        public double? BehaviorScoreNlp { get; set; }
+        public double? ProgressScoreNlp { get; set; }
 
-        public double PublicPerceptionScore { get; set; }
+        public double? PublicPerceptionScore { get; set; }
 
-        public object? Topics { get; set; }
+        public List<TopicResult> Topics { get; set; } = new();
+        public string Summary { get; set; } = string.Empty;
+    }
+
+    public class TopicResult
+    {
+        public string Name { get; set; } = string.Empty;
+        public double Score { get; set; }
     }
 }

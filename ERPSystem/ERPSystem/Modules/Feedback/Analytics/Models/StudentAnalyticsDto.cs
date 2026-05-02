@@ -23,5 +23,17 @@
 
         public string Summary { get; set; } = string.Empty;
         public string MainInsight { get; set; } = string.Empty;
+        public int TotalEvaluations { get; set; }
+        public DateTime? LastEvaluationDate { get; set; }
+
+        public int PositiveEvaluationsCount { get; set; }
+        public int NegativeEvaluationsCount { get; set; }
+        public int NeutralEvaluationsCount { get; set; }
+
+        public bool NeedsIntervention { get; set; }
+        public string RiskLevel { get; set; } = "low";
+
+        public double BehaviorScoreNlp { get; set; }
+        public double ProgressScoreNlp { get; set; }
     }
 }

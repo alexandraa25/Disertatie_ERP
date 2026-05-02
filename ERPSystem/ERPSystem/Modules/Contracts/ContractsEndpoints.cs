@@ -90,7 +90,15 @@ public static class ContractsEndpoints
                 =>{await service.ExpireContractsAsync(); return Results.Ok();})
           .WithDefaultApiSettings( "ExpireContractsJob", "Rulează expirarea contractelor","SYSTEM",false);
 
-   
+        group.MapGet(Route.GET_CONTRACTS_OVERVIEW,
+           async (ContractsService service)
+               => await service.GetContractsOverviewAsync())
+           .WithDefaultApiSettings("GetContractsOverview","Returnează toate contractele cu actele adiționale aferente", "GET_CONTRACTS_OVERVIEW",  true );
+
+        group.MapGet(Route.EXPORT_CONTRACTS_OVERVIEW,
+            async (DateTime? from, DateTime? to, ContractsService service)
+                 => await service.ExportContractsExcelAsync(from, to))
+            .WithDefaultApiSettings( "ExportContracts", "Export contracte pentru contabil", "EXPORT_CONTRACTS", true);
 
        
     }

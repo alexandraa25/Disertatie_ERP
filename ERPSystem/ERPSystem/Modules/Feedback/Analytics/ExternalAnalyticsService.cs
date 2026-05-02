@@ -16,7 +16,7 @@ namespace ERPSystem.Modules.Feedback.Analytics
             _context = context;
         }
 
-        public async Task<PublicResponse> GetExternalAnalyticsAsync( string? targetType = null, string? targetId = null,  string? source = null)
+        public async Task<PublicResponse> GetExternalAnalyticsAsync(string? targetType = null, string? targetId = null, string? source = null)
         {
             PublicResponse response = new(true);
 
@@ -26,9 +26,7 @@ namespace ERPSystem.Modules.Feedback.Analytics
                 query = query.Where(x => x.TargetType == targetType);
 
             if (!string.IsNullOrWhiteSpace(targetId))
-            {
                 query = query.Where(x => x.TargetId == targetId);
-            }
 
             if (!string.IsNullOrWhiteSpace(source))
                 query = query.Where(x => x.Source == source);
@@ -38,44 +36,67 @@ namespace ERPSystem.Modules.Feedback.Analytics
                 .ToListAsync();
 
             if (!reviews.Any())
-                return response.SetError("NoExternalReviews", "Nu există feedback extern pentru filtrele selectate.");
+                return response.SetError(
+                    "NoExternalReviews",
+                    "Nu există feedback extern pentru filtrele selectate."
+                );
+
+            var percentages = NormalizePercentages(
+                reviews.Where(x => x.PositivePercent.HasValue).Select(x => x.PositivePercent!.Value),
+                reviews.Where(x => x.NegativePercent.HasValue).Select(x => x.NegativePercent!.Value),
+                reviews.Where(x => x.NeutralPercent.HasValue).Select(x => x.NeutralPercent!.Value)
+            );
 
             var dto = new ExternalAnalyticsDto
             {
                 TotalReviews = reviews.Count,
 
-                AverageRating = Math.Round(
-                    reviews.Where(x => x.Rating.HasValue)
+                PositiveReviewsCount = reviews.Count(x => x.Sentiment == "pozitiv"),
+                NegativeReviewsCount = reviews.Count(x => x.Sentiment == "negativ"),
+                NeutralReviewsCount = reviews.Count(x => x.Sentiment == "neutru"),
+
+                LastReviewDate = reviews.Max(x => x.CreatedAt),
+
+                ReviewsBySource = reviews
+                    .Where(x => !string.IsNullOrWhiteSpace(x.Source))
+                    .GroupBy(x => x.Source)
+                    .ToDictionary(x => x.Key, x => x.Count()),
+
+                ReviewsByTargetType = reviews
+                    .Where(x => !string.IsNullOrWhiteSpace(x.TargetType))
+                    .GroupBy(x => x.TargetType)
+                    .ToDictionary(x => x.Key, x => x.Count()),
+
+                AverageRating = AverageOrZero(
+                    reviews
+                        .Where(x => x.Rating.HasValue)
                         .Select(x => x.Rating!.Value)
-                        .DefaultIfEmpty(0)
-                        .Average(), 2),
+                ),
 
-                PublicPerceptionScore = Math.Round(
-                    reviews.Where(x => x.PublicPerceptionScore.HasValue)
+                PublicPerceptionScore = AverageOrZero(
+                    reviews
+                        .Where(x => x.PublicPerceptionScore.HasValue)
                         .Select(x => x.PublicPerceptionScore!.Value)
-                        .DefaultIfEmpty(0)
-                        .Average(), 2),
+                ),
 
-                PositivePercent = Math.Round(
-                    reviews.Where(x => x.PositivePercent.HasValue)
-                        .Select(x => x.PositivePercent!.Value)
-                        .DefaultIfEmpty(0)
-                        .Average(), 2),
-
-                NegativePercent = Math.Round(
-                    reviews.Where(x => x.NegativePercent.HasValue)
-                        .Select(x => x.NegativePercent!.Value)
-                        .DefaultIfEmpty(0)
-                        .Average(), 2),
-
-                NeutralPercent = Math.Round(
-                    reviews.Where(x => x.NeutralPercent.HasValue)
-                        .Select(x => x.NeutralPercent!.Value)
-                        .DefaultIfEmpty(0)
-                        .Average(), 2),
+                PositivePercent = percentages.Positive,
+                NegativePercent = percentages.Negative,
+                NeutralPercent = percentages.Neutral,
 
                 TopTopics = ExtractTopTopics(reviews),
                 Trend = CalculateTrend(reviews)
+            };
+
+            dto.UrgentResponseNeeded =
+                dto.NegativePercent >= 40 ||
+                dto.PublicPerceptionScore < 0.5 ||
+                dto.AverageRating < 3;
+
+            dto.ReputationRiskLevel = dto.NegativePercent switch
+            {
+                >= 50 => "high",
+                >= 25 => "medium",
+                _ => "low"
             };
 
             dto.Alerts = GenerateAlerts(dto);
@@ -223,6 +244,37 @@ namespace ERPSystem.Modules.Feedback.Analytics
                 return "Feedbackul extern negativ este ridicat.";
 
             return "Nu există încă un semnal extern critic.";
+        }
+
+        private static double AverageOrZero(IEnumerable<int> values)
+        {
+            var list = values.ToList();
+            return list.Any() ? Math.Round(list.Average(), 2) : 0;
+        }
+
+        private static double AverageOrZero(IEnumerable<double> values)
+        {
+            var list = values.ToList();
+            return list.Any() ? Math.Round(list.Average(), 2) : 0;
+        }
+
+
+        private static (double Positive, double Negative, double Neutral) NormalizePercentages( IEnumerable<int> positives, IEnumerable<int> negatives,  IEnumerable<int> neutrals)
+        {
+            var positive = positives.Any() ? positives.Average() : 0;
+            var negative = negatives.Any() ? negatives.Average() : 0;
+            var neutral = neutrals.Any() ? neutrals.Average() : 0;
+
+            var total = positive + negative + neutral;
+
+            if (total == 0)
+                return (0, 0, 0);
+
+            var normalizedPositive = Math.Round(positive / total * 100, 2);
+            var normalizedNegative = Math.Round(negative / total * 100, 2);
+            var normalizedNeutral = Math.Round(100 - normalizedPositive - normalizedNegative, 2);
+
+            return (normalizedPositive, normalizedNegative, normalizedNeutral);
         }
     }
 }

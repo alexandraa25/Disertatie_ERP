@@ -24,6 +24,7 @@ export const routes: Routes = [
   { path: 'contracts/:contractId/additional-act', loadComponent: () => import('./pages/financiar/aditional-act/aditional-act.component') .then(m => m.AditionalActComponent) }, 
   { path: 'additional-act/:id', loadComponent: () => import('./pages/financiar/additional-act-details/additional-act-details.component') .then(m => m.AdditionalActDetailsComponent) }, 
   { path: 'additional-act/edit/:actId', loadComponent: () => import('./pages/financiar/aditional-act/aditional-act.component') .then(m => m.AditionalActComponent) }, 
+  { path: 'all-contracts',loadComponent: () => import('./pages/financiar/all-contracts/all-contracts.component') .then(m => m.AllContractsComponent)},
   { path: 'employee/:id', loadComponent: () => import('./pages/hr/employee-details/employee-details.component').then(m => m.EmployeeDetailsComponent) },
   { path: 'employees', loadComponent: () => import('./pages/hr/hr-employees/hr-employees.component').then(m => m.HrEmployeesComponent) },
   { path: 'all-leaves', loadComponent: () => import('./pages/hr/all-leaves/all-leaves.component').then(m => m.AllLeavesComponent) },
@@ -34,6 +35,7 @@ export const routes: Routes = [
   { path: 'mk-campaign', loadComponent: () => import('./pages/marketing/marketing-campaigns/marketing-campaigns.component') .then(m => m.MarketingCampaignsComponent) }, 
   { path: 'feedback/:token', loadComponent: () =>  import('./pages/feedback/feedback-form/feedback-form.component') .then(m => m.FeedbackFormComponent)}, 
    { path: 'external-feedback', loadComponent: () =>  import('./pages/feedback/external-feedback/external-feedback.component') .then(m => m.ExternalFeedbackComponent)}, 
+   { path: 'feedback/analytics/global', loadComponent: () =>  import('./pages/feedback/global-feedback-analytics/global-feedback-analytics.component') .then(m => m.GlobalFeedbackAnalyticsComponent)}, 
   { path: '**', redirectTo: 'login' }
 
 

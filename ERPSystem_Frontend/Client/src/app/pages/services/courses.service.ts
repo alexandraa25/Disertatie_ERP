@@ -57,7 +57,7 @@ export class CoursesService {
       params.sessionId = sessionId;
     }
 
-    return this.http.get<EnrollmentDto[]>( `${this.baseUrl}/${courseId}/enrollments`,  { params } );
+    return this.http.get<EnrollmentDto[]>(`${this.baseUrl}/${courseId}/enrollments`, { params });
   }
 
   enroll(courseId: number, body: CourseEnrollRequest): Observable<void> {
@@ -85,9 +85,24 @@ export class CoursesService {
   restoreCourse(id: number) {
     return this.http.post<any>(`${this.baseUrl}/${id}/restore`, {});
   }
+
   toggleCourseStatus(id: number) {
     return this.http.post<any>(`${this.baseUrl}/${id}/toggle-status`, {});
   }
+
+ exportCoursesExcel(q?: string, status?: string, deleteStatus?: string, scope?: string) {
+  const params: any = {};
+
+  if (q) params.q = q;
+  if (status) params.status = status;
+  if (deleteStatus) params.deleteStatus = deleteStatus;
+  if (scope) params.scope = scope;
+
+  return this.http.get(`${this.baseUrl}/export`, {
+    params,
+    responseType: 'blob'
+  });
+}
 
 }
 

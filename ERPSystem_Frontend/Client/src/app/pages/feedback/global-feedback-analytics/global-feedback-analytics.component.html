@@ -1,0 +1,135 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2>Dashboard feedback AI</h2>
+      <p>Imagine generală asupra feedbackului din platformă</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="empty">
+    Se încarcă analiza globală...
+  </div>
+
+  <div *ngIf="!loading && !analytics" class="empty">
+    Nu există date suficiente pentru analiză.
+  </div>
+
+  <div *ngIf="!loading && analytics">
+    <div class="summary-card">
+      <div>
+        <strong>Feedback cursuri</strong>
+        <span>{{ analytics.totalCourseReviews || 0 }}</span>
+      </div>
+
+      <div>
+        <strong>Evaluări cursanți</strong>
+        <span>{{ analytics.totalStudentEvaluations || 0 }}</span>
+      </div>
+
+      <div>
+        <strong>Feedback extern</strong>
+        <span>{{ analytics.totalExternalReviews || 0 }}</span>
+      </div>
+
+      <div>
+        <strong>Rating cursuri</strong>
+        <span>{{ analytics.averageCourseRating || 0 }}/5</span>
+      </div>
+
+      <div>
+        <strong>Risc cursanți</strong>
+        <span>{{ analytics.averageStudentRiskScore || 0 }}%</span>
+      </div>
+
+      <div>
+        <strong>Percepție publică</strong>
+        <span>{{ analytics.averagePublicPerceptionScore || 0 }}</span>
+      </div>
+    </div>
+
+    <div class="card" *ngIf="analytics.mainInsight">
+      <h3>Insight principal</h3>
+      <p>{{ analytics.mainInsight }}</p>
+    </div>
+
+    <div class="card" *ngIf="analytics.summary">
+      <h3>Rezumat</h3>
+      <p>{{ analytics.summary }}</p>
+    </div>
+
+    <div class="grid">
+      <div class="card" *ngIf="analytics.topProblems?.length">
+        <h3>Top probleme</h3>
+
+        <div class="problem-row" *ngFor="let p of analytics.topProblems">
+          <div>
+            <strong>{{ p.name }}</strong>
+            <span>{{ p.count }} mențiuni</span>
+          </div>
+
+          <div class="bar">
+            <div class="fill" [style.width.%]="p.percent"></div>
+          </div>
+
+          <span>{{ p.percent }}%</span>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="analytics.alerts?.length">
+        <h3>Alerte</h3>
+
+        <div class="alert-box" *ngFor="let a of analytics.alerts">
+          ⚠️ {{ a }}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card" *ngIf="analytics.topTeachers?.length">
+        <h3>Top profesori</h3>
+
+        <div class="rank-row" *ngFor="let t of analytics.topTeachers; let i = index">
+          <strong>#{{ i + 1 }} {{ t.teacherName }}</strong>
+          <span>{{ t.averageRating }}/5 · {{ t.reviewsCount }} feedbackuri</span>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="analytics.topCourses?.length">
+        <h3>Top cursuri</h3>
+
+        <div class="rank-row" *ngFor="let c of analytics.topCourses; let i = index">
+          <strong>#{{ i + 1 }} {{ c.courseName }}</strong>
+          <span>{{ c.averageRating }}/5 · {{ c.reviewsCount }} feedbackuri</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card danger" *ngIf="analytics.teachersNeedingAttention?.length">
+        <h3>Profesori care necesită atenție</h3>
+
+        <div class="rank-row" *ngFor="let t of analytics.teachersNeedingAttention">
+          <strong>{{ t.teacherName }}</strong>
+          <span>Negativ: {{ t.negativePercent }}% · Rating: {{ t.averageRating }}/5</span>
+        </div>
+      </div>
+
+      <div class="card danger" *ngIf="analytics.coursesNeedingAttention?.length">
+        <h3>Cursuri care necesită atenție</h3>
+
+        <div class="rank-row" *ngFor="let c of analytics.coursesNeedingAttention">
+          <strong>{{ c.courseName }}</strong>
+          <span>Negativ: {{ c.negativePercent }}% · Rating: {{ c.averageRating }}/5</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" *ngIf="analytics.recommendations?.length">
+      <h3>Recomandări</h3>
+
+      <div class="recommendation-box" *ngFor="let r of analytics.recommendations">
+        🤖 {{ r }}
+      </div>
+    </div>
+  </div>
+</div>

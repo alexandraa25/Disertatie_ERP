@@ -653,32 +653,175 @@ public class StudentsService
 
     public async Task<byte[]> ExportStudentsExcel( string? q, string? sortBy, string? sortDir, bool? onlyRecent, int? recentDays, int? sessionId)
     {
-        var data = await GetStudentsForExport(q, sortBy, sortDir, onlyRecent, recentDays, sessionId);
+        var query = _db.Students
+            .Include(x => x.StudentGuardians)
+                .ThenInclude(x => x.Guardian)
+            .Include(x => x.Enrollments)
+                .ThenInclude(x => x.Course)
+            .Include(x => x.Enrollments)
+                .ThenInclude(x => x.Session)
+            .Include(x => x.Enrollments)
+                .ThenInclude(x => x.Contract)
+            .AsQueryable();
 
-        using var wb = new XLWorkbook();
-        var ws = wb.Worksheets.Add("Students");
-
-        ws.Cell(1, 1).Value = "Nume";
-        ws.Cell(1, 2).Value = "Email";
-        ws.Cell(1, 3).Value = "Telefon";
-        ws.Cell(1, 4).Value = "Status";
-        ws.Cell(1, 5).Value = "Data";
-
-        for (int i = 0; i < data.Count; i++)
+        if (!string.IsNullOrWhiteSpace(q))
         {
-            var s = data[i];
-            ws.Cell(i + 2, 1).Value = s.FullName;
-            ws.Cell(i + 2, 2).Value = s.Email;
-            ws.Cell(i + 2, 3).Value = s.Phone;
-            ws.Cell(i + 2, 4).Value = s.IsActive ? "Activ" : "Inactiv";
-            ws.Cell(i + 2, 5).Value = s.CreatedAtUtc.ToString("dd.MM.yyyy");
+            var search = q.ToLower();
+
+            query = query.Where(x =>
+                x.FullName.ToLower().Contains(search) ||
+                (x.Email != null && x.Email.ToLower().Contains(search)) ||
+                (x.Phone != null && x.Phone.Contains(search)));
         }
 
-        ws.Columns().AdjustToContents();
+        if (onlyRecent == true)
+        {
+            var days = recentDays ?? 30;
+            var fromDate = DateTime.UtcNow.AddDays(-days);
+            query = query.Where(x => x.CreatedAtUtc >= fromDate);
+        }
+
+        if (sessionId.HasValue)
+        {
+            query = query.Where(x =>
+                x.Enrollments.Any(e => e.CourseSessionId == sessionId.Value));
+        }
+
+        query = sortBy switch
+        {
+            "name" => sortDir == "desc"
+                ? query.OrderByDescending(x => x.FullName)
+                : query.OrderBy(x => x.FullName),
+
+            "date" => sortDir == "desc"
+                ? query.OrderByDescending(x => x.CreatedAtUtc)
+                : query.OrderBy(x => x.CreatedAtUtc),
+
+            _ => query.OrderByDescending(x => x.CreatedAtUtc)
+        };
+
+        var students = await query.ToListAsync();
+
+        using var wb = new XLWorkbook();
+        var ws = wb.Worksheets.Add("Cursanți");
+
+        var headers = new[]
+        {
+        "ID",
+        "Nume complet",
+        "Prenume",
+        "Nume",
+        "Email",
+        "Telefon",
+        "Adresă",
+        "Data nașterii",
+        "Vârstă",
+        "Minor",
+        "Status",
+        "Tutori",
+        "Contact principal",
+        "Cursuri active",
+        "Cursuri inactive",
+        "Contracte asociate",
+        "Data creare",
+        "Ultima actualizare"
+    };
+
+        for (int i = 0; i < headers.Length; i++)
+            ws.Cell(1, i + 1).Value = headers[i];
+
+        for (int i = 0; i < students.Count; i++)
+        {
+            var s = students[i];
+            var row = i + 2;
+
+            var guardians = s.StudentGuardians.Any()
+                ? string.Join(" | ", s.StudentGuardians.Select(g =>
+                    $"{g.Guardian.FirstName} {g.Guardian.LastName} ({g.RelationshipType}) - {g.Guardian.Phone}"))
+                : "";
+
+            var primaryGuardian = s.StudentGuardians
+                .Where(g => g.IsPrimaryContact)
+                .Select(g => $"{g.Guardian.FirstName} {g.Guardian.LastName} - {g.Guardian.Phone}")
+                .FirstOrDefault() ?? "";
+
+            var activeCourses = s.Enrollments
+                .Where(e => e.IsActive)
+                .Select(e => $"{e.Course.Name} / {e.Session.Title}")
+                .Distinct()
+                .ToList();
+
+            var inactiveCourses = s.Enrollments
+                .Where(e => !e.IsActive)
+                .Select(e => $"{e.Course.Name} / {e.Session.Title}")
+                .Distinct()
+                .ToList();
+
+            var contracts = s.Enrollments
+                .Where(e => e.Contract != null)
+                .Select(e => $"{e.Contract.ContractNumber} ({e.Contract.Status})")
+                .Distinct()
+                .ToList();
+
+            ws.Cell(row, 1).Value = s.Id;
+            ws.Cell(row, 2).Value = s.FullName;
+            ws.Cell(row, 3).Value = s.FirstName ?? "";
+            ws.Cell(row, 4).Value = s.LastName ?? "";
+            ws.Cell(row, 5).Value = s.Email ?? "";
+            ws.Cell(row, 6).Value = s.Phone ?? "";
+            ws.Cell(row, 7).Value = s.Address ?? "";
+            ws.Cell(row, 8).Value = s.DateOfBirth;
+            ws.Cell(row, 9).Value = s.Age;
+            ws.Cell(row, 10).Value = s.IsMinor ? "Da" : "Nu";
+            ws.Cell(row, 11).Value = s.IsActive ? "Activ" : "Inactiv";
+            ws.Cell(row, 12).Value = guardians;
+            ws.Cell(row, 13).Value = primaryGuardian;
+            ws.Cell(row, 14).Value = string.Join(" | ", activeCourses);
+            ws.Cell(row, 15).Value = string.Join(" | ", inactiveCourses);
+            ws.Cell(row, 16).Value = string.Join(" | ", contracts);
+            ws.Cell(row, 17).Value = s.CreatedAtUtc;
+            ws.Cell(row, 18).Value = s.UpdatedAtUtc;
+        }
+
+        FormatStudentsSheet(ws);
 
         using var ms = new MemoryStream();
         wb.SaveAs(ms);
         return ms.ToArray();
+    }
+
+    private static void FormatStudentsSheet(IXLWorksheet ws)
+    {
+        var usedRange = ws.RangeUsed();
+
+        if (usedRange == null)
+            return;
+
+        usedRange.SetAutoFilter();
+
+        var header = ws.Row(1);
+        header.Style.Font.Bold = true;
+        header.Style.Fill.BackgroundColor = XLColor.FromHtml("#1E293B");
+        header.Style.Font.FontColor = XLColor.White;
+        header.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+        usedRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+        usedRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+        usedRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+        ws.Columns().AdjustToContents();
+
+        foreach (var column in ws.Columns())
+        {
+            if (column.Width > 45)
+                column.Width = 45;
+        }
+
+        ws.Column(8).Style.DateFormat.Format = "dd.MM.yyyy";
+        ws.Column(17).Style.DateFormat.Format = "dd.MM.yyyy HH:mm";
+        ws.Column(18).Style.DateFormat.Format = "dd.MM.yyyy HH:mm";
+
+        ws.SheetView.FreezeRows(1);
     }
 
 }

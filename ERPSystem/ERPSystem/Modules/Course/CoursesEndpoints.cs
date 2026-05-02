@@ -68,5 +68,10 @@ public static class CoursesEndpoints
            async (int id, int sessionId, string? q, CoursesService service)
                => await service.GetAvailableStudentsAsync(id, sessionId, q))
          .WithDefaultApiSettings("GetAvailableStudents","Lista cursanti disponibili pentru sesiune", "AVAILABLE_STUDENTS_LIST", false );
+
+        group.MapGet(Route.EXPORT_COURSES_EXCEL,
+           async ( string? q,string? status,string? deleteStatus, DiscountScope? scope, CoursesService service)
+                => await service.ExportCoursesExcelAsync(q, status, deleteStatus, scope))
+          .WithDefaultApiSettings( "ExportCoursesExcel","Exportă cursurile și sesiunile în Excel","EXPORT_COURSES_EXCEL", true);
     }
 }

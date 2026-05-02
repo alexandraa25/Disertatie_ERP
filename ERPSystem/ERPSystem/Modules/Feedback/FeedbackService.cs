@@ -552,29 +552,35 @@ namespace ERPSystem.Modules.Feedback
             _context.ExternalReviews.Add(externalReview);
             await _context.SaveChangesAsync();
 
-            var analysis = await _nlpAnalysisService.AnalyzeAsync(
-                externalReview.Comment,
-                "external_review"
-            );
-
-            if (analysis != null)
+            try
             {
-                externalReview.Sentiment = analysis.Sentiment;
-                externalReview.SentimentScore = analysis.SentimentScore;
+                var analysis = await _nlpAnalysisService.AnalyzeAsync(
+                    externalReview.Comment,
+                    "external_review"
+                );
 
-                externalReview.PositivePercent = analysis.PositivePercent;
-                externalReview.NegativePercent = analysis.NegativePercent;
-                externalReview.NeutralPercent = analysis.NeutralPercent;
+                if (analysis != null)
+                {
+                    externalReview.Sentiment = analysis.Sentiment;
+                    externalReview.SentimentScore = analysis.SentimentScore;
+                    externalReview.PositivePercent = analysis.PositivePercent;
+                    externalReview.NegativePercent = analysis.NegativePercent;
+                    externalReview.NeutralPercent = analysis.NeutralPercent;
+                    externalReview.Emotion = analysis.Emotion;
+                    externalReview.Keywords = analysis.Keywords;
+                    externalReview.TopicsJson = JsonConvert.SerializeObject(analysis.Topics);
+                    externalReview.PublicPerceptionScore = analysis.PublicPerceptionScore;
+                    externalReview.AnalyzedAt = DateTime.UtcNow;
 
-                externalReview.Emotion = analysis.Emotion;
-                externalReview.Keywords = analysis.Keywords;
-                externalReview.TopicsJson = JsonConvert.SerializeObject(analysis.Topics);
-
-                externalReview.PublicPerceptionScore = analysis.PublicPerceptionScore;
-
-                externalReview.AnalyzedAt = DateTime.UtcNow;
-
-                await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                return response.SetError(
+                    "NlpAnalysisFailed",
+                    ex.ToString()
+                );
             }
 
             await AddActivityLogAsync(

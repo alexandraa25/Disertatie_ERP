@@ -61,7 +61,7 @@ namespace ERPSystem.Modules.Feedback
 
 
             group.MapGet(Route.GET_STUDENT_ANALYTICS,
-               async (int studentId, CourseAnalyticsService service)
+               async (int studentId, StudentAnalyticsService service)
                    => await service.GetStudentAnalyticsAsync(studentId))
                .WithDefaultApiSettings( "GetStudentAnalytics",  "Returnează analiza AI agregată pentru un cursant", "GET_STUDENT_ANALYTICS", true );
 
@@ -74,6 +74,11 @@ namespace ERPSystem.Modules.Feedback
                async (string targetType, FeedbackService service)
                    => await service.GetExternalReviewTargetsAsync(targetType))
                .WithDefaultApiSettings( "GetExternalReviewTargets","Returnează lista de ținte pentru feedback extern","GET_EXTERNAL_REVIEW_TARGETS", true );
+
+            group.MapGet(Route.GET_FEEDBACK_GLOBAL_ANALYTICS,
+                async (FeedbackGlobalAnalyticsService service)
+                    => await service.GetGlobalAnalyticsAsync())
+                .WithDefaultApiSettings("GetFeedbackGlobalAnalytics", "Returnează analiza globală a feedbackului (dashboard AI)","GET_FEEDBACK_GLOBAL_ANALYTICS",  true  );
 
         }
     }

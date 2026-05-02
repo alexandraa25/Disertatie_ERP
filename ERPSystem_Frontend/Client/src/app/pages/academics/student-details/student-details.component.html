@@ -514,7 +514,7 @@
 
               <div class="ai-analysis" *ngIf="ev.sentiment">
                 <div class="ai-header">
-                  <strong>Analiză AI</strong>
+                  <strong>Analiză AI evaluare</strong>
 
                   <span class="sentiment" [ngClass]="ev.sentiment">
                     {{ ev.sentiment }}
@@ -524,7 +524,7 @@
                 <div class="ai-grid">
                   <div>
                     <label>Scor sentiment</label>
-                    <strong>{{ ev.sentimentScore }}</strong>
+                    <strong>{{ ev.sentimentScore ?? '-' }}</strong>
                   </div>
 
                   <div>
@@ -538,8 +538,28 @@
                   </div>
 
                   <div>
+                    <label>Neutru</label>
+                    <strong>{{ ev.neutralPercent || 0 }}%</strong>
+                  </div>
+
+                  <div>
+                    <label>Emoție</label>
+                    <strong>{{ ev.emotion || '-' }}</strong>
+                  </div>
+
+                  <div>
                     <label>Risc cursant</label>
                     <strong>{{ ev.studentRiskScore || 0 }}%</strong>
+                  </div>
+
+                  <div>
+                    <label>Comportament NLP</label>
+                    <strong>{{ ev.behaviorScoreNlp ?? '-' }}</strong>
+                  </div>
+
+                  <div>
+                    <label>Progres NLP</label>
+                    <strong>{{ ev.progressScoreNlp ?? '-' }}</strong>
                   </div>
                 </div>
 
@@ -571,32 +591,121 @@
 
             <div class="summary-card">
               <div>
+                <strong>Total evaluări</strong>
+                <span>{{ studentAnalytics.totalEvaluations || 0 }}</span>
+              </div>
+
+              <div>
                 <strong>Rating mediu</strong>
-                <span>{{ studentAnalytics.averageRating }}/5</span>
+                <span>{{ studentAnalytics.averageRating || 0 }}/5</span>
               </div>
 
               <div>
                 <strong>Prezență</strong>
-                <span>{{ studentAnalytics.averageAttendanceScore }}/5</span>
+                <span>{{ studentAnalytics.averageAttendanceScore || 0 }}/5</span>
+              </div>
+
+              <div>
+                <strong>Comportament</strong>
+                <span>{{ studentAnalytics.averageBehaviorScore || 0 }}/5</span>
               </div>
 
               <div>
                 <strong>Progres</strong>
-                <span>{{ studentAnalytics.averageProgressScore }}/5</span>
+                <span>{{ studentAnalytics.averageProgressScore || 0 }}/5</span>
               </div>
 
               <div>
                 <strong>Risc AI</strong>
-                <span>{{ studentAnalytics.averageRiskScore }}%</span>
+                <span>{{ studentAnalytics.averageRiskScore || 0 }}%</span>
+              </div>
+
+              <div>
+                <strong>Nivel risc</strong>
+                <span [ngClass]="studentAnalytics.riskLevel">
+                  {{ studentAnalytics.riskLevel || 'low' }}
+                </span>
+              </div>
+
+              <div>
+                <strong>Ultima evaluare</strong>
+                <span>
+                  {{ studentAnalytics.lastEvaluationDate ? (studentAnalytics.lastEvaluationDate | date:'dd.MM.yyyy') :
+                  '-' }}
+                </span>
+              </div>
+            </div>
+
+            <div class="ai-analysis" *ngIf="studentAnalytics.needsIntervention">
+              <div class="risk-warning">
+                ⚠️ Cursantul necesită intervenție sau monitorizare atentă.
               </div>
             </div>
 
             <div class="ai-analysis">
+              <strong>Distribuție sentiment</strong>
+
+              <div class="ai-grid">
+                <div>
+                  <label>Pozitiv</label>
+                  <strong>{{ studentAnalytics.positivePercent || 0 }}%</strong>
+                </div>
+
+                <div>
+                  <label>Negativ</label>
+                  <strong>{{ studentAnalytics.negativePercent || 0 }}%</strong>
+                </div>
+
+                <div>
+                  <label>Neutru</label>
+                  <strong>{{ studentAnalytics.neutralPercent || 0 }}%</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="ai-analysis">
+              <strong>Număr evaluări după sentiment</strong>
+
+              <div class="ai-grid">
+                <div>
+                  <label>Pozitive</label>
+                  <strong>{{ studentAnalytics.positiveEvaluationsCount || 0 }}</strong>
+                </div>
+
+                <div>
+                  <label>Negative</label>
+                  <strong>{{ studentAnalytics.negativeEvaluationsCount || 0 }}</strong>
+                </div>
+
+                <div>
+                  <label>Neutre</label>
+                  <strong>{{ studentAnalytics.neutralEvaluationsCount || 0 }}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="ai-analysis">
+              <strong>Scoruri NLP</strong>
+
+              <div class="ai-grid">
+                <div>
+                  <label>Comportament NLP</label>
+                  <strong>{{ studentAnalytics.behaviorScoreNlp ?? '-' }}</strong>
+                </div>
+
+                <div>
+                  <label>Progres NLP</label>
+                  <strong>{{ studentAnalytics.progressScoreNlp ?? '-' }}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="ai-analysis" *ngIf="studentAnalytics.mainInsight">
               <strong>Insight principal</strong>
               <p>{{ studentAnalytics.mainInsight }}</p>
             </div>
 
-            <div class="ai-analysis">
+            <div class="ai-analysis" *ngIf="studentAnalytics.summary">
               <strong>Rezumat</strong>
               <p>{{ studentAnalytics.summary }}</p>
             </div>
@@ -604,15 +713,24 @@
             <div class="ai-analysis" *ngIf="studentAnalytics.topProblems?.length">
               <strong>Top probleme</strong>
 
-              <div *ngFor="let p of studentAnalytics.topProblems">
-                {{ p.name }} ({{ p.percent }}%)
+              <div class="problem-row" *ngFor="let p of studentAnalytics.topProblems">
+                <div>
+                  <strong>{{ p.name }}</strong>
+                  <span>{{ p.count }} mențiuni</span>
+                </div>
+
+                <div class="bar">
+                  <div class="fill" [style.width.%]="p.percent"></div>
+                </div>
+
+                <span>{{ p.percent }}%</span>
               </div>
             </div>
 
             <div class="ai-analysis" *ngIf="studentAnalytics.alerts?.length">
               <strong>Alerte</strong>
 
-              <div *ngFor="let a of studentAnalytics.alerts">
+              <div class="alert-box" *ngFor="let a of studentAnalytics.alerts">
                 ⚠️ {{ a }}
               </div>
             </div>
@@ -620,7 +738,7 @@
             <div class="ai-analysis" *ngIf="studentAnalytics.recommendations?.length">
               <strong>Recomandări</strong>
 
-              <div *ngFor="let r of studentAnalytics.recommendations">
+              <div class="recommendation-box" *ngFor="let r of studentAnalytics.recommendations">
                 🤖 {{ r }}
               </div>
             </div>

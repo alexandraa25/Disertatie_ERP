@@ -20,24 +20,24 @@ public class NlpAnalysisService : INlpAnalysisService
         if (string.IsNullOrWhiteSpace(text))
             return null;
 
-        try
+        var request = new
         {
-            var request = new AnalyzeReviewRequest
-            {
-                Text = text,
-                ReviewType = reviewType
-            };
+            text = text,
+            reviewType = reviewType
+        };
 
-            var response = await _httpClient.PostAsJsonAsync("/analyze-review", request);
+        var response = await _httpClient.PostAsJsonAsync("/analyze-review", request);
 
-            if (!response.IsSuccessStatusCode)
-                return null;
+        var raw = await response.Content.ReadAsStringAsync();
 
-            return await response.Content.ReadFromJsonAsync<AnalyzeReviewResponse>();
-        }
-        catch
-        {
-            return null;
-        }
+        if (!response.IsSuccessStatusCode)
+            throw new Exception($"NLP error: {response.StatusCode} - {raw}");
+
+        var result = await response.Content.ReadFromJsonAsync<AnalyzeReviewResponse>();
+
+        if (result == null)
+            throw new Exception($"NLP deserialize failed. Raw response: {raw}");
+
+        return result;
     }
 }

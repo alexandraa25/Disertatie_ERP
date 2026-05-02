@@ -146,6 +146,11 @@ namespace ERPSystem.Utils.Constants
                 public const string COURSE_DELETE = "/{id}/delete";
                 public const string COURSE_STATUS = "/{id}/toggle-status";
 
+                public const string EXPORT_COURSES_EXCEL = "/export";
+                
+
+
+
             }
 
             public static class Contracts
@@ -168,6 +173,12 @@ namespace ERPSystem.Utils.Constants
                 public const string CONTRACT_DOWNLOAD = "/{id}/download";
                 public const string CONTRACT_BY_ID = "/{id:int}";
                 public const string STUDENT_CONTRACTS = "/students/{id:int}";
+
+                public const string GET_CONTRACTS_OVERVIEW = "/overview";
+                public const string EXPORT_CONTRACTS_OVERVIEW = "/export";
+                public const string EXPORT_CONTRACTS_INSTALLMENTS= "/export/installments";
+               
+                
             }
            public static class AdditionalAct
            {
@@ -214,6 +225,8 @@ namespace ERPSystem.Utils.Constants
                 public const string GET_EXTERNAL_REVIEWS = "/external-reviews";
                 public const string GET_EXTERNAL_ANALYTICS = "/external-analytics";
                 public const string GET_EXTERNAL_REVIEW_TARGETS = "/external-review-targets/{targetType}";
+
+                public const string GET_FEEDBACK_GLOBAL_ANALYTICS = "/analytics/global";
 
 
             }

@@ -1020,6 +1020,154 @@ button:disabled {
   font-weight: 600;
 }
 
+.problem-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 60px;
+  gap: 12px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.problem-row div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.problem-row span {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.bar {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: #2563eb;
+  border-radius: 999px;
+}
+
+.alert-box {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.recommendation-box {
+  background: #ecfdf5;
+  color: #065f46;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.risk-warning {
+  margin-top: 10px;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  padding: 10px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.high {
+  color: #dc2626 !important;
+}
+
+.medium {
+  color: #d97706 !important;
+}
+
+.low {
+  color: #16a34a !important;
+}
+
+.ai-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.ai-tags span {
+  background: #eef2ff;
+  color: #3730a3;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.chart-wrapper {
+  height: 320px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.summary-card {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.summary-card > div {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-card strong {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.summary-card span {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.ai-analysis > strong {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: #111827;
+}
+
+.ai-analysis p {
+  margin: 8px 0 0;
+  color: #334155;
+  line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+  .problem-row,
+  .ai-grid,
+  .summary-card {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-wrapper {
+    height: 260px;
+  }
+}
+
 @media (max-width: 700px) {
   .evaluation-scores {
     grid-template-columns: 1fr;

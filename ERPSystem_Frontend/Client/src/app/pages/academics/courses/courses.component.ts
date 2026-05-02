@@ -198,4 +198,18 @@ loadCourses(): void {
       }
     });
   }
+exportCoursesExcel(): void {
+  this.courses
+    .exportCoursesExcel(this.q, this.statusFilter, this.deleteStatusFilter, this.scopeFilter)
+    .subscribe((blob: Blob) => {
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cursuri.xlsx';
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+    });
+}
 }

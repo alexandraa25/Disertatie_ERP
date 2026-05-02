@@ -1,6 +1,6 @@
 .page {
   padding: 20px;
-  margin-top:90px;
+  margin-top: 90px;
 }
 
 .grid {
@@ -175,7 +175,7 @@ textarea {
   max-width: 100%;
   border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
 }
 
 .modal-header {
@@ -233,6 +233,7 @@ textarea {
   color: #64748b;
   font-size: 14px;
 }
+
 .toolbar {
   display: grid;
   grid-template-columns: 180px 1fr 180px auto;
@@ -280,6 +281,217 @@ textarea {
   font-size: 13px;
 }
 
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tabs button {
+  background: transparent;
+  border: none;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #64748b;
+  border-bottom: 2px solid transparent;
+}
+
+.tabs button.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
+.summary-card {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.summary-card div {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.summary-card strong {
+  display: block;
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.summary-card span {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ai-section {
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.ai-section h4 {
+  margin: 0 0 10px;
+}
+
+.ai-section p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.5;
+}
+
+.ai-review {
+  margin-top: 12px;
+  padding: 14px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+}
+
+.ai-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ai-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+
+.ai-grid div {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.ai-grid label {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.ai-grid strong {
+  font-size: 15px;
+  color: #111827;
+}
+
+.problem-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 60px;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.problem-row div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.problem-row span {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.bar {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: #2563eb;
+  border-radius: 999px;
+}
+
+.alert-box {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.recommendation-box {
+  background: #ecfdf5;
+  color: #065f46;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.source-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 10px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 8px;
+}
+
+.analytics-context {
+  margin: 0 0 16px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.high,
+.risk-high {
+  color: #dc2626 !important;
+}
+
+.medium,
+.risk-medium {
+  color: #d97706 !important;
+}
+
+.low,
+.risk-low {
+  color: #16a34a !important;
+}
+
+.ai-toggle-btn {
+  margin-top: 10px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.pagination span {
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (max-width: 800px) {
   .page-header {
     align-items: stretch;
@@ -291,7 +503,21 @@ textarea {
   }
 }
 
+@media (max-width: 900px) {
+
+  .summary-card,
+  .ai-grid,
+  .problem-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs {
+    overflow-x: auto;
+  }
+}
+
 @media (max-width: 1000px) {
+
   .grid,
   .filters,
   .stats {

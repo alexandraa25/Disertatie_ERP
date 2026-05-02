@@ -1,7 +1,14 @@
 <footer class="footer">
   <div class="footer-container">
 
+    <!-- LOGO + SOCIAL -->
     <div class="footer-column logo-column">
+      <div class="logo">ERP System</div>
+
+      <p class="footer-description">
+        Platformă de management pentru cursuri, studenți și feedback AI.
+      </p>
+
       <div class="social-icons">
         <a href="#"><i class="fab fa-facebook-f"></i></a>
         <a href="#"><i class="fab fa-youtube"></i></a>
@@ -9,20 +16,47 @@
       </div>
     </div>
 
+    <!-- APLICAȚIE -->
     <div class="footer-column">
-      <a [routerLink]="[]" fragment="about-us">About Us</a>
-      <a [routerLink]="[]" fragment="terms">Terms & Conditions</a>
-      <a [routerLink]="[]" fragment="privacy">Privacy Policy</a>
+      <h4>Aplicație</h4>
+
+      <a routerLink="/dashboard">Dashboard</a>
+      <a routerLink="/students">Cursanți</a>
+      <a routerLink="/courses">Cursuri</a>
+      <a routerLink="/external-feedback">Feedback</a>
     </div>
 
+    <!-- SUPORT -->
     <div class="footer-column">
-      <a routerLink="/login">Sign In</a>
-      <a routerLink="/product-list">Products</a>
+      <h4>Suport</h4>
+
+      <a href="#">Ajutor</a>
+      <a href="#">FAQ</a>
+      <a href="#">Contact</a>
+      <a href="#">Raportează problemă</a>
+    </div>
+
+    <!-- CONT / LEGAL -->
+    <div class="footer-column">
+      <h4>Cont</h4>
+
+      <a routerLink="/profil-user">Profil</a>
+      <a routerLink="/login">Login</a>
+
+      <h4 class="mt">Legal</h4>
+      <a [routerLink]="[]" fragment="terms">Termeni</a>
+      <a [routerLink]="[]" fragment="privacy">Confidențialitate</a>
     </div>
 
   </div>
 
-  <p class="footer-copyright">
-    © 2026. All rights reserved.
-  </p>
+  <!-- BOTTOM -->
+  <div class="footer-bottom">
+    <span>© 2026 ERP System</span>
+
+    <div class="system-info">
+      <span>v1.0</span>
+      <span>Online</span>
+    </div>
+  </div>
 </footer>

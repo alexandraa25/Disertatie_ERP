@@ -1,4 +1,5 @@
-﻿using ERPSystem.Data.Context;
+﻿using ClosedXML.Excel;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.AdditionalAct;
 
@@ -13,7 +14,8 @@ using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-
+using System.Globalization;
+using System.Text;
 using static ERPSystem.Utils.Constants.General.Route;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -2052,14 +2054,7 @@ public class ContractsService
     }
 
 
-    public async Task NotifyAdminsAsync(
-    string eventType,
-    string title,
-    string message,
-    string type,
-    string link,
-    string entityType,
-    string entityId)
+    public async Task NotifyAdminsAsync( string eventType, string title, string message, string type, string link, string entityType, string entityId)
     {
         await _notificationsService.CreateNotificationForRolesAsync(
             roleNames: new[] { "Admin", "Secretary" },
@@ -2073,6 +2068,266 @@ public class ContractsService
             );
     }
 
+    public async Task<PublicResponse> GetContractsOverviewAsync()
+    {
+        PublicResponse response = new(true);
 
+        var contracts = await _db.StudentContracts
+            .Include(x => x.Courses)
+            .Include(x => x.InstallmentsList)
+            .Include(x => x.AdditionalActs)
+                .ThenInclude(x => x.Items)
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .Select(x => new ContractOverviewDto
+            {
+                Id = x.Id,
+                ContractNumber = x.ContractNumber,
+
+                BeneficiaryName = x.BeneficiaryNameSnapshot,
+                BeneficiaryEmail = x.BeneficiaryEmailSnapshot,
+
+                StartDate = x.StartDate,
+                EndDate = x.EndDate,
+
+                TotalAmount = x.TotalAmount,
+                MonthlyAmount = x.MonthlyAmount,
+
+                Status = x.Status.ToString(),
+
+                CoursesCount = x.Courses.Count,
+                InstallmentsCount = x.InstallmentsList.Count,
+                PaidInstallmentsCount = x.InstallmentsList.Count(i => i.PaidAmount >= i.Amount),
+
+                AdditionalActs = x.AdditionalActs
+                    .OrderByDescending(a => a.CreatedAtUtc)
+                    .Select(a => new AdditionalActOverviewDto
+                    {
+                        Id = a.Id,
+                        ActNumber = a.ActNumber,
+                        Description = a.Description,
+                        Status = a.Status.ToString(),
+                        CreatedAtUtc = a.CreatedAtUtc,
+                        ItemsCount = a.Items.Count
+                    })
+                    .ToList()
+            })
+            .ToListAsync();
+
+        return response.SetSuccess(contracts);
+    }
+
+    public async Task<IResult> ExportContractsExcelAsync(DateTime? from = null, DateTime? to = null)
+    {
+        var query = _db.StudentContracts
+            .Include(x => x.Courses)
+            .Include(x => x.Discounts)
+            .Include(x => x.InstallmentsList)
+            .Include(x => x.AdditionalActs)
+            .AsQueryable();
+
+        if (from.HasValue)
+            query = query.Where(x => x.CreatedAtUtc.Date >= from.Value.Date);
+
+        if (to.HasValue)
+            query = query.Where(x => x.CreatedAtUtc.Date <= to.Value.Date);
+
+        var contracts = await query
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .ToListAsync();
+
+        using var workbook = new XLWorkbook();
+
+        var contractsSheet = workbook.Worksheets.Add("Contracte");
+        var installmentsSheet = workbook.Worksheets.Add("Rate");
+
+        // =========================
+        // SHEET 1: CONTRACTE
+        // =========================
+
+        var contractHeaders = new[]
+        {
+        "Nr. contract",
+        "Beneficiar",
+        "Email",
+        "Telefon",
+        "Status",
+        "Data început",
+        "Data sfârșit",
+        "Nelimitat",
+        "Total contract",
+        "Sumă lunară",
+        "Nr. rate",
+        "Rate plătite",
+        "Total rate",
+        "Total plătit",
+        "Rest de plată",
+        "Discounturi",
+        "Cursuri",
+        "Acte adiționale",
+        "Creat la",
+        "Finalizat la",
+        "Activat la"
+    };
+
+        for (int i = 0; i < contractHeaders.Length; i++)
+            contractsSheet.Cell(1, i + 1).Value = contractHeaders[i];
+
+        var contractRow = 2;
+
+        foreach (var c in contracts)
+        {
+            var installments = c.InstallmentsList.ToList();
+
+            var totalInstallmentsAmount = installments.Sum(i => i.Amount);
+            var totalPaid = installments.Sum(i => i.PaidAmount);
+            var remaining = totalInstallmentsAmount - totalPaid;
+            var paidInstallmentsCount = installments.Count(i => i.PaidAmount >= i.Amount);
+
+            var courses = c.Courses.Any()
+                ? string.Join(" | ", c.Courses.Select(x =>
+                    $"{x.CourseNameSnapshot} - {x.SessionNameSnapshot} ({x.PriceSnapshot:0.00})"))
+                : "";
+
+            var discounts = c.Discounts.Any()
+                ? string.Join(" | ", c.Discounts.Select(x =>
+                    $"{x.Type}: {x.Value:0.00} - {x.Reason}"))
+                : "";
+
+            contractsSheet.Cell(contractRow, 1).Value = c.ContractNumber;
+            contractsSheet.Cell(contractRow, 2).Value = c.BeneficiaryNameSnapshot;
+            contractsSheet.Cell(contractRow, 3).Value = c.BeneficiaryEmailSnapshot;
+            contractsSheet.Cell(contractRow, 4).Value = c.BeneficiaryPhoneSnapshot;
+            contractsSheet.Cell(contractRow, 5).Value = c.Status.ToString();
+            contractsSheet.Cell(contractRow, 6).Value = c.StartDate;
+            contractsSheet.Cell(contractRow, 7).Value = c.EndDate;
+            contractsSheet.Cell(contractRow, 8).Value = c.IsUnlimited ? "Da" : "Nu";
+            contractsSheet.Cell(contractRow, 9).Value = c.TotalAmount ?? 0;
+            contractsSheet.Cell(contractRow, 10).Value = c.MonthlyAmount;
+            contractsSheet.Cell(contractRow, 11).Value = c.InstallmentsList.Count;
+            contractsSheet.Cell(contractRow, 12).Value = paidInstallmentsCount;
+            contractsSheet.Cell(contractRow, 13).Value = totalInstallmentsAmount;
+            contractsSheet.Cell(contractRow, 14).Value = totalPaid;
+            contractsSheet.Cell(contractRow, 15).Value = remaining;
+            contractsSheet.Cell(contractRow, 16).Value = discounts;
+            contractsSheet.Cell(contractRow, 17).Value = courses;
+            contractsSheet.Cell(contractRow, 18).Value = c.AdditionalActs.Count;
+            contractsSheet.Cell(contractRow, 19).Value = c.CreatedAtUtc;
+            contractsSheet.Cell(contractRow, 20).Value = c.FinalizedAtUtc;
+            contractsSheet.Cell(contractRow, 21).Value = c.ActivatedAtUtc;
+
+            contractRow++;
+        }
+
+        // =========================
+        // SHEET 2: RATE
+        // =========================
+
+        var installmentHeaders = new[]
+        {
+        "Nr. contract",
+        "Beneficiar",
+        "Email",
+        "Status contract",
+        "Data scadență",
+        "Sumă rată",
+        "Sumă plătită",
+        "Rest rată",
+        "Status rată",
+        "Este plătită",
+        "Este restantă"
+    };
+
+        for (int i = 0; i < installmentHeaders.Length; i++)
+            installmentsSheet.Cell(1, i + 1).Value = installmentHeaders[i];
+
+        var installmentRow = 2;
+
+        foreach (var c in contracts)
+        {
+            var installments = c.InstallmentsList.AsEnumerable();
+
+            if (from.HasValue)
+                installments = installments.Where(i => i.DueDate.Date >= from.Value.Date);
+
+            if (to.HasValue)
+                installments = installments.Where(i => i.DueDate.Date <= to.Value.Date);
+
+            foreach (var i in installments.OrderBy(x => x.DueDate))
+            {
+                var remaining = i.Amount - i.PaidAmount;
+                var isOverdue = i.PaidAmount < i.Amount && i.DueDate.Date < DateTime.UtcNow.Date;
+
+                installmentsSheet.Cell(installmentRow, 1).Value = c.ContractNumber;
+                installmentsSheet.Cell(installmentRow, 2).Value = c.BeneficiaryNameSnapshot;
+                installmentsSheet.Cell(installmentRow, 3).Value = c.BeneficiaryEmailSnapshot;
+                installmentsSheet.Cell(installmentRow, 4).Value = c.Status.ToString();
+                installmentsSheet.Cell(installmentRow, 5).Value = i.DueDate;
+                installmentsSheet.Cell(installmentRow, 6).Value = i.Amount;
+                installmentsSheet.Cell(installmentRow, 7).Value = i.PaidAmount;
+                installmentsSheet.Cell(installmentRow, 8).Value = remaining;
+                installmentsSheet.Cell(installmentRow, 9).Value = i.Status.ToString();
+                installmentsSheet.Cell(installmentRow, 10).Value = i.PaidAmount >= i.Amount ? "Da" : "Nu";
+                installmentsSheet.Cell(installmentRow, 11).Value = isOverdue ? "Da" : "Nu";
+
+                installmentRow++;
+            }
+        }
+
+        FormatSheet(contractsSheet);
+        FormatSheet(installmentsSheet);
+
+        using var stream = new MemoryStream();
+        workbook.SaveAs(stream);
+
+        var bytes = stream.ToArray();
+
+        return Results.File(
+            bytes,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            $"contracte_contabilitate_{DateTime.UtcNow:yyyyMMdd_HHmm}.xlsx"
+        );
+    }
+
+    private static void FormatSheet(IXLWorksheet sheet)
+    {
+        var usedRange = sheet.RangeUsed();
+
+        if (usedRange == null)
+            return;
+
+        usedRange.SetAutoFilter();
+
+        var header = sheet.Row(1);
+        header.Style.Font.Bold = true;
+        header.Style.Fill.BackgroundColor = XLColor.FromHtml("#1E293B");
+        header.Style.Font.FontColor = XLColor.White;
+        header.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+        usedRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+        usedRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+        usedRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+        sheet.Columns().AdjustToContents();
+
+        foreach (var column in sheet.Columns())
+        {
+            if (column.Width > 40)
+                column.Width = 40;
+        }
+
+        sheet.SheetView.FreezeRows(1);
+
+        foreach (var cell in usedRange.CellsUsed())
+        {
+            if (cell.Value.IsDateTime)
+                cell.Style.DateFormat.Format = "dd.MM.yyyy";
+
+            if (cell.Value.IsNumber)
+                cell.Style.NumberFormat.Format = "#,##0.00";
+        }
+    }
+
+   
+  
 
 }
