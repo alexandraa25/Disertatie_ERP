@@ -60,9 +60,11 @@ export class CoursesService {
     return this.http.get<EnrollmentDto[]>(`${this.baseUrl}/${courseId}/enrollments`, { params });
   }
 
-  enroll(courseId: number, body: CourseEnrollRequest): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/${courseId}/enrollments`, body);
-  }
+  enroll(courseId: number, body: CourseEnrollRequest): Observable<any> {
+  return this.http.post<any>(`${this.baseUrl}/${courseId}/enrollments`, body, {
+    responseType: 'json'
+  });
+}
 
   setEnrollmentActive(courseId: number, sessionId: number, studentId: number, isActive: boolean): Observable<void> {
     return this.http.put<void>(
@@ -89,6 +91,19 @@ export class CoursesService {
   toggleCourseStatus(id: number) {
     return this.http.post<any>(`${this.baseUrl}/${id}/toggle-status`, {});
   }
+
+//   toggleSessionStatus(sessionId: number) {
+//   return this.http.patch(`${this.baseUrl}/sessions/${sessionId}/toggle-status`, {});
+// }
+
+toggleSessionStatus(sessionId: number) {
+  console.log('HTTP CALL FIRED');
+
+  return this.http.patch(
+    `${this.baseUrl}/sessions/${sessionId}/toggle-status`,
+    {}
+  );
+}
 
  exportCoursesExcel(q?: string, status?: string, deleteStatus?: string, scope?: string) {
   const params: any = {};

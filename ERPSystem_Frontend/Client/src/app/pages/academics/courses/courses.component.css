@@ -330,6 +330,61 @@ tbody tr:hover {
   transform: translateY(-1px);
 }
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.page-btn {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-weight: 500;
+}
+
+.deleted-row {
+  opacity: 0.55;
+  background: #fafafa;
+}
+
+.inactive-row {
+  background: linear-gradient(to right, #f8fafc, #f1f5f9);
+  opacity: 0.9;
+}
+
+.inactive-row .course-name {
+  color: #475569;
+}
+
+.inactive-row .course-icon {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+.badge-warning {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
 @media (max-width: 900px) {
   .hero-actions {
     width: 100%;
@@ -340,6 +395,7 @@ tbody tr:hover {
     width: 100%;
   }
 }
+
 @media (max-width: 900px) {
   .page-hero {
     flex-direction: column;

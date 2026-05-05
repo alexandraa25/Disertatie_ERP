@@ -9,7 +9,6 @@ namespace ERPSystem.Data.Entities
         public int ActId { get; set; }
         public ContractAdditionalAct Act { get; set; }
 
-        // 🔥 AICI vine tipul
         public AdditionalActType Type { get; set; }
 
         public int? CourseSessionId { get; set; }

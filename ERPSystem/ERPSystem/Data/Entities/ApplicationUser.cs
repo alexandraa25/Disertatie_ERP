@@ -25,8 +25,6 @@ public class ApplicationUser : IdentityUser
     public DateTime? LastLoginAt { get; set; }
     public string? LastLoginIp { get; set; }
 
-    //public DateTime? HireDate { get; set; }
-
     public DateTime? BirthdayDate { get; set; }
 
     public string? AvatarUrl { get; set; }

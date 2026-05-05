@@ -18,6 +18,8 @@ public class CourseDetailsDto
     public string? Description { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAtUtc { get; set; }
+    public DateTime? DeletedAtUtc { get; set; }
+    public DateTime? UpdatedAtUtc { get; set; }
 
     public List<CourseSessionDto> Sessions { get; set; } = new();
 }
@@ -75,24 +77,49 @@ public class CourseSessionDto
     public CourseFeeType FeeType { get; set; }
     public decimal Fee { get; set; }
     public int? TotalSessions { get; set; }
+
+    public bool IsActive { get; set; }
 }
 
 
-public record EnrollmentDto(
-    int StudentId,
-    string StudentName,
-    string? StudentEmail,
-    DateTime EnrolledAtUtc,
-    bool IsActive,
-    int SessionId,
-    int DayOfWeek,
-    string StartTime,
-    string EndTime,
-    bool FeedbackSent,
-    DateTime? FeedbackSentAt
-);
+public class EnrollmentDto
+{
+    public int StudentId { get; set; }
 
-public record EnrollStudentRequest(int StudentId, int SessionId);
+    public string StudentName { get; set; } = string.Empty;
+
+    public string? StudentEmail { get; set; }
+
+    public DateTime EnrolledAtUtc { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public int SessionId { get; set; }
+
+    public int DayOfWeek { get; set; }
+
+    public string StartTime { get; set; } = string.Empty;
+
+    public string EndTime { get; set; } = string.Empty;
+
+    public bool FeedbackSent { get; set; }
+
+    public DateTime? FeedbackSentAt { get; set; }
+
+    public DateTime? UnenrolledAtUtc { get; set; }
+}
+
+public class EnrollStudentRequest
+{
+    public int StudentId { get; set; }
+
+    public int SessionId { get; set; }
+}
 
 
-public record TeacherOptionDto(string UserId, string DisplayName);
+public class TeacherOptionDto
+{
+    public string UserId { get; set; } = string.Empty;
+
+    public string DisplayName { get; set; } = string.Empty;
+}

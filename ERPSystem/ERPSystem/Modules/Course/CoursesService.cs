@@ -1,4 +1,5 @@
 ﻿using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Course.Models;
@@ -8,7 +9,6 @@ using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ClosedXML.Excel;
 
 namespace ERPSystem.Shared.BusinessLogic;
 
@@ -128,7 +128,8 @@ public class CoursesService
 
                     Fee = s.Fee,
                     FeeType = s.FeeType,              
-                    TotalSessions = s.TotalSessions   
+                    TotalSessions = s.TotalSessions,
+                    IsActive = s.IsActive
                 })
                 .ToList();
 
@@ -139,6 +140,10 @@ public class CoursesService
                 Description = c.Description,
                 IsActive = c.IsActive,
                 CreatedAtUtc = c.CreatedAtUtc,
+
+                DeletedAtUtc = c.DeletedAtUtc,
+                UpdatedAtUtc = c.UpdatedAtUtc,
+
                 Sessions = sessions
             };
 
@@ -197,7 +202,7 @@ public class CoursesService
                     Fee = s.Fee,
                     TotalSessions = s.FeeType == CourseFeeType.FixedPackage  ? s.TotalSessions : null,
 
-                    Title = $"{dto.Name} - {s.DayOfWeek}"
+                    Title = $"{dto.Name} - {GetRomanianDay(s.DayOfWeek)}"
                 });
             }
 
@@ -292,6 +297,15 @@ public class CoursesService
             if (c is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Cursul nu a fost gasit.");
 
+            if (!c.IsActive)
+                return response.SetError(ErrorCodes.InvalidParameters, "Nu poți modifica un curs inactiv.");
+
+            if (!dto.IsActive)
+            {
+                foreach (var session in c.Sessions)
+                    session.IsActive = false;
+            }
+
             var oldName = c.Name;
             var oldIsActive = c.IsActive;
 
@@ -348,7 +362,7 @@ public class CoursesService
                         Fee = sDto.Fee,
                         FeeType = sDto.FeeType,
                         TotalSessions = sDto.FeeType == CourseFeeType.FixedPackage  ? sDto.TotalSessions : null,
-                        Title = $"{dto.Name} - {sDto.DayOfWeek}"
+                        Title = $"{dto.Name} - {GetRomanianDay(sDto.DayOfWeek)}"
                     };
 
                     c.Sessions.Add(newSession);
@@ -366,11 +380,11 @@ public class CoursesService
                     existing.TeacherUserId = sDto.TeacherUserId;
                     existing.Fee = sDto.Fee;
                     existing.FeeType = sDto.FeeType;
+                    existing.Title = $"{dto.Name} - {GetRomanianDay(sDto.DayOfWeek)}";
                     existing.TotalSessions = sDto.FeeType == CourseFeeType.FixedPackage
                         ? sDto.TotalSessions
                         : null;
                 }
-
 
             }
 
@@ -551,12 +565,20 @@ public class CoursesService
             if (course == null)
                 return response.SetError("NOT_FOUND", "Course not found");
 
-            if (course.IsActive && course.Sessions.Any(s => s.IsActive))
-            {
-                return response.SetError("VALIDATION", "Există sesiuni active");
-            }
+            var wasActive = course.IsActive;
 
             course.IsActive = !course.IsActive;
+
+            if (!course.IsActive)
+            {
+                foreach (var session in course.Sessions)
+                    session.IsActive = false;
+            }
+            else
+            {
+                foreach (var session in course.Sessions)
+                    session.IsActive = true;
+            }
 
             _db.ActivityLog.Add(new ActivityLog
             {
@@ -619,7 +641,13 @@ public class CoursesService
                 return response.SetError(ErrorCodes.InvalidParameters, "Course not found");
 
             c.IsDeleted = true;
+
             c.DeletedAtUtc = DateTime.UtcNow;
+
+            c.IsActive = false;
+
+            foreach (var s in c.Sessions)
+                s.IsActive = false;
 
             _db.ActivityLog.Add(new ActivityLog
             {
@@ -674,6 +702,7 @@ public class CoursesService
 
         c.IsDeleted = false;
         c.DeletedAtUtc = null;
+        c.IsActive = false;
 
         await _db.SaveChangesAsync();
 
@@ -699,6 +728,72 @@ public class CoursesService
         return response.SetSuccess(true);
     }
 
+    public async Task<PublicResponse> ToggleSessionStatusAsync(int id)
+    {
+        var response = new PublicResponse(true);
+
+        try
+        {
+            var session = await _db.CourseSessions
+                .Include(x => x.Enrollments)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (session == null)
+                return response.SetError("NOT_FOUND", "Session not found");
+
+            if (session.IsActive)
+            {
+                var hasActiveEnrollments = session.Enrollments.Any(e => e.IsActive);
+
+                if (hasActiveEnrollments)
+                    return response.SetError("BUSINESS_RULE",
+                        "Nu poți dezactiva sesiunea. Există cursanți activi.");
+            }
+
+            session.IsActive = !session.IsActive;
+
+            _db.ActivityLog.Add(new ActivityLog
+            {
+                EntityType = "CourseSession",
+                EntityId = session.Id.ToString(),
+                Action = session.IsActive ? "SessionActivated" : "SessionDeactivated",
+                Description = session.IsActive
+                    ? $"Sesiunea {session.Id} a fost activată."
+                    : $"Sesiunea {session.Id} a fost dezactivată.",
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = "system"
+            });
+
+            await _db.SaveChangesAsync();
+
+            if (!string.IsNullOrEmpty(session.TeacherUserId))
+            {
+                await _notificationService.CreateNotificationAsync(
+                    userId: session.TeacherUserId,
+                    eventType: NotificationEvents.CourseActivity,
+                    title: session.IsActive ? "Sesiune activată" : "Sesiune dezactivată",
+                    message: session.IsActive
+                        ? "Sesiunea ta a fost activată."
+                        : "Sesiunea ta a fost dezactivată.",
+                    type: session.IsActive ? "Success" : "Warning",
+                    link: "/courses",
+                    entityType: "CourseSession",
+                    entityId: session.Id.ToString()
+                );
+            }
+
+            return response.SetSuccess(new
+            {
+                session.Id,
+                session.IsActive
+            });
+        }
+        catch (Exception ex)
+        {
+            return response.SetError("SERVER", ex.Message);
+        }
+    }
+
     public async Task<PublicResponse> ListEnrollmentsAsync(int courseId, int? sessionId = null)
     {
         var response = new PublicResponse(true);
@@ -718,33 +813,35 @@ public class CoursesService
             var items = await query
                 .OrderByDescending(x => x.IsActive)
                 .ThenBy(x => x.Student.FullName)
-                .Select(x => new EnrollmentDto(
-                    x.StudentId,
-                    x.Student.FullName,
-                    x.Student.Email,
-                    x.EnrolledAtUtc,
-                    x.IsActive,
-                    x.CourseSessionId,
-                    x.Session.DayOfWeek,
-                    x.Session.StartTime.ToString("HH:mm"),
-                    x.Session.EndTime.ToString("HH:mm"),
+                .Select(x => new EnrollmentDto
+                {
+                    StudentId = x.StudentId,
+                    StudentName = x.Student.FullName,
+                    StudentEmail = x.Student.Email,
+                    EnrolledAtUtc = x.EnrolledAtUtc,
+                    IsActive = x.IsActive,
+                    SessionId = x.CourseSessionId,
+                    DayOfWeek = x.Session.DayOfWeek,
+                    StartTime = x.Session.StartTime.ToString("HH:mm"),
+                    EndTime = x.Session.EndTime.ToString("HH:mm"),
+                    UnenrolledAtUtc = x.EndedAtUtc,
 
-                    _db.EmailRecipientLogs.Any(r =>
+                    FeedbackSent = _db.EmailRecipientLogs.Any(r =>
                         r.StudentId == x.StudentId &&
                         r.IsSent &&
                         r.EmailLog.Type == EmailLogTypes.FeedbackForm &&
                         r.EmailLog.ReferenceId == x.CourseSessionId),
 
-                    _db.EmailRecipientLogs
-                        .Where(r =>
-                            r.StudentId == x.StudentId &&
-                            r.IsSent &&
-                            r.EmailLog.Type == EmailLogTypes.FeedbackForm &&
-                            r.EmailLog.ReferenceId == x.CourseSessionId)
-                        .OrderByDescending(r => r.SentAt)
-                        .Select(r => r.SentAt)
-                        .FirstOrDefault()
-                ))
+                    FeedbackSentAt = _db.EmailRecipientLogs
+                   .Where(r =>
+                       r.StudentId == x.StudentId &&
+                       r.IsSent &&
+                       r.EmailLog.Type == EmailLogTypes.FeedbackForm &&
+                       r.EmailLog.ReferenceId == x.CourseSessionId)
+                   .OrderByDescending(r => r.SentAt)
+                   .Select(r => r.SentAt)
+                   .FirstOrDefault()
+                })
                 .ToListAsync();
 
             return response.SetSuccess(items);
@@ -770,11 +867,17 @@ public class CoursesService
             if (student is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
 
+            if (!course.IsActive)
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursul este inactiv.");
+
             var session = await _db.CourseSessions
                 .FirstOrDefaultAsync(s => s.Id == sessionId && s.CourseId == courseId);
 
             if (session is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Session not found for this course");
+
+            if (!session.IsActive)
+                return response.SetError(ErrorCodes.InvalidParameters, "Sesiunea este inactivă.");
 
             if (session.Capacity.HasValue)
             {
@@ -939,7 +1042,11 @@ public class CoursesService
                 join u in _db.Users on ur.UserId equals u.Id
                 where ur.RoleId == roleId
                 orderby u.UserName
-                select new TeacherOptionDto(u.Id, u.UserName ?? u.Email ?? u.Id)
+                select new TeacherOptionDto
+                {
+                    UserId = u.Id,                          
+                    DisplayName = u.UserName ?? u.Email    
+                }
             ).ToListAsync();
 
             return response.SetSuccess(teachers);
@@ -949,7 +1056,6 @@ public class CoursesService
             return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
         }
     }
-
     private static TimeOnly ParseTime(string s)
     {
         if (!TimeOnly.TryParse(s, out var t))

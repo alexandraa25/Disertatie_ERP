@@ -46,14 +46,19 @@ public static class CoursesEndpoints
                 => await service.RestoreAsync(id))
             .WithDefaultApiSettings("RestoreCourse", "Restore curs", "RESTORE", false);
 
+        group.MapPatch(Route.SESSION_STATUS,
+             async (int id, CoursesService service)
+                 => await service.ToggleSessionStatusAsync(id))
+             .WithDefaultApiSettings( "ToggleSessionStatus", "Activare/Dezactivare sesiune", "UPDATE",  false);
+
         group.MapGet(Route.COURSE_ENROLLMENTS,
             async (int courseId, int? sessionId, CoursesService service)
                 => await service.ListEnrollmentsAsync(courseId, sessionId))
             .WithDefaultApiSettings("GetCourseEnrollments", "Lista inscrieri curs", "ENROLLMENTS_LIST", false);
 
         group.MapPost(Route.COURSE_ENROLLMENTS,
-            async (int id, EnrollStudentRequest body, CoursesService service)
-                => await service.EnrollStudentAsync(id, body.StudentId, body.SessionId));
+           async (int courseId, EnrollStudentRequest body, CoursesService service)
+                => await service.EnrollStudentAsync(courseId, body.StudentId, body.SessionId));
 
         group.MapPut(Route.COURSE_ENROLLMENT_BY_SESSION_STUDENT,
             async (int id, int sessionId, int studentId, bool isActive, CoursesService service)

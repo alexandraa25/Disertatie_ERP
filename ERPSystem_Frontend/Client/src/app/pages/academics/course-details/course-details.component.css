@@ -3,7 +3,19 @@
   margin: 80px auto;
   padding: 0 24px;
 }
+.course-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
 
+.course-header h2 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: #111827;
+}
 .back-btn {
   display: inline-flex;
   align-items: center;
@@ -16,11 +28,15 @@
   font-weight: 600;
   cursor: pointer;
   transition: 0.2s;
+   background: #f3f4f6;
+  border-radius: 10px;
+  padding: 8px 12px;
 }
 
 .back-btn:hover {
   transform: translateX(-4px);
   color: #2f4ecb;
+  background: #e5e7eb;
 }
 
 .card {
@@ -117,6 +133,23 @@ tbody td {
   color: #2563eb;
 }
 
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-active {
+  background: #e6f9ee;
+  color: #1a7f37;
+}
+
+.badge-inactive {
+  background: #fde8e8;
+  color: #b42318;
+}
+
 .unlimited {
   display: inline-block;
   background: #eef2ff;
@@ -149,13 +182,16 @@ tbody td {
 }
 
 .actions-cell {
-  min-width: 420px;
-}
-
-.actions-cell {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
+  flex-wrap: wrap;
+  flex-direction: column;
+  min-width: 260px;
+}
+.actions-group {
+  display: flex;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
@@ -248,6 +284,86 @@ button {
 .evaluation-btn:hover {
   background: #d68910;
 }
+
+.dates {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.4;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-pill .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.status-pill.active {
+  background: #e6f9ee;
+  color: #1a7f37;
+}
+
+.status-pill.active .dot {
+  background: #1a7f37;
+}
+
+.status-pill.inactive {
+  background: #fde8e8;
+  color: #b42318;
+}
+
+.status-pill.inactive .dot {
+  background: #b42318;
+}
+
+.toggle-btn.danger {
+  background: #e03131;
+  color: white;
+}
+
+.toggle-btn.primary-soft {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.enrollments-wrapper {
+  max-height: 300px; /* ajustezi cât vrei */
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  border-radius: 12px;
+  background: white;
+}
+
+/* tabelul rămâne curat */
+.enrollments-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* optional: scroll mai frumos */
+.enrollments-wrapper::-webkit-scrollbar {
+  width: 6px;
+}
+
+.enrollments-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.enrollments-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
 
 @media (max-width: 1100px) {
   .card {

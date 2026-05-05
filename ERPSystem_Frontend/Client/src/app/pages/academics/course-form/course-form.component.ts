@@ -93,12 +93,16 @@ export class CourseFormComponent implements OnInit {
             capacity: s.capacity,
             fee: s.fee,
             feeType: Number(s.feeType) as 1 | 2,
-            totalSessions: s.totalSessions, 
-            enrolledActiveCount: s.enrolledActiveCount
+            totalSessions: s.totalSessions,
+            enrolledActiveCount: s.enrolledActiveCount, 
+            isActive: s.isActive
           }));
         }
 
         if (this.sessions.length === 0) this.addSession();
+        if (!c.isActive) {
+          this.sessions.disable();
+      }
 
         this.loading = false;
       },
@@ -134,8 +138,9 @@ export class CourseFormComponent implements OnInit {
       totalSessions: [data?.totalSessions ?? null],
 
       capacity: [data?.capacity ?? null],
-      unlimited: [data?.capacity == null], 
-      enrolledActiveCount: [data?.enrolledActiveCount ?? 0]
+      unlimited: [data?.capacity == null],
+      enrolledActiveCount: [data?.enrolledActiveCount ?? 0], 
+      isActive: [data?.isActive ?? true]
     });
   }
 
@@ -143,21 +148,26 @@ export class CourseFormComponent implements OnInit {
     this.sessions.push(this.createSessionGroup());
   }
 
- removeSession(index: number): void {
+  removeSession(index: number): void {
 
-  if (this.sessions.length <= 1) return;
+    if (this.sessions.length <= 1) return;
 
-  const session = this.sessions.at(index).value;
+    const session = this.sessions.at(index).value;
 
-  if (session.enrolledActiveCount > 0) {
-    alert('Nu poți șterge sesiunea. Există cursanți activi.');
-    return;
+    if (session.enrolledActiveCount > 0) {
+      alert('Nu poți șterge sesiunea. Există cursanți activi.');
+      return;
+    }
+
+    this.sessions.removeAt(index);
   }
 
-  this.sessions.removeAt(index);
-}
-
   save(): void {
+
+    if (this.isEdit && !this.form.value.isActive) {
+  alert("Nu poți modifica un curs inactiv.");
+  return;
+}
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -265,7 +275,7 @@ export class CourseFormComponent implements OnInit {
   }
 
   cancel(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(true);
   }
 
   c(name: string) {
@@ -341,4 +351,27 @@ export class CourseFormComponent implements OnInit {
       alert('Eroare la salvare curs.');
     }
   }
+
+
+  isDeleteDisabled(i: number): boolean {
+  const session = this.sessions.at(i).value;
+
+  return (
+    this.sessions.length <= 1 ||
+    (session.enrolledActiveCount ?? 0) > 0 ||
+    !session.isActive ||
+    !this.form.value.isActive
+  );
+}
+
+getDeleteTooltip(i: number): string {
+  const session = this.sessions.at(i).value;
+
+  if (this.sessions.length <= 1) return 'Trebuie să existe cel puțin o sesiune';
+  if ((session.enrolledActiveCount ?? 0) > 0) return 'Are cursanți activi';
+  if (!session.isActive) return 'Sesiunea este inactivă';
+  if (!this.form.value.isActive) return 'Cursul este inactiv';
+
+  return '';
+}
 }

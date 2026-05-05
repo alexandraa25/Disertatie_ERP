@@ -34,79 +34,81 @@
       <div class="sessions">
         <div class="sessions-header">
           <h3>Orar</h3>
-          <button type="button" class="secondary" (click)="addSession()">+ Adaugă sesiune</button>
+          <button type="button" class="secondary" (click)="addSession()" [disabled]="!form.value.isActive">
+            + Adaugă sesiune
+          </button>
         </div>
 
         <div formArrayName="sessions" class="sessions-list">
           <div class="session-row" *ngFor="let s of sessions.controls; let i=index" [formGroupName]="i">
 
-  <!-- ROW 1 -->
-  <div class="row row-top">
-    <select formControlName="dayOfWeek">
-      <option *ngFor="let d of days" [value]="d.id">
-        {{ d.name }}
-      </option>
-    </select>
+            <!-- ROW 1 -->
+            <div class="row row-top">
+              <select formControlName="dayOfWeek">
+                <option *ngFor="let d of days" [value]="d.id">
+                  {{ d.name }}
+                </option>
+              </select>
 
-    <input formControlName="startTime" type="time" />
-    <input formControlName="endTime" type="time" />
+              <input formControlName="startTime" type="time" [disabled]="!sessions.at(i).value.isActive" />
+              <input formControlName="endTime" type="time" [disabled]="!sessions.at(i).value.isActive" />
 
-    <select formControlName="teacherUserId">
-      <option value="">Profesor</option>
-      <option *ngFor="let t of teachers" [value]="t.userId">
-        {{ t.displayName }}
-      </option>
-    </select>
-  </div>
+              <select formControlName="teacherUserId" [disabled]="!sessions.at(i).value.isActive">
+                <option value="">Profesor</option>
+                <option *ngFor="let t of teachers" [value]="t.userId">
+                  {{ t.displayName }}
+                </option>
+              </select>
+            </div>
 
-  <!-- ROW 2 -->
-  <div class="row row-bottom">
+            <!-- ROW 2 -->
+            <div class="row row-bottom">
 
-    <div class="pricing">
-      <select formControlName="feeType">
-        <option [ngValue]="1">📦 Pachet fix</option>
-        <option [ngValue]="2">🔁 Abonament lunar</option>
-      </select>
+              <div class="pricing">
+                <select formControlName="feeType">
+                  <option [ngValue]="1">📦 Pachet fix</option>
+                  <option [ngValue]="2">🔁 Abonament lunar</option>
+                </select>
 
-      <input type="number" formControlName="fee" placeholder="Preț (RON)" min="0" />
+                <input type="number" formControlName="fee" placeholder="Preț (RON)" min="0" />
 
-      <input *ngIf="sessions.at(i).value.feeType === 1"
-             type="number"
-             formControlName="totalSessions"
-             placeholder="Nr. ședințe"
-             min="1" />
-    </div>
+                <input *ngIf="sessions.at(i).value.feeType === 1" type="number" formControlName="totalSessions"
+                  placeholder="Nr. ședințe" min="1" />
+              </div>
 
-    <div class="capacity-wrapper">
-      <label class="switch">
-        <input type="checkbox" formControlName="unlimited" (change)="onToggleUnlimited(i)">
-        <span class="slider"></span>
-      </label>
+              <div class="capacity-wrapper">
+                <label class="switch">
+                  <input type="checkbox" formControlName="unlimited" (change)="onToggleUnlimited(i)">
+                  <span class="slider"></span>
+                </label>
 
-      <span class="toggle-label">
-        {{ sessions.at(i).value.unlimited ? 'Nelimitat' : 'Limită' }}
-      </span>
+                <span class="toggle-label">
+                  {{ sessions.at(i).value.unlimited ? 'Nelimitat' : 'Limită' }}
+                </span>
 
-      <input *ngIf="!sessions.at(i).value.unlimited"
-             type="number"
-             formControlName="capacity"
-             placeholder="Capacitate"
-             min="1" />
-    </div>
+                <input *ngIf="!sessions.at(i).value.unlimited" type="number" formControlName="capacity"
+                  placeholder="Capacitate" min="1" />
+              </div>
 
-    <button type="button"
-        class="danger"
-        (click)="removeSession(i)"
-        [disabled]="sessions.length <= 1 || (sessions.at(i).get('enrolledActiveCount')?.value || 0) > 0">
+              <button
+  type="button"
+  class="danger"
+  (click)="removeSession(i)"
+  [disabled]="isDeleteDisabled(i)"
+  [title]="getDeleteTooltip(i)">
+
   Șterge
 </button>
-<div *ngIf="sessions.at(i).value.enrolledActiveCount > 0" class="warning">
-  Are {{ sessions.at(i).value.enrolledActiveCount }} cursanți activi
-</div>
+              <div *ngIf="sessions.at(i).value.enrolledActiveCount > 0" class="warning">
+                Are {{ sessions.at(i).value.enrolledActiveCount }} cursanți activi
+              </div>
+              <div *ngIf="!sessions.at(i).value.isActive" class="warning">
+                Sesiune inactivă
+              </div>
 
-  </div>
+            </div>
 
-</div>
+          </div>
         </div>
       </div>
       <div class="actions">

@@ -31,6 +31,11 @@ export class CoursesComponent implements OnInit {
   deleteStatusFilter = 'notDeleted';
   scopeFilter: string = '';
 
+  page = 1;
+  pageSize = 10;
+  totalPages = 1;
+  pagedItems: any[] = [];
+
   constructor(private courses: CoursesService, private dialog: MatDialog, private router: Router, private snackbar: SnackbarService, private confirmService: ConfirmService) { }
 
   ngOnInit(): void {
@@ -45,34 +50,36 @@ export class CoursesComponent implements OnInit {
   }
 
   onSearch(term: string): void {
+    this.page = 1;
     this.searchSubject.next(term);
   }
 
+  loadCourses(): void {
+    this.loading = true;
 
-loadCourses(): void {
-  this.loading = true;
+    const scope = this.scopeFilter !== ''
+      ? Number(this.scopeFilter)
+      : undefined;
 
-  const scope = this.scopeFilter !== ''
-    ? Number(this.scopeFilter)
-    : undefined;
-
-  this.courses.list(
-    this.q,
-    this.statusFilter,
-    this.deleteStatusFilter,
-    scope
-  ).subscribe({
-    next: (res: any) => {
-      const data = res?.value ?? res?.data ?? res;
-      this.items = Array.isArray(data) ? data : [];
-      this.loading = false;
-    },
-    error: () => {
-      this.loading = false;
-      this.snackbar.showError('Eroare la încărcare cursuri.', 2500);
-    }
-  });
-}
+    this.courses.list(
+      this.q,
+      this.statusFilter,
+      this.deleteStatusFilter,
+      scope
+    ).subscribe({
+      next: (res: any) => {
+        const data = res?.value ?? res?.data ?? res;
+        this.items = Array.isArray(data) ? data : [];
+        this.page = 1;
+        this.applyPagination();
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.snackbar.showError('Eroare la încărcare cursuri.', 2500);
+      }
+    });
+  }
 
   onStatusFilterChange() {
     this.loadCourses();
@@ -82,9 +89,9 @@ loadCourses(): void {
     this.loadCourses();
   }
 
-    onScopeFilterChange(): void {
-  this.loadCourses();
-}
+  onScopeFilterChange(): void {
+    this.loadCourses();
+  }
 
   openCreate() {
     const dialogRef = this.dialog.open(CourseFormComponent, {
@@ -105,6 +112,18 @@ loadCourses(): void {
       return;
     }
 
+    const course = this.items.find(x => x.id === id);
+
+    if (!course) {
+      this.snackbar.showError('Cursul nu a fost găsit.', 2000);
+      return;
+    }
+
+    if (!course.isActive) {
+      this.snackbar.showError('Cursul este inactiv și nu poate fi editat.', 2000);
+      return;
+    }
+
     const dialogRef = this.dialog.open(CourseFormComponent, {
       width: '1020px',
       panelClass: 'student-dialog',
@@ -117,7 +136,6 @@ loadCourses(): void {
       }
     });
   }
-
   openDetails(id: number): void {
     this.router.navigate(['/courses', id]);
   }
@@ -139,10 +157,19 @@ loadCourses(): void {
 
     this.courses.toggleCourseStatus(course.id).subscribe({
       next: (res: any) => {
-        course.isActive = res.value.isActive;
+        const updated = res.value;
+
+        this.items = this.items.map(x =>
+          x.id === updated.id
+            ? { ...x, isActive: updated.isActive }
+            : x
+        );
+        this.applyPagination();
+
+        const isActive = updated.isActive;
 
         this.snackbar.showSuccess(
-          course.isActive ? 'Curs activat cu succes.' : 'Curs dezactivat cu succes.',
+          isActive ? 'Curs activat cu succes.' : 'Curs dezactivat cu succes.',
           1800
         );
       },
@@ -198,18 +225,41 @@ loadCourses(): void {
       }
     });
   }
-exportCoursesExcel(): void {
-  this.courses
-    .exportCoursesExcel(this.q, this.statusFilter, this.deleteStatusFilter, this.scopeFilter)
-    .subscribe((blob: Blob) => {
-      const url = window.URL.createObjectURL(blob);
 
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'cursuri.xlsx';
-      a.click();
+  exportCoursesExcel(): void {
+    this.courses
+      .exportCoursesExcel(this.q, this.statusFilter, this.deleteStatusFilter, this.scopeFilter)
+      .subscribe((blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
 
-      window.URL.revokeObjectURL(url);
-    });
-}
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'cursuri.xlsx';
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+      });
+  }
+
+  applyPagination() {
+    this.totalPages = Math.max(1, Math.ceil(this.items.length / this.pageSize));
+
+    const start = (this.page - 1) * this.pageSize;
+    const end = start + this.pageSize;
+
+    this.pagedItems = [...this.items].slice(start, end); // 🔥 IMPORTANT
+  }
+  nextPage() {
+    if (this.page < this.totalPages) {
+      this.page++;
+      this.applyPagination();
+    }
+  }
+
+  prevPage() {
+    if (this.page > 1) {
+      this.page--;
+      this.applyPagination();
+    }
+  }
 }

@@ -7,12 +7,15 @@ import { EnrollStudentsComponent } from '../enroll-students/enroll-students.comp
 import { SendFeedbackFormsComponent } from '../../feedback/send-feedback-forms/send-feedback-forms.component';
 import { SessionFeedbackReviewsComponent } from '../../feedback/session-feedback-reviews/session-feedback-reviews.component';
 import { StudentEvaluationModalComponent } from '../../feedback/student-evaluation-modal/student-evaluation-modal.component';
+import { ConfirmService } from '../../services/confirm.service';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
+import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
 
 
 @Component({
   standalone: true,
   selector: 'app-course-details',
-  imports: [CommonModule, SendFeedbackFormsComponent, SessionFeedbackReviewsComponent, StudentEvaluationModalComponent],
+  imports: [CommonModule, SendFeedbackFormsComponent, SessionFeedbackReviewsComponent, StudentEvaluationModalComponent, ConfirmCustomModalComponent],
   templateUrl: './course-details.component.html',
   styleUrls: ['./course-details.component.css']
 })
@@ -38,7 +41,9 @@ selectedEvaluationSession: any = null;
     private route: ActivatedRoute,
     private router: Router,
     private courses: CoursesService,
-    private dialog: MatDialog
+    private dialog: MatDialog, 
+    private confirmService: ConfirmService, 
+    private snackbar: SnackbarService
   ) { }
 
   ngOnInit(): void {
@@ -181,5 +186,69 @@ closeStudentEvaluationModal(): void {
 
 onStudentEvaluationSaved(): void {
   this.closeStudentEvaluationModal();
+}
+
+remainingSeats(s: any): number {
+  return Math.max((s.capacity ?? 0) - (s.enrolledActiveCount ?? 0), 0);
+}
+
+async toggleSessionStatus(session: any): Promise<void> {
+  const action = session.isActive ? 'dezactivezi' : 'activezi';
+
+console.log('Action ');
+
+  const confirmed = await this.confirmService.confirm(
+    'Confirmare',
+    `Sigur vrei să ${action} această sesiune?`
+  );
+
+console.log('Confirmare ' + confirmed);
+
+  if (!confirmed) return;
+
+  this.courses.toggleSessionStatus(session.id).subscribe({
+    next: (res: any) => {
+
+      console.log('Res' + JSON.stringify(res));
+      // ideal: folosește valoarea venită din backend, dacă există
+      const updated = res?.value;
+
+      if (updated) {
+        session.isActive = updated.isActive;
+      } else {
+        session.isActive = !session.isActive;
+      }
+
+      this.snackbar.showSuccess(
+        session.isActive
+          ? 'Sesiune activată'
+          : 'Sesiune dezactivată',
+        1500
+      );
+    },
+
+    error: (err) => {
+      const message = err?.error?.message ?? '';
+      const code = err?.error?.code ?? '';
+
+      if (code === 'BUSINESS_RULE') {
+        this.snackbar.showError(
+          message || 'Nu poți dezactiva sesiunea. Există cursanți activi.',
+          3000
+        );
+        return;
+      }
+
+      if (code === 'NOT_FOUND') {
+        this.snackbar.showError('Sesiunea nu a fost găsită.', 2500);
+        return;
+      }
+
+      this.snackbar.showError(
+        'Eroare la actualizarea sesiunii',
+        2500
+      );
+    }
+  });
 }
 }

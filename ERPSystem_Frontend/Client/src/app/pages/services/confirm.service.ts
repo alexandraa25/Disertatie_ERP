@@ -12,6 +12,9 @@ export class ConfirmService {
   title = 'Confirmare';
 
   confirm(message: string, title: string = 'Confirmare'): Promise<boolean> {
+
+    console.log('Confirm');
+
     this.message = message;
     this.title = title;
     this.isOpen = true;

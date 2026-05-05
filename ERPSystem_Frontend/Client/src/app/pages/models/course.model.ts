@@ -39,11 +39,13 @@ export interface CourseSessionUpsertDto {
   totalSessions?: number | null;
 
   capacity?: number | null;
+   
 }
 
 
 export interface CourseSessionFormModel extends Partial<CourseSessionUpsertDto> {
   enrolledActiveCount?: number;
+  isActive?: boolean; 
 }
  
 export interface CourseListItemDto {

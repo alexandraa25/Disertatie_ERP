@@ -145,6 +145,7 @@ namespace ERPSystem.Utils.Constants
                 public const string COURSE_RESTORE = "/{id}/restore";
                 public const string COURSE_DELETE = "/{id}/delete";
                 public const string COURSE_STATUS = "/{id}/toggle-status";
+                public const string SESSION_STATUS = "/sessions/{id}/toggle-status";
 
                 public const string EXPORT_COURSES_EXCEL = "/export";
                 

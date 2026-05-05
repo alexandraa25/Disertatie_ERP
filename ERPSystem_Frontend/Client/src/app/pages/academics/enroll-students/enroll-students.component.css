@@ -1,147 +1,248 @@
+/* ========== BACKDROP ========== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 🔥 SPAȚIU PE MARGINI (desktop) */
+  padding: 32px;
+
+  z-index: 999;
+  
+}
+
+/* ========== MODAL CONTAINER ========== */
 .modal-container {
-  padding: 30px 35px;   /* 🔥 spațiu pe margini */
+  width: 100%;
+  max-width: 720px;
+
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
+
+  display: flex;
+  flex-direction: column;
+
+  max-height: 85vh;
+  overflow: hidden;
+
+  box-sizing: border-box;
+  padding: 32px;
 }
 
-.modal-header {
-  margin-bottom: 25px;
-}
 
-.search-wrapper {
-  margin-bottom: 25px;
-}
-
-.student-list {
-  margin-top: 10px;
-}
-
-.modal-actions {
-  margin-top: 30px;
-}
-
+/* ========== HEADER ========== */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+
+  padding: 18px 20px;
+  border-bottom: 1px solid #eef2f7;
+
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 2;
 }
 
 .modal-header h2 {
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .count {
   background: #eef2ff;
   color: #4f46e5;
-  padding: 6px 12px;
-  border-radius: 20px;
+  padding: 6px 10px;
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
 }
 
+/* ========== SEARCH ========== */
 .search-wrapper {
   position: relative;
-  margin-bottom: 20px;
+  padding: 12px 20px 0 20px;
 }
 
 .search {
-  width: 100%;
-  padding: 10px 12px 10px 35px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  transition: 0.2s;
+  width: 90%;
+  padding: 10px 12px 10px 36px;
+
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+
+  outline: none;
+  transition: 0.2s ease;
 }
 
 .search:focus {
-  border-color: #4f46e5;
-  outline: none;
+  border-color: #6366f1;
+  background: #fff;
 }
 
 .search-icon {
   position: absolute;
-  left: 10px;
+  left: 32px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 14px;
-  color: #888;
+  color: #94a3b8;
 }
 
-.loading {
-  padding: 20px 0;
-  text-align: center;
-  color: #666;
-}
-
-.student-list {
-  max-height: 350px;
+/* ========== LIST ========== */
+.students-list {
+  flex: 1;
   overflow-y: auto;
-  border: 1px solid #eee;
+  overflow-x: hidden;
+
+  padding: 12px 20px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* scrollbar clean */
+.students-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.students-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
   border-radius: 10px;
 }
 
+/* ========== ITEM ========== */
 .student-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 15px;
-  border-bottom: 1px solid #f1f1f1;
-  transition: background 0.2s;
+
+  gap: 12px;
+
+  padding: 12px 14px;
+  border-radius: 12px;
+
+  transition: 0.15s ease;
+  background: white;
+  border: 1px solid transparent;
 }
 
 .student-item:hover {
-  background: #f8f9ff;
+  background: #f8fafc;
+  border-color: #eef2ff;
 }
 
-.student-item:last-child {
-  border-bottom: none;
+/* text safe */
+.student-info {
+  min-width: 0;
 }
 
 .student-info .name {
   font-weight: 600;
-  margin-bottom: 2px;
+  color: #0f172a;
 }
 
 .student-info .email {
   font-size: 12px;
-  color: #666;
+  color: #64748b;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+/* ========== BUTTON ========== */
 .btn-enroll {
-  background: #4f46e5;
+  background: #6366f1;
   color: white;
+
   border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
-  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 10px;
+
   font-size: 13px;
-  transition: 0.2s;
+  font-weight: 600;
+
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: 0.15s ease;
 }
 
 .btn-enroll:hover {
-  background: #4338ca;
+  background: #4f46e5;
 }
 
+/* ========== EMPTY ========== */
 .empty-state {
   text-align: center;
-  padding: 25px;
-  color: #888;
+  padding: 30px;
+  color: #94a3b8;
 }
 
+/* ========== FOOTER ========== */
 .modal-actions {
-  margin-top: 20px;
-  text-align: right;
+  padding: 14px 20px;
+  border-top: 1px solid #eef2f7;
+
+  display: flex;
+  justify-content: flex-end;
+  background: white;
 }
 
 .btn-close {
-  background: #e5e7eb;
+  background: #f1f5f9;
   border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
+
+  padding: 8px 14px;
+  border-radius: 10px;
+
   cursor: pointer;
-  transition: 0.2s;
+  font-weight: 600;
 }
 
 .btn-close:hover {
-  background: #d1d5db;
+  background: #e2e8f0;
+}
+
+/* ========== MOBILE (Stripe / Notion style) ========== */
+@media (max-width: 768px) {
+
+  .modal-backdrop {
+    /* 🔥 NU mai eliminăm complet spațiul */
+    padding: 16px;
+    align-items: flex-end;
+  }
+
+  .modal-container {
+    width: 100%;
+    height: 90vh;
+    max-height: 90vh;
+
+    border-radius: 18px 18px 0 0;
+  }
+
+  .modal-header {
+    padding: 14px 16px;
+  }
+
+  .search-wrapper {
+    padding: 10px 16px 0 16px;
+  }
+
+  .students-list {
+    padding: 10px 16px;
+  }
+
+  .modal-actions {
+    padding: 12px 16px;
+  }
 }

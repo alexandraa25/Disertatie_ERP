@@ -91,7 +91,21 @@ enroll(item: any) {
       sessionId: this.data.sessionId!
     }).subscribe({
       next: () => this.load(),
-      error: () => alert('Eroare la înscriere')
+     error: (err) => {
+  console.log('FULL ERROR:', err);
+
+  if (typeof err.error === 'string') {
+    alert('Server error (non-JSON): ' + err.error);
+    return;
+  }
+
+  const message =
+    err?.error?.message ||
+    err?.error?.errorMessage ||
+    'Eroare la înscriere';
+
+  alert(message);
+}
     });
 
   } else {
@@ -101,7 +115,17 @@ enroll(item: any) {
       sessionId: item.sessionId
     }).subscribe({
       next: () => this.load(),
-      error: () => alert('Eroare la înscriere')
+     error: (err) => {
+  console.log('Enroll error:', err);
+
+  const message =
+    err?.error?.message ||
+    err?.error?.errorMessage ||
+    err?.message ||
+    'Eroare la înscriere';
+
+  alert(message);
+}
     });
 
   }
@@ -110,5 +134,19 @@ enroll(item: any) {
 
   close() {
     this.dialogRef.close(true);
+  }
+
+   getDayName(day: number): string {
+    const days: { [key: number]: string } = {
+      1: 'Luni',
+      2: 'Marți',
+      3: 'Miercuri',
+      4: 'Joi',
+      5: 'Vineri',
+      6: 'Sâmbătă',
+      7: 'Duminică'
+    };
+
+    return days[day] || '-';
   }
 }

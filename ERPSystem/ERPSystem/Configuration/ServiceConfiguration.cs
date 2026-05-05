@@ -70,7 +70,6 @@ namespace ERPSystem.Configuration
             builder.Services.AddScoped<ExternalAnalyticsService>();
             builder.Services.AddScoped<FeedbackGlobalAnalyticsService>();
             
-
         }
 
         public static void ConfigureSettings(this WebApplicationBuilder builder)
@@ -84,7 +83,6 @@ namespace ERPSystem.Configuration
         {
             builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // Identity + API Endpoints
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.Password.RequireDigit = true;

@@ -15,7 +15,6 @@
   height: 100%;
 }
 
-/* HEADER */
 .header {
   padding: 16px 22px;
   background: #ffffff;
@@ -32,7 +31,6 @@
   color: #1e293b;
 }
 
-/* CARD */
 .card {
   padding: 18px 22px 22px 22px;
   overflow-y: auto;
@@ -40,7 +38,6 @@
   min-height: 0;
 }
 
-/* FORM GRID */
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -78,7 +75,7 @@ select:focus {
   outline: none;
   border-color: #6366f1;
   background: #ffffff;
-  box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
 }
 
 small {
@@ -87,7 +84,6 @@ small {
   color: #ef4444;
 }
 
-/* SESSIONS */
 .sessions {
   margin-top: 18px;
 }
@@ -111,43 +107,34 @@ small {
   gap: 12px;
 }
 
-/* SESSION CARD */
 .session-row {
   border: 1px solid #eee;
   border-radius: 12px;
   padding: 12px;
   background: #fafafa;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
-/* ROWS */
 .session-row .row {
   display: grid;
   gap: 10px;
   margin-bottom: 8px;
 }
 
-/* ROW 1: zi + ore + profesor */
 .row-top {
-  grid-template-columns: 
-    minmax(120px, 1fr)
-    minmax(90px, 120px)
-    minmax(90px, 120px)
-    minmax(160px, 2fr);
+  grid-template-columns:
+    minmax(120px, 1fr) minmax(90px, 120px) minmax(90px, 120px) minmax(160px, 2fr);
 }
 
-/* IMPORTANT FIX pentru select */
 .row-top select {
   min-width: 0;
 }
 
-/* ROW 2 */
 .row-bottom {
   grid-template-columns: 1.5fr 1fr auto;
   align-items: center;
 }
 
-/* PRICING */
 .pricing {
   display: flex;
   gap: 8px;
@@ -177,7 +164,6 @@ small {
   width: 80px;
 }
 
-/* SWITCH */
 .switch {
   position: relative;
   display: inline-block;
@@ -210,11 +196,11 @@ small {
   transition: .3s;
 }
 
-input:checked + .slider {
+input:checked+.slider {
   background-color: #3b5bdb;
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
   transform: translateX(18px);
 }
 
@@ -223,7 +209,6 @@ input:checked + .slider:before {
   font-weight: 500;
 }
 
-/* BUTTONS */
 .actions {
   margin-top: 18px;
   display: flex;
@@ -265,7 +250,6 @@ input:checked + .slider:before {
   background: #fecaca;
 }
 
-/* SCROLLBAR */
 .card::-webkit-scrollbar {
   width: 8px;
 }
@@ -277,6 +261,66 @@ input:checked + .slider:before {
 
 .card::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+.session-row.disabled {
+  opacity: 0.65;
+  background: #fafafa;
+  border: 1px dashed #e5e7eb;
+}
+
+.session-row:not(.disabled):hover {
+  background: #f8fafc;
+}
+.session-row.has-students {
+  border-left: 4px solid #f59e0b;
+}
+
+.session-row.inactive {
+  border-left: 4px solid #ef4444;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.warning {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #b45309;
+  background: #fffbeb;
+  padding: 6px 10px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.warning.inactive {
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.status-tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.status-tag.inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-tag.warning {
+  background: #fef3c7;
+  color: #92400e;
 }
 
 /* RESPONSIVE */

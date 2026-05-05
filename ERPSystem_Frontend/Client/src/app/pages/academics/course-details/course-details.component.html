@@ -1,18 +1,26 @@
 <div class="page">
 
-  <button class="secondary back-btn" (click)="back()">← Înapoi</button>
-
   <div *ngIf="loading">Se încarcă...</div>
 
-  <div *ngIf="!loading" class="card">
+  <div *ngIf="!loading && course" class="card">
 
-    <h2>{{ course.name }}</h2>
+    <div class="course-header">
+      <h2>{{ course.name }}</h2>
+
+      <button class="back-btn" (click)="back()">
+        ← Înapoi
+      </button>
+    </div>
 
     <p class="description">{{ course.description || '-' }}</p>
 
     <div class="meta">
       <div><strong>Status:</strong> {{ course.isActive ? 'Activ' : 'Inactiv' }}</div>
       <div><strong>Creat:</strong> {{ course.createdAtUtc | date:'dd.MM.yyyy' }}</div>
+      <div *ngIf="course.deletedAtUtc"><strong>Șters la:</strong>{{ course.deletedAtUtc | date:'dd.MM.yyyy HH:mm' }}
+      </div>
+      <div *ngIf="!course.isActive && !course.deletedAtUtc"> <strong>Dezactivat la:</strong> {{ course.updatedAtUtc |
+        date:'dd.MM.yyyy HH:mm' }} </div>
     </div>
 
     <h3>Orar</h3>
@@ -23,31 +31,37 @@
           <th>Zi</th>
           <th>Interval</th>
           <th>Profesor</th>
+          <th>Status</th>
           <th>Preț</th>
           <th>Înscriși</th>
+          <th>Acțiuni</th>
         </tr>
       </thead>
       <tbody>
-        <ng-container *ngFor="let s of course.sessions">
+        <ng-container *ngFor="let s of course?.sessions">
 
           <tr class="session-row">
-            <td>{{ getDayName(s.dayOfWeek) }}</td>
+            <td>{{ getDayName(s.dayOfWeek) }} </td>
             <td>{{ s.startTime }} - {{ s.endTime }}</td>
             <td>{{ s.teacherName }}</td>
+            <td>
+              <span class="status-pill" [ngClass]="s.isActive === true ? 'active' : 'inactive'">
+
+                <span class="dot"></span>
+                {{ s.isActive === true ? 'Activ' : 'Inactiv' }}
+
+              </span>
+            </td>
             <td class="price-cell">
-              <ng-container *ngIf="s.feeType === 1">
-                <div class="price-main">
-                  {{ s.fee }} RON
-                </div>
-                <span class="badge" *ngIf="s.feeType === 1">Pachet: {{ s.totalSessions }} ședințe </span>
+
+              <ng-container *ngIf="s.fee != null">
+                <div class="price-main"> {{ s.fee }} RON </div>
               </ng-container>
 
-              <ng-container *ngIf="s.feeType === 2">
-                <div class="price-main">
-                  {{ s.fee }} RON
-                </div>
-                <span class="badge blue" *ngIf="s.feeType === 2">Abonament lunar</span>
-              </ng-container>
+              <span class="badge" *ngIf="s.feeType === 1"> Pachet: {{ s.totalSessions }} ședințe</span>
+              <span class="badge blue" *ngIf="s.feeType === 2">Abonament lunar</span>
+              <span *ngIf="!s.feeType" class="badge">Standard </span>
+
             </td>
 
             <td>
@@ -59,74 +73,131 @@
                 {{ s.enrolledActiveCount }} / {{ s.capacity }}
 
                 <div class="capacity-bar">
-                  <div class="capacity-fill" [style.width.%]="(s.enrolledActiveCount / s.capacity) * 100">
+                  <div class="capacity-fill"
+                    [style.width.%]="s.capacity ? (s.enrolledActiveCount / s.capacity) * 100 : 0">
                   </div>
                 </div>
 
                 <span class="remaining">
-                  {{ s.capacity - s.enrolledActiveCount }} locuri rămase
+                  {{ remainingSeats(s) }} locuri rămase
                 </span>
               </ng-container>
 
             </td>
 
             <td class="actions-cell">
-              <button class="primary small" (click)="openEnrollModal(s)">
-                Înscrie
-              </button>
 
-              <button class="secondary small" (click)="toggleSession(s.id)">
-                {{ expandedSessionId === s.id ? 'Ascunde' : 'Cursanți' }}
-              </button>
+              <div class="actions-group">
 
-              <!-- 🔥 NOU -->
-              <button class="feedback-btn small" (click)="openFeedbackModal(s)">
-                Trimite feedback
-              </button>
+                <button class="primary small"
+                  [disabled]="!s.isActive || (s.capacity && s.enrolledActiveCount >= s.capacity)"
+                  [title]="!s.isActive ? 'Sesiune inactivă' : (s.capacity && s.enrolledActiveCount >= s.capacity) ? 'Capacitate atinsă' : ''"
+                  (click)="openEnrollModal(s)">
+                  Înscrie
+                </button>
 
-              <button class="reviews-btn small" (click)="openReviewsModal(s)">
-                Vezi feedback
-              </button>
+                <button class="secondary small" (click)="toggleSession(s.id)">
+                  {{ expandedSessionId === s.id ? 'Ascunde' : 'Cursanți' }}
+                </button>
+
+              </div>
+
+              <div class="actions-group">
+
+                <button class="feedback-btn small" (click)="openFeedbackModal(s)">
+                  Feedback
+                </button>
+
+                <button class="reviews-btn small" (click)="openReviewsModal(s)">
+                  Review-uri
+                </button>
+
+                <button *ngIf="!course.deletedAtUtc" class="toggle-btn small"
+                  [ngClass]="s.isActive ? 'danger' : 'primary-soft'" (click)="toggleSessionStatus(s)"
+                  
+                  [title]="s.enrolledActiveCount > 0 && s.isActive ? 'Are cursanți activi' : ''">
+
+                  {{ s.isActive ? 'Dezactivează sesiunea' : 'Activează sesiunea' }}
+                </button>
+
+              </div>
+
             </td>
           </tr>
 
           <tr *ngIf="expandedSessionId === s.id">
-            <td colspan="6" class="expand-cell">
+          <td colspan="7" class="expand-cell">
 
-              <div *ngIf="loadingEnrollments">Se încarcă...</div>
+  <div *ngIf="loadingEnrollments">Se încarcă...</div>
 
-              <table *ngIf="!loadingEnrollments && enrollments[s.id]?.length">
-                <thead>
-                  <tr>
-                    <th>Nume</th>
-                    <th>Email</th>
-                    <th>Activ</th>
-                    <th>Acțiuni</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let e of enrollments[s.id]">
-                    <td>{{ e.studentName }}</td>
-                    <td>{{ e.studentEmail }}</td>
-                    <td>{{ e.isActive ? 'Da' : 'Nu' }}</td>
-                    <td>
-                      <button class="danger small" (click)="toggleEnrollment(s.id, e)">
-                        {{ e.isActive ? 'Dezactivează' : 'Activează' }}
-                      </button>
-
-                      <button class="evaluation-btn small" (click)="openStudentEvaluationModal(s, e)">
-                        Evaluare
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <div *ngIf="!loadingEnrollments && !enrollments[s.id]?.length">
-                Nu există cursanți înscriși.
+  <div class="enrollments-wrapper" *ngIf="!loadingEnrollments && enrollments[s.id]?.length">
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Nume</th>
+          <th>Email</th>
+          <th>Activ</th>
+          <th>Perioadă înscriere</th>
+          <th>Acțiuni</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of enrollments[s.id]">
+          <td>{{ e.studentName }}</td>
+          <td>{{ e.studentEmail }}</td>
+          <td>{{ e.isActive ? 'Da' : 'Nu' }}</td>
+          <td>
+            <div class="dates">
+              <div>
+                <strong>De la:</strong>
+                {{ e.enrolledAtUtc | date:'dd.MM.yyyy' }}
               </div>
 
-            </td>
+              <div *ngIf="e.unenrolledAtUtc">
+                <strong>Până la:</strong>
+                {{ e.unenrolledAtUtc | date:'dd.MM.yyyy' }}
+              </div>
+
+              <div *ngIf="!e.unenrolledAtUtc && e.isActive">
+                Activ în prezent
+              </div>
+            </div>
+          </td>
+          <td>
+            <ng-container *ngIf="!s.isActive">
+              <button class="danger small" *ngIf="e.isActive" (click)="toggleEnrollment(s.id, e)">
+                Dezactivează
+              </button>
+              <span *ngIf="!e.isActive" class="status-pill inactive">
+                Inactiv
+              </span>
+            </ng-container>
+
+            <ng-container *ngIf="s.isActive">
+              <button class="danger small" (click)="toggleEnrollment(s.id, e)">
+                {{ e.isActive ? 'Dezactivează' : 'Activează' }}
+              </button>
+            </ng-container>
+
+            <button class="evaluation-btn small"
+              [disabled]="!e.isActive"
+              [title]="!e.isActive ? 'Student inactiv' : ''"
+              (click)="openStudentEvaluationModal(s, e)">
+              Evaluare
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <div *ngIf="!loadingEnrollments && !enrollments[s.id]?.length">
+    Nu există cursanți înscriși.
+  </div>
+
+</td>
           </tr>
 
         </ng-container>
@@ -148,3 +219,5 @@
 <app-student-evaluation-modal *ngIf="showStudentEvaluationModal" [student]="selectedEvaluationStudent"
   [session]="selectedEvaluationSession" (closed)="closeStudentEvaluationModal()" (saved)="onStudentEvaluationSaved()">
 </app-student-evaluation-modal>
+
+<app-confirm-custom-modal></app-confirm-custom-modal>
