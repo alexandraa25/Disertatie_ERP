@@ -1,124 +1,187 @@
 <div class="dialog-container">
-<div class="dialog-header">
-  <h2>{{ isEdit ? 'Editează elev' : 'Adaugă elev' }}</h2>
-
-  <button class="close-btn" (click)="cancel()">✕</button>
-</div>
-
-<div class="card">
-  <div *ngIf="loading" class="loading">Se încarcă...</div>
-
-  <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
-    <div class="grid">
-      <div class="field">
-        <label>Nume complet *</label>
-        <input formControlName="fullName" placeholder="Popescu Ana Maria" />
-        <small *ngIf="form.controls['fullName'].touched && form.controls['fullName'].invalid">
-          Numele complet este obligatoriu.
-        </small>
-      </div>
-
-      <div class="field">
-        <label>Prenume</label>
-        <input formControlName="firstName" />
-      </div>
-
-      <div class="field">
-        <label>Nume</label>
-        <input formControlName="lastName" />
-      </div>
-
-      <div class="field">
-        <label>Email</label>
-        <input formControlName="email" type="email" />
-      </div>
-
-      <div class="field">
-        <label>Telefon</label>
-        <input formControlName="phone" />
-      </div>
-
-      <div class="field">
-        <label>Data nașterii</label>
-        <input formControlName="dateOfBirth" type="date" />
-      </div>
-
-      <div class="field full">
-        <label>Adresă</label>
-        <input formControlName="address" />
-      </div>
-
-      <div class="field" *ngIf="isEdit">
-        <label>Status</label>
-        <select formControlName="isActive">
-          <option [ngValue]="true">Activ</option>
-          <option [ngValue]="false">Inactiv</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="guardian-section" *ngIf="isMinor">
-  <h3>Părinte / Tutore</h3>
-
-  <div formArrayName="guardians">
-    <div class="guardian-card" *ngFor="let g of guardians.controls; let i = index" [formGroupName]="i">
-
-      <div class="grid">
-        <div class="field">
-          <label>Prenume *</label>
-          <input formControlName="firstName" />
-        </div>
-
-        <div class="field">
-          <label>Nume *</label>
-          <input formControlName="lastName" />
-        </div>
-
-        <div class="field">
-          <label>Email *</label>
-          <input formControlName="email" type="email" />
-        </div>
-
-        <div class="field">
-          <label>Telefon *</label>
-          <input formControlName="phone" />
-        </div>
-
-        <div class="field">
-          <label>Relație *</label>
-          <select formControlName="relationshipType">
-            <option value="Mama">Mamă</option>
-            <option value="Tata">Tată</option>
-            <option value="Tutore">Tutore</option>
-          </select>
-        </div>
-
-        <div class="field checkbox">
-          <label>
-            <input type="checkbox" formControlName="isPrimaryContact" />
-            Contact principal
-          </label>
-        </div>
-      </div>
-
-      <button type="button" class="danger small" (click)="removeGuardian(i)">
-        Șterge părinte
-      </button>
-
-    </div>
+  <div class="dialog-header">
+    <h2>{{ isEdit ? 'Editează elev' : 'Adaugă elev' }}</h2>
+    <button class="close-btn" type="button" (click)="cancel()">✕</button>
   </div>
 
-  <button type="button" class="secondary" (click)="addGuardian()">
-    + Adaugă părinte
-  </button>
-</div>
+  <div class="card">
+    <div *ngIf="loading" class="loading">Se încarcă...</div>
 
-    <div class="actions">
-      <button type="button" class="secondary" (click)="cancel()">Anulează</button>
-      <button type="submit" [disabled]="saving">
-        {{ saving ? 'Se salvează...' : (isEdit ? 'Salvează modificările' : 'Creează elev') }}
-      </button>
-    </div>
-  </form>
-</div>
+    <form *ngIf="!loading" [formGroup]="form" (ngSubmit)="save()">
+      <div class="grid">
+        <div class="field">
+          <label>Nume complet *</label>
+          <input formControlName="fullName" placeholder="Popescu Ana Maria" />
+
+          <small *ngIf="form.controls['fullName'].touched && form.controls['fullName'].hasError('required')">
+            Numele complet este obligatoriu.
+          </small>
+
+          <small *ngIf="form.controls['fullName'].touched && form.controls['fullName'].hasError('pattern')">
+            Numele poate conține doar litere, spații, apostrof sau cratimă.
+          </small>
+        </div>
+
+        <div class="field">
+          <label>Prenume</label>
+          <input formControlName="firstName" />
+
+          <small *ngIf="form.controls['firstName'].touched && form.controls['firstName'].hasError('pattern')">
+            Prenumele poate conține doar litere.
+          </small>
+        </div>
+
+        <div class="field">
+          <label>Nume</label>
+          <input formControlName="lastName" />
+
+          <small *ngIf="form.controls['lastName'].touched && form.controls['lastName'].hasError('pattern')">
+            Numele poate conține doar litere.
+          </small>
+        </div>
+
+        <div class="field">
+          <label>Email</label>
+          <input formControlName="email" type="email" />
+
+          <small *ngIf="form.controls['email'].touched && form.controls['email'].hasError('email')">
+            Email invalid.
+          </small>
+        </div>
+
+        <div class="field">
+          <label>Telefon</label>
+          <input formControlName="phone" />
+
+          <small *ngIf="form.controls['phone'].touched && form.controls['phone'].hasError('pattern')">
+            Telefon invalid. Folosește doar cifre, spații, +, - sau paranteze.
+          </small>
+        </div>
+
+        <div class="field">
+          <label>Data nașterii</label>
+          <input formControlName="dateOfBirth" type="date" />
+
+          <small *ngIf="form.controls['dateOfBirth'].touched && form.controls['dateOfBirth'].hasError('futureDate')">
+            Data nașterii nu poate fi în viitor.
+          </small>
+
+          <small *ngIf="form.controls['dateOfBirth'].touched && form.controls['dateOfBirth'].hasError('tooOld')">
+            Data nașterii pare incorectă.
+          </small>
+        </div>
+
+        <div class="field full">
+          <label>Adresă</label>
+          <input formControlName="address" />
+
+          <small *ngIf="form.controls['address'].touched && form.controls['address'].hasError('maxlength')">
+            Adresa este prea lungă.
+          </small>
+        </div>
+      </div>
+
+      <div class="guardian-section" *ngIf="isMinor">
+        <h3>Părinte / Tutore</h3>
+
+        <div class="guardian-note">
+          Dacă nu selectezi un contact principal, se vor folosi datele elevului.
+        </div>
+
+        <div formArrayName="guardians">
+          <div
+            class="guardian-card"
+            *ngFor="let g of guardians.controls; let i = index"
+            [formGroupName]="i">
+
+            <div class="grid">
+              <div class="field">
+                <label>Prenume *</label>
+                <input formControlName="firstName" />
+
+                <small *ngIf="g.get('firstName')?.touched && g.get('firstName')?.hasError('required')">
+                  Prenumele este obligatoriu.
+                </small>
+
+                <small *ngIf="g.get('firstName')?.touched && g.get('firstName')?.hasError('pattern')">
+                  Prenumele poate conține doar litere.
+                </small>
+              </div>
+
+              <div class="field">
+                <label>Nume *</label>
+                <input formControlName="lastName" />
+
+                <small *ngIf="g.get('lastName')?.touched && g.get('lastName')?.hasError('required')">
+                  Numele este obligatoriu.
+                </small>
+
+                <small *ngIf="g.get('lastName')?.touched && g.get('lastName')?.hasError('pattern')">
+                  Numele poate conține doar litere.
+                </small>
+              </div>
+
+              <div class="field">
+                <label>Email *</label>
+                <input formControlName="email" type="email" />
+
+                <small *ngIf="g.get('email')?.touched && g.get('email')?.invalid">
+                  Email invalid.
+                </small>
+              </div>
+
+              <div class="field">
+                <label>Telefon *</label>
+                <input formControlName="phone" />
+
+                <small *ngIf="g.get('phone')?.touched && g.get('phone')?.invalid">
+                  Telefon invalid.
+                </small>
+              </div>
+
+              <div class="field">
+                <label>Relație *</label>
+                <select formControlName="relationshipType">
+                  <option value="Mama">Mamă</option>
+                  <option value="Tata">Tată</option>
+                  <option value="Tutore">Tutore</option>
+                </select>
+              </div>
+
+              <div class="field checkbox">
+                <label *ngIf="canShowPrimaryContact(i)">
+                  <input
+                    type="checkbox"
+                    formControlName="isPrimaryContact"
+                    (change)="onPrimaryContactChange(i)"
+                  />
+                  Contact principal
+                </label>
+
+                <span *ngIf="!canShowPrimaryContact(i)" class="muted">
+                  Contact principal setat deja
+                </span>
+              </div>
+            </div>
+
+            <button type="button" class="danger small" (click)="removeGuardian(i)">
+              Șterge părinte
+            </button>
+          </div>
+        </div>
+
+        <button type="button" class="secondary" (click)="addGuardian()">
+          + Adaugă părinte
+        </button>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="secondary" (click)="cancel()">Anulează</button>
+
+        <button type="submit" [disabled]="saving">
+          {{ saving ? 'Se salvează...' : (isEdit ? 'Salvează modificările' : 'Creează elev') }}
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

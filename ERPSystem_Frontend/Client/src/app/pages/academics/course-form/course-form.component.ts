@@ -4,6 +4,7 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CoursesService } from '../../services/courses.service';
 import { TeacherOptionDto, CreateCourseDto, UpdateCourseDto, CourseSessionUpsertDto, CourseSessionFormModel } from '../../models/course.model';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 
 @Component({
   selector: 'app-course-form',
@@ -36,6 +37,7 @@ export class CourseFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private courses: CoursesService,
+    private snackbar: SnackbarService,
     private dialogRef: MatDialogRef<CourseFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { id?: number }
   ) { }
@@ -47,7 +49,7 @@ export class CourseFormComponent implements OnInit {
       next: (res: any) => {
         this.teachers = res?.value ?? res ?? [];
       },
-      error: () => alert('Nu pot încărca lista de profesori.')
+      error: () => this.snackbar.showError('Nu pot încărca lista de profesori.', 2500)
     });
 
     if (this.data && this.data.id !== undefined) {
@@ -94,7 +96,7 @@ export class CourseFormComponent implements OnInit {
             fee: s.fee,
             feeType: Number(s.feeType) as 1 | 2,
             totalSessions: s.totalSessions,
-            enrolledActiveCount: s.enrolledActiveCount, 
+            enrolledActiveCount: s.enrolledActiveCount,
             isActive: s.isActive
           }));
         }
@@ -102,13 +104,13 @@ export class CourseFormComponent implements OnInit {
         if (this.sessions.length === 0) this.addSession();
         if (!c.isActive) {
           this.sessions.disable();
-      }
+        }
 
         this.loading = false;
       },
       error: () => {
         this.loading = false;
-        alert('Nu am putut încărca cursul.');
+        this.snackbar.showError('Nu am putut încărca cursul.', 2500);
         this.dialogRef.close();
       }
     });
@@ -139,7 +141,7 @@ export class CourseFormComponent implements OnInit {
 
       capacity: [data?.capacity ?? null],
       unlimited: [data?.capacity == null],
-      enrolledActiveCount: [data?.enrolledActiveCount ?? 0], 
+      enrolledActiveCount: [data?.enrolledActiveCount ?? 0],
       isActive: [data?.isActive ?? true]
     });
   }
@@ -155,7 +157,7 @@ export class CourseFormComponent implements OnInit {
     const session = this.sessions.at(index).value;
 
     if (session.enrolledActiveCount > 0) {
-      alert('Nu poți șterge sesiunea. Există cursanți activi.');
+      this.snackbar.showError('Nu poți șterge sesiunea. Există cursanți activi.', 2500);
       return;
     }
 
@@ -165,9 +167,9 @@ export class CourseFormComponent implements OnInit {
   save(): void {
 
     if (this.isEdit && !this.form.value.isActive) {
-  alert("Nu poți modifica un curs inactiv.");
-  return;
-}
+      this.snackbar.showError('Nu poți modifica un curs inactiv.', 2500);
+      return;
+    }
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -181,37 +183,37 @@ export class CourseFormComponent implements OnInit {
       const end = g.value.endTime as string;
 
       if (start >= end) {
-        alert('Interval orar invalid: ora de final trebuie să fie după ora de început.');
+        this.snackbar.showError('Interval orar invalid: ora de final trebuie să fie după ora de început.', 3000);
         return;
       }
     }
 
     if (!this.validateDuplicateSessions()) {
-      alert('Există sesiuni duplicate pentru același profesor și interval.');
+      this.snackbar.showError('Există sesiuni duplicate pentru același profesor și interval.', 3000);
       return;
     }
 
     if (this.hasLocalTeacherOverlap()) {
-      alert('Profesorul are sesiuni suprapuse în acest curs.');
+      this.snackbar.showError('Profesorul are sesiuni suprapuse în acest curs.', 3000);
       return;
     }
 
     for (const s of sessions) {
 
       if (s.fee <= 0) {
-        alert('Prețul trebuie să fie mai mare decât 0.');
+        this.snackbar.showError('Prețul trebuie să fie mai mare decât 0.', 2500);
         return;
       }
 
       if (s.feeType === 1) {
         if (!s.totalSessions || s.totalSessions <= 0) {
-          alert('Completează numărul de ședințe pentru pachet fix.');
+          this.snackbar.showError('Completează numărul de ședințe pentru pachet fix.', 3000);
           return;
         }
       }
 
       if (s.feeType === 2 && s.totalSessions) {
-        alert('Abonamentul nu trebuie să aibă număr de ședințe.');
+        this.snackbar.showError('Abonamentul nu trebuie să aibă număr de ședințe.', 3000);
         return;
       }
     }
@@ -250,6 +252,7 @@ export class CourseFormComponent implements OnInit {
       this.courses.create(dto).subscribe({
         next: () => {
           this.saving = false;
+          this.snackbar.showSuccess('Curs creat cu succes.', 1800);
           this.dialogRef.close(true);
         },
         error: (err) => this.handleError(err)
@@ -267,6 +270,7 @@ export class CourseFormComponent implements OnInit {
       this.courses.update(this.courseId!, dto).subscribe({
         next: () => {
           this.saving = false;
+          this.snackbar.showSuccess('Curs actualizat cu succes.', 1800);
           this.dialogRef.close(true);
         },
         error: (err) => this.handleError(err)
@@ -346,32 +350,39 @@ export class CourseFormComponent implements OnInit {
     const message = err?.error?.message ?? '';
 
     if (message.includes('suprapus')) {
-      alert('Profesorul este deja programat în alt curs la același interval.');
-    } else {
-      alert('Eroare la salvare curs.');
+      this.snackbar.showError(
+        'Profesorul este deja programat în alt curs la același interval.',
+        3000
+      );
+      return;
     }
+
+    this.snackbar.showError(
+      message || 'Eroare la salvare curs.',
+      2500
+    );
   }
 
 
   isDeleteDisabled(i: number): boolean {
-  const session = this.sessions.at(i).value;
+    const session = this.sessions.at(i).value;
 
-  return (
-    this.sessions.length <= 1 ||
-    (session.enrolledActiveCount ?? 0) > 0 ||
-    !session.isActive ||
-    !this.form.value.isActive
-  );
-}
+    return (
+      this.sessions.length <= 1 ||
+      (session.enrolledActiveCount ?? 0) > 0 ||
+      !session.isActive ||
+      !this.form.value.isActive
+    );
+  }
 
-getDeleteTooltip(i: number): string {
-  const session = this.sessions.at(i).value;
+  getDeleteTooltip(i: number): string {
+    const session = this.sessions.at(i).value;
 
-  if (this.sessions.length <= 1) return 'Trebuie să existe cel puțin o sesiune';
-  if ((session.enrolledActiveCount ?? 0) > 0) return 'Are cursanți activi';
-  if (!session.isActive) return 'Sesiunea este inactivă';
-  if (!this.form.value.isActive) return 'Cursul este inactiv';
+    if (this.sessions.length <= 1) return 'Trebuie să existe cel puțin o sesiune';
+    if ((session.enrolledActiveCount ?? 0) > 0) return 'Are cursanți activi';
+    if (!session.isActive) return 'Sesiunea este inactivă';
+    if (!this.form.value.isActive) return 'Cursul este inactiv';
 
-  return '';
-}
+    return '';
+  }
 }

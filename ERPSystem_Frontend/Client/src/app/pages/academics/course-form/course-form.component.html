@@ -90,15 +90,11 @@
                   placeholder="Capacitate" min="1" />
               </div>
 
-              <button
-  type="button"
-  class="danger"
-  (click)="removeSession(i)"
-  [disabled]="isDeleteDisabled(i)"
-  [title]="getDeleteTooltip(i)">
+              <button type="button" class="danger" (click)="removeSession(i)" [disabled]="isDeleteDisabled(i)"
+                [title]="getDeleteTooltip(i)">
 
-  Șterge
-</button>
+                Șterge
+              </button>
               <div *ngIf="sessions.at(i).value.enrolledActiveCount > 0" class="warning">
                 Are {{ sessions.at(i).value.enrolledActiveCount }} cursanți activi
               </div>

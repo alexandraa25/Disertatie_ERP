@@ -120,13 +120,15 @@ namespace ERPSystem.Utils.Constants
             {
                 public const string STUDENTS = "";          
                 public const string STUDENT_BY_ID = "/{id:int}";
+                public const string STUDENT_RESTORE = "/{id:int}/restore";
+                public const string STUDENT_TOGGLE_STATUS = "/{id:int}/toggle-status";
                 public const string STUDENT_OPTIONS = "/students/options";
                 public const string STUDENT_COURSES = "/{id}/courses";
                 public const string GUARDIAN_OPTIONS = "/{id}/primary-guardian";
                 public const string STUDENTS_AVAILABLE_COURSE = "{id}/available-courses";
                 public const string STUDENTS_COURSES_BY_CONTRACT = "by-contract/{contractId}";
                 public const string SESSIONS = "/sessions";
-                public const string EXPORT = "/ /export";
+                public const string EXPORT = "/export";
 
               
 

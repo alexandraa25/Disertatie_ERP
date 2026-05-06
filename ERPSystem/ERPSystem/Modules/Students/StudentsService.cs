@@ -5,6 +5,7 @@ using ERPSystem.Modules.Student.Models;
 using ERPSystem.Modules.Students.Models;
 using ERPSystem.Shared.Notifications;
 using ERPSystem.Utils.Constants.Error;
+using ERPSystem.Utils.Enums;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
 using SendGrid.Helpers.Mail;
@@ -26,11 +27,11 @@ public class StudentsService
         _notificationService = notificationservice;
     }
 
-    public async Task<PublicResponse> GetStudentsAsync(  string? q,  int page,   int pageSize,  string? sortBy,  string? sortDir,  int? recentDays,  bool? onlyRecent, int? sessionId)
+    public async Task<PublicResponse> GetStudentsAsync(  string? q,  int page,   int pageSize,  string? sortBy,  string? sortDir,  int? recentDays,  bool? onlyRecent, int? sessionId, string? statusFilter, string? deleteFilter)
     {
         var response = new PublicResponse(true);
 
-        var query = BuildStudentsQuery(q, sortBy, sortDir, onlyRecent, recentDays, sessionId);
+        var query = BuildStudentsQuery(q, sortBy, sortDir, onlyRecent, recentDays, sessionId, statusFilter, deleteFilter);
 
         var total = await query.CountAsync();
 
@@ -38,13 +39,14 @@ public class StudentsService
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(s => new StudentListItemDto(
-                s.Id,
-                s.FullName,
-                s.Email,
-                s.Phone,
-                s.IsActive,
-                s.CreatedAtUtc
-            ))
+                 s.Id,
+                 s.FullName,
+                 s.Email,
+                 s.Phone,
+                 s.IsActive,
+                 s.CreatedAtUtc,
+                 s.IsDeleted
+             ))
             .ToListAsync();
 
         return response.SetSuccess(new Student.Models.PagedResult<StudentListItemDto>(page, pageSize, total, items));
@@ -78,17 +80,18 @@ public class StudentsService
                 .ToList();
 
             var dto = new StudentDetailsDto(
-                s.Id,
-                s.FullName,
-                s.FirstName,
-                s.LastName,
-                s.Email,
-                s.Phone,
-                s.Address,
-                s.DateOfBirth,
-                s.IsActive,
-                guardians
-            );
+                   s.Id,
+                   s.FullName,
+                   s.FirstName,
+                   s.LastName,
+                   s.Email,
+                   s.Phone,
+                   s.Address,
+                   s.DateOfBirth,
+                   s.IsActive,
+                   s.IsDeleted,
+                   guardians
+               );
 
             return response.SetSuccess(dto);
         }
@@ -166,28 +169,11 @@ public class StudentsService
             }
 
             _db.Students.Add(s);
+            AddStudentLog(  s.Id, "Create", $"Cursantul {s.FullName} a fost creat.");
+
             await _db.SaveChangesAsync();
 
-            _db.ActivityLog.Add(new ActivityLog
-            {
-                EntityType = "Student",
-                EntityId = s.Id.ToString(),
-                Action = "Create",
-                Description = $"Cursantul {s.FullName} a fost creat.",
-                CreatedAtUtc = DateTime.UtcNow,
-                PerformedBy = "system"
-            });
-
-            await _notificationService.CreateNotificationForRolesAsync(
-                 roleNames: new[] { "Admin", "Secretary" },
-                 eventType: NotificationEvents.StudentActivity,
-                 title: "Date cursant actualizate",
-                 message: $"Datele cursantului {s.FullName} au fost actualizate.",
-                 type: "Info",
-                 link: $"/students/{s.Id}",
-                 entityType: "Student",
-                 entityId: s.Id.ToString()
-             );
+            await NotifyStudentRolesAsync( s, "Cursant creat", $"Cursantul {s.FullName} a fost adăugat în sistem.", "Success" );
             await transaction.CommitAsync();
 
             return response.SetCreated(new { id = s.Id });
@@ -213,6 +199,9 @@ public class StudentsService
 
             if (s is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+
+            if (s.IsDeleted)
+                return response.SetError(ErrorCodes.InvalidParameters, "Nu poți modifica un cursant șters.");
 
             var oldGuardians = s.StudentGuardians
                 .Select(x => x.Guardian.Email)
@@ -277,33 +266,11 @@ public class StudentsService
 
             newGuardians = newGuardians.OrderBy(x => x).ToList();
             var guardiansChanged = !oldGuardians.SequenceEqual(newGuardians);
+            AddStudentLog( s.Id, "Update", $"Datele cursantului {s.FullName} au fost actualizate.");
 
             await _db.SaveChangesAsync();
 
-            
-
-            _db.ActivityLog.Add(new ActivityLog
-            {
-                EntityType = "Student",
-                EntityId = s.Id.ToString(),
-                Action = "Update",
-                Description = $"Datele cursantului {s.FullName} au fost actualizate.",
-                CreatedAtUtc = DateTime.UtcNow,
-                PerformedBy = "system"
-            });
-
-            await _db.SaveChangesAsync();
-
-            await _notificationService.CreateNotificationForRolesAsync(
-                 roleNames: new[] { "Admin", "Secretary" },
-                 eventType: NotificationEvents.StudentActivity,
-                 title: "Date cursant actualizate",
-                 message: $"Datele cursantului {s.FullName} au fost actualizate.",
-                 type: "Info",
-                 link: $"/students/{s.Id}",
-                 entityType: "Student",
-                 entityId: s.Id.ToString()
-             );
+            await NotifyStudentRolesAsync(s, "Date cursant actualizate", $"Datele cursantului {s.FullName} au fost actualizate.","Info" );
 
             if (guardiansChanged)
             {
@@ -323,33 +290,11 @@ public class StudentsService
                         description += $"Eliminați: {string.Join(", ", removed)}.";
                 }
 
-                _db.ActivityLog.Add(new ActivityLog
-                {
-                    EntityType = "Student",
-                    EntityId = s.Id.ToString(),
-                    Action = "UpdateGuardians",
-                    Description = description.Trim(),
-                    CreatedAtUtc = DateTime.UtcNow,
-                    PerformedBy = "system"
-                });
+                AddStudentLog( s.Id, "UpdateGuardians", description.Trim());
 
                 await _db.SaveChangesAsync();
 
-                
-
-                await _db.SaveChangesAsync();
-
-
-                await _notificationService.CreateNotificationForRolesAsync(
-                    roleNames: new[] { "Admin", "Secretary" },
-                    eventType: NotificationEvents.StudentActivity,
-                    title: "Tutori cursant actualizați",
-                    message: $"Tutorii cursantului {s.FullName} au fost actualizați.",
-                    type: "Warning",
-                    link: $"/students/{s.Id}",
-                    entityType: "Student",
-                    entityId: s.Id.ToString()
-                );
+                await NotifyStudentRolesAsync( s,"Tutori cursant actualizați", $"Tutorii cursantului {s.FullName} au fost actualizați.",  "Warning" );
             }
 
             return response.SetSuccess(true);
@@ -361,6 +306,49 @@ public class StudentsService
         }
     }
 
+    public async Task<PublicResponse> ToggleStatusAsync(int id)
+    {
+        var response = new PublicResponse(true);
+
+        try
+        {
+            var s = await _db.Students.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (s is null)
+                return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+
+            if (s.IsDeleted)
+                return response.SetError(ErrorCodes.InvalidParameters, "Nu poți modifica statusul unui cursant șters.");
+
+            s.IsActive = !s.IsActive;
+            s.UpdatedAtUtc = DateTime.UtcNow;
+
+            var action = s.IsActive ? "Activate" : "Deactivate";
+
+            var description = s.IsActive
+                ? $"Cursantul {s.FullName} a fost activat."
+                : $"Cursantul {s.FullName} a fost dezactivat.";
+
+            AddStudentLog(s.Id, action, description);
+
+            await _db.SaveChangesAsync();
+
+            await NotifyStudentRolesAsync(  s, s.IsActive ? "Cursant activat" : "Cursant dezactivat", description, s.IsActive ? "Success" : "Warning" );
+
+            return response.SetSuccess(new
+            {
+                s.Id,
+                s.IsActive,
+                s.IsDeleted
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "ToggleStatusAsync failed");
+            return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
+        }
+    }
+
     public async Task<PublicResponse> DeleteAsync(int id)
     {
         var response = new PublicResponse(true);
@@ -368,41 +356,94 @@ public class StudentsService
         try
         {
             var s = await _db.Students.FirstOrDefaultAsync(x => x.Id == id);
+
             if (s is null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
 
-            s.IsActive = false;
+            if (s.IsDeleted)
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursantul este deja șters.");
+
+            if (s.IsActive)
+                return response.SetError(ErrorCodes.InvalidParameters, "Dezactivează cursantul înainte de ștergere.");
+
+            if (s.IsActive)
+                return response.SetError(ErrorCodes.InvalidParameters,
+                    "Dezactivează cursantul înainte de ștergere.");
+
+            var hasActiveEnrollments = await _db.CourseEnrollments
+                .AnyAsync(e => e.StudentId == id && e.IsActive);
+
+            if (hasActiveEnrollments)
+                return response.SetError(ErrorCodes.InvalidParameters,
+                    "Nu poți șterge cursantul. Are înscrieri active.");
+
+            var hasActiveContracts = await _db.StudentContracts
+                .AnyAsync(c =>
+                    c.Parties.Any(p => p.StudentId == id) &&
+                    c.Status == ContractStatus.Active);
+
+            if (hasActiveContracts)
+                return response.SetError(ErrorCodes.InvalidParameters,
+                    "Nu poți șterge cursantul. Are contracte active.");
+
+            s.IsDeleted = true;
+            s.DeletedAtUtc = DateTime.UtcNow;
             s.UpdatedAtUtc = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
 
-            _db.ActivityLog.Add(new ActivityLog
-            {
-                EntityType = "Student",
-                EntityId = s.Id.ToString(),
-                Action = "Deactivate",
-                Description = $"Cursantul {s.FullName} a fost dezactivat.",
-                CreatedAtUtc = DateTime.UtcNow,
-                PerformedBy = "system"
-            });
+            var description = $"Cursantul {s.FullName} a fost șters/arhivat.";
+
+            AddStudentLog(s.Id, "Delete", description);
 
             await _db.SaveChangesAsync();
 
-            await _notificationService.CreateNotificationForRolesAsync(
-                 roleNames: new[] { "Admin", "Secretary" },
-                 eventType: NotificationEvents.StudentActivity,
-                 title: "Cursant dezactivat",
-                 message: $"Cursantul {s.FullName} a fost dezactivat.",
-                 type: "Warning",
-                 link: $"/students/{s.Id}",
-                 entityType: "Student",
-                 entityId: s.Id.ToString()
-             );
+            await NotifyStudentRolesAsync(  s, "Cursant arhivat",  description,  "Warning" );
 
             return response.SetSuccess(true);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "DeleteAsync failed");
+            return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
+        }
+    }
+
+    public async Task<PublicResponse> RestoreAsync(int id)
+    {
+        var response = new PublicResponse(true);
+
+        try
+        {
+            var s = await _db.Students.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (s is null)
+                return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+
+            if (!s.IsDeleted)
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursantul nu este șters.");
+
+            s.IsDeleted = false;
+            s.DeletedAtUtc = null;
+            s.IsActive = false;
+            s.UpdatedAtUtc = DateTime.UtcNow;
+
+            var description = $"Cursantul {s.FullName} a fost restaurat.";
+
+            AddStudentLog(s.Id, "Restore", description);
+
+            await _db.SaveChangesAsync();
+
+            await NotifyStudentRolesAsync( s, "Cursant restaurat", description, "Success");
+
+            return response.SetSuccess(new
+            {
+                s.Id,
+                s.IsActive,
+                s.IsDeleted
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "RestoreAsync failed");
             return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
         }
     }
@@ -531,19 +572,31 @@ public class StudentsService
         return response.SetSuccess(guardian); // poate fi null
     }
 
-    public async Task<List<AvailableCourseDto>> GetAvailableCoursesForStudentAsync(  int studentId,  string? q)
+    public async Task<List<AvailableCourseDto>> GetAvailableCoursesForStudentAsync( int studentId, string? q)
     {
         var query = _db.CourseSessions
+            .AsNoTracking()
             .Include(x => x.Course)
             .Include(x => x.Teacher)
-            .Where(x => !x.Enrollments.Any(e => e.StudentId == studentId));
+            .Where(x =>
+                x.IsActive &&
+                x.Course.IsActive &&
+                !x.Enrollments.Any(e =>
+                    e.StudentId == studentId &&
+                    e.IsActive));
 
         if (!string.IsNullOrWhiteSpace(q))
         {
-            query = query.Where(x => x.Course.Name.Contains(q));
+            q = q.Trim();
+
+            query = query.Where(x =>
+                x.Course.Name.Contains(q));
         }
 
         return await query
+            .OrderBy(x => x.Course.Name)
+            .ThenBy(x => x.DayOfWeek)
+            .ThenBy(x => x.StartTime)
             .Select(x => new AvailableCourseDto
             {
                 CourseId = x.CourseId,
@@ -555,7 +608,8 @@ public class StudentsService
                 TeacherName = $"{x.Teacher.FirstName} {x.Teacher.LastName}",
                 Price = x.Fee,
                 Capacity = x.Capacity,
-                Enrolled = x.Enrollments.Count()
+
+                Enrolled = x.Enrollments.Count(e => e.IsActive)
             })
             .ToListAsync();
     }
@@ -597,63 +651,30 @@ public class StudentsService
         }
     }
 
-    public async Task<List<StudentListItemDto>> GetStudentsForExport( string? q, string? sortBy,  string? sortDir, bool? onlyRecent,  int? recentDays, int? sessionId)
+    private IQueryable<Data.Entities.Student> BuildStudentsQuery( string? q, string? sortBy, string? sortDir, bool? onlyRecent,int? recentDays, int? sessionId, string? statusFilter, string? deleteFilter)
     {
-        var query = BuildStudentsQuery(q, sortBy, sortDir, onlyRecent, recentDays, sessionId);
+        var query = _db.Students
+            .AsNoTracking()
+            .AsQueryable();
 
-        return await query
-            .Select(s => new StudentListItemDto(
-                s.Id,
-                s.FullName,
-                s.Email,
-                s.Phone,
-                s.IsActive,
-                s.CreatedAtUtc
-            ))
-            .ToListAsync();
-    }
-   private IQueryable<ERPSystem.Data.Entities.Student> BuildStudentsQuery(string? q, string? sortBy, string? sortDir, bool? onlyRecent, int? recentDays, int? sessionId)
-    {
-        var query = _db.Students.AsNoTracking();
+        query = ApplyStudentFilters(
+            query,
+            q,
+            onlyRecent,
+            recentDays,
+            sessionId,
+            statusFilter,
+            deleteFilter
+        );
 
-        if (!string.IsNullOrWhiteSpace(q))
-        {
-            q = q.Trim();
-            query = query.Where(s =>
-                s.FullName.Contains(q) ||
-                (s.Email != null && s.Email.Contains(q)) ||
-                (s.Phone != null && s.Phone.Contains(q)));
-        }
-
-        if (onlyRecent == true)
-        {
-            var days = Math.Clamp(recentDays ?? 30, 1, 3650);
-            var from = DateTime.UtcNow.AddDays(-days);
-            query = query.Where(s => s.CreatedAtUtc >= from);
-        }
-
-        if (sessionId.HasValue)
-        {
-            query = query.Where(s => _db.CourseEnrollments
-                .Any(e => e.StudentId == s.Id &&
-                          e.CourseSessionId == sessionId.Value &&
-                          e.IsActive));
-        }
-
-        var dirDesc = string.Equals(sortDir, "desc", StringComparison.OrdinalIgnoreCase);
-
-        query = (sortBy ?? "createdAt").ToLower() switch
-        {
-            "fullname" => dirDesc ? query.OrderByDescending(s => s.FullName) : query.OrderBy(s => s.FullName),
-            _ => dirDesc ? query.OrderByDescending(s => s.CreatedAtUtc) : query.OrderBy(s => s.CreatedAtUtc)
-        };
+        query = ApplyStudentSorting(query, sortBy, sortDir);
 
         return query;
     }
-
-    public async Task<byte[]> ExportStudentsExcel( string? q, string? sortBy, string? sortDir, bool? onlyRecent, int? recentDays, int? sessionId)
+    public async Task<byte[]> ExportStudentsExcel( string? q, string? sortBy, string? sortDir, bool? onlyRecent,  int? recentDays, int? sessionId,  string? statusFilter, string? deleteFilter)
     {
         var query = _db.Students
+            .AsNoTracking()
             .Include(x => x.StudentGuardians)
                 .ThenInclude(x => x.Guardian)
             .Include(x => x.Enrollments)
@@ -664,41 +685,9 @@ public class StudentsService
                 .ThenInclude(x => x.Contract)
             .AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(q))
-        {
-            var search = q.ToLower();
+        query = ApplyStudentFilters(  query, q, onlyRecent, recentDays, sessionId, statusFilter, deleteFilter );
 
-            query = query.Where(x =>
-                x.FullName.ToLower().Contains(search) ||
-                (x.Email != null && x.Email.ToLower().Contains(search)) ||
-                (x.Phone != null && x.Phone.Contains(search)));
-        }
-
-        if (onlyRecent == true)
-        {
-            var days = recentDays ?? 30;
-            var fromDate = DateTime.UtcNow.AddDays(-days);
-            query = query.Where(x => x.CreatedAtUtc >= fromDate);
-        }
-
-        if (sessionId.HasValue)
-        {
-            query = query.Where(x =>
-                x.Enrollments.Any(e => e.CourseSessionId == sessionId.Value));
-        }
-
-        query = sortBy switch
-        {
-            "name" => sortDir == "desc"
-                ? query.OrderByDescending(x => x.FullName)
-                : query.OrderBy(x => x.FullName),
-
-            "date" => sortDir == "desc"
-                ? query.OrderByDescending(x => x.CreatedAtUtc)
-                : query.OrderBy(x => x.CreatedAtUtc),
-
-            _ => query.OrderByDescending(x => x.CreatedAtUtc)
-        };
+        query = ApplyStudentSorting(query, sortBy, sortDir);
 
         var students = await query.ToListAsync();
 
@@ -724,7 +713,8 @@ public class StudentsService
         "Cursuri inactive",
         "Contracte asociate",
         "Data creare",
-        "Ultima actualizare"
+        "Ultima actualizare",
+        "Data ștergerii"
     };
 
         for (int i = 0; i < headers.Length; i++)
@@ -773,7 +763,11 @@ public class StudentsService
             ws.Cell(row, 8).Value = s.DateOfBirth;
             ws.Cell(row, 9).Value = s.Age;
             ws.Cell(row, 10).Value = s.IsMinor ? "Da" : "Nu";
-            ws.Cell(row, 11).Value = s.IsActive ? "Activ" : "Inactiv";
+            ws.Cell(row, 11).Value = s.IsDeleted
+                ? "Șters"
+                : s.IsActive
+                    ? "Activ"
+                    : "Inactiv";
             ws.Cell(row, 12).Value = guardians;
             ws.Cell(row, 13).Value = primaryGuardian;
             ws.Cell(row, 14).Value = string.Join(" | ", activeCourses);
@@ -781,6 +775,7 @@ public class StudentsService
             ws.Cell(row, 16).Value = string.Join(" | ", contracts);
             ws.Cell(row, 17).Value = s.CreatedAtUtc;
             ws.Cell(row, 18).Value = s.UpdatedAtUtc;
+            ws.Cell(row, 19).Value = s.DeletedAtUtc;
         }
 
         FormatStudentsSheet(ws);
@@ -789,7 +784,6 @@ public class StudentsService
         wb.SaveAs(ms);
         return ms.ToArray();
     }
-
     private static void FormatStudentsSheet(IXLWorksheet ws)
     {
         var usedRange = ws.RangeUsed();
@@ -820,8 +814,107 @@ public class StudentsService
         ws.Column(8).Style.DateFormat.Format = "dd.MM.yyyy";
         ws.Column(17).Style.DateFormat.Format = "dd.MM.yyyy HH:mm";
         ws.Column(18).Style.DateFormat.Format = "dd.MM.yyyy HH:mm";
+        ws.Column(19).Style.DateFormat.Format = "dd.MM.yyyy HH:mm";
 
         ws.SheetView.FreezeRows(1);
     }
 
+    private IQueryable<Data.Entities.Student> ApplyStudentFilters(IQueryable<Data.Entities.Student> query,string? q, bool? onlyRecent, int? recentDays, int? sessionId, string? statusFilter, string? deleteFilter)
+    {
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            q = q.Trim();
+
+            query = query.Where(s =>
+                s.FullName.Contains(q) ||
+                (s.Email != null && s.Email.Contains(q)) ||
+                (s.Phone != null && s.Phone.Contains(q)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(statusFilter))
+        {
+            switch (statusFilter.ToLower())
+            {
+                case "active":
+                    query = query.Where(x => x.IsActive && !x.IsDeleted);
+                    break;
+
+                case "inactive":
+                    query = query.Where(x => !x.IsActive && !x.IsDeleted);
+                    break;
+            }
+        }
+
+        switch ((deleteFilter ?? "notDeleted").ToLower())
+        {
+            case "deleted":
+                query = query.Where(x => x.IsDeleted);
+                break;
+
+            case "notdeleted":
+                query = query.Where(x => !x.IsDeleted);
+                break;
+        }
+
+        if (onlyRecent == true)
+        {
+            var days = Math.Clamp(recentDays ?? 30, 1, 3650);
+            var from = DateTime.UtcNow.AddDays(-days);
+            query = query.Where(s => s.CreatedAtUtc >= from);
+        }
+
+        if (sessionId.HasValue)
+        {
+            query = query.Where(s => s.Enrollments.Any(e =>
+                e.CourseSessionId == sessionId.Value &&
+                e.IsActive));
+        }
+
+        return query;
+    }
+
+    private static IQueryable<Data.Entities.Student> ApplyStudentSorting( IQueryable<Data.Entities.Student> query, string? sortBy, string? sortDir)
+    {
+        var dirDesc = string.Equals(sortDir, "desc", StringComparison.OrdinalIgnoreCase);
+
+        return (sortBy ?? "createdAt").ToLower() switch
+        {
+            "fullname" or "name" => dirDesc
+                ? query.OrderByDescending(s => s.FullName)
+                : query.OrderBy(s => s.FullName),
+
+            "createdat" or "date" => dirDesc
+                ? query.OrderByDescending(s => s.CreatedAtUtc)
+                : query.OrderBy(s => s.CreatedAtUtc),
+
+            _ => query.OrderByDescending(s => s.CreatedAtUtc)
+        };
+    }
+
+    private void AddStudentLog(int studentId, string action, string description)
+    {
+        _db.ActivityLog.Add(new ActivityLog
+        {
+            EntityType = "Student",
+            EntityId = studentId.ToString(),
+            Action = action,
+            Description = description,
+            CreatedAtUtc = DateTime.UtcNow,
+            PerformedBy = "system"
+        });
+    }
+
+    private Task NotifyStudentRolesAsync( Data.Entities.Student student, string title, string message, string type)
+    {
+        return _notificationService.CreateNotificationForRolesAsync(
+            roleNames: new[] { "Admin", "Secretary" },
+            eventType: NotificationEvents.StudentActivity,
+            title: title,
+            message: message,
+            type: type,
+            link: $"/students/{student.Id}",
+            entityType: "Student",
+            entityId: student.Id.ToString()
+        );
+    }
 }

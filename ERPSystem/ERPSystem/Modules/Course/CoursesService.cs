@@ -1188,19 +1188,23 @@ public class CoursesService
         return false;
     }
 
-    public async Task<PublicResponse> GetAvailableStudentsAsync( int courseId, int sessionId, string? q)
+    public async Task<PublicResponse> GetAvailableStudentsAsync(  int courseId,  int sessionId,  string? q)
     {
         var response = new PublicResponse(true);
 
         try
         {
             var sessionExists = await _db.CourseSessions
-                .AnyAsync(s => s.Id == sessionId && s.CourseId == courseId);
+                .AnyAsync(s =>
+                    s.Id == sessionId &&
+                    s.CourseId == courseId &&
+                    s.IsActive &&
+                    s.Course.IsActive);
 
             if (!sessionExists)
                 return response.SetError(
                     ErrorCodes.InvalidParameters,
-                    "Session not found for this course"
+                    "Session not found or inactive"
                 );
 
             var enrolledIds = await _db.CourseEnrollments
@@ -1210,12 +1214,17 @@ public class CoursesService
                 .Select(e => e.StudentId)
                 .ToListAsync();
 
-            var query = _db.Students.AsNoTracking()
-                .Where(s => !enrolledIds.Contains(s.Id));
+            var query = _db.Students
+                .AsNoTracking()
+                .Where(s =>
+                    s.IsActive &&
+                    !s.IsDeleted &&
+                    !enrolledIds.Contains(s.Id));
 
             if (!string.IsNullOrWhiteSpace(q))
             {
                 q = q.Trim();
+
                 query = query.Where(s =>
                     s.FullName.Contains(q) ||
                     (s.Email != null && s.Email.Contains(q))
@@ -1237,6 +1246,7 @@ public class CoursesService
         catch (Exception ex)
         {
             _logger.LogError(ex, "GetAvailableStudentsAsync failed");
+
             return response.SetError(
                 ErrorCodes.InternalServerError,
                 ErrorMessages.InternalServerError

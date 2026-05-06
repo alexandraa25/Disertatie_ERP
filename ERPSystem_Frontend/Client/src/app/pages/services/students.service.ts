@@ -13,7 +13,18 @@ export class StudentsService {
 
   constructor(private http: HttpClient) { }
 
-  list(q = '', page = 1, pageSize = 20, sortBy = 'createdAt', sortDir = 'desc', onlyRecent = false, recentDays = 30, sessionId?: number | null) {
+  list(
+    q = '',
+    page = 1,
+    pageSize = 20,
+    sortBy = 'createdAt',
+    sortDir = 'desc',
+    onlyRecent = false,
+    recentDays = 30,
+    sessionId?: number | null,
+    statusFilter = '',
+    deleteFilter = 'notDeleted'
+  ) {
     const params = new URLSearchParams({
       q,
       page: String(page),
@@ -21,8 +32,10 @@ export class StudentsService {
       sortBy,
       sortDir,
       onlyRecent: String(onlyRecent),
-      recentDays: String(recentDays)
-    })
+      recentDays: String(recentDays),
+      statusFilter,
+      deleteFilter
+    });
 
     if (sessionId !== null && sessionId !== undefined) {
       params.append('sessionId', String(sessionId));
@@ -32,30 +45,32 @@ export class StudentsService {
       `${this.baseUrl}?${params.toString()}`
     );
   }
-
   exportExcel(
     q = '',
     sortBy = 'createdAt',
     sortDir = 'desc',
     onlyRecent = false,
     recentDays = 30,
-    sessionId?: number | null
+    sessionId?: number | null,
+    statusFilter = '',
+    deleteFilter = 'notDeleted'
   ) {
     const params = new URLSearchParams({
       q,
       sortBy,
       sortDir,
       onlyRecent: String(onlyRecent),
-      recentDays: String(recentDays)
+      recentDays: String(recentDays),
+      statusFilter,
+      deleteFilter
     });
 
-    // 🔥 IMPORTANT
     if (sessionId !== null && sessionId !== undefined) {
       params.append('sessionId', String(sessionId));
     }
 
     return this.http.get(
-      `${this.baseUrl}/ /export?${params.toString()}`,
+      `${this.baseUrl}/export?${params.toString()}`,
       { responseType: 'blob' }
     );
   }
@@ -122,12 +137,19 @@ export class StudentsService {
     return this.http.get<any>(url);
   }
 
-
   getStudentCoursesByContract(contractId: number) {
     return this.http.get<any>(`${this.baseUrl}/by-contract/${contractId}`);
   }
 
   getStudents(params: any) {
-  return this.http.get(`${this.baseUrl}`, { params });
-}
+    return this.http.get(`${this.baseUrl}`, { params });
+  }
+
+  toggleStatus(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.baseUrl}/${id}/toggle-status`, {});
+  }
+
+  restore(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.baseUrl}/${id}/restore`, {});
+  }
 }

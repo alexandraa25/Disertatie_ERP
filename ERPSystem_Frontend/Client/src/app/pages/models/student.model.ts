@@ -16,6 +16,7 @@ export interface StudentListItemDto {
   phone?: string | null;
   isActive: boolean;
   createdAtUtc: string;
+  isDeleted?: boolean;
 }
 
 export interface StudentDetailsDto extends StudentListItemDto {

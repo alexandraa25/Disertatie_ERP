@@ -27,22 +27,22 @@ export class CourseDetailsComponent implements OnInit {
   loadingEnrollments = false;
   enrollments: { [sessionId: number]: any[] } = {};
 
-showFeedbackModal = false;
-selectedFeedbackSession: any = null;
+  showFeedbackModal = false;
+  selectedFeedbackSession: any = null;
 
-showReviewsModal = false;
-selectedReviewsSession: any = null;
+  showReviewsModal = false;
+  selectedReviewsSession: any = null;
 
-showStudentEvaluationModal = false;
-selectedEvaluationStudent: any = null;
-selectedEvaluationSession: any = null;
+  showStudentEvaluationModal = false;
+  selectedEvaluationStudent: any = null;
+  selectedEvaluationSession: any = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private courses: CoursesService,
-    private dialog: MatDialog, 
-    private confirmService: ConfirmService, 
+    private dialog: MatDialog,
+    private confirmService: ConfirmService,
     private snackbar: SnackbarService
   ) { }
 
@@ -56,7 +56,7 @@ selectedEvaluationSession: any = null;
       },
       error: () => {
         this.loading = false;
-        alert('Nu am putut încărca cursul.');
+        this.snackbar.showError('Nu am putut încărca cursul.', 2500);
         this.router.navigate(['/courses']);
       }
     });
@@ -81,36 +81,48 @@ selectedEvaluationSession: any = null;
   }
 
   loadEnrollments(sessionId: number) {
-  this.loadingEnrollments = true;
+    this.loadingEnrollments = true;
 
-  this.courses.listEnrollments(this.course.id, sessionId).subscribe({
-    next: (res: any) => {
-      const list = res?.value ?? res;
+    this.courses.listEnrollments(this.course.id, sessionId).subscribe({
+      next: (res: any) => {
+        const list = res?.value ?? res;
 
-      this.enrollments[sessionId] = list;
+        this.enrollments[sessionId] = list;
 
-      this.loadingEnrollments = false;
+        this.loadingEnrollments = false;
+      },
+      error: () => {
+        this.loadingEnrollments = false;
+         this.snackbar.showError('Eroare la încărcare cursanți.', 2500);
+      }
+    });
+  }
+
+ toggleEnrollment(sessionId: number, enrollment: any) {
+  this.courses.setEnrollmentActive(
+    this.course.id,
+    sessionId,
+    enrollment.studentId,
+    !enrollment.isActive
+  ).subscribe({
+    next: () => {
+      this.loadEnrollments(sessionId);
+
+      this.snackbar.showSuccess(
+        enrollment.isActive
+          ? 'Cursant dezactivat.'
+          : 'Cursant activat.',
+        1800
+      );
     },
-    error: () => {
-      this.loadingEnrollments = false;
-      alert('Eroare la încărcare cursanți.');
+    error: (err) => {
+      this.snackbar.showError(
+        err?.error?.message || 'Eroare la actualizare.',
+        2500
+      );
     }
   });
 }
-
-  toggleEnrollment(sessionId: number, enrollment: any) {
-    this.courses.setEnrollmentActive(
-      this.course.id,
-      sessionId,
-      enrollment.studentId,
-      !enrollment.isActive
-    ).subscribe({
-      next: () => {
-        this.loadEnrollments(sessionId); // 🔥 reîncarci lista din backend
-      },
-      error: () => alert('Eroare la actualizare.')
-    });
-  }
 
   openEnrollModal(session: any) {
     const ref = this.dialog.open(EnrollStudentsComponent, {
@@ -143,81 +155,72 @@ selectedEvaluationSession: any = null;
   }
 
   openFeedbackModal(session: any): void {
-  this.selectedFeedbackSession = session;
-  this.showFeedbackModal = true;
-}
-
-closeFeedbackModal(): void {
-  this.showFeedbackModal = false;
-  this.selectedFeedbackSession = null;
-}
-
-onFeedbackFormsSent(): void {
-  const sessionId = this.selectedFeedbackSession?.id;
-
-  this.closeFeedbackModal();
-
-  if (sessionId) {
-    this.loadEnrollments(sessionId);
+    this.selectedFeedbackSession = session;
+    this.showFeedbackModal = true;
   }
-}
 
-openReviewsModal(session: any): void {
-  this.selectedReviewsSession = session;
-  this.showReviewsModal = true;
-}
+  closeFeedbackModal(): void {
+    this.showFeedbackModal = false;
+    this.selectedFeedbackSession = null;
+  }
 
-closeReviewsModal(): void {
-  this.showReviewsModal = false;
-  this.selectedReviewsSession = null;
-}
+  onFeedbackFormsSent(): void {
+    const sessionId = this.selectedFeedbackSession?.id;
 
-openStudentEvaluationModal(session: any, enrollment: any): void {
-  this.selectedEvaluationSession = session;
-  this.selectedEvaluationStudent = enrollment;
-  this.showStudentEvaluationModal = true;
-}
+    this.closeFeedbackModal();
 
-closeStudentEvaluationModal(): void {
-  this.showStudentEvaluationModal = false;
-  this.selectedEvaluationStudent = null;
-  this.selectedEvaluationSession = null;
-}
+    if (sessionId) {
+      this.loadEnrollments(sessionId);
+    }
+  }
 
-onStudentEvaluationSaved(): void {
-  this.closeStudentEvaluationModal();
-}
+  openReviewsModal(session: any): void {
+    this.selectedReviewsSession = session;
+    this.showReviewsModal = true;
+  }
 
-remainingSeats(s: any): number {
-  return Math.max((s.capacity ?? 0) - (s.enrolledActiveCount ?? 0), 0);
-}
+  closeReviewsModal(): void {
+    this.showReviewsModal = false;
+    this.selectedReviewsSession = null;
+  }
 
-async toggleSessionStatus(session: any): Promise<void> {
+  openStudentEvaluationModal(session: any, enrollment: any): void {
+    this.selectedEvaluationSession = session;
+    this.selectedEvaluationStudent = enrollment;
+    this.showStudentEvaluationModal = true;
+  }
+
+  closeStudentEvaluationModal(): void {
+    this.showStudentEvaluationModal = false;
+    this.selectedEvaluationStudent = null;
+    this.selectedEvaluationSession = null;
+  }
+
+  onStudentEvaluationSaved(): void {
+    this.closeStudentEvaluationModal();
+  }
+
+  remainingSeats(s: any): number {
+    return Math.max((s.capacity ?? 0) - (s.enrolledActiveCount ?? 0), 0);
+  }
+
+  async toggleSessionStatus(session: any): Promise<void> {
   const action = session.isActive ? 'dezactivezi' : 'activezi';
 
-console.log('Action ');
-
   const confirmed = await this.confirmService.confirm(
-    'Confirmare',
-    `Sigur vrei să ${action} această sesiune?`
+    `Sigur vrei să ${action} această sesiune?`,
+    'Confirmare'
   );
-
-console.log('Confirmare ' + confirmed);
 
   if (!confirmed) return;
 
   this.courses.toggleSessionStatus(session.id).subscribe({
     next: (res: any) => {
-
-      console.log('Res' + JSON.stringify(res));
-      // ideal: folosește valoarea venită din backend, dacă există
       const updated = res?.value;
 
-      if (updated) {
-        session.isActive = updated.isActive;
-      } else {
-        session.isActive = !session.isActive;
-      }
+      session.isActive = updated
+        ? updated.isActive
+        : !session.isActive;
 
       this.snackbar.showSuccess(
         session.isActive
@@ -244,10 +247,7 @@ console.log('Confirmare ' + confirmed);
         return;
       }
 
-      this.snackbar.showError(
-        'Eroare la actualizarea sesiunii',
-        2500
-      );
+      this.snackbar.showError('Eroare la actualizarea sesiunii', 2500);
     }
   });
 }

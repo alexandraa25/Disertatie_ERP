@@ -12,9 +12,9 @@ namespace ERPSystem.Modules.Students
         public static void Map(RouteGroupBuilder group)
         {
             group.MapGet(Route.STUDENTS,
-                async (string? q, int page, int pageSize, string? sortBy, string? sortDir, int? recentDays, bool? onlyRecent, int ? sessionId,
+                async (string? q, int page, int pageSize, string? sortBy, string? sortDir, int? recentDays, bool? onlyRecent, int ? sessionId, string? statusFilter, string? deleteFilter,
                        StudentsService studentsService)
-                    => await studentsService.GetStudentsAsync(q, page, pageSize, sortBy, sortDir, recentDays, onlyRecent, sessionId))
+                    => await studentsService.GetStudentsAsync(q, page, pageSize, sortBy, sortDir, recentDays, onlyRecent, sessionId, statusFilter, deleteFilter))
                 .WithDefaultApiSettings("GetStudents", "Lista elevi (paging/sort/filter)", "GET", false);
 
             group.MapGet(Route.STUDENT_BY_ID,
@@ -36,6 +36,18 @@ namespace ERPSystem.Modules.Students
                 async (int id, StudentsService studentsService)
                     => await studentsService.DeleteAsync(id))
                 .WithDefaultApiSettings("DeleteStudent", "Ștergere elev", "DELETE", false);
+
+
+            group.MapPatch(Route.STUDENT_RESTORE,
+                async (int id, StudentsService studentsService)
+                    => await studentsService.RestoreAsync(id))
+                .WithDefaultApiSettings("RestoreStudent", "Restaurare elev", "UPDATE", false);
+
+
+            group.MapPatch(Route.STUDENT_TOGGLE_STATUS,
+                async (int id, StudentsService studentsService)
+                    => await studentsService.ToggleStatusAsync(id))
+                .WithDefaultApiSettings("ToggleStudentStatus", "Activare/Dezactivare elev", "UPDATE", false);
 
             group.MapGet(Route.STUDENT_OPTIONS,
                 async (string? q, StudentsService studentsService)
@@ -69,9 +81,9 @@ namespace ERPSystem.Modules.Students
 
 
             group.MapGet(Route.EXPORT,
-                 async ( string? q, string? sortBy,string? sortDir, bool? onlyRecent, int? recentDays, int? sessionId, StudentsService studentsService ) =>
+                 async ( string? q, string? sortBy,string? sortDir, bool? onlyRecent, int? recentDays, int? sessionId, string? statusFilter, string? deleteFilter, StudentsService studentsService ) =>
                  {
-                     var bytes = await studentsService.ExportStudentsExcel(  q, sortBy, sortDir, onlyRecent, recentDays, sessionId );
+                     var bytes = await studentsService.ExportStudentsExcel(  q, sortBy, sortDir, onlyRecent, recentDays, sessionId, statusFilter, deleteFilter);
              
                      return Results.File(
                          bytes,

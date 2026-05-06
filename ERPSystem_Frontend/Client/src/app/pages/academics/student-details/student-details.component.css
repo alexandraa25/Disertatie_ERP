@@ -1156,6 +1156,35 @@ button:disabled {
   line-height: 1.5;
 }
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin: 18px 0 6px;
+}
+
+.pagination button {
+  min-width: 38px;
+  height: 32px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 @media (max-width: 700px) {
   .problem-row,
   .ai-grid,

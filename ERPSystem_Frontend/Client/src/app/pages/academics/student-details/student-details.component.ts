@@ -15,6 +15,8 @@ import { AdditionalActService } from '../../services/additional-act.service';
 import { AdditionalActListDto } from '../../models/additional-act.model';
 import { PaymentsService } from '../../services/payments.service';
 import { ConfirmService } from '../../services/confirm.service';
+import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 import { PayModalComponent } from '../../financiar/pay-modal/pay-modal.component';
 import { FormsModule } from '@angular/forms';
 import { FeedbackService } from '../../services/feedback.service';
@@ -25,7 +27,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-student-details',
   standalone: true,
-  imports: [CommonModule,  FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmCustomModalComponent],
   templateUrl: './student-details.component.html',
   styleUrls: ['./student-details.component.css']
 })
@@ -40,8 +42,8 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
   studentTab: 'evaluations' | 'analytics' = 'evaluations';
 
   studentAnalytics: any = null;
-loadingStudentAnalytics = false;
-studentChart: any;
+  loadingStudentAnalytics = false;
+  studentChart: any;
 
   courses: StudentCourseDetailsDto[] = [];
   inactiveCourses: StudentCourseDetailsDto[] = [];
@@ -62,7 +64,16 @@ studentChart: any;
   remaining = 0;
 
   studentEvaluations: any[] = [];
-loadingEvaluations = false;
+  loadingEvaluations = false;
+
+  coursesPage = 1;
+  inactiveCoursesPage = 1;
+  installmentsPage = 1;
+  paymentsPage = 1;
+  activityPage = 1;
+  evaluationsPage = 1;
+
+  pageSize = 10;
 
   objectKeys = Object.keys;
 
@@ -75,9 +86,10 @@ loadingEvaluations = false;
     private payment: PaymentsService,
     private additionalActService: AdditionalActService,
     private dialog: MatDialog,
-    private activityService: ActivityLogService, 
-    private confirmService: ConfirmService, 
-    private feedbackService: FeedbackService
+    private activityService: ActivityLogService,
+    private confirmService: ConfirmService,
+    private feedbackService: FeedbackService,
+    private snackbar: SnackbarService,
   ) { }
 
   ngOnInit(): void {
@@ -92,13 +104,13 @@ loadingEvaluations = false;
           this.loadContractsList();
         }
 
-           if (this.contractsList?.length && !this.contract) {
-    this.contract = this.contractsList[0];
-  }
+        if (this.contractsList?.length && !this.contract) {
+          this.contract = this.contractsList[0];
+        }
       },
       error: () => {
         this.loading = false;
-        alert('Nu am putut încărca elevul.');
+        this.snackbar.showError('Nu am putut încărca elevul.', 2500);
         this.router.navigate(['/students']);
       }
     });
@@ -115,27 +127,32 @@ loadingEvaluations = false;
       this.loadCourses();
     }
 
-     if (tab === 'Istoric') {
-    this.loadActivity();
-     }
-     if (tab === 'Evaluări profesor') {
-    this.loadStudentEvaluations();
-     }
+    if (tab === 'Istoric') {
+      this.loadActivity();
+    }
+    if (tab === 'Evaluări profesor') {
+      this.loadStudentEvaluations();
+    }
   }
 
-  loadCourses() {
-    this.students.getStudentCourses(this.student.id)
-      .subscribe(res => {
+  loadCourses(): void {
+    this.students.getStudentCourses(this.student.id).subscribe({
+      next: (res: any) => {
+        const data = res?.value ?? res;
+        const all = data.items ?? [];
 
-        const all = res.items;
-
-        this.courses = all.filter(x => x.isActive);
-
-        this.inactiveCourses = all.filter(x => !x.isActive);
-
-        this.totalAmount = res.totalAmount;
+        this.courses = all.filter((x: any) => x.isActive);
+        this.inactiveCourses = all.filter((x: any) => !x.isActive);
+        this.totalAmount = data.totalAmount ?? 0;
         this.coursesLoaded = true;
-      });
+      },
+      error: (err) => {
+        this.snackbar.showError(
+          this.getErrorMessage(err, 'Eroare la încărcarea cursurilor.'),
+          2500
+        );
+      }
+    });
   }
 
   getRomanianDay(day: any): string {
@@ -169,49 +186,62 @@ loadingEvaluations = false;
     return mapByName[normalized] ?? day;
   }
 
-  openEnrollModal() {
+  openEnrollModal(): void {
+    if (!this.student.isActive || this.student.isDeleted) {
+      this.snackbar.showError(
+        this.student.isDeleted
+          ? 'Cursantul este arhivat și nu poate fi înscris.'
+          : 'Cursantul este inactiv și nu poate fi înscris.',
+        2500
+      );
+      return;
+    }
 
     const ref = this.dialog.open(EnrollStudentsComponent, {
       width: '600px',
-      data: {
-        studentId: this.student.id
-      }
+      data: { studentId: this.student.id }
     });
 
     ref.afterClosed().subscribe(result => {
       if (result) {
+        this.snackbar.showSuccess('Lista cursurilor a fost actualizată.', 1500);
         this.loadCourses();
       }
     });
-
   }
 
-  async deactivateEnrollment(course: any) {
+  async deactivateEnrollment(course: any): Promise<void> {
+    const ok = await this.confirmService.confirm(
+      `Elimini cursantul din cursul "${course.courseName}"?`,
+      'Confirmare'
+    );
 
-  const ok = await this.confirmService.confirm(
-    `Elimini studentul din cursul "${course.courseName}"?`
-  );
+    if (!ok) return;
 
-  if (!ok) return;
+    this.course.setEnrollmentActive(
+      course.courseId,
+      course.sessionId,
+      this.student.id,
+      false
+    ).subscribe({
+      next: () => {
+        this.snackbar.showSuccess('Cursantul a fost scos din curs.', 1800);
+        this.loadCourses();
+      },
+      error: (err) => {
+        this.snackbar.showError(
+          err?.error?.message || 'Eroare la scoaterea din curs.',
+          2500
+        );
+      }
+    });
+  }
 
-  this.course.setEnrollmentActive(
-    course.courseId,
-    course.sessionId,
-    this.student.id,
-    false
-  ).subscribe({
-    next: () => this.loadCourses(),
-    error: () => alert('Eroare la scoaterea din curs.')
-  });
-}
-
-  loadContractsList() {
-    this.contracts.listContracts(this.student.id)
-      .subscribe((res: any) => {
-
+  loadContractsList(): void {
+    this.contracts.listContracts(this.student.id).subscribe({
+      next: (res: any) => {
         this.contractsList = res?.value ?? [];
 
-        // 🔥 select automat contract
         this.contract =
           this.contractsList.find(c => c.status === 'Active') ||
           this.contractsList[0] ||
@@ -220,22 +250,34 @@ loadingEvaluations = false;
         if (this.contract?.id) {
           this.loadContractDetails(this.contract.id);
         }
-      });
+      },
+      error: (err) => {
+        this.snackbar.showError(
+          this.getErrorMessage(err, 'Eroare la încărcarea contractelor.'),
+          2500
+        );
+      }
+    });
   }
 
-  loadContractDetails(id: number) {
-    this.contracts.getById(id)
-      .subscribe((res: any) => {
-
+  loadContractDetails(id: number): void {
+    this.contracts.getById(id).subscribe({
+      next: (res: any) => {
         this.contract = res?.value ?? null;
 
         if (this.contract?.id) {
           this.loadActs();
           this.loadFinancial();
         }
-      });
+      },
+      error: (err) => {
+        this.snackbar.showError(
+          this.getErrorMessage(err, 'Eroare la încărcarea contractului.'),
+          2500
+        );
+      }
+    });
   }
-
   selectContract(c: any) {
     this.contract = c; // instant UI
     this.loadContractDetails(c.id); // refresh real
@@ -243,19 +285,19 @@ loadingEvaluations = false;
 
 
   onSelectContract(contractId: number) {
-  const selected = this.contractsList.find(c => c.id == contractId);
-  if (selected) {
-    this.selectContract(selected);
+    const selected = this.contractsList.find(c => c.id == contractId);
+    if (selected) {
+      this.selectContract(selected);
+    }
   }
-}
   get sortedContracts() {
-  if (!this.contractsList) return [];
+    if (!this.contractsList) return [];
 
-  return [
-    this.contract,
-    ...this.contractsList.filter(c => c.id !== this.contract?.id)
-  ];
-}
+    return [
+      this.contract,
+      ...this.contractsList.filter(c => c.id !== this.contract?.id)
+    ];
+  }
 
   get activeContracts() {
     return this.contractsList.filter(c =>
@@ -358,8 +400,7 @@ loadingEvaluations = false;
         break;
 
       case 'waiting':
-        // nu face nimic sau show mesaj
-        alert('Contractul a fost trimis și așteaptă semnarea clientului');
+        this.snackbar.showError('Contractul a fost trimis și așteaptă semnarea clientului.', 2500);
         break;
     }
   }
@@ -374,7 +415,11 @@ loadingEvaluations = false;
     this.router.navigate(['/contracts', id]);
   }
 
-  openEdit(id: number) {
+  openEdit(id: number): void {
+    if (this.student?.isDeleted) {
+      this.snackbar.showError('Cursantul arhivat nu poate fi editat.', 2500);
+      return;
+    }
 
     if (this.dialog.openDialogs.length > 0) {
       return;
@@ -389,20 +434,37 @@ loadingEvaluations = false;
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        this.snackbar.showSuccess('Datele cursantului au fost actualizate.', 1800);
+        this.students.get(this.student.id).subscribe({
+          next: (res) => this.student = res,
+          error: () => this.loadContractsList()
+        });
         this.loadContractsList();
       }
     });
-
   }
 
-  sendContract() {
-    this.contracts.send(this.contract.id)
-      .subscribe(() => {
+  async sendContract(): Promise<void> {
+    const ok = await this.confirmService.confirm(
+      `Trimiți contractul #${this.contract?.contractNumber} către client?`,
+      'Confirmare trimitere'
+    );
+
+    if (!ok) return;
+
+    this.contracts.send(this.contract.id).subscribe({
+      next: () => {
+        this.snackbar.showSuccess('Contractul a fost trimis clientului.', 1800);
         this.loadContractsList();
-      });
-
+      },
+      error: (err) => {
+        this.snackbar.showError(
+          this.getErrorMessage(err, 'Contractul nu a putut fi trimis.'),
+          2500
+        );
+      }
+    });
   }
-
   activateContract() {
 
     const dialogRef = this.dialog.open(AdminSignatureModalComponent, {
@@ -445,47 +507,69 @@ loadingEvaluations = false;
     return Math.ceil((end.getTime() - today.getTime()) / (1000 * 3600 * 24));
   }
 
-  async suspend() {
-  if (!(await this.confirmService.confirm('Suspendăm contractul?'))) return;
+  async suspend(): Promise<void> {
+    if (!(await this.confirmService.confirm('Suspendăm contractul?', 'Confirmare'))) return;
 
-  this.contracts.suspend(this.contract.id)
-    .subscribe(() => this.loadContractsList());
-}
+    this.contracts.suspend(this.contract.id).subscribe({
+      next: () => {
+        this.snackbar.showSuccess('Contract suspendat.', 1800);
+        this.loadContractsList();
+      },
+      error: (err) => this.snackbar.showError(this.getErrorMessage(err, 'Contractul nu a putut fi suspendat.'), 2500)
+    });
+  }
 
- async resume() {
-  if (!(await this.confirmService.confirm('Reluăm contractul?'))) return;
+  async resume(): Promise<void> {
+    if (!(await this.confirmService.confirm('Reluăm contractul?', 'Confirmare'))) return;
 
-  this.contracts.resume(this.contract.id)
-    .subscribe(() => this.loadContractsList());
-}
+    this.contracts.resume(this.contract.id).subscribe({
+      next: () => {
+        this.snackbar.showSuccess('Contract reluat.', 1800);
+        this.loadContractsList();
+      },
+      error: (err) => this.snackbar.showError(this.getErrorMessage(err, 'Contractul nu a putut fi reluat.'), 2500)
+    });
+  }
 
- async complete() {
-  if (!(await this.confirmService.confirm('Finalizăm contractul?'))) return;
+  async complete(): Promise<void> {
+    if (!(await this.confirmService.confirm('Finalizăm contractul?', 'Confirmare'))) return;
 
-  this.contracts.complete(this.contract.id)
-    .subscribe(() => this.loadContractsList());
-}
+    this.contracts.complete(this.contract.id).subscribe({
+      next: () => {
+        this.snackbar.showSuccess('Contract finalizat.', 1800);
+        this.loadContractsList();
+      },
+      error: (err) => this.snackbar.showError(this.getErrorMessage(err, 'Contractul nu a putut fi finalizat.'), 2500)
+    });
+  }
 
- async cancelContract() {
-  if (!(await this.confirmService.confirm('Anulăm contractul?'))) return;
+  async cancelContract(): Promise<void> {
+    if (!(await this.confirmService.confirm('Anulăm contractul?', 'Confirmare anulare'))) return;
 
-  this.contracts.cancel(this.contract.id)
-    .subscribe(() => this.loadContractsList());
-}
+    this.contracts.cancel(this.contract.id).subscribe({
+      next: () => {
+        this.snackbar.showSuccess('Contract anulat.', 1800);
+        this.loadContractsList();
+      },
+      error: (err) => this.snackbar.showError(this.getErrorMessage(err, 'Contractul nu a putut fi anulat.'), 2500)
+    });
+  }
+
   downloadPdf(): void {
-    if (!this.contract?.id) return;
+    if (!this.contract?.id) {
+      this.snackbar.showError('Nu există contract selectat.', 2500);
+      return;
+    }
 
     this.loading = true;
 
     this.contracts.download(this.contract.id).subscribe({
       next: (blob: Blob) => {
-
         const url = window.URL.createObjectURL(blob);
 
-        const fileName =
-          this.contract?.contractNumber
-            ? `contract_${this.contract.contractNumber}.pdf`
-            : 'contract.pdf';
+        const fileName = this.contract?.contractNumber
+          ? `contract_${this.contract.contractNumber}.pdf`
+          : 'contract.pdf';
 
         const a = document.createElement('a');
         a.href = url;
@@ -494,10 +578,15 @@ loadingEvaluations = false;
 
         window.URL.revokeObjectURL(url);
         this.loading = false;
+
+        this.snackbar.showSuccess('PDF descărcat.', 1500);
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        alert('Eroare la descărcare PDF');
+        this.snackbar.showError(
+          this.getErrorMessage(err, 'Eroare la descărcare PDF.'),
+          2500
+        );
       }
     });
   }
@@ -506,33 +595,53 @@ loadingEvaluations = false;
     this.router.navigate([`/contracts/${this.contract.id}/additional-act`]);
   }
 
-  loadActs() {
+  loadActs(): void {
     if (!this.contract?.id) return;
 
-    this.additionalActService.getByContract(this.contract.id)
-      .subscribe((res: any) => {
-        this.acts = res.value;
-      });
+    this.additionalActService.getByContract(this.contract.id).subscribe({
+      next: (res: any) => {
+        this.acts = res?.value ?? res ?? [];
+      },
+      error: (err) => {
+        this.snackbar.showError(
+          this.getErrorMessage(err, 'Eroare la încărcarea actelor adiționale.'),
+          2500
+        );
+      }
+    });
   }
   openAct(id: number) {
     this.router.navigate(['/additional-act', id]);
   }
 
-  loadFinancial() {
+  loadFinancial(): void {
     if (!this.contract) return;
 
-    this.payment.getInstallments(this.contract.id)
-      .subscribe((res: any) => {
-        this.installments = res;
+    this.payment.getInstallments(this.contract.id).subscribe({
+      next: (res: any) => {
+        this.installments = res?.value ?? res ?? [];
         this.calculateSummary();
-      });
+      },
+      error: (err) => {
+        this.snackbar.showError(
+          this.getErrorMessage(err, 'Eroare la încărcarea ratelor.'),
+          2500
+        );
+      }
+    });
 
-    this.payment.getPayments(this.contract.id)
-      .subscribe((res: any) => {
-        this.payments = res;
-      });
+    this.payment.getPayments(this.contract.id).subscribe({
+      next: (res: any) => {
+        this.payments = res?.value ?? res ?? [];
+      },
+      error: (err) => {
+        this.snackbar.showError(
+          this.getErrorMessage(err, 'Eroare la încărcarea plăților.'),
+          2500
+        );
+      }
+    });
   }
-
   calculateSummary() {
     this.total = this.installments.reduce((s, i) => s + i.amount, 0);
     this.paid = this.installments.reduce((s, i) => s + i.paidAmount, 0);
@@ -547,40 +656,48 @@ loadingEvaluations = false;
 
   openPayModal(i: any) {
 
-  const remaining = i.amount - i.paidAmount;
+    const remaining = i.amount - i.paidAmount;
 
-  const dialogRef = this.dialog.open(PayModalComponent, {
-   width: '550px',
-  maxHeight: '90vh',
-  panelClass: 'custom-dialog',
-    data: { remaining }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-    if (!result) return;
-
-    console.log(i);
-
-    console.log({
-  InstallmentId: i.id,
-  Amount: result.amount,
-  Method: result.method,
-  Notes: result.notes,
-  Reference: result.reference
-});
-
-    this.payment.payInstallment({
-      InstallmentId: i.id,
-  Amount: result.amount,
-  Method: result.method,
-  Notes: result.notes,
-  Reference: result.reference
-    }).subscribe({
-      next: () => this.loadFinancial(),
-      error: () => alert('Eroare la plată')
+    const dialogRef = this.dialog.open(PayModalComponent, {
+      width: '550px',
+      maxHeight: '90vh',
+      panelClass: 'custom-dialog',
+      data: { remaining }
     });
-  });
-}
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) return;
+
+      console.log(i);
+
+      console.log({
+        InstallmentId: i.id,
+        Amount: result.amount,
+        Method: result.method,
+        Notes: result.notes,
+        Reference: result.reference
+      });
+
+      this.payment.payInstallment({
+        InstallmentId: i.id,
+        Amount: result.amount,
+        Method: result.method,
+        Notes: result.notes,
+        Reference: result.reference
+      }).subscribe({
+        next: () => {
+          this.snackbar.showSuccess('Plata a fost înregistrată.', 1800);
+          this.loadFinancial();
+        },
+        error: (err) => {
+          this.snackbar.showError(
+            this.getErrorMessage(err, 'Eroare la plată.'),
+            2500
+          );
+        }
+      });
+    });
+  }
 
   getInstallmentClass(i: any) {
 
@@ -595,127 +712,178 @@ loadingEvaluations = false;
     return 'success';
   }
 
- loadActivity() {
-  if (!this.student?.id) return;
+  loadActivity(): void {
+    if (!this.student?.id) return;
 
-  console.log('Loading activity for student:', this.student.id);
-
-  this.activityService
-    .getActivity('Student', this.student.id.toString())
-    .subscribe((res: ActivityLog[]) => {
-      console.log('Activity logs:', res);
-      this.activityLogs = res;
-    });
-}
-
-loadStudentEvaluations(): void {
-  if (!this.student?.id) return;
-
-  this.loadingEvaluations = true;
-
-  this.feedbackService.getStudentEvaluations(this.student.id).subscribe({
-    next: (res: any) => {
-      const data = res?.value ?? res?.data ?? res;
-      this.studentEvaluations = Array.isArray(data) ? data : [];
-      this.loadingEvaluations = false;
-    },
-    error: () => {
-      this.loadingEvaluations = false;
-      alert('Eroare la încărcarea evaluărilor.');
-    }
-  });
-}
-
-
-loadStudentAnalytics(): void {
-  if (!this.student?.id) return;
-
-  this.loadingStudentAnalytics = true;
-
-  this.feedbackService.getStudentAnalytics(this.student.id).subscribe({
-    next: (res: any) => {
-      this.studentAnalytics = res?.value ?? res?.data ?? res;
-      this.loadingStudentAnalytics = false;
-
-      setTimeout(() => this.createStudentChart(), 0);
-    },
-    error: () => {
-      this.loadingStudentAnalytics = false;
-    }
-  });
-}
-
-setStudentTab(tab: 'evaluations' | 'analytics') {
-  this.studentTab = tab;
-
-  if (tab === 'evaluations') {
-    this.destroyStudentChart();
-    return;
-  }
-
-  if (!this.studentAnalytics) {
-    this.loadStudentAnalytics();
-    return;
-  }
-
-  setTimeout(() => this.createStudentChart(), 0);
-}
-
-createStudentChart(): void {
-   if (!this.studentAnalytics?.trend?.length) return;
-
-  const canvas = document.getElementById('studentTrendChart') as HTMLCanvasElement;
-  if (!canvas) return;
-
-  this.destroyStudentChart();
-
-  this.studentChart = new Chart(canvas, {
-    type: 'line',
-    data: {
-      labels: this.studentAnalytics.trend.map((x: any) => x.month),
-      datasets: [
-        {
-          label: 'Rating',
-          data: this.studentAnalytics.trend.map((x: any) => x.averageRating),
-          tension: 0.3
+    this.activityService
+      .getActivity('Student', this.student.id.toString())
+      .subscribe({
+        next: (res: ActivityLog[]) => {
+          this.activityLogs = res ?? [];
         },
-        {
-          label: 'Pozitiv %',
-          data: this.studentAnalytics.trend.map((x: any) => x.positivePercent),
-          tension: 0.3
-        },
-        {
-          label: 'Negativ %',
-          data: this.studentAnalytics.trend.map((x: any) => x.negativePercent),
-          tension: 0.3
+        error: (err) => {
+          this.snackbar.showError(
+            this.getErrorMessage(err, 'Eroare la încărcarea istoricului.'),
+            2500
+          );
         }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false
+      });
+  }
+
+  loadStudentEvaluations(): void {
+    if (!this.student?.id) return;
+
+    this.loadingEvaluations = true;
+
+    this.feedbackService.getStudentEvaluations(this.student.id).subscribe({
+      next: (res: any) => {
+        const data = res?.value ?? res?.data ?? res;
+        this.studentEvaluations = Array.isArray(data) ? data : [];
+        this.loadingEvaluations = false;
+      },
+      error: (err) => {
+        this.loadingEvaluations = false;
+        this.snackbar.showError(
+          this.getErrorMessage(err, 'Eroare la încărcarea evaluărilor.'),
+          2500
+        );
+      }
+    });
+  }
+
+  loadStudentAnalytics(): void {
+    if (!this.student?.id) return;
+
+    this.loadingStudentAnalytics = true;
+
+    this.feedbackService.getStudentAnalytics(this.student.id).subscribe({
+      next: (res: any) => {
+        this.studentAnalytics = res?.value ?? res?.data ?? res;
+        this.loadingStudentAnalytics = false;
+
+        setTimeout(() => this.createStudentChart(), 0);
+      },
+      error: (err) => {
+        this.loadingStudentAnalytics = false;
+        this.snackbar.showError(
+          this.getErrorMessage(err, 'Eroare la încărcarea analizei AI.'),
+          2500
+        );
+      }
+    });
+  }
+  setStudentTab(tab: 'evaluations' | 'analytics') {
+    this.studentTab = tab;
+
+    if (tab === 'evaluations') {
+      this.destroyStudentChart();
+      return;
     }
-  });
-}
 
-ngOnDestroy(): void {
-  this.destroyStudentChart();
-}
+    if (!this.studentAnalytics) {
+      this.loadStudentAnalytics();
+      return;
+    }
 
-destroyStudentChart(): void {
-  if (this.studentChart) {
-    this.studentChart.destroy();
-    this.studentChart = null;
+    setTimeout(() => this.createStudentChart(), 0);
   }
-}
 
-getRiskLabel(level: string): string {
-  switch (level) {
-    case 'high': return 'Ridicat';
-    case 'medium': return 'Mediu';
-    case 'low': return 'Scăzut';
-    default: return 'Necunoscut';
+  createStudentChart(): void {
+    if (!this.studentAnalytics?.trend?.length) return;
+
+    const canvas = document.getElementById('studentTrendChart') as HTMLCanvasElement;
+    if (!canvas) return;
+
+    this.destroyStudentChart();
+
+    this.studentChart = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: this.studentAnalytics.trend.map((x: any) => x.month),
+        datasets: [
+          {
+            label: 'Rating',
+            data: this.studentAnalytics.trend.map((x: any) => x.averageRating),
+            tension: 0.3
+          },
+          {
+            label: 'Pozitiv %',
+            data: this.studentAnalytics.trend.map((x: any) => x.positivePercent),
+            tension: 0.3
+          },
+          {
+            label: 'Negativ %',
+            data: this.studentAnalytics.trend.map((x: any) => x.negativePercent),
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false
+      }
+    });
   }
-}
+
+  ngOnDestroy(): void {
+    this.destroyStudentChart();
+  }
+
+  destroyStudentChart(): void {
+    if (this.studentChart) {
+      this.studentChart.destroy();
+      this.studentChart = null;
+    }
+  }
+
+  getRiskLabel(level: string): string {
+    switch (level) {
+      case 'high': return 'Ridicat';
+      case 'medium': return 'Mediu';
+      case 'low': return 'Scăzut';
+      default: return 'Necunoscut';
+    }
+  }
+
+  private getErrorMessage(err: any, fallback: string): string {
+    return err?.error?.message ||
+      err?.error?.errorMessage ||
+      err?.error?.title ||
+      fallback;
+  }
+
+  get pagedCourses() {
+    return this.paginate(this.courses, this.coursesPage);
+  }
+
+  get pagedInactiveCourses() {
+    return this.paginate(this.inactiveCourses, this.inactiveCoursesPage);
+  }
+
+  get pagedInstallments() {
+    return this.paginate(this.installments, this.installmentsPage);
+  }
+
+  get pagedPayments() {
+    return this.paginate(this.payments, this.paymentsPage);
+  }
+
+  get pagedActivityLogs() {
+    return this.paginate(this.activityLogs, this.activityPage);
+  }
+
+  get pagedStudentEvaluations() {
+    return this.paginate(this.studentEvaluations, this.evaluationsPage);
+  }
+
+  totalPages(list: any[]): number {
+    return Math.max(1, Math.ceil((list?.length ?? 0) / this.pageSize));
+  }
+
+  private paginate(list: any[], page: number): any[] {
+    const start = (page - 1) * this.pageSize;
+    return (list ?? []).slice(start, start + this.pageSize);
+  }
+
 }
 

@@ -4,15 +4,15 @@
     {
     }
     public record StudentListItemDto(
-    int Id,
-    string FullName,
-    string? Email,
-    string? Phone,
-    bool IsActive,
-     DateTime CreatedAtUtc
-);
+      int Id,
+      string FullName,
+      string? Email,
+      string? Phone,
+      bool IsActive,
+      DateTime CreatedAtUtc,
+      bool IsDeleted
+  );
 
-    // 🔹 GUARDIAN DTO
     public record GuardianDto(
         int Id,
         string FirstName,
@@ -24,17 +24,18 @@
     );
 
     public record StudentDetailsDto(
-         int Id,
-        string FullName,
-        string? FirstName,
-        string? LastName,
-        string? Email,
-        string? Phone,
-        string? Address,
-        DateTime? DateOfBirth,
-        bool IsActive,
-        List<GuardianDto> Guardians
-    );
+     int Id,
+     string FullName,
+     string? FirstName,
+     string? LastName,
+     string? Email,
+     string? Phone,
+     string? Address,
+     DateTime? DateOfBirth,
+     bool IsActive,
+     bool IsDeleted,
+     List<GuardianDto> Guardians
+ );
 
     public record CreateGuardianDto(
         string FirstName,

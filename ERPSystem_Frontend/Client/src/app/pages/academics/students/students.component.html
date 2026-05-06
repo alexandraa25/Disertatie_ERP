@@ -1,137 +1,207 @@
-<div class="students-page">
+<div class="page">
+  <div class="page-hero">
+    <div>
+      <h2>Elevi</h2>
+      <p>Gestionează cursantii, înscrierile și acțiunile disponibile.</p>
+    </div>
 
-  <div class="header">
-    <h2>Elevi</h2>
+    <div class="hero-actions">
+      <button class="secondary-action" (click)="export()">
+        📊 Export Excel
+      </button>
+
+      <button class="primary" (click)="openCreate()">
+        + Adaugă elev
+      </button>
+    </div>
   </div>
 
+  <div class="filters-card">
+  <div class="filters-row main-row">
+    <div class="search-box">
+      <span>🔎</span>
+      <input
+        [(ngModel)]="q"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Caută elev după nume, email sau telefon..."
+      />
+    </div>
 
+    <select class="filter status-filter" [(ngModel)]="statusFilter" (change)="page=1; load()">
+      <option value="">Toate statusurile</option>
+      <option value="active">Activi</option>
+      <option value="inactive">Inactivi</option>
+    </select>
+
+    <select class="filter archive-filter" [(ngModel)]="deleteFilter" (change)="page=1; load()">
+      <option value="notDeleted">Nearhivați</option>
+      <option value="deleted">Arhivați</option>
+      <option value="all">Toți</option>
+    </select>
+  </div>
+
+  <div class="filters-row secondary-row">
+    <div class="filter-combo recent-combo">
+      <label class="checkbox-filter">
+        <input type="checkbox" [(ngModel)]="onlyRecent" (change)="page=1; load()" />
+        <span>Elevi noi</span>
+      </label>
+
+      <span class="combo-text">ultimele</span>
+
+      <input
+        class="combo-input"
+        type="number"
+        [(ngModel)]="recentDays"
+        (change)="page=1; load()"
+        min="1"
+        max="3650"
+      />
+
+      <span class="combo-text">zile</span>
+    </div>
+
+    <div class="filter-combo sort-combo">
+      <span class="combo-label">Sortează</span>
+
+      <select [(ngModel)]="sortBy" (change)="page=1; load()">
+        <option value="createdAt">Data înscrierii</option>
+        <option value="fullName">Nume</option>
+      </select>
+
+      <button class="sort-direction" (click)="toggleSortDirection()">
+        {{ sortDir === 'asc' ? '↑' : '↓' }}
+      </button>
+    </div>
+
+    <select class="filter session-filter" [(ngModel)]="selectedSessionId" (change)="page=1; load()">
+      <option [ngValue]="null">Toate sesiunile</option>
+      <option *ngFor="let s of sessions" [ngValue]="s.id">
+        {{ s.courseName }} | {{ s.teacherName }} | {{ s.dayOfWeek | roDay }} {{ s.startTime }}-{{ s.endTime }}
+      </option>
+    </select>
+  </div>
+</div>
 
   <div class="card">
+    <div class="card-header">
+      <div>
+        <h3>Lista elevilor</h3>
+        <p>
+          {{ items.length }} rezultate găsite •
+          Pagina {{ page }} din {{ totalPages }}
+        </p>
+      </div>
+    </div>
 
     <div *ngIf="loading" class="loading">
       Se încarcă elevii...
     </div>
-    <div class="toolbar">
 
-  <!-- 🔍 LEFT -->
-  <div class="left">
-    <div class="search-inline">
-      <input
-        [(ngModel)]="q"
-        (ngModelChange)="onSearchChange()"
-        placeholder="Caută elev..."
-      />
+    <div *ngIf="!loading && items.length === 0" class="empty-state">
+      Nu există elevi pentru filtrele selectate.
     </div>
-  </div>
 
-  <!-- 🔲 RIGHT -->
-  <div class="right">
-    <button class="export" (click)="export()">Export Excel</button>
-    <button class="add" (click)="openCreate()">Adaugă elev</button>
-  </div>
-
-</div>
-    <div class="toolbar">
-      <div class="left">
-
-        <div class="filters-card">
-
-          <div class="filter-item">
-            <label class="checkbox">
-              <input type="checkbox" [(ngModel)]="onlyRecent" (change)="page=1; load()" />
-              <span class="checkmark"></span>
-              <span class="label-text">Elevi noi</span>
-            </label>
-
-            <span class="muted">(ultimele</span>
-
-            <input class="days-input" type="number" [(ngModel)]="recentDays" (change)="page=1; load()" min="1"
-              max="3650" />
-
-            <span class="muted">zile)</span>
-          </div>
-
-          <div class="sort-group">
-            <span class="label">Sortează</span>
-
-            <select [(ngModel)]="sortBy" (change)="page=1; load()">
-              <option value="createdAt">Data înscrierii</option>
-              <option value="fullName">Nume</option>
-            </select>
-
-            <button class="sort-direction" (click)="toggleSortDirection()">
-              {{ sortDir === 'asc' ? '↑' : '↓' }}
-            </button>
-          </div>
-
-          <div class="filter-item">
-            <label>Sesiune</label>
-
-            <select [(ngModel)]="selectedSessionId" (change)="page=1; load()">
-              <option [ngValue]="null">Toate sesiunile</option>
-              <option *ngFor="let s of sessions" [ngValue]="s.id">
-                📘 {{ s.courseName }} | 👨‍🏫 {{ s.teacherName }} |
-                {{ s.dayOfWeek | roDay }} {{ s.startTime }}-{{ s.endTime }}
-              </option>
-            </select>
-          </div>
-
-
-        </div>
-      </div>
-
-    
-      <table *ngIf="!loading">
+    <div class="table-wrapper" *ngIf="!loading && items.length > 0">
+      <table>
         <thead>
           <tr>
             <th class="sortable" (click)="setSort('fullName')">
-              NUME
-              <span class="arrow">{{ sortIcon('fullName') }}</span>
+              Nume <span class="arrow">{{ sortIcon('fullName') }}</span>
             </th>
             <th>Email</th>
             <th>Telefon</th>
             <th>Status</th>
             <th class="sortable" (click)="setSort('createdAt')">
-              DATA ÎNSCRIERII
-              <span class="arrow">{{ sortIcon('createdAt') }}</span>
+              Data înscrierii <span class="arrow">{{ sortIcon('createdAt') }}</span>
             </th>
             <th>Acțiuni</th>
           </tr>
         </thead>
 
         <tbody>
-          <tr *ngFor="let s of items">
-            <td class="name">
-              {{ s.fullName }}
-              <span *ngIf="isNew(s.createdAtUtc)" class="badge-new">NEW</span>
+          <tr *ngFor="let s of items" [class.deleted-row]="$any(s).isDeleted"
+            [class.inactive-row]="!s.isActive && !$any(s).isDeleted">
+
+            <td>
+              <div class="student-cell">
+                <div class="student-icon">
+                  {{ s.fullName?.charAt(0) || 'E' }}
+                </div>
+
+                <div>
+                  <div class="student-name">
+                    {{ s.fullName }}
+                    <span *ngIf="isNew(s.createdAtUtc)" class="badge-new">NEW</span>
+                  </div>
+                  <div class="student-sub">
+                    {{ s.email || 'Fără email' }}
+                  </div>
+                </div>
+              </div>
             </td>
+
             <td>{{ s.email || '-' }}</td>
             <td>{{ s.phone || '-' }}</td>
+
             <td>
-              <span class="status" [ngClass]="s.isActive ? 'active' : 'inactive'">
-                {{ s.isActive ? 'Activ' : 'Inactiv' }}
+              <span class="status-badge"
+                [ngClass]="$any(s).isDeleted ? 'badge-deleted' : s.isActive ? 'badge-active' : 'badge-warning'">
+                {{ $any(s).isDeleted ? 'Șters' : s.isActive ? 'Activ' : 'Inactiv' }}
               </span>
             </td>
-            <td>{{ s.createdAtUtc | date:'dd.MM.yyyy' }}</td>
-            <td class="actions-cell">
-              <button class="details-btn" (click)="openDetails(s.id)">
-                Detalii
-              </button>
 
-              <button class="edit-btn" (click)="openEdit(s.id)">
-                Edit
-              </button>
+            <td>
+              <span class="date">
+                {{ s.createdAtUtc | date:'dd.MM.yyyy' }}
+              </span>
+            </td>
+
+            <td>
+              <div class="actions-cell">
+                <button class="action-btn details" (click)="openDetails(s.id)">
+                  Detalii
+                </button>
+
+                <button class="action-btn edit" [disabled]="$any(s).isDeleted"
+                  [title]="$any(s).isDeleted ? 'Elev șters - nu poate fi editat' : ''" (click)="openEdit(s.id)">
+                  Editează
+                </button>
+
+                <button *ngIf="!$any(s).isDeleted" class="action-btn" [ngClass]="s.isActive ? 'danger' : 'primary-soft'"
+                  (click)="toggleStudent(s)">
+                  {{ s.isActive ? 'Dezactivează' : 'Activează' }}
+                </button>
+
+                <button *ngIf="!$any(s).isDeleted && !s.isActive" class="action-btn danger-outline"
+                  (click)="deleteStudent(s)">
+                  Șterge
+                </button>
+
+                <button *ngIf="$any(s).isDeleted" class="action-btn restore" (click)="restoreStudent(s)">
+                  Restaurează
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
 
-    </div>
+      <div class="pagination" *ngIf="!loading">
+        <button class="page-btn" (click)="prev()" [disabled]="page <= 1">
+          ◀
+        </button>
 
-    <div class="pagination" *ngIf="!loading">
-      <button (click)="prev()" [disabled]="page <= 1">← Înapoi</button>
-      <span>Pagina {{page}} din {{totalPages}} </span>
-      <button (click)="next()" [disabled]="page >= totalPages">Înainte →</button>
-    </div>
+        <span class="page-info">
+          Pagina {{ page }} din {{ totalPages }}
+        </span>
 
+        <button class="page-btn" (click)="next()" [disabled]="page >= totalPages">
+          ▶
+        </button>
+      </div>
+    </div>
   </div>
+</div>
+
+<app-confirm-custom-modal></app-confirm-custom-modal>
