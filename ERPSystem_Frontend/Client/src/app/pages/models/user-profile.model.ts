@@ -1,38 +1,25 @@
 export interface UserProfileDto {
-
   firstName: string;
   lastName: string;
-
   fullName: string;
   username: string;
-
   email: string;
   emailConfirmed: boolean;
-
   phoneNumber?: string | null;
-
   roles: string[];
-
   isActive: boolean;
-
   birthdayDate?: string | null;
-
   createdAt: string;
   lastLoginAt?: string | null;
-
   avatarUrl?: string | null;
-
   unreadNotifications: number;
-
   employeeId?: string;
-
   jobTitle?: string;
   hireDate?: string;
   salary?: number;
   contractType?: string;
   employmentStatus?: string;
-
-  // 🔥 NOU
+  terminationDate?: string | null;
   address?: AddressDto;
   contact?: ContactDto;
   bank?: BankDto;
@@ -40,21 +27,15 @@ export interface UserProfileDto {
 }
 
 export interface UpdateUserProfileDto {
-
   firstName?: string;
   lastName?: string;
-
   phoneNumber?: string | null;
   birthdayDate?: string | null;
   avatarUrl?: string | null;
-
-  // 🔥 address
   street?: string;
   city?: string;
   country?: string;
   postalCode?: string;
-
-  // 🔥 contact
   emergencyContactName?: string;
   emergencyContactPhone?: string;
 }

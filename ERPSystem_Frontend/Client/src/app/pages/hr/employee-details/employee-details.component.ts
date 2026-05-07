@@ -273,22 +273,25 @@ auditPageSize = 5;
     });
   }
 
-  loadActivity(): void {
-    if (this.activityLoaded) return;
+ loadActivity(): void {
+  if (!this.employee?.id) return;
 
-    this.activityLogService
-      .getActivity('Employee', this.employee.id)
-      .subscribe({
-        next: (res) => {
-          this.activityLogs = res;
-          this.auditPage = 1;
-          this.activityLoaded = true;
-        },
-        error: () => {
-          this.snackbar.showError('Nu s-a putut încărca istoricul.', 2500);
-        }
-      });
-  }
+  this.activityLogService
+    .getActivity('Employee', this.employee.id.toString())
+    .subscribe({
+      next: (res: any[]) => {
+        this.activityLogs = res ?? [];
+        this.auditPage = 1;
+        this.activityLoaded = true;
+      },
+      error: () => {
+        this.snackbar.showError(
+          'Eroare la încărcarea istoricului.',
+          2500
+        );
+      }
+    });
+}
 
   goBack(): void {
   this.router.navigate(['/employees']);
@@ -325,5 +328,30 @@ get auditTotalPages(): number {
 changeAuditPage(page: number): void {
   if (page < 1 || page > this.auditTotalPages) return;
   this.auditPage = page;
+}
+
+getExperience(hireDate: string | Date): string {
+  if (!hireDate) return '-';
+
+  const start = new Date(hireDate);
+  const now = new Date();
+
+  let years = now.getFullYear() - start.getFullYear();
+  let months = now.getMonth() - start.getMonth();
+
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+
+  if (years <= 0) {
+    return `${months} luni`;
+  }
+
+  if (months === 0) {
+    return `${years} ${years === 1 ? 'an' : 'ani'}`;
+  }
+
+  return `${years} ${years === 1 ? 'an' : 'ani'} și ${months} luni`;
 }
 }

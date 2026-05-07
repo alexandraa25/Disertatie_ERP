@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ContractsService } from '../../services/contracts.service';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 
 @Component({
   selector: 'app-all-contracts',
@@ -12,18 +13,20 @@ import { ContractsService } from '../../services/contracts.service';
   styleUrl: './all-contracts.component.css'
 })
 export class AllContractsComponent implements OnInit {
+
   contracts: any[] = [];
   loading = false;
 
   exportFrom: string | null = null;
-exportTo: string | null = null;
+  exportTo: string | null = null;
 
-currentPage = 1;
-pageSize = 5;
+  currentPage = 1;
+  pageSize = 5;
 
   constructor(
     private contractsService: ContractsService,
-    private router: Router
+    private router: Router,
+    private snackbar: SnackbarService
   ) {}
 
   ngOnInit(): void {
@@ -31,17 +34,36 @@ pageSize = 5;
   }
 
   loadContracts(): void {
+
     this.loading = true;
 
     this.contractsService.getContractsOverview().subscribe({
+
       next: (res: any) => {
+
         const data = res?.value ?? res?.data ?? res;
+
         this.contracts = Array.isArray(data) ? data : [];
+
         this.currentPage = 1;
         this.loading = false;
+
+        if (!this.contracts.length) {
+          this.snackbar.showError(
+            'Nu există contracte disponibile.',
+            2200
+          );
+        }
       },
+
       error: () => {
+
         this.loading = false;
+
+        this.snackbar.showError(
+          'Contractele nu au putut fi încărcate.',
+          2500
+        );
       }
     });
   }
@@ -54,43 +76,79 @@ pageSize = 5;
     this.router.navigate(['/additional-act', id]);
   }
 
- exportContractsExcel(): void {
-  this.contractsService.exportContractsExcel(this.exportFrom, this.exportTo)
-    .subscribe((blob: Blob) => {
-      this.downloadFile(blob, 'contracte_contabilitate.xlsx');
-    });
-}
+  exportContractsExcel(): void {
 
+    if (
+      this.exportFrom &&
+      this.exportTo &&
+      this.exportFrom > this.exportTo
+    ) {
+      this.snackbar.showError(
+        'Perioada selectată este invalidă.',
+        2500
+      );
+      return;
+    }
 
-private downloadFile(blob: Blob, fileName: string): void {
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
+    this.contractsService
+      .exportContractsExcel(this.exportFrom, this.exportTo)
+      .subscribe({
 
-  a.href = url;
-  a.download = fileName;
-  a.click();
+        next: (blob: Blob) => {
 
-  window.URL.revokeObjectURL(url);
-}
+          this.downloadFile(blob, 'contracte_contabilitate.xlsx');
 
-get totalPages(): number {
-  return Math.ceil(this.contracts.length / this.pageSize) || 1;
-}
+          this.snackbar.showSuccess(
+            'Export realizat cu succes.',
+            1800
+          );
+        },
 
-get pagedContracts(): any[] {
-  const start = (this.currentPage - 1) * this.pageSize;
-  return this.contracts.slice(start, start + this.pageSize);
-}
+        error: () => {
 
-nextPage(): void {
-  if (this.currentPage < this.totalPages) {
-    this.currentPage++;
+          this.snackbar.showError(
+            'Fișierul Excel nu a putut fi generat.',
+            2500
+          );
+        }
+      });
   }
-}
 
-previousPage(): void {
-  if (this.currentPage > 1) {
-    this.currentPage--;
+  private downloadFile(blob: Blob, fileName: string): void {
+
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+
+    a.href = url;
+    a.download = fileName;
+    a.click();
+
+    window.URL.revokeObjectURL(url);
   }
-}
+
+  get totalPages(): number {
+    return Math.ceil(this.contracts.length / this.pageSize) || 1;
+  }
+
+  get pagedContracts(): any[] {
+
+    const start = (this.currentPage - 1) * this.pageSize;
+
+    return this.contracts.slice(start, start + this.pageSize);
+  }
+
+  nextPage(): void {
+
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  previousPage(): void {
+
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
 }

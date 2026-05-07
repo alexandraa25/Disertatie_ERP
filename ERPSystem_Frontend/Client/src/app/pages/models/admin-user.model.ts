@@ -7,18 +7,14 @@ export interface AdminUser {
   phoneNumber: string;
   isActive: boolean;
   createdAt: Date;
-   roles: string[];
-   
+  roles: string[];
 }
 
 export interface AdminDashboard {
-
   totalUsers: number;
   activeUsers: number;
   inactiveUsers: number;
   adminUsers: number;
-
   latestUsers: AdminUser[];
-
   users: AdminUser[];
 }

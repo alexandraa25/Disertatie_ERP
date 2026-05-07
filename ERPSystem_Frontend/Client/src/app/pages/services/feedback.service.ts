@@ -39,7 +39,6 @@ getStudentEvaluations(studentId: number, sessionId?: number) {
   return this.http.get(`${this.baseUrl}/student-evaluations/${studentId}`, { params });
 }
 
-
 getCourseAnalytics(courseSessionId: number) {
   return this.http.get(`${this.baseUrl}/course-analytics/${courseSessionId}`);
 }

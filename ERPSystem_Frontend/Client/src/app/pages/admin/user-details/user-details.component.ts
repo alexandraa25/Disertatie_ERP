@@ -2,10 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AdminService } from '../../services/admin.service';
-import { AdminUser } from '../../models/admin-user.model';
 import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
+import { ActivityLogService } from '../../services/activity-log.service';
 
 @Component({
   selector: 'app-user-details',
@@ -34,12 +34,16 @@ export class UserDetailsComponent implements OnInit {
   auditLogs: any[] = [];
 auditLoaded = false;
 
+auditPage = 1;
+auditPageSize = 10;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private adminService: AdminService,
     private snackbar: SnackbarService,
     private confirmService: ConfirmService,
+    private activityLogService: ActivityLogService
   ) { }
 
   ngOnInit(): void {
@@ -64,7 +68,7 @@ auditLoaded = false;
   }
 
   goBack(): void {
-    this.router.navigate(['/admin-users']);
+    this.router.navigate(['/admin/users']);
   }
 
   viewEmployeeDetails(): void {
@@ -183,21 +187,42 @@ auditLoaded = false;
     });
   }
 
-  openAuditTab(): void {
+openAuditTab(): void {
   this.activeTab = 'audit';
 
-  if (this.auditLoaded) {
+  if (this.auditLoaded || !this.userId) return;
+
+  this.activityLogService
+    .getActivity('User', this.userId.toString())
+    .subscribe({
+      next: (res: any[]) => {
+        this.auditLogs = res ?? [];
+        this.auditPage = 1;
+        this.auditLoaded = true;
+      },
+      error: () => {
+        this.snackbar.showError(
+          'Istoricul nu a putut fi încărcat.',
+          2500
+        );
+      }
+    });
+}
+
+get pagedAuditLogs(): any[] {
+  const start = (this.auditPage - 1) * this.auditPageSize;
+  return this.auditLogs.slice(start, start + this.auditPageSize);
+}
+
+get auditTotalPages(): number {
+  return Math.ceil(this.auditLogs.length / this.auditPageSize);
+}
+
+changeAuditPage(page: number): void {
+  if (page < 1 || page > this.auditTotalPages) {
     return;
   }
 
-  this.adminService.getUserActivityLog(this.userId).subscribe({
-    next: (res: any) => {
-      this.auditLogs = res.value ?? res;
-      this.auditLoaded = true;
-    },
-    error: () => {
-      this.snackbar.showError('Istoricul nu a putut fi încărcat.', 2000);
-    }
-  });
+  this.auditPage = page;
 }
 }

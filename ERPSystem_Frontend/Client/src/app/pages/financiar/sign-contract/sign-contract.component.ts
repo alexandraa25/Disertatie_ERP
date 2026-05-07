@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ContractsService } from '../../services/contracts.service';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer } from '@angular/platform-browser';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 
 @Component({
   selector: 'app-sign-contract',
@@ -29,26 +30,36 @@ export class SignContractComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private contracts: ContractsService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private snackbar: SnackbarService
   ) { }
 
   ngOnInit(): void {
-
     this.token = this.route.snapshot.paramMap.get('token')!;
 
-    this.contracts.getForSigning(this.token)
-      .subscribe((res: any) => {
+    if (!this.token) {
+      this.snackbar.showError('Link de semnare invalid.', 2500);
+      return;
+    }
+
+    this.contracts.getForSigning(this.token).subscribe({
+      next: (res: any) => {
+        if (res?.isSuccess === false || !res?.value) {
+          this.snackbar.showError(
+            res?.error?.errorMessage || 'Documentul nu a putut fi încărcat.',
+            2500
+          );
+          return;
+        }
 
         this.document = res.value;
-
-        // detectare tip (adaptare după backend)
-        this.documentType = res.value.type ||
-          (res.value.contractBody ? 'contract' : 'act');
-      });
-
-
+        this.documentType = res.value.type || (res.value.contractBody ? 'contract' : 'act');
+      },
+      error: () => {
+        this.snackbar.showError('Documentul nu a putut fi încărcat.', 2500);
+      }
+    });
   }
-
   get safeBody() {
     const html = this.document?.contractBody || this.document?.body;
     return this.sanitizer.bypassSecurityTrustHtml(html || '');
@@ -100,8 +111,10 @@ export class SignContractComponent implements OnInit {
   }
 
   sign() {
-
-
+    if (!this.hasSignature()) {
+      this.snackbar.showError('Te rugăm să adaugi semnătura.', 2200);
+      return;
+    }
 
     const canvas = this.canvas.nativeElement;
     const signature = canvas.toDataURL();
@@ -112,27 +125,35 @@ export class SignContractComponent implements OnInit {
       token: this.token,
       signature: signature
     }).subscribe({
-
-      next: () => {
-        this.signed = true;
+      next: (res: any) => {
         this.loading = false;
-      },
 
+        if (res?.isSuccess === false) {
+          this.snackbar.showError(
+            res?.error?.errorMessage || 'Documentul nu a putut fi semnat.',
+            2500
+          );
+          return;
+        }
+
+        this.signed = true;
+        this.snackbar.showSuccess('Document semnat cu succes.', 1800);
+      },
       error: () => {
         this.loading = false;
+        this.snackbar.showError('A apărut o eroare la semnare.', 2500);
       }
-
     });
   }
 
   hasSignature(): boolean {
-  const canvas = this.canvas.nativeElement;
-  const blank = document.createElement('canvas');
+    const canvas = this.canvas.nativeElement;
+    const blank = document.createElement('canvas');
 
-  blank.width = canvas.width;
-  blank.height = canvas.height;
+    blank.width = canvas.width;
+    blank.height = canvas.height;
 
-  return canvas.toDataURL() !== blank.toDataURL();
-}
+    return canvas.toDataURL() !== blank.toDataURL();
+  }
 
 }

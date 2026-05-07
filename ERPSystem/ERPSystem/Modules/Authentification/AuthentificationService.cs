@@ -236,6 +236,9 @@ namespace ERPSystem.Modules.Authentificate
                 if (!isValid)
                     return response.SetError(ErrorCodes.InvalidToken, ErrorMessages.InvalidCode);
 
+                user.LastLoginAt = DateTime.UtcNow;
+                await userManager.UpdateAsync(user);
+
                 var roles = await userManager.GetRolesAsync(user);
 
                 var jwt = await GenerateJwtToken(user);

@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
   name: 'roDay',
-  standalone: true // 🔥 OBLIGATORIU
+  standalone: true 
 })
 export class RomanianDayPipe implements PipeTransform {
 

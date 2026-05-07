@@ -252,6 +252,7 @@ async deleteStudent(student: any): Promise<void> {
     }
   });
 }
+
 async restoreStudent(student: any): Promise<void> {
   const confirmed = await this.confirmService.confirm(
     `Sigur vrei să restaurezi elevul "${student.fullName}"?`,

@@ -3,14 +3,13 @@
   display: inline-block;
 }
 
-/* trigger (input fake) */
 .trigger {
   border: 1px solid #ccc;
   padding: 10px 14px;
   border-radius: 8px;
   cursor: pointer;
   background: white;
-  min-width: 180px; /* 👈 important */
+  min-width: 180px; 
   font-weight: 500;
   transition: 0.2s;
    display: flex;
@@ -27,14 +26,12 @@
   font-size: 14px;
   opacity: 0.6;
 }
-/* dropdown */
+
 .dropdown {
   position: absolute;
   top: calc(100% + 6px);
-  left: 0; /* 👈 în loc de right */
-  
-  width: 420px; /* 👈 mai mare */
-  
+  left: 0; 
+  width: 420px; 
   background: white;
   border-radius: 12px;
   border: 1px solid #ddd;
@@ -44,12 +41,10 @@
   padding: 14px;
 }
 
-/* tab content */
 .content {
   padding: 10px 4px;
 }
 
-/* presets */
 .presets {
   display: flex;
   gap: 8px;
@@ -77,7 +72,6 @@
   font-weight: 500;
 }
 
-/* preview */
 .preview {
   margin: 10px 0;
   padding: 8px;
@@ -87,7 +81,6 @@
   color: #333;
 }
 
-/* custom section */
 .custom {
   display: flex;
   align-items: center;
@@ -111,7 +104,6 @@
   border: 1px solid #ccc;
 }
 
-/* buttons bottom */
 .actions {
   display: flex;
   justify-content: space-between;
@@ -129,19 +121,16 @@
   font-size: 13px;
 }
 
-/* cancel */
 .actions .cancel {
   background: #e0e0e0;
 }
 
-/* apply */
 .actions .apply {
   background: #1976d2;
   color: white;
   font-weight: 500;
 }
 
-/* secondary button (Set) */
 .secondary {
   background: #ddd;
   border-radius: 6px;
@@ -149,7 +138,6 @@
   cursor: pointer;
 }
 
-/* disabled state */
 .actions .apply:disabled {
   background: #9bbce3;
   cursor: not-allowed;

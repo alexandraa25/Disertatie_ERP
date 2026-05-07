@@ -63,10 +63,46 @@
 }
 
 .role {
-  display: inline-block;
-  margin-top: 6px;
   color: #64748b;
   font-size: 14px;
+  font-weight: 600;
+}
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.role,
+.job-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.role {
+  color: #64748b;
+}
+
+.job-title {
+  color: #334155;
+}
+
+.seniority {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.separator {
+  color: #cbd5e1;
+  font-weight: 700;
 }
 
 .edit-btn {
@@ -763,9 +799,25 @@ form > button {
 }
 
 .info-grid.small {
-  grid-template-columns: 140px 1fr;
+  grid-template-columns: 1fr 1fr;
 }
 
+.info-grid.small > div {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.info-grid.small strong {
+  white-space: nowrap;
+}
+
+.info-grid.small span {
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
 /* DOCUMENTS */
 .documents {
   display: flex;

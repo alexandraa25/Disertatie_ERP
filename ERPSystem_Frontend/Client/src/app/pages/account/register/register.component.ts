@@ -68,16 +68,20 @@ export class RegisterComponent implements OnInit {
 
   }
 
-  loadRoles() {
-    this.authService.getRoles().subscribe({
-      next: (data) => {
-        this.roles = data;
-      },
-      error: (err) => {
-        console.error('Error loading roles', err);
-      }
-    });
-  }
+ loadRoles() {
+  this.authService.getRoles().subscribe({
+    next: (data) => {
+      this.roles = data;
+    },
+    error: () => {
+      this.customSnackBarService.showError(
+        'Rolurile nu au putut fi încărcate.',
+        2500
+      );
+    }
+  });
+}
+
  
   generateRandomPassword(length: number = 12): string {
     const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -102,55 +106,74 @@ export class RegisterComponent implements OnInit {
       .join('');
   }
 
-  onSubmit(): void {
-    if (this.registerForm.invalid) {
-      this.customSnackBarService.showError('Formular invalid. Verifică câmpurile.', 1500);
-      return;
-    }
-    this.processRegistration();
+ onSubmit(): void {
+  if (this.registerForm.invalid) {
+    this.registerForm.markAllAsTouched();
+
+    this.customSnackBarService.showError(
+      'Completează câmpurile obligatorii.',
+      2200
+    );
+
+    return;
   }
 
-  processRegistration(): void {
-    this.isLoading = true;
-    const randomPassword = this.generateRandomPassword();
+  this.processRegistration();
+}
 
-    const userData = {
-      username: this.registerForm.value.username,
-      email: this.registerForm.value.emailAddress,
-      password: randomPassword,
-      firstName: this.registerForm.value.firstName,
-      lastName: this.registerForm.value.lastName,
-      phoneNumber: this.registerForm.value.phoneNumber,
-      role: this.registerForm.value.role,
-      isActive: this.registerForm.value.isActive,
-      employeeId: this.route.snapshot.queryParams['employeeId']
-    };
+ processRegistration(): void {
+  this.isLoading = true;
+  const randomPassword = this.generateRandomPassword();
 
-    this.authService.register(userData).subscribe({
-      next: () => {
+  const userData = {
+    username: this.registerForm.value.username,
+    email: this.registerForm.value.emailAddress,
+    password: randomPassword,
+    firstName: this.registerForm.value.firstName,
+    lastName: this.registerForm.value.lastName,
+    phoneNumber: this.registerForm.value.phoneNumber,
+    role: this.registerForm.value.role,
+    isActive: this.registerForm.value.isActive,
+    employeeId: this.route.snapshot.queryParams['employeeId']
+  };
 
-        this.isLoading = false;
+  this.authService.register(userData).subscribe({
+    next: (res: any) => {
+      this.isLoading = false;
 
-        this.infoModal.open(
-          'Utilizator creat cu succes',
-          'Parola temporară a fost generată',
-          randomPassword
-        );
-
-        this.infoModal.closed.subscribe(() => {
-          this.onModalConfirmed(true);
-        });
-
-      },
-      error: () => {
-        this.isLoading = false;
+      if (res?.isSuccess === false) {
         this.customSnackBarService.showError(
-          'Registration failed. Please try again.',
-          1500
+          res.error?.errorMessage || 'Utilizatorul nu a putut fi creat.',
+          2500
         );
+        return;
       }
-    });
-  }
+
+      this.customSnackBarService.showSuccess(
+        'Utilizator creat cu succes.',
+        1800
+      );
+
+      this.infoModal.open(
+        'Utilizator creat cu succes',
+        'Parola temporară a fost generată',
+        randomPassword
+      );
+
+      this.infoModal.closed.subscribe(() => {
+        this.onModalConfirmed(true);
+      });
+    },
+    error: () => {
+      this.isLoading = false;
+
+      this.customSnackBarService.showError(
+        'Utilizatorul nu a putut fi creat.',
+        2500
+      );
+    }
+  });
+}
 
   onModalConfirmed(event: boolean) {
     this.registerForm.reset();

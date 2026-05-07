@@ -2,14 +2,14 @@ export interface CreateDiscountDto {
   type: 1 | 2;
   value: number;
   reason: string;
-  scope: 'Total' | 'Subscription' | 'Package'; // 🔥 ADD
+  scope: 'Total' | 'Subscription' | 'Package';
 }
 
 export interface CreateContractDto {
-  guardianId: number | null; // 🔥 important
+  guardianId: number | null; 
   studentIds: number[];
   startDate: string;
-  endDate?: string | null;   // 🔥 mai sigur
+  endDate?: string | null;   
   isUnlimited: boolean;
   installments: number;
   courseSessionIds: number[];

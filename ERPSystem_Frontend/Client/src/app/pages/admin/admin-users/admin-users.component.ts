@@ -32,9 +32,12 @@ export class AdminUsersComponent implements OnInit {
   currentPage = 1;
   pageSize = 10;
 
-  
-
-  constructor(private adminService: AdminService, private router: Router,  private snackbar: SnackbarService, private confirmService: ConfirmService, ) { }
+  constructor(
+    private adminService: AdminService, 
+    private router: Router,  
+    private snackbar: SnackbarService,
+     private confirmService: ConfirmService, 
+    ) { }
 
 
   filteredUsers() {

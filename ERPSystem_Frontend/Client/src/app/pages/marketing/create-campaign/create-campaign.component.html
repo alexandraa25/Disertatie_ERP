@@ -1,5 +1,5 @@
-<div class="modal-backdrop" >
-        <div class="modal">
+<div class="modal-backdrop" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
             <h3>Adaugă campanie marketing</h3>
 
             <div class="modal-body">
@@ -96,9 +96,9 @@
             </div>
 
             <div class="modal-actions">
-                <button type="button" class="secondary-btn">
-                    Anulează
-                </button>
+                <button type="button" class="secondary-btn" (click)="closeModal()">
+  Anulează
+</button>
 
                 <button type="button" class="close-btn" (click)="saveCampaign()">
                     Salvează

@@ -13,7 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
    imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatSnackBarModule // <-- AICI OBLIGATORIU!
+    MatSnackBarModule 
   ],
   templateUrl: './snack-bar.component.html',
   styleUrl: './snack-bar.component.css'

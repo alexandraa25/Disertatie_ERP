@@ -87,7 +87,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     if (this.loginForm.invalid) {
-      this.snackbar.showError('Invalid form. Please check your fields.', 3500);
+      this.snackbar.showError('Formular invalid. Verifică datele introduse.', 3500);
       return;
     }
     this.processLogin();

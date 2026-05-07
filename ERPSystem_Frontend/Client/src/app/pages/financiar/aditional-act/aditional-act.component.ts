@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContractsService } from '../../services/contracts.service';
 import { StudentsService } from '../../services/students.service';
-import { MatDialog } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StudentCourseDetailsDto } from '../../models/student.model';
 import { AdditionalActService } from '../../services/additional-act.service';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 
 @Component({
   selector: 'app-aditional-act',
@@ -40,7 +40,7 @@ export class AditionalActComponent implements OnInit {
     private contractsService: ContractsService,
     private additionalActService: AdditionalActService,
     private studentsService: StudentsService,
-    private dialog: MatDialog
+    private snackbar: SnackbarService
   ) { }
 
   ngOnInit() {
@@ -51,7 +51,7 @@ export class AditionalActComponent implements OnInit {
   if (actId) {
     this.actId = Number(actId);
     this.isEdit = true;
-    this.loadAct(this.actId); // 🔥 aici se vor apela restul
+    this.loadAct(this.actId); 
   } 
   else if (contractId) {
     this.contractId = Number(contractId);
@@ -89,11 +89,21 @@ export class AditionalActComponent implements OnInit {
     }
   }
 
-  loadContract() {
-    this.contractsService.getById(this.contractId).subscribe(res => {
+ loadContract() {
+  this.contractsService.getById(this.contractId).subscribe({
+    next: (res: any) => {
+      if (res?.isSuccess === false || !res?.value) {
+        this.snackbar.showError('Contractul nu a putut fi încărcat.', 2500);
+        return;
+      }
+
       this.contract = res.value;
-    });
-  }
+    },
+    error: () => {
+      this.snackbar.showError('Eroare la încărcarea contractului.', 2500);
+    }
+  });
+}
 
   loadAct(id: number) {
   this.additionalActService.getById(id).subscribe((res: any) => {
@@ -104,11 +114,9 @@ export class AditionalActComponent implements OnInit {
     this.contractId = act.contractId;
     this.contract = act.contract;
 
-    // 🔥 IMPORTANT: aici, după ce ai contractId
     this.loadContract();
     this.loadCourses();
 
-    // restul...
     this.selectedTypes = act.items.map((i: any) =>
         this.mapEnumToString(i.type)  
        );
@@ -136,6 +144,7 @@ export class AditionalActComponent implements OnInit {
     if (!this.newPrice || !this.contract?.totalAmount) return null;
     return this.newPrice - this.contract.totalAmount;
   }
+
   loadCourses() {
     this.studentsService.getStudentCoursesByContract(this.contractId) 
       .subscribe(res => {
@@ -157,31 +166,31 @@ export class AditionalActComponent implements OnInit {
   save() {
 
     if (!this.selectedTypes || this.selectedTypes.length === 0) {
-      alert('Selectează cel puțin un tip');
-      return;
-    }
+  this.snackbar.showError('Selectează cel puțin un tip.', 2200);
+  return;
+}
 
-    if (
-      (this.selectedTypes.includes('AddCourse') ||
-        this.selectedTypes.includes('RemoveCourse')) &&
-      !this.selectedCourseId
-    ) {
-      alert('Selectează curs');
-      return;
-    }
+if (
+  (this.selectedTypes.includes('AddCourse') ||
+    this.selectedTypes.includes('RemoveCourse')) &&
+  !this.selectedCourseId
+) {
+  this.snackbar.showError('Selectează cursul.', 2200);
+  return;
+}
 
-    if (this.selectedTypes.includes('ExtendPeriod') && !this.newEndDate) {
-      alert('Selectează dată');
-      return;
-    }
+if (this.selectedTypes.includes('ExtendPeriod') && !this.newEndDate) {
+  this.snackbar.showError('Selectează data nouă de final.', 2200);
+  return;
+}
 
-    if (
-      this.selectedTypes.includes('ChangePrice') &&
-      (this.newPrice === null || this.newPrice <= 0)
-    ) {
-      alert('Introdu preț valid');
-      return;
-    }
+if (
+  this.selectedTypes.includes('ChangePrice') &&
+  (this.newPrice === null || this.newPrice <= 0)
+) {
+  this.snackbar.showError('Introdu un preț valid.', 2200);
+  return;
+}
 
     const map: any = {
       AddCourse: 0,
@@ -212,32 +221,56 @@ export class AditionalActComponent implements OnInit {
 
     if (this.isEdit && this.actId) {
 
-      this.additionalActService.update(this.actId, dto).subscribe({
-        next: () => {
-          this.router.navigate(['/additional-act', this.actId]);
-        },
-        error: err => {
-          console.error(err);
-          alert(err.error?.message || 'Eroare update');
-        }
-      });
+     this.additionalActService.update(this.actId, dto).subscribe({
+  next: (res: any) => {
+    if (res?.isSuccess === false) {
+      this.snackbar.showError(
+        res.error?.errorMessage || 'Actul adițional nu a putut fi actualizat.',
+        2500
+      );
+      return;
+    }
+
+    this.snackbar.showSuccess('Act adițional actualizat cu succes.', 1800);
+    this.router.navigate(['/additional-act', this.actId]);
+  },
+  error: (err) => {
+    console.error(err);
+    this.snackbar.showError(
+      err.error?.message || 'Eroare la actualizarea actului adițional.',
+      2500
+    );
+  }
+});
 
     } else {
 
-      this.additionalActService.create(this.contractId, dto).subscribe({
-        next: (res: any) => {
-          const id = res?.value?.id;
+    this.additionalActService.create(this.contractId, dto).subscribe({
+  next: (res: any) => {
+    if (res?.isSuccess === false) {
+      this.snackbar.showError(
+        res.error?.errorMessage || 'Actul adițional nu a putut fi creat.',
+        2500
+      );
+      return;
+    }
 
-          if (id) {
-            this.router.navigate(['/additional-act', id]);
-          }
-        },
-        error: err => {
-          console.error(err);
-          alert(err.error?.message || 'Eroare creare');
-        }
-      });
+    const id = res?.value?.id;
 
+    this.snackbar.showSuccess('Act adițional creat cu succes.', 1800);
+
+    if (id) {
+      this.router.navigate(['/additional-act', id]);
+    }
+  },
+  error: (err) => {
+    console.error(err);
+    this.snackbar.showError(
+      err.error?.message || 'Eroare la crearea actului adițional.',
+      2500
+    );
+  }
+});
     }
   }
 

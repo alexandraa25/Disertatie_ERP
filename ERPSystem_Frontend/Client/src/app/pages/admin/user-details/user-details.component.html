@@ -66,6 +66,11 @@
           <label>Telefon</label>
           <span>{{ user.phoneNumber || '-' }}</span>
         </div>
+        
+         <div class="item">
+          <label>Data nașterii</label>
+          <span>{{ user.birthdayDate ? (user.birthdayDate | date:'dd.MM.yyyy') : '-' }}</span>
+        </div>
 
         <button *ngIf="user.employeeId" class="employee-details-btn" (click)="viewEmployeeDetails()">
           Vezi detalii angajat
@@ -142,10 +147,7 @@
           <span>{{ user.emailConfirmed ? 'Da' : 'Nu' }}</span>
         </div>
 
-        <div class="item">
-          <label>Data nașterii</label>
-          <span>{{ user.birthdayDate ? (user.birthdayDate | date:'dd.MM.yyyy') : '-' }}</span>
-        </div>
+       
       </div>
     </div>
 
@@ -184,7 +186,7 @@
 
   <div class="audit-list" *ngIf="auditLogs.length">
 
-    <div class="audit-item" *ngFor="let log of auditLogs">
+    <div class="audit-item" *ngFor="let log of pagedAuditLogs">
 
       <div class="audit-icon">
         {{
@@ -219,6 +221,28 @@
     </div>
 
   </div>
+
+  <div class="pagination" *ngIf="auditTotalPages > 1">
+
+  <button
+    type="button"
+    (click)="changeAuditPage(auditPage - 1)"
+    [disabled]="auditPage === 1">
+    ←
+  </button>
+
+  <span>
+    Pagina {{ auditPage }} din {{ auditTotalPages }}
+  </span>
+
+  <button
+    type="button"
+    (click)="changeAuditPage(auditPage + 1)"
+    [disabled]="auditPage === auditTotalPages">
+    →
+  </button>
+
+</div>
 
 </div>
 

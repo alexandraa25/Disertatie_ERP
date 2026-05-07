@@ -37,7 +37,7 @@ export class ForgotPasswordComponent implements OnInit {
 
   onSubmit() {
     if (this.forgotForm.invalid) {
-      this.snackbar.showError('Please enter a valid email.', 1500);
+      this.snackbar.showError('Te rugăm să introduci un email valid.', 1500);
       return;
     }
 
@@ -46,23 +46,40 @@ export class ForgotPasswordComponent implements OnInit {
 
   sendResetLink() {
     this.isLoading = true;
+
     const email = this.forgotForm.value.email;
 
     this.auth.requestPasswordReset(email).subscribe({
       next: (res) => {
 
-        if(res.isSuccess === false){
+        if (res.isSuccess === false) {
           this.isLoading = false;
-          this.snackbar.showError(res.message || 'Failed to send reset link. Try again.', 2000);
+
+          this.snackbar.showError(
+            res.message || 'Linkul de resetare nu a putut fi trimis.',
+            2000
+          );
+
           return;
         }
+
         this.isLoading = false;
-        this.snackbar.showSuccess('Reset link sent! Check your inbox.', 2000);
+
+        this.snackbar.showSuccess(
+          'Linkul de resetare a fost trimis pe email.',
+          2000
+        );
+
         this.router.navigate(['/login']);
       },
+
       error: () => {
         this.isLoading = false;
-        this.snackbar.showError('Failed to send reset link. Try again.', 2000);
+
+        this.snackbar.showError(
+          'A apărut o eroare la trimiterea linkului de resetare.',
+          2000
+        );
       }
     });
   }

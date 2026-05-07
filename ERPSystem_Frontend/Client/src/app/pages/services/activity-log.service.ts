@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { ActivityFilterOptions, ActivityFilters, ActivityLog } from "../models/activity-log.model";
+import { ActivityFilterOptions, ActivityLog } from "../models/activity-log.model";
 import { HttpParams } from '@angular/common/http';
 
 
@@ -18,7 +18,6 @@ export class ActivityLogService {
     `${this.apiUrl}/activity?entity=${entity}&id=${id}`
   );
 }
-
   
 getFilters() {
   return this.http.get<ActivityFilterOptions>(
@@ -31,17 +30,14 @@ getAllActivity(filters: any) {
     .set('page', filters.page)
     .set('pageSize', filters.pageSize);
 
-  // 🔥 entity list
   filters.entity?.forEach((e: string) => {
     params = params.append('entity', e);
   });
 
-  // 🔥 action list
   filters.action?.forEach((a: string) => {
     params = params.append('action', a);
   });
 
-  // 🔥 users list
   filters.performedBy?.forEach((u: string) => {
     params = params.append('performedBy', u);
   });

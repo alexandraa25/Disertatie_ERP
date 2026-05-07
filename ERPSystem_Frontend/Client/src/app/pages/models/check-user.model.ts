@@ -6,5 +6,4 @@ export class CheckUserModel {
     this.emailAddress = emailAddress;
     this.phoneNumber = phoneNumber;
   }
-  
 }

@@ -2,7 +2,6 @@
 
   <div class="profile-card" [formGroup]="form">
 
-    <!-- HEADER -->
     <div class="profile-header">
 
       <div class="avatar">
@@ -17,7 +16,22 @@
 
       <div class="header-info">
         <h2>{{ form.value.firstName }} {{ form.value.lastName }}</h2>
-        <span class="role">{{ form.value.jobTitle }}</span>
+
+        <div class="header-meta">
+          <span class="role">
+            {{ originalData?.roles?.join(', ') }}
+          </span>
+
+          <span class="separator">•</span>
+
+          <span class="job-title">
+            {{ originalData?.jobTitle || 'Fără funcție' }}
+          </span>
+
+          <span class="seniority" *ngIf="originalData?.hireDate">
+            • {{ getExperience(originalData?.hireDate!) }}
+          </span>
+        </div>
       </div>
 
       <button class="edit-btn" *ngIf="!editMode && activeTab === 'info'" (click)="enableEdit()">
@@ -26,9 +40,7 @@
 
     </div>
 
-    <!-- TABS -->
     <div class="tabs">
-
       <button [class.active]="activeTab === 'info'" (click)="setTab('info')">
         Informații
       </button>
@@ -37,21 +49,17 @@
         Parolă
       </button>
 
-        <button [class.active]="activeTab === 'leaves'" (click)="setTab('leaves')">
+      <button [class.active]="activeTab === 'leaves'" (click)="setTab('leaves')">
         Concedii
       </button>
 
       <button [class.active]="activeTab === 'notifications'" (click)="setTab('notifications')">
-       Setari notificări
+        Setari notificări
       </button>
-
-    
-
     </div>
 
     <!-- ================= INFO TAB ================= -->
 
-    <!-- VIEW MODE -->
     <div *ngIf="form && !loading && activeTab === 'info' && !editMode">
 
       <div class="info-grid">
@@ -120,7 +128,7 @@
         </div>
 
         <div>
-          <strong>Salariu:</strong>
+          <strong>Salariu brut:</strong>
           {{ originalData?.salary || '-' }}
         </div>
 
@@ -134,10 +142,12 @@
           {{ originalData?.employmentStatus }}
         </div>
 
-
+        <div *ngIf="originalData?.terminationDate">
+          <strong>Data încetării:</strong>
+          {{ originalData?.terminationDate | date:'dd MMM yyyy' }}
+        </div>
       </div>
 
-      <!-- CONTACT -->
       <div class="section">
         <h3>Date de contact</h3>
 
@@ -159,8 +169,6 @@
         </div>
       </div>
 
-
-      <!-- ADRESA -->
       <div class="section">
         <h3>Adresă</h3>
 
@@ -187,8 +195,6 @@
         </div>
       </div>
 
-
-      <!-- BANCA -->
       <div class="section">
         <h3>Informații bancare</h3>
 
@@ -205,8 +211,6 @@
         </div>
       </div>
 
-
-      <!-- DOCUMENTE -->
       <div class="section">
         <h3>Documente</h3>
 
@@ -232,15 +236,11 @@
                 Descarcă
               </button>
             </div>
-
           </div>
-
         </div>
       </div>
-
     </div>
 
-    <!-- EDIT MODE -->
     <form *ngIf="activeTab === 'info' && editMode" [formGroup]="form" (ngSubmit)="save()" class="edit-form">
 
       <div class="edit-section">
@@ -380,10 +380,8 @@
 
     </div>
 
-
     <!-- ================= CONCEDII TAB ================= -->
     <div *ngIf="activeTab === 'leaves'" class="leave-tab">
-
       <div class="leave-header">
         <h3>Concediile mele</h3>
 
@@ -395,15 +393,9 @@
           [title]="isTerminated() ? 'Angajatul este inactiv' : ''">
           + Cerere concediu
         </button>
-
-        <!-- <app-create-leave-modal *ngIf="openForm" (closeModal)="openForm = false" (submitLeave)="handleLeave($event)"> </app-create-leave-modal> -->
       </div>
 
-
-
-      <!-- LISTĂ -->
       <div class="leave-list">
-
         <div class="leave-card" *ngFor="let leave of leaves">
 
           <div>
@@ -437,13 +429,10 @@
               ❌ Anulează
             </button>
           </div>
-
         </div>
-
       </div>
 
       <div class="leave-summary" *ngIf="vacation">
-
         <div class="summary-card">
           <span>Total</span>
           <strong>{{ vacation.total }}</strong>
@@ -463,88 +452,68 @@
           <span>Rămase de anul trecut</span>
           <strong>{{ vacation.carryOver }}</strong>
         </div>
-
       </div>
 
       <div class="holiday-section" *ngIf="holidays?.length">
-
         <h4>Sărbători legale</h4>
-
         <div class="holiday-list">
-
           <div class="holiday-item" *ngFor="let h of holidays">
             {{ h | date:'dd MMM yyyy' }}
           </div>
-
         </div>
-
       </div>
-
     </div>
 
     <!-- ================= NOTIFICATIONS TAB ================= -->
 
     <div *ngIf="activeTab === 'notifications'" class="notifications-section">
 
- 
-  <div *ngIf="loadingNotifications" class="notifications-loading">
-    Se încarcă notificările...
-  </div>
-
-  <form *ngIf="!loadingNotifications" [formGroup]="notificationForm">
-
-     <p>Alege cum vrei să primești notificările pentru activitățile interne.</p>
-
-    <div formArrayName="settings" class="notifications-list">
-
-      <div
-        *ngFor="let group of settings.controls; let i = index"
-        [formGroupName]="i"
-        class="notification-card"
-      >
-
-        <div class="notification-main">
-          <div>
-            <h3>{{ getNotificationLabel(group.value.eventType) }}</h3>
-            <span class="notification-channel">
-              {{ getChannelLabel(group.value.channel) }}
-            </span>
-          </div>
-
-          <label class="switch-row">
-            <input type="checkbox" formControlName="enabled">
-            <span>Primește notificări</span>
-          </label>
-        </div>
-
-        <div class="notification-options">
-          <label>
-            Frecvență notificare
-            <select formControlName="digest">
-              <option [ngValue]="DigestMode.Immediate">Imediat</option>
-              <option [ngValue]="DigestMode.Daily">Zilnic - rezumat</option>
-            </select>
-          </label>
-        </div>
-
+      <div *ngIf="loadingNotifications" class="notifications-loading">
+        Se încarcă notificările...
       </div>
 
+      <form *ngIf="!loadingNotifications" [formGroup]="notificationForm">
+
+        <p>Alege cum vrei să primești notificările pentru activitățile interne.</p>
+
+        <div formArrayName="settings" class="notifications-list">
+
+          <div *ngFor="let group of settings.controls; let i = index" [formGroupName]="i" class="notification-card">
+
+            <div class="notification-main">
+              <div>
+                <h3>{{ getNotificationLabel(group.value.eventType) }}</h3>
+                <span class="notification-channel">
+                  {{ getChannelLabel(group.value.channel) }}
+                </span>
+              </div>
+
+              <label class="switch-row">
+                <input type="checkbox" formControlName="enabled">
+                <span>Primește notificări</span>
+              </label>
+            </div>
+
+            <div class="notification-options">
+              <label>
+                Frecvență notificare
+                <select formControlName="digest">
+                  <option [ngValue]="DigestMode.Immediate">Imediat</option>
+                  <option [ngValue]="DigestMode.Daily">Zilnic - rezumat</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="notifications-actions">
+          <button type="button" (click)="saveNotifications()" [disabled]="savingNotifications">
+            {{ savingNotifications ? 'Se salvează...' : 'Salvează modificările' }}
+          </button>
+        </div>
+      </form>
     </div>
-
-    <div class="notifications-actions">
-      <button
-        type="button"
-        (click)="saveNotifications()"
-        [disabled]="savingNotifications"
-      >
-        {{ savingNotifications ? 'Se salvează...' : 'Salvează modificările' }}
-      </button>
-    </div>
-
-  </form>
-
-</div>
-
   </div>
-
 </div>
+
+<app-confirm-custom-modal></app-confirm-custom-modal>

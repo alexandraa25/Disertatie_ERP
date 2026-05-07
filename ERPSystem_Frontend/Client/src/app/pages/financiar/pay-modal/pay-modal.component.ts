@@ -2,6 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 
 @Component({
   selector: 'app-pay-modal',
@@ -12,31 +13,40 @@ import { FormsModule } from '@angular/forms';
 })
 export class PayModalComponent {
 
- amount: number = 0;
+  amount: number = 0;
   method: string = 'Cash';
   notes: string = '';
   reference: string = '';
-methods = ['Cash', 'Card', 'Transfer'];
+  methods = ['Cash', 'Card', 'Transfer'];
 
   constructor(
     private dialogRef: MatDialogRef<PayModalComponent>,
+    private snackbar: SnackbarService,
     @Inject(MAT_DIALOG_DATA) public data: {
       remaining: number
     }
-  ) {}
+  ) { }
 
   ngOnInit() {
-  this.amount = this.data.remaining;
-}
-   confirm() {
+    this.amount = this.data.remaining;
+  }
+  confirm() {
 
     if (!this.amount || this.amount <= 0) {
-      alert('Introdu o sumă validă');
+      this.snackbar.showError('Introdu o sumă validă.', 2200);
       return;
     }
 
     if (this.amount > this.data.remaining) {
-      alert(`Maxim permis: ${this.data.remaining}`);
+      this.snackbar.showError(
+        `Suma maximă permisă este ${this.data.remaining} RON.`,
+        2500
+      );
+      return;
+    }
+
+    if (!this.method) {
+      this.snackbar.showError('Selectează metoda de plată.', 2200);
       return;
     }
 
@@ -47,8 +57,9 @@ methods = ['Cash', 'Card', 'Transfer'];
       reference: this.reference
     });
   }
-
+  
   close() {
+    this.snackbar.showError('Plata a fost anulată.', 1500);
     this.dialogRef.close(null);
   }
 }

@@ -1,19 +1,15 @@
 <div class="container">
-  <div class="page-hero">
-    <div>
-      <h2>Utilizatori</h2>
-      <p>Gestionează conturile, rolurile și statusurile utilizatorilor.</p>
+    <div class="page-hero">
+        <div>
+            <h2>Utilizatori</h2>
+            <p>Gestionează conturile, rolurile și statusurile utilizatorilor.</p>
+        </div>
     </div>
-  </div>
-
-
 
     <div *ngIf="employeesWithoutUser?.length" class="section">
-
         <h3>Angajați fără cont</h3>
 
         <table class="table-secondary">
-
             <thead>
                 <tr>
                     <th>Nume</th>
@@ -23,7 +19,6 @@
             </thead>
 
             <tbody>
-
                 <tr *ngFor="let emp of employeesWithoutUser">
 
                     <td>{{emp.firstName}} {{emp.lastName}}</td>
@@ -35,13 +30,9 @@
                             Creează cont
                         </button>
                     </td>
-
                 </tr>
-
             </tbody>
-
         </table>
-
     </div>
 
     <div class="toolbar">
@@ -67,7 +58,6 @@
     </div>
 
     <table>
-
         <thead>
             <tr>
                 <th>Utilizator</th>
@@ -81,21 +71,15 @@
         </thead>
 
         <tbody>
-
             <tr *ngFor="let user of paginatedUsers()">
-
                 <td>{{user.username}}</td>
-
                 <td>{{user.email}}</td>
-
                 <td>{{user.firstName}} {{user.lastName}}</td>
-
                 <td>
                     <span *ngFor="let role of user.roles" class="role-badge">
                         {{role}}
                     </span>
                 </td>
-
                 <td>
                     <span *ngIf="user.isActive" class="badge success">
                         Activ
@@ -105,26 +89,19 @@
                         Inactiv
                     </span>
                 </td>
-
                 <td>{{user.createdAt | date:'short'}}</td>
-
                 <td class="actions">
-
                     <button class="btn edit" (click)="detailsUser(user)">
                         Detalii
                     </button>
 
-                    
-                    <button class="btn disable" [ngClass]="user.isActive ? 'danger' : 'primary'" (click)="askToggleUserStatus(user)">
+                    <button class="btn disable" [ngClass]="user.isActive ? 'danger' : 'primary'"
+                        (click)="askToggleUserStatus(user)">
                         {{ user.isActive ? 'Dezactivează cont' : 'Activează cont' }}
                     </button>
-
                 </td>
-
             </tr>
-
         </tbody>
-
     </table>
 
     <div class="pagination">

@@ -137,16 +137,17 @@ export class CreateCampaignComponent implements OnInit {
 
     request$.subscribe({
       next: (res: any) => {
-        if (res?.isSuccess === false) {
-          this.snackbar.showError(
-            res.error?.errorMessage || 'Campania nu a putut fi salvată.'
-          );
-          return;
-        }
+  if (res?.isSuccess === false) {
+    this.snackbar.showError(
+      res.error?.errorMessage || 'Campania nu a putut fi salvată.'
+    );
+    return;
+  }
 
-        this.snackbar.showSuccess('Campania a fost salvată cu succes.');
-        this.saved.emit();
-      },
+  this.snackbar.showSuccess('Campania a fost salvată cu succes.');
+  this.saved.emit();
+  this.closeModal();
+},
       error: () => {
         this.snackbar.showError('Eroare la salvarea campaniei.');
       }

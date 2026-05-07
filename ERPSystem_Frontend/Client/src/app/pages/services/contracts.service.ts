@@ -72,7 +72,6 @@ export class ContractsService {
     return this.http.post(`${this.baseUrl}/${id}/admin-sign`, {
       signature: signature
     });
-
   }
 
   download(id: number) {
@@ -80,7 +79,6 @@ export class ContractsService {
       responseType: 'blob'
     });
   }
-
 
   suspend(id: number) {
     return this.http.put(`${this.baseUrl}/${id}/suspend`, {});
@@ -94,33 +92,33 @@ export class ContractsService {
     return this.http.put(`${this.baseUrl}/${id}/complete`, {});
   }
 
-createAct(contractId: number, dto: any) {
-  return this.http.post(`${this.baseUrl}/${contractId}/additional-act`, dto);
-}
+  createAct(contractId: number, dto: any) {
+    return this.http.post(`${this.baseUrl}/${contractId}/additional-act`, dto);
+  }
 
-finalizeAct(id: number) {
-  return this.http.put(`${this.baseUrl}/additional-acts/${id}/finalize`, {});
-}
+  finalizeAct(id: number) {
+    return this.http.put(`${this.baseUrl}/additional-acts/${id}/finalize`, {});
+  }
 
-getActs(contractId: number) {
-  return this.http.get(`${this.baseUrl}/${contractId}/additional-acts`);
-}
+  getActs(contractId: number) {
+    return this.http.get(`${this.baseUrl}/${contractId}/additional-acts`);
+  }
 
-getContractsOverview() {
-  return this.http.get(`${this.baseUrl}/overview`);
-}
+  getContractsOverview() {
+    return this.http.get(`${this.baseUrl}/overview`);
+  }
 
-exportContractsExcel(from?: string | null, to?: string | null) {
-  const params: any = {};
+  exportContractsExcel(from?: string | null, to?: string | null) {
+    const params: any = {};
 
-  if (from) params.from = from;
-  if (to) params.to = to;
+    if (from) params.from = from;
+    if (to) params.to = to;
 
-  return this.http.get(`${this.baseUrl}/export`, {
-    params,
-    responseType: 'blob'
-  });
-}
+    return this.http.get(`${this.baseUrl}/export`, {
+      params,
+      responseType: 'blob'
+    });
+  }
 
 
 }

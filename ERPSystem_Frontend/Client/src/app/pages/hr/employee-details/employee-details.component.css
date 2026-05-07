@@ -42,9 +42,19 @@
 }
 
 .sub {
-  font-size: 13px;
-  color: #64748b;
-  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.experience {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.separator {
+  color: #cbd5e1;
 }
 
 /* STATUS */

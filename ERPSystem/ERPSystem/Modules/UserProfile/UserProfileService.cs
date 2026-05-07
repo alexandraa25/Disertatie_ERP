@@ -69,72 +69,79 @@ public class UserProfileService
                 .CountAsync(x => x.UserId == userId && !x.Enabled);
 
             var employee = await _applicationDbContext.Employees
-                .Where(e => e.UserId == userId)
-                .Select(e => new
-                {
-                    e.Id,
-                    e.JobTitle,
-                    e.HireDate,
-                    e.Salary,
-                    e.ContractType,
-                    e.EmploymentStatus,
+     .Where(e => e.UserId == userId)
+     .Select(e => new
+     {
+         e.Id,
+         e.JobTitle,
+         e.HireDate,
+         e.TerminationDate,
+         e.Salary,
+         e.ContractType,
+         e.EmploymentStatus,
 
-                    Address = e.Address == null ? null : new AddressDto(
-                        e.Address.Street,
-                        e.Address.City,
-                        e.Address.Country,
-                        e.Address.PostalCode
-                    ),
+         Address = e.Address == null ? null : new AddressDto
+         {
+             Street = e.Address.Street,
+             City = e.Address.City,
+             Country = e.Address.Country,
+             PostalCode = e.Address.PostalCode
+         },
 
-                    Contact = e.Contact == null ? null : new ContactDto(
-                        e.Contact.PhoneNumber,
-                        e.Contact.EmergencyContactName,
-                        e.Contact.EmergencyContactPhone
-                    ),
+         Contact = e.Contact == null ? null : new ContactDto
+         {
+             PhoneNumber = e.Contact.PhoneNumber,
+             EmergencyContactName = e.Contact.EmergencyContactName,
+             EmergencyContactPhone = e.Contact.EmergencyContactPhone
+         },
 
-                    Bank = e.Bank == null ? null : new BankDto(
-                        e.Bank.IBAN,
-                        e.Bank.BankName
-                    ),
+         Bank = e.Bank == null ? null : new BankDto
+         {
+             IBAN = e.Bank.IBAN,
+             BankName = e.Bank.BankName
+         },
 
-                    Documents = e.Documents.Select(d => new DocumentDto(
-                        d.Id,
-                        d.FileName,
-                        d.FilePath,
-                        d.DocumentType,
-                        d.UploadedAt
-                    )).ToList()
-                })
-                .FirstOrDefaultAsync();
+         Documents = e.Documents.Select(d => new DocumentDto
+         {
+             Id = d.Id,
+             FileName = d.FileName,
+             FilePath = d.FilePath,
+             DocumentType = d.DocumentType,
+             UploadedAt = d.UploadedAt
+         }).ToList()
+     })
+     .FirstOrDefaultAsync();
 
-            var result = new UserProfileDto(
-                user.FirstName,
-                user.LastName,
-                user.FullName,
-                user.UserName,
-                user.Email,
-                user.EmailConfirmed,
-                user.PhoneNumber,
-                roles,
-                user.IsActive,
-                user.BirthdayDate,
-                user.CreatedAt,
-                user.LastLoginAt,
-                user.AvatarUrl,
-                unreadNotifications,
+            var result = new UserProfileDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                FullName = user.FullName,
+                Username = user.UserName,
+                Email = user.Email,
+                EmailConfirmed = user.EmailConfirmed,
+                PhoneNumber = user.PhoneNumber,
+                Roles = roles,
+                IsActive = user.IsActive,
+                BirthdayDate = user.BirthdayDate,
+                CreatedAt = user.CreatedAt,
+                LastLoginAt = user.LastLoginAt,
+                AvatarUrl = user.AvatarUrl,
+                UnreadNotifications = unreadNotifications,
 
-                employee?.Id,
-                employee?.JobTitle,
-                employee?.HireDate,
-                employee?.Salary,
-                employee?.ContractType,
-                employee?.EmploymentStatus,
-
-                employee?.Address,
-                employee?.Contact,
-                employee?.Bank,
-                employee?.Documents
-            );
+                EmployeeId = employee?.Id,
+                JobTitle = employee?.JobTitle,
+                HireDate = employee?.HireDate,
+                Salary = employee?.Salary,
+                ContractType = employee?.ContractType,
+                EmploymentStatus = employee?.EmploymentStatus,
+                TerminationDate = employee?.TerminationDate,
+                Address = employee?.Address,
+                Contact = employee?.Contact,
+                Bank = employee?.Bank,
+                Documents = employee?.Documents
+            };
 
             return response.SetSuccess(result);
         }

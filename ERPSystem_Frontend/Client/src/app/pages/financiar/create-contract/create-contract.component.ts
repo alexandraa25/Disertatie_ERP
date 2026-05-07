@@ -7,6 +7,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MarketingCampaignService } from '../../services/marketing.service';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 
 @Component({
   selector: 'app-create-contract',
@@ -44,7 +45,8 @@ export class CreateContractComponent implements OnInit {
     private studentsService: StudentsService,
     private route: ActivatedRoute,
     private router: Router,
-    private marketingService: MarketingCampaignService
+    private marketingService: MarketingCampaignService,
+    private snackbar: SnackbarService
   ) { }
 
   ngOnInit(): void {
@@ -83,7 +85,7 @@ export class CreateContractComponent implements OnInit {
       const c = res.value;
 
       if (c.status !== 'Draft') {
-        alert('Contractul nu mai poate fi editat');
+        this.snackbar.showError('Contractul nu mai poate fi editat.', 2500);
         this.router.navigate(['/contracts', id]);
         return;
       }
@@ -236,140 +238,140 @@ export class CreateContractComponent implements OnInit {
     this.discounts.removeAt(index);
   }
 
- calculatePricingPreview() {
+  calculatePricingPreview() {
 
-  this.subtotal = 0;
-  this.monthlyAmount = 0;
-  this.finalTotal = null;
+    this.subtotal = 0;
+    this.monthlyAmount = 0;
+    this.finalTotal = null;
 
-  const isUnlimited = this.contractForm.get('isUnlimited')?.value;
-  const start = this.contractForm.get('startDate')?.value;
-  const end = this.contractForm.get('endDate')?.value;
+    const isUnlimited = this.contractForm.get('isUnlimited')?.value;
+    const start = this.contractForm.get('startDate')?.value;
+    const end = this.contractForm.get('endDate')?.value;
 
-  this.subtotal = this.studentCourses.reduce((sum, c) => {
-    return sum + (c.price ?? 0);
-  }, 0);
+    this.subtotal = this.studentCourses.reduce((sum, c) => {
+      return sum + (c.price ?? 0);
+    }, 0);
 
-  this.monthlyAmount = this.subtotal;
+    this.monthlyAmount = this.subtotal;
 
-  let months = 0;
+    let months = 0;
 
-  if (!isUnlimited && start && end) {
-    const d1 = new Date(start);
-    const d2 = new Date(end);
+    if (!isUnlimited && start && end) {
+      const d1 = new Date(start);
+      const d2 = new Date(end);
 
-    months =
-      (d2.getFullYear() - d1.getFullYear()) * 12 +
-      (d2.getMonth() - d1.getMonth()) + 1;
-  }
-
-  this.finalTotal = isUnlimited ? null : this.monthlyAmount * months;
-  this.packageAmount = this.finalTotal ?? 0;
-
-  this.discounts.controls.forEach(ctrl => {
-
-    const type = ctrl.value.type;
-    const value = Number(ctrl.value.value);
-    const scope = ctrl.value.scope;
-
-    const apply = (amount: number) => {
-      if (type === 'Percentage') {
-        return amount - amount * (value / 100);
-      } else {
-        return amount - value;
-      }
-    };
-
-    if (scope === 'Total') {
-
-      if (this.finalTotal != null)
-        this.finalTotal = apply(this.finalTotal);
-
-      this.monthlyAmount = apply(this.monthlyAmount);
-
-    } else if (scope === 'Subscription') {
-
-      this.monthlyAmount = apply(this.monthlyAmount);
-
-      if (this.finalTotal != null && !isUnlimited) {
-        this.finalTotal = apply(this.finalTotal);
-      }
-
-    } else if (scope === 'Package') {
-
-      if (this.finalTotal != null)
-        this.finalTotal = apply(this.finalTotal);
+      months =
+        (d2.getFullYear() - d1.getFullYear()) * 12 +
+        (d2.getMonth() - d1.getMonth()) + 1;
     }
-  });
 
-  const campaignId = this.contractForm.get('marketingCampaignId')?.value;
+    this.finalTotal = isUnlimited ? null : this.monthlyAmount * months;
+    this.packageAmount = this.finalTotal ?? 0;
 
-  if (campaignId) {
-    const campaign = this.availableCampaigns.find(c => c.id === Number(campaignId));
+    this.discounts.controls.forEach(ctrl => {
 
-    if (campaign) {
+      const type = ctrl.value.type;
+      const value = Number(ctrl.value.value);
+      const scope = ctrl.value.scope;
 
-      const type = campaign.discountType; // 1 = %, altfel fix
-      const value = Number(campaign.discountValue);
-      const scope = campaign.discountScope;
+      const apply = (amount: number) => {
+        if (type === 'Percentage') {
+          return amount - amount * (value / 100);
+        } else {
+          return amount - value;
+        }
+      };
 
-     const apply = (amount: number) => {
-  if (Number(type) === 1) { // 🔥 Percentage
-    return amount - amount * (value / 100);
-  }
-
-  return amount - value; // 🔥 FixedAmount
-};
-
-      // 0 = Total
-      if (scope === 0) {
+      if (scope === 'Total') {
 
         if (this.finalTotal != null)
           this.finalTotal = apply(this.finalTotal);
 
         this.monthlyAmount = apply(this.monthlyAmount);
-      }
 
-      // 1 = Package
-      if (scope === 1) {
-
-        if (this.finalTotal != null)
-          this.finalTotal = apply(this.finalTotal);
-      }
-
-      // 2 = Subscription
-      if (scope === 2) {
+      } else if (scope === 'Subscription') {
 
         this.monthlyAmount = apply(this.monthlyAmount);
 
         if (this.finalTotal != null && !isUnlimited) {
           this.finalTotal = apply(this.finalTotal);
         }
+
+      } else if (scope === 'Package') {
+
+        if (this.finalTotal != null)
+          this.finalTotal = apply(this.finalTotal);
+      }
+    });
+
+    const campaignId = this.contractForm.get('marketingCampaignId')?.value;
+
+    if (campaignId) {
+      const campaign = this.availableCampaigns.find(c => c.id === Number(campaignId));
+
+      if (campaign) {
+
+        const type = campaign.discountType; // 1 = %, altfel fix
+        const value = Number(campaign.discountValue);
+        const scope = campaign.discountScope;
+
+        const apply = (amount: number) => {
+          if (Number(type) === 1) { // 🔥 Percentage
+            return amount - amount * (value / 100);
+          }
+
+          return amount - value; // 🔥 FixedAmount
+        };
+
+        // 0 = Total
+        if (scope === 0) {
+
+          if (this.finalTotal != null)
+            this.finalTotal = apply(this.finalTotal);
+
+          this.monthlyAmount = apply(this.monthlyAmount);
+        }
+
+        // 1 = Package
+        if (scope === 1) {
+
+          if (this.finalTotal != null)
+            this.finalTotal = apply(this.finalTotal);
+        }
+
+        // 2 = Subscription
+        if (scope === 2) {
+
+          this.monthlyAmount = apply(this.monthlyAmount);
+
+          if (this.finalTotal != null && !isUnlimited) {
+            this.finalTotal = apply(this.finalTotal);
+          }
+        }
       }
     }
+
+    if (this.finalTotal != null && this.finalTotal < 0)
+      this.finalTotal = 0;
+
+    if (this.monthlyAmount < 0)
+      this.monthlyAmount = 0;
+
+    this.hasSubscription = this.monthlyAmount > 0;
+    this.hasPackage = this.finalTotal !== null;
+
+    this.discounts.controls.forEach(ctrl => {
+      const scope = ctrl.get('scope')?.value;
+
+      if (scope === 'Package' && !this.hasPackage) {
+        ctrl.get('scope')?.setValue('Total');
+      }
+
+      if (scope === 'Subscription' && !this.hasSubscription) {
+        ctrl.get('scope')?.setValue('Total');
+      }
+    });
   }
-
-  if (this.finalTotal != null && this.finalTotal < 0)
-    this.finalTotal = 0;
-
-  if (this.monthlyAmount < 0)
-    this.monthlyAmount = 0;
-
-  this.hasSubscription = this.monthlyAmount > 0;
-  this.hasPackage = this.finalTotal !== null;
-
-  this.discounts.controls.forEach(ctrl => {
-    const scope = ctrl.get('scope')?.value;
-
-    if (scope === 'Package' && !this.hasPackage) {
-      ctrl.get('scope')?.setValue('Total');
-    }
-
-    if (scope === 'Subscription' && !this.hasSubscription) {
-      ctrl.get('scope')?.setValue('Total');
-    }
-  });
-}
 
   prefillFromStudent(studentId: number) {
 
@@ -403,11 +405,10 @@ export class CreateContractComponent implements OnInit {
 
       const all = res.items ?? [];
 
-      // 🟢 DOAR ACTIVE
       this.studentCourses = all.filter(x => x.isActive && !x.contractId);
 
       if (!this.studentCourses.length) {
-        alert('Elevul nu are cursuri asignate');
+        this.snackbar.showError('Elevul nu are cursuri active necontractate.', 2500);
       }
 
       const sessionIds = this.studentCourses.map(x => x.sessionId);
@@ -430,10 +431,14 @@ export class CreateContractComponent implements OnInit {
     }
 
     this.marketingService.getAvailableCampaigns(sessionIds).subscribe({
-      next: (res: any) => {
-        this.availableCampaigns = res.isSuccess ? res.value : [];
-      }
-    });
+  next: (res: any) => {
+    this.availableCampaigns = res.isSuccess ? res.value : [];
+  },
+  error: () => {
+    this.availableCampaigns = [];
+    this.snackbar.showError('Campaniile disponibile nu au putut fi încărcate.', 2500);
+  }
+});
   }
 
   onMarketingCampaignChange(): void {
@@ -447,17 +452,18 @@ export class CreateContractComponent implements OnInit {
   }
 
   getDiscountLabel(type: number, value: number): string {
-  return type === 1
-    ? `${value}%`      // Percentage
-    : `${value} RON`;  // Fixed
-}
+    return type === 1
+      ? `${value}%`      // Percentage
+      : `${value} RON`;  // Fixed
+  }
 
   submit() {
 
     if (this.contractForm.invalid) {
-      this.contractForm.markAllAsTouched();
-      return;
-    }
+  this.contractForm.markAllAsTouched();
+  this.snackbar.showError('Completează câmpurile obligatorii.', 2500);
+  return;
+}
 
     if (this.isSubmitting) return;
 
@@ -477,17 +483,27 @@ export class CreateContractComponent implements OnInit {
     this.isSubmitting = true;
 
     if (this.isEdit) {
-
       this.contractsService.update(this.contractId, baseDto).subscribe({
-        next: () => {
+        next: (res: any) => {
           this.isSubmitting = false;
+
+          if (res?.isSuccess === false) {
+            this.snackbar.showError(
+              res.error?.errorMessage || 'Contractul nu a putut fi actualizat.',
+              2500
+            );
+            return;
+          }
+
+          this.snackbar.showSuccess('Contract actualizat cu succes.', 1800);
           this.router.navigate(['/contracts', this.contractId]);
         },
-        error: () => this.isSubmitting = false
+        error: () => {
+          this.isSubmitting = false;
+          this.snackbar.showError('Eroare la actualizarea contractului.', 2500);
+        }
       });
-
     } else {
-
       const createDto = {
         ...baseDto,
         guardianId: formValue.guardianId,
@@ -496,16 +512,28 @@ export class CreateContractComponent implements OnInit {
 
       this.contractsService.create(createDto).subscribe({
         next: (res: any) => {
-
           this.isSubmitting = false;
 
+          if (res?.isSuccess === false) {
+            this.snackbar.showError(
+              res.error?.errorMessage || 'Contractul nu a putut fi creat.',
+              2500
+            );
+            return;
+          }
+
           const id = res?.value?.id || res?.value?.existingContractId;
+
+          this.snackbar.showSuccess('Contract creat cu succes.', 1800);
 
           if (id) {
             this.router.navigate(['/contracts', id]);
           }
         },
-        error: () => this.isSubmitting = false
+        error: () => {
+          this.isSubmitting = false;
+          this.snackbar.showError('Eroare la crearea contractului.', 2500);
+        }
       });
     }
   }
@@ -547,12 +575,12 @@ export class CreateContractComponent implements OnInit {
   }
 
   getSelectedCampaign(): any | null {
-  const campaignId = this.contractForm.get('marketingCampaignId')?.value;
+    const campaignId = this.contractForm.get('marketingCampaignId')?.value;
 
-  if (!campaignId) {
-    return null;
+    if (!campaignId) {
+      return null;
+    }
+
+    return this.availableCampaigns.find(x => x.id === Number(campaignId)) ?? null;
   }
-
-  return this.availableCampaigns.find(x => x.id === Number(campaignId)) ?? null;
-}
 }

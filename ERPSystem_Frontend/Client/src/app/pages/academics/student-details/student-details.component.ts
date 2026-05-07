@@ -772,6 +772,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       }
     });
   }
+  
   setStudentTab(tab: 'evaluations' | 'analytics') {
     this.studentTab = tab;
 

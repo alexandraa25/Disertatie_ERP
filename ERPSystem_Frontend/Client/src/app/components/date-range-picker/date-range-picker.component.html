@@ -1,18 +1,13 @@
 <div class="picker-container">
 
-    <!-- TRIGGER -->
     <div class="trigger" (click)="toggle()">
         {{ from ? (from | date:'shortDate') : 'Start' }}
         -
         {{ to ? (to | date:'shortDate') : 'End' }}
     </div>
 
-    <!-- DROPDOWN -->
     <div class="dropdown" *ngIf="isOpen">
-
         <mat-tab-group>
-
-            <!-- DATE RANGE -->
             <mat-tab label="Date range">
                 <div class="content">
 
@@ -32,11 +27,9 @@
                         <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                         <mat-date-range-picker #picker></mat-date-range-picker>
                     </mat-form-field>
-
                 </div>
             </mat-tab>
 
-            <!-- REALTIME -->
             <mat-tab label="Realtime">
                 <div class="content">
 
@@ -53,14 +46,12 @@
                             Last 3 Hours
                         </button>
 
-                        <!-- 🔥 CUSTOM -->
                         <button [class.active]="isCustomMode" (click)="activateCustom()">
                             Custom
                         </button>
                     </div>
 
                     <div class="custom" *ngIf="isCustomMode">
-
                         <span>Last</span>
 
                         <input type="number" [(ngModel)]="customValue">
@@ -71,7 +62,6 @@
                         </select>
 
                         <button class="secondary" (click)="applyRealtime()">Set</button>
-
                     </div>
 
                     <div class="preview" *ngIf="tempFrom && tempTo">
@@ -83,7 +73,6 @@
 
         </mat-tab-group>
 
-        <!-- ACTIONS -->
         <div class="actions">
             <button class="cancel" (click)="cancel()">Cancel</button>
 
@@ -93,7 +82,5 @@
                 Apply Range
             </button>
         </div>
-
     </div>
-
 </div>

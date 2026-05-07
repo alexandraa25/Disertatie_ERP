@@ -31,8 +31,8 @@ export class AdminActivityComponent implements OnInit {
     entity: [],
     action: [],
     performedBy: [],
-    from: null as Date | null,   // 🔥 schimbat
-    to: null as Date | null,     // 🔥 schimbat
+    from: null as Date | null,   
+    to: null as Date | null,     
     page: 1,
     pageSize: 10
   };

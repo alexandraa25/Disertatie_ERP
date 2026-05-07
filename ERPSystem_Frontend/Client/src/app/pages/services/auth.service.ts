@@ -181,19 +181,18 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/resend-login-code`, { tempToken });
   }
 
-   requestPasswordReset(email: string) {
+  requestPasswordReset(email: string) {
     return this.http.post<any>(`${this.apiUrl}/forgot-password`, { email });
   }
 
-   resetPassword(userId: string, token: string, newPassword: string) {
-    return this.http.post<any>(`${this.apiUrl}/reset-password`, {userId, token,  newPassword
+  resetPassword(userId: string, token: string, newPassword: string) {
+    return this.http.post<any>(`${this.apiUrl}/reset-password`, {
+      userId, token, newPassword
     });
+  }
 
-    
-}
-
-getRoles() {
-  return this.http.get<any[]>(`${this.apiUrl}/roles`);
-}
+  getRoles() {
+    return this.http.get<any[]>(`${this.apiUrl}/roles`);
+  }
 
 }

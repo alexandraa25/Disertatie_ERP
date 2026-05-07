@@ -1,31 +1,31 @@
 <div class="page">
- <div class="page-header">
-  <div>
-    <h2>Contracte</h2>
-    <p>Toate contractele și actele adiționale aferente</p>
-     <div *ngIf="!loading && contracts.length > 0" class="results-info">
-  {{ contracts.length }} contracte găsite · afișate {{ pagedContracts.length }}
-</div>
-  </div>
- 
+  <div class="page-header">
+    <div>
+      <h2>Contracte</h2>
+      <p>Toate contractele și actele adiționale aferente</p>
+      <div *ngIf="!loading && contracts.length > 0" class="results-info">
+        {{ contracts.length }} contracte găsite · afișate {{ pagedContracts.length }}
+      </div>
+    </div>
 
- <div class="export-box">
-  <div class="date-range">
-    <label>Perioadă scadență</label>
 
-    <div class="date-inputs">
-      <input type="date" [(ngModel)]="exportFrom">
-      <span>—</span>
-      <input type="date" [(ngModel)]="exportTo">
+    <div class="export-box">
+      <div class="date-range">
+        <label>Perioadă scadență</label>
+
+        <div class="date-inputs">
+          <input type="date" [(ngModel)]="exportFrom">
+          <span>—</span>
+          <input type="date" [(ngModel)]="exportTo">
+        </div>
+      </div>
+
+      <button class="primary-btn" (click)="exportContractsExcel()">
+        📊 Export Excel
+      </button>
+
     </div>
   </div>
-
-  <button class="primary-btn" (click)="exportContractsExcel()">
-  📊 Export Excel
-</button>
-
-</div>
-</div>
 
   <div class="card">
     <div *ngIf="loading" class="empty">
@@ -110,23 +110,17 @@
       </div>
     </div>
     <div class="pagination" *ngIf="contracts.length > pageSize">
-  <button
-    class="secondary-btn"
-    (click)="previousPage()"
-    [disabled]="currentPage === 1">
-    Înapoi
-  </button>
+      <button class="secondary-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+        Înapoi
+      </button>
 
-  <span>
-    Pagina {{ currentPage }} din {{ totalPages }}
-  </span>
+      <span>
+        Pagina {{ currentPage }} din {{ totalPages }}
+      </span>
 
-  <button
-    class="secondary-btn"
-    (click)="nextPage()"
-    [disabled]="currentPage === totalPages">
-    Înainte
-  </button>
-</div>
+      <button class="secondary-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Înainte
+      </button>
+    </div>
   </div>
 </div>

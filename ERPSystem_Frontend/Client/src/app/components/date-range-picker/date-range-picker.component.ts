@@ -1,8 +1,6 @@
 import { Component, EventEmitter, Output, Input, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-// Angular Material
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,10 +10,10 @@ import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-date-range-picker',
-  standalone: true, // 🔥 IMPORTANT
+  standalone: true,
   imports: [
-    CommonModule,     // 👉 pentru date pipe
-    FormsModule,      // 👉 pentru ngModel
+    CommonModule,
+    FormsModule,
     MatTabsModule,
     MatDatepickerModule,
     MatFormFieldModule,
@@ -33,18 +31,14 @@ export class DateRangePickerComponent {
 
   @Output() rangeChange = new EventEmitter<any>();
 
-  // dropdown
   isOpen = false;
 
   today = new Date();
-  // preview
   tempFrom: Date | null = null;
   tempTo: Date | null = null;
 
-  // preset
   selectedPreset: string | null = null;
 
-  // realtime
   isCustomMode = false;
   customValue = 5;
   customUnit: 'minutes' | 'hours' = 'minutes';
@@ -69,20 +63,19 @@ export class DateRangePickerComponent {
     this.isOpen = false;
   }
 
-  // click outside
   @HostListener('document:click', ['$event'])
-onClickOutside(event: any) {
-  const clickedInside = event.target.closest('.picker-container');
+  onClickOutside(event: any) {
+    const clickedInside = event.target.closest('.picker-container');
 
-  const isDatepicker =
-    event.target.closest('.cdk-overlay-pane') || // 🔥 important
-    event.target.closest('.mat-datepicker-content');
+    const isDatepicker =
+      event.target.closest('.cdk-overlay-pane') ||
+      event.target.closest('.mat-datepicker-content');
 
-  if (!clickedInside && !isDatepicker) {
-    this.close();
+    if (!clickedInside && !isDatepicker) {
+      this.close();
+    }
   }
-}
-  // presets
+
   selectPreset(type: string) {
     this.selectedPreset = type;
 
@@ -92,62 +85,56 @@ onClickOutside(event: any) {
   }
 
   calculatePreset(type: string): { from: Date; to: Date } {
-  const today = new Date();
+    const today = new Date();
 
-  if (type === 'today') {
+    if (type === 'today') {
+      return { from: new Date(today), to: new Date() };
+    }
+
+    if (type === 'yesterday') {
+      const from = new Date(today);
+      from.setDate(today.getDate() - 1);
+      return { from, to: new Date(from) };
+    }
+
+    if (type === 'week') {
+      const from = new Date(today);
+      from.setDate(today.getDate() - 7);
+      return { from, to: new Date() };
+    }
+
+    if (type === 'month') {
+      const from = new Date(today);
+      from.setDate(today.getDate() - 30);
+      return { from, to: new Date() };
+    }
+
     return { from: new Date(today), to: new Date() };
   }
 
-  if (type === 'yesterday') {
-    const from = new Date(today);
-    from.setDate(today.getDate() - 1);
-    return { from, to: new Date(from) };
+  setRealtime(minutes: number) {
+    const now = new Date();
+    const from = new Date(now.getTime() - minutes * 60000);
+
+    this.tempFrom = from;
+    this.tempTo = now;
+
+    this.selectedPreset = `rt-${minutes}`;
   }
-
-  if (type === 'week') {
-    const from = new Date(today);
-    from.setDate(today.getDate() - 7);
-    return { from, to: new Date() };
-  }
-
-  if (type === 'month') {
-    const from = new Date(today);
-    from.setDate(today.getDate() - 30);
-    return { from, to: new Date() };
-  }
-
-  // fallback
-  return { from: new Date(today), to: new Date() };
-}
-
- setRealtime(minutes: number) {
-  const now = new Date();
-  const from = new Date(now.getTime() - minutes * 60000);
-
-  this.tempFrom = from;
-  this.tempTo = now;
-
-  this.selectedPreset = `rt-${minutes}`; // highlight
-}
 
   applyRealtime() {
-  if (!this.customValue || this.customValue <= 0) return;
-
-  let minutes = this.customValue;
-
-  if (this.customUnit === 'hours') {
-    minutes = minutes * 60;
+    if (!this.customValue || this.customValue <= 0) return;
+    let minutes = this.customValue;
+    if (this.customUnit === 'hours') {
+      minutes = minutes * 60;
+    }
+    this.setRealtime(minutes);
   }
 
-  this.setRealtime(minutes);
-}
-
-  // manual change
   onManualChange() {
     this.selectedPreset = null;
   }
 
-  // actions
   apply() {
     this.from = this.tempFrom;
     this.to = this.tempTo;
@@ -164,39 +151,35 @@ onClickOutside(event: any) {
     this.close();
   }
 
- selectRealtimePreset(minutes: number) {
-  this.isCustomMode = false; // 🔥 ieși din custom
-  this.selectedPreset = `rt-${minutes}`;
-  this.setRealtime(minutes);
-}
-activateCustom() {
-  this.isCustomMode = true;
-  this.selectedPreset = null;
+  selectRealtimePreset(minutes: number) {
+    this.isCustomMode = false; 
+    this.selectedPreset = `rt-${minutes}`;
+    this.setRealtime(minutes);
+  }
 
-  this.customValue = 5;
-  this.customUnit = 'minutes';
-}
+  activateCustom() {
+    this.isCustomMode = true;
+    this.selectedPreset = null;
+    this.customValue = 5;
+    this.customUnit = 'minutes';
+  }
 
-clear() {
-  // reset preview
-  this.tempFrom = null;
-  this.tempTo = null;
+  clear() {
+    this.tempFrom = null;
+    this.tempTo = null;
 
-  // reset final values
-  this.from = null;
-  this.to = null;
+    this.from = null;
+    this.to = null;
 
-  // reset UI state
-  this.selectedPreset = null;
-  this.isCustomMode = false;
+    this.selectedPreset = null;
+    this.isCustomMode = false;
 
-  // emit către parent
-  this.rangeChange.emit({
-    from: null,
-    to: null
-  });
+    this.rangeChange.emit({
+      from: null,
+      to: null
+    });
 
-  this.close(); // 👈 închide dropdown
-}
+    this.close(); 
+  }
 
 }

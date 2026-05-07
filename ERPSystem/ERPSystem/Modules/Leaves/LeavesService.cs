@@ -628,9 +628,7 @@ namespace ERPSystem.Modules.Leaves
 
             return new PublicResponse(true).SetSuccess(conflicts);
         }
-
        
-
         public static int GetWorkingDays(  DateTime start,  DateTime end, List<DateTime> holidays)
         {
             int days = 0;

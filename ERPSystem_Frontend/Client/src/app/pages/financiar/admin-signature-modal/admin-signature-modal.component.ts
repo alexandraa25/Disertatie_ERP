@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ContractsService } from '../../services/contracts.service';
 import { AdditionalActService } from '../../services/additional-act.service';
 import { CommonModule } from '@angular/common';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 
 @Component({
   standalone: true,
@@ -24,46 +25,47 @@ export class AdminSignatureModalComponent implements AfterViewInit {
   constructor(
     private contracts: ContractsService,
     private additionalActs: AdditionalActService,
+    private snackbar: SnackbarService,
     private dialogRef: MatDialogRef<AdminSignatureModalComponent>,
-   @Inject(MAT_DIALOG_DATA) public data: { id: number, type: 'contract' | 'act' },
-  ) {}
+    @Inject(MAT_DIALOG_DATA) public data: { id: number, type: 'contract' | 'act' },
+  ) { }
 
- ngAfterViewInit() {
-  const canvas = this.canvas.nativeElement;
+  ngAfterViewInit() {
+    const canvas = this.canvas.nativeElement;
 
-  canvas.width = canvas.offsetWidth;
-  canvas.height = 220;
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 220;
 
-  this.ctx = canvas.getContext('2d')!;
+    this.ctx = canvas.getContext('2d')!;
 
-  this.ctx.lineWidth = 2;
-  this.ctx.lineCap = 'round';
-  this.ctx.strokeStyle = '#111'; // 🔥 după setarea width
-}
+    this.ctx.lineWidth = 2;
+    this.ctx.lineCap = 'round';
+    this.ctx.strokeStyle = '#111'; // 🔥 după setarea width
+  }
 
   startDrawing(event: MouseEvent) {
-  this.drawing = true;
+    this.drawing = true;
 
-  const rect = this.canvas.nativeElement.getBoundingClientRect();
+    const rect = this.canvas.nativeElement.getBoundingClientRect();
 
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
 
-  this.ctx.beginPath();
-  this.ctx.moveTo(x, y);
-}
+    this.ctx.beginPath();
+    this.ctx.moveTo(x, y);
+  }
 
   draw(event: MouseEvent) {
-  if (!this.drawing) return;
+    if (!this.drawing) return;
 
-  const rect = this.canvas.nativeElement.getBoundingClientRect();
+    const rect = this.canvas.nativeElement.getBoundingClientRect();
 
-  const x = event.clientX - rect.left;
-  const y = event.clientY - rect.top;
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
 
-  this.ctx.lineTo(x, y);
-  this.ctx.stroke();
-}
+    this.ctx.lineTo(x, y);
+    this.ctx.stroke();
+  }
 
   stopDrawing() {
     this.drawing = false;
@@ -77,44 +79,53 @@ export class AdminSignatureModalComponent implements AfterViewInit {
   }
 
   sign() {
+    if (!this.hasSignature()) {
+      this.snackbar.showError('Te rugăm să adaugi semnătura.', 2200);
+      return;
+    }
 
-  const canvas = this.canvas.nativeElement;
-  const signature = canvas.toDataURL();
+    const canvas = this.canvas.nativeElement;
+    const signature = canvas.toDataURL();
 
-  this.loading = true;
+    this.loading = true;
 
-  let request$;
+    const request$ = this.data.type === 'act'
+      ? this.additionalActs.adminSignAct(this.data.id, signature)
+      : this.contracts.adminSign(this.data.id, signature);
 
-  if (this.data.type === 'act') {
-    request$ = this.additionalActs.adminSignAct(this.data.id, signature);
-  } else {
-    request$ = this.contracts.adminSign(this.data.id, signature);
+    request$.subscribe({
+      next: (res: any) => {
+        this.loading = false;
+
+        if (res?.isSuccess === false) {
+          this.snackbar.showError(
+            res.error?.errorMessage || 'Documentul nu a putut fi semnat.',
+            2500
+          );
+          return;
+        }
+
+        this.signed = true;
+        this.snackbar.showSuccess('Document semnat cu succes.', 1800);
+
+        setTimeout(() => {
+          this.dialogRef.close(true);
+        }, 800);
+      },
+      error: () => {
+        this.loading = false;
+        this.snackbar.showError('A apărut o eroare la semnare.', 2500);
+      }
+    });
   }
 
-  request$.subscribe({
-    next: () => {
+  hasSignature(): boolean {
+    const canvas = this.canvas.nativeElement;
+    const blank = document.createElement('canvas');
 
-      this.loading = false;
-      this.signed = true; // 🔥 asta lipsea
+    blank.width = canvas.width;
+    blank.height = canvas.height;
 
-      setTimeout(() => {
-        this.dialogRef.close(true);
-      }, 800);
-
-    },
-    error: () => {
-      this.loading = false;
-    }
-  });
-}
-
-hasSignature(): boolean {
-  const canvas = this.canvas.nativeElement;
-  const blank = document.createElement('canvas');
-
-  blank.width = canvas.width;
-  blank.height = canvas.height;
-
-  return canvas.toDataURL() !== blank.toDataURL();
-}
+    return canvas.toDataURL() !== blank.toDataURL();
+  }
 }

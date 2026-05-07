@@ -8,7 +8,7 @@ export class SnackbarService {
 
     constructor(private snackBar: MatSnackBar) { }
     showError(message: string, duration: number = 2000) {
-        this.snackBar.open(message, '', {   // 🔥 fără buton
+        this.snackBar.open(message, '', {  
             duration,
             horizontalPosition: 'center',
             verticalPosition: 'bottom',

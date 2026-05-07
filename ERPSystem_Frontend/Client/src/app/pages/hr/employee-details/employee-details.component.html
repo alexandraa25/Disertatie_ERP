@@ -1,12 +1,33 @@
 <div class="page" *ngIf="employee">
-
-  <!-- HEADER -->
   <div class="top">
-    <div class="avatar"> {{employee.firstName[0]}}{{employee.lastName[0]}} </div>
+    <div class="avatar">
+      {{employee.firstName[0]}}{{employee.lastName[0]}}
+    </div>
+
     <div>
       <h1>{{employee.firstName}} {{employee.lastName}}</h1>
-      <div class="sub"> {{employee.jobTitle}} · <span class="status"> {{employee.employmentStatus === 'Active' ? 'Activ'
-          : employee.employmentStatus === 'Terminated' ? 'Încheiat' : employee.employmentStatus}} </span> </div>
+
+      <div class="sub">
+        {{employee.jobTitle}}
+
+        <span class="separator">•</span>
+
+        <span class="experience">
+          {{ getExperience(employee.hireDate) }}
+        </span>
+
+        <span class="separator">•</span>
+
+        <span class="status">
+          {{
+          employee.employmentStatus === 'Active'
+          ? 'Activ'
+          : employee.employmentStatus === 'Terminated'
+          ? 'Încheiat'
+          : employee.employmentStatus
+          }}
+        </span>
+      </div>
     </div>
     <div class="actions">
       <button type="button" class="back-btn" (click)="goBack()">
@@ -41,7 +62,7 @@
       Concedii
     </div>
 
-    <div class="tab" [class.active]="activeTab === 'audit'" (click)="activeTab = 'audit'">
+    <div class="tab" [class.active]="activeTab === 'audit'" (click)="activeTab = 'audit'; loadActivity()">
       Istoric
     </div>
   </div>
@@ -282,10 +303,10 @@
   <div *ngIf="activeTab === 'leaves'" class="section">
 
     <h3>Concedii</h3>
-  
+
     <div *ngIf="!pagedLeaves.length" class="empty-text">
-  Nu există concedii.
-</div>
+      Nu există concedii.
+    </div>
 
     <div class="leave-list">
 
@@ -330,16 +351,16 @@
     </div>
 
     <div class="pagination" *ngIf="leaveTotalPages > 1">
-  <button type="button" (click)="changeLeavePage(leavePage - 1)" [disabled]="leavePage === 1">
-    Înapoi
-  </button>
+      <button type="button" (click)="changeLeavePage(leavePage - 1)" [disabled]="leavePage === 1">
+        Înapoi
+      </button>
 
-  <span>Pagina {{ leavePage }} din {{ leaveTotalPages }}</span>
+      <span>Pagina {{ leavePage }} din {{ leaveTotalPages }}</span>
 
-  <button type="button" (click)="changeLeavePage(leavePage + 1)" [disabled]="leavePage === leaveTotalPages">
-    Înainte
-  </button>
-</div>
+      <button type="button" (click)="changeLeavePage(leavePage + 1)" [disabled]="leavePage === leaveTotalPages">
+        Înainte
+      </button>
+    </div>
   </div>
 
   <!-- AUDIT TAB -->
@@ -389,16 +410,16 @@
       </div>
     </div>
     <div class="pagination" *ngIf="auditTotalPages > 1">
-  <button type="button" (click)="changeAuditPage(auditPage - 1)" [disabled]="auditPage === 1">
-    Înapoi
-  </button>
+      <button type="button" (click)="changeAuditPage(auditPage - 1)" [disabled]="auditPage === 1">
+        Înapoi
+      </button>
 
-  <span>Pagina {{ auditPage }} din {{ auditTotalPages }}</span>
+      <span>Pagina {{ auditPage }} din {{ auditTotalPages }}</span>
 
-  <button type="button" (click)="changeAuditPage(auditPage + 1)" [disabled]="auditPage === auditTotalPages">
-    Înainte
-  </button>
-</div>
+      <button type="button" (click)="changeAuditPage(auditPage + 1)" [disabled]="auditPage === auditTotalPages">
+        Înainte
+      </button>
+    </div>
   </div>
 </div>
 

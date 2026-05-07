@@ -13,84 +13,82 @@ export class EmployeeService {
 
   constructor(private http: HttpClient) { }
 
- 
-getEmployees(params?: any) {
-  return this.http.get<any>(`${this.baseUrl}/list`, { params });
-}
 
-getEmployeeById(id: string) {
-  return this.http.get<any>(`${this.baseUrl}/${id}`);
-}
+  getEmployees(params?: any) {
+    return this.http.get<any>(`${this.baseUrl}/list`, { params });
+  }
 
- createEmployee(formData: FormData) {
-  return this.http.post<PublicResponse<any>>(this.baseUrl, formData);
-}
+  getEmployeeById(id: string) {
+    return this.http.get<any>(`${this.baseUrl}/${id}`);
+  }
 
-updateEmployee(data: any) {
-  return this.http.put<PublicResponse<any>>( `${this.baseUrl}/update`,  data );
-}
+  createEmployee(formData: FormData) {
+    return this.http.post<PublicResponse<any>>(this.baseUrl, formData);
+  }
 
-uploadEmployeeDocuments(formData: FormData) {
-  return this.http.post<any>( `${this.baseUrl}/upload-documents`, formData);
-}
+  updateEmployee(data: any) {
+    return this.http.put<PublicResponse<any>>(`${this.baseUrl}/update`, data);
+  }
+
+  uploadEmployeeDocuments(formData: FormData) {
+    return this.http.post<any>(`${this.baseUrl}/upload-documents`, formData);
+  }
 
   terminateEmployee(id: string, body: any) {
     return this.http.post(`${this.baseUrl}/${id}/terminate`, body)
   }
 
   getDashboard(): Observable<PublicResponse<HrDashboard>> {
-  return this.http.get<PublicResponse<HrDashboard>>(`${this.baseUrl}/dashboard`);
-}
+    return this.http.get<PublicResponse<HrDashboard>>(`${this.baseUrl}/dashboard`);
+  }
 
   getUsers(): Observable<PublicResponse<SimpleUser[]>> {
-  return this.http.get<PublicResponse<SimpleUser[]>>(`${this.baseUrl}/users`);
-}
+    return this.http.get<PublicResponse<SimpleUser[]>>(`${this.baseUrl}/users`);
+  }
 
-getEmployeeActivity(employeeId: string) {
-  return this.http.get<any>(`${this.baseUrl}/activity/Employee/${employeeId}`);
-}
+  getEmployeeActivity(employeeId: string) {
+    return this.http.get<any>(`${this.baseUrl}/activity/Employee/${employeeId}`);
+  }
 
-viewDocument(documentId: string) {
-  return this.http.get(
-    `${this.baseUrl}/documents/${documentId}/view`,
-    { responseType: 'blob' }
-  );
-}
+  viewDocument(documentId: string) {
+    return this.http.get(
+      `${this.baseUrl}/documents/${documentId}/view`,
+      { responseType: 'blob' }
+    );
+  }
 
-downloadDocument(documentId: string) {
-  return this.http.get(
-    `${this.baseUrl}/documents/${documentId}/download`,
-    { responseType: 'blob' }
-  );
-}
+  downloadDocument(documentId: string) {
+    return this.http.get(
+      `${this.baseUrl}/documents/${documentId}/download`,
+      { responseType: 'blob' }
+    );
+  }
 
-deleteDocument(documentId: string) {
-  return this.http.delete<any>(
-    `${this.baseUrl}/documents/${documentId}`
-  );
-}
+  deleteDocument(documentId: string) {
+    return this.http.delete<any>(
+      `${this.baseUrl}/documents/${documentId}`
+    );
+  }
 
-// employees.service.ts
+  exportEmployeesExcel(q?: string, status?: string, contractType?: string) {
+    let params = new HttpParams();
 
-exportEmployeesExcel( q?: string,status?: string, contractType?: string) {
-  let params = new HttpParams();
+    if (q)
+      params = params.set('q', q);
 
-  if (q)
-    params = params.set('q', q);
+    if (status)
+      params = params.set('status', status);
 
-  if (status)
-    params = params.set('status', status);
+    if (contractType)
+      params = params.set('contractType', contractType);
 
-  if (contractType)
-    params = params.set('contractType', contractType);
-
-  return this.http.get(
-    `${this.baseUrl}/export/excel`,
-    {
-      params,
-      responseType: 'blob'
-    }
-  );
-}
+    return this.http.get(
+      `${this.baseUrl}/export/excel`,
+      {
+        params,
+        responseType: 'blob'
+      }
+    );
+  }
 
 }

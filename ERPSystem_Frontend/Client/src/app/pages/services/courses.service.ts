@@ -52,19 +52,17 @@ export class CoursesService {
 
   listEnrollments(courseId: number, sessionId?: number): Observable<EnrollmentDto[]> {
     const params: any = {};
-
     if (sessionId) {
       params.sessionId = sessionId;
     }
-
     return this.http.get<EnrollmentDto[]>(`${this.baseUrl}/${courseId}/enrollments`, { params });
   }
 
   enroll(courseId: number, body: CourseEnrollRequest): Observable<any> {
-  return this.http.post<any>(`${this.baseUrl}/${courseId}/enrollments`, body, {
-    responseType: 'json'
-  });
-}
+    return this.http.post<any>(`${this.baseUrl}/${courseId}/enrollments`, body, {
+      responseType: 'json'
+    });
+  }
 
   setEnrollmentActive(courseId: number, sessionId: number, studentId: number, isActive: boolean): Observable<void> {
     return this.http.put<void>(
@@ -92,32 +90,28 @@ export class CoursesService {
     return this.http.post<any>(`${this.baseUrl}/${id}/toggle-status`, {});
   }
 
-//   toggleSessionStatus(sessionId: number) {
-//   return this.http.patch(`${this.baseUrl}/sessions/${sessionId}/toggle-status`, {});
-// }
+  toggleSessionStatus(sessionId: number) {
+    console.log('HTTP CALL FIRED');
 
-toggleSessionStatus(sessionId: number) {
-  console.log('HTTP CALL FIRED');
+    return this.http.patch(
+      `${this.baseUrl}/sessions/${sessionId}/toggle-status`,
+      {}
+    );
+  }
 
-  return this.http.patch(
-    `${this.baseUrl}/sessions/${sessionId}/toggle-status`,
-    {}
-  );
-}
+  exportCoursesExcel(q?: string, status?: string, deleteStatus?: string, scope?: string) {
+    const params: any = {};
 
- exportCoursesExcel(q?: string, status?: string, deleteStatus?: string, scope?: string) {
-  const params: any = {};
+    if (q) params.q = q;
+    if (status) params.status = status;
+    if (deleteStatus) params.deleteStatus = deleteStatus;
+    if (scope) params.scope = scope;
 
-  if (q) params.q = q;
-  if (status) params.status = status;
-  if (deleteStatus) params.deleteStatus = deleteStatus;
-  if (scope) params.scope = scope;
-
-  return this.http.get(`${this.baseUrl}/export`, {
-    params,
-    responseType: 'blob'
-  });
-}
+    return this.http.get(`${this.baseUrl}/export`, {
+      params,
+      responseType: 'blob'
+    });
+  }
 
 }
 

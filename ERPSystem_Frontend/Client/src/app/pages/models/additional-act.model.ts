@@ -7,10 +7,8 @@ export enum AdditionalActType {
 
 export interface CreateAdditionalActDto {
   types: AdditionalActType[];
-
   courseSessionIds?: number[];
-
-  newEndDate?: string; // yyyy-MM-dd
+  newEndDate?: string; 
   newPrice?: number;
 }
 
@@ -18,22 +16,16 @@ export interface AdditionalActDetailsDto {
   id: number;
   actNumber: string;
   status: string;
-
   description: string;
   body: string;
-
   createdAtUtc: string;
-
   contractId: number;
-
   items: AdditionalActItemDto[];
 }
 
 export interface AdditionalActItemDto {
   type: string;
-
   courseSessionId?: number;
-
   newValue?: string;
 }
 

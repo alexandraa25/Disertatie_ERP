@@ -53,7 +53,7 @@ export class ConfirmLoginCodeComponent implements OnInit {
 
   onSubmit() {
     if (this.codeForm.invalid) {
-      this.snackbar.showError('Please enter the 6-digit code.', 1500);
+      this.snackbar.showError('Te rugăm să introduci codul de 6 cifre.', 1500);
       return;
     }
 
@@ -74,7 +74,7 @@ export class ConfirmLoginCodeComponent implements OnInit {
     const tempToken = sessionStorage.getItem("tempToken");
 
     if (!tempToken) {
-      this.snackbar.showError("Session expired. Please login again.", 2000);
+      this.snackbar.showError('Sesiunea a expirat. Autentifică-te din nou.', 2000);
       this.isLoading = false;
       this.router.navigate(['/login']);
       return;
@@ -87,19 +87,19 @@ export class ConfirmLoginCodeComponent implements OnInit {
         const user = res.value?.user;
 
         if (!accessToken) {
-          this.snackbar.showError("Unexpected error. No token returned.", 2000);
+          this.snackbar.showError('A apărut o eroare. Tokenul nu a fost returnat.', 2000);
           return;
         }
 
         localStorage.setItem("accessToken", accessToken);
         localStorage.setItem("user", JSON.stringify(user));
         sessionStorage.removeItem("tempToken");
-        this.snackbar.showSuccess("Login confirmed!", 1500);
+        this.snackbar.showSuccess('Autentificare confirmată!', 1500);
         this.router.navigate(['/profil-user']);
       },
       error: () => {
         this.isLoading = false;
-        this.snackbar.showError("Invalid or expired code.", 2000);
+        this.snackbar.showError('Cod invalid sau expirat.', 2000);
       }
     });
   }
@@ -108,14 +108,14 @@ export class ConfirmLoginCodeComponent implements OnInit {
     const tempToken = sessionStorage.getItem("tempToken");
 
     if (!tempToken) {
-      this.snackbar.showError("Session expired. Please login again.", 2000);
+      this.snackbar.showError('Sesiunea a expirat. Autentifică-te din nou.', 2000);
       this.router.navigate(['/login']);
       return;
     }
 
     this.auth.resendVerificationCode(tempToken).subscribe({
-      next: () => this.snackbar.showSuccess("New code sent!", 1500),
-      error: () => this.snackbar.showError("Failed to resend code.", 1500)
+      next: () => this.snackbar.showSuccess('Un cod nou a fost trimis!', 1500),
+      error: () => this.snackbar.showError('Codul nu a putut fi retrimis.', 1500)
     });
   }
 

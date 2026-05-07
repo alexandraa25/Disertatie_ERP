@@ -93,36 +93,36 @@ export class CourseDetailsComponent implements OnInit {
       },
       error: () => {
         this.loadingEnrollments = false;
-         this.snackbar.showError('Eroare la încărcare cursanți.', 2500);
+        this.snackbar.showError('Eroare la încărcare cursanți.', 2500);
       }
     });
   }
 
- toggleEnrollment(sessionId: number, enrollment: any) {
-  this.courses.setEnrollmentActive(
-    this.course.id,
-    sessionId,
-    enrollment.studentId,
-    !enrollment.isActive
-  ).subscribe({
-    next: () => {
-      this.loadEnrollments(sessionId);
+  toggleEnrollment(sessionId: number, enrollment: any) {
+    this.courses.setEnrollmentActive(
+      this.course.id,
+      sessionId,
+      enrollment.studentId,
+      !enrollment.isActive
+    ).subscribe({
+      next: () => {
+        this.loadEnrollments(sessionId);
 
-      this.snackbar.showSuccess(
-        enrollment.isActive
-          ? 'Cursant dezactivat.'
-          : 'Cursant activat.',
-        1800
-      );
-    },
-    error: (err) => {
-      this.snackbar.showError(
-        err?.error?.message || 'Eroare la actualizare.',
-        2500
-      );
-    }
-  });
-}
+        this.snackbar.showSuccess(
+          enrollment.isActive
+            ? 'Cursant dezactivat.'
+            : 'Cursant activat.',
+          1800
+        );
+      },
+      error: (err) => {
+        this.snackbar.showError(
+          err?.error?.message || 'Eroare la actualizare.',
+          2500
+        );
+      }
+    });
+  }
 
   openEnrollModal(session: any) {
     const ref = this.dialog.open(EnrollStudentsComponent, {
@@ -205,50 +205,50 @@ export class CourseDetailsComponent implements OnInit {
   }
 
   async toggleSessionStatus(session: any): Promise<void> {
-  const action = session.isActive ? 'dezactivezi' : 'activezi';
+    const action = session.isActive ? 'dezactivezi' : 'activezi';
 
-  const confirmed = await this.confirmService.confirm(
-    `Sigur vrei să ${action} această sesiune?`,
-    'Confirmare'
-  );
+    const confirmed = await this.confirmService.confirm(
+      `Sigur vrei să ${action} această sesiune?`,
+      'Confirmare'
+    );
 
-  if (!confirmed) return;
+    if (!confirmed) return;
 
-  this.courses.toggleSessionStatus(session.id).subscribe({
-    next: (res: any) => {
-      const updated = res?.value;
+    this.courses.toggleSessionStatus(session.id).subscribe({
+      next: (res: any) => {
+        const updated = res?.value;
 
-      session.isActive = updated
-        ? updated.isActive
-        : !session.isActive;
+        session.isActive = updated
+          ? updated.isActive
+          : !session.isActive;
 
-      this.snackbar.showSuccess(
-        session.isActive
-          ? 'Sesiune activată'
-          : 'Sesiune dezactivată',
-        1500
-      );
-    },
-
-    error: (err) => {
-      const message = err?.error?.message ?? '';
-      const code = err?.error?.code ?? '';
-
-      if (code === 'BUSINESS_RULE') {
-        this.snackbar.showError(
-          message || 'Nu poți dezactiva sesiunea. Există cursanți activi.',
-          3000
+        this.snackbar.showSuccess(
+          session.isActive
+            ? 'Sesiune activată'
+            : 'Sesiune dezactivată',
+          1500
         );
-        return;
-      }
+      },
 
-      if (code === 'NOT_FOUND') {
-        this.snackbar.showError('Sesiunea nu a fost găsită.', 2500);
-        return;
-      }
+      error: (err) => {
+        const message = err?.error?.message ?? '';
+        const code = err?.error?.code ?? '';
 
-      this.snackbar.showError('Eroare la actualizarea sesiunii', 2500);
-    }
-  });
-}
+        if (code === 'BUSINESS_RULE') {
+          this.snackbar.showError(
+            message || 'Nu poți dezactiva sesiunea. Există cursanți activi.',
+            3000
+          );
+          return;
+        }
+
+        if (code === 'NOT_FOUND') {
+          this.snackbar.showError('Sesiunea nu a fost găsită.', 2500);
+          return;
+        }
+
+        this.snackbar.showError('Eroare la actualizarea sesiunii', 2500);
+      }
+    });
+  }
 }

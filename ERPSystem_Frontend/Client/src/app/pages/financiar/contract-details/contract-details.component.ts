@@ -7,8 +7,9 @@ import { QuillModule } from 'ngx-quill';
 import { ViewChild, ElementRef } from '@angular/core';
 import html2pdf from 'html2pdf.js';
 import { DomSanitizer } from '@angular/platform-browser';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { AdminSignatureModalComponent } from '../admin-signature-modal/admin-signature-modal.component';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 
 @Component({
   selector: 'app-contract-details',
@@ -32,8 +33,9 @@ export class ContractDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private contractsService: ContractsService,
-    private dialog: MatDialog, 
-    private sanitizer: DomSanitizer
+    private dialog: MatDialog,
+    private sanitizer: DomSanitizer,
+    private snackbar: SnackbarService
 
   ) { }
 
@@ -52,16 +54,16 @@ export class ContractDetailsComponent implements OnInit {
           console.log('RESPONSE:', res);
 
           if (!res.isSuccess || !res.value) {
-            console.error('Contract not found');
+            this.snackbar.showError('Contractul nu a fost găsit.', 2500);
             this.loading = false;
             return;
           }
 
-          this.contract = res.value; // 🔥 FOARTE IMPORTANT
+          this.contract = res.value;
           this.loading = false;
         },
-        error: (err) => {
-          console.error(err);
+        error: () => {
+          this.snackbar.showError('Contractul nu a putut fi încărcat.', 2500);
           this.loading = false;
         }
       });
@@ -113,12 +115,20 @@ export class ContractDetailsComponent implements OnInit {
     this.actionLoading = true;
 
     action().subscribe({
-      next: () => {
-        this.loadContract(this.contract.id);
+      next: (res: any) => {
         this.actionLoading = false;
+
+        if (res?.isSuccess === false) {
+          this.snackbar.showError(res.error?.errorMessage || 'Acțiunea nu a putut fi finalizată.', 2500);
+          return;
+        }
+
+        this.snackbar.showSuccess('Acțiune realizată cu succes.', 1800);
+        this.loadContract(this.contract.id);
       },
       error: () => {
         this.actionLoading = false;
+        this.snackbar.showError('A apărut o eroare.', 2500);
       }
     });
   }
@@ -147,29 +157,40 @@ export class ContractDetailsComponent implements OnInit {
     this.isEditingBody = false;
   }
 
- saveBody() {
+  saveBody() {
 
-  const cleaned = this.cleanHtml(this.editedBody);
-  this.actionLoading = true;
+    const cleaned = this.cleanHtml(this.editedBody);
+    this.actionLoading = true;
 
-  this.contractsService.updateBody(this.contract.id, {
-    contractBody: cleaned // ✔️ DOAR asta
-  }).subscribe({
-    next: () => {
-      this.contract.contractBody = cleaned; // 🔥 sincronizezi UI cu ce ai salvat
-      this.isEditingBody = false;
-      this.hasUnsavedChanges = false;
-      this.actionLoading = false;
-    },
-    error: () => this.actionLoading = false
-  });
-}
+    this.contractsService.updateBody(this.contract.id, {
+      contractBody: cleaned // ✔️ DOAR asta
+    }).subscribe({
+      next: (res: any) => {
+        if (res?.isSuccess === false) {
+          this.snackbar.showError(res.error?.errorMessage || 'Textul contractului nu a putut fi salvat.', 2500);
+          this.actionLoading = false;
+          return;
+        }
 
-cleanHtml(html: string): string {
-  return html
-    .replace(/<p><br><\/p>/g, '')
-    .trim();
-}
+        this.contract.contractBody = cleaned;
+        this.isEditingBody = false;
+        this.hasUnsavedChanges = false;
+        this.actionLoading = false;
+
+        this.snackbar.showSuccess('Textul contractului a fost salvat.', 1800);
+      },
+      error: () => {
+        this.actionLoading = false;
+        this.snackbar.showError('Eroare la salvarea textului contractului.', 2500);
+      }
+    });
+  }
+
+  cleanHtml(html: string): string {
+    return html
+      .replace(/<p><br><\/p>/g, '')
+      .trim();
+  }
 
   resetBody() {
 
@@ -179,11 +200,21 @@ cleanHtml(html: string): string {
 
     this.contractsService.resetBody(this.contract.id)
       .subscribe({
-        next: () => {
-          this.loadContract(this.contract.id);
+        next: (res: any) => {
           this.actionLoading = false;
+
+          if (res?.isSuccess === false) {
+            this.snackbar.showError(res.error?.errorMessage || 'Template-ul nu a putut fi resetat.', 2500);
+            return;
+          }
+
+          this.snackbar.showSuccess('Template resetat cu succes.', 1800);
+          this.loadContract(this.contract.id);
         },
-        error: () => this.actionLoading = false
+        error: () => {
+          this.actionLoading = false;
+          this.snackbar.showError('Eroare la resetarea template-ului.', 2500);
+        }
       });
   }
 
@@ -195,16 +226,22 @@ cleanHtml(html: string): string {
 
   downloadPdf() {
     this.contractsService.download(this.contract.id)
-      .subscribe((blob: Blob) => {
+      .subscribe({
+        next: (blob: Blob) => {
+          const url = window.URL.createObjectURL(blob);
 
-        const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `contract_${this.contract.contractNumber}.pdf`;
+          a.click();
 
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `contract_${this.contract.contractNumber}.pdf`;
-        a.click();
+          window.URL.revokeObjectURL(url);
 
-        window.URL.revokeObjectURL(url);
+          this.snackbar.showSuccess('Contract descărcat cu succes.', 1800);
+        },
+        error: () => {
+          this.snackbar.showError('Contractul nu a putut fi descărcat.', 2500);
+        }
       });
   }
 
@@ -287,12 +324,11 @@ cleanHtml(html: string): string {
     this.router.navigate(['/students']);
   }
 
-
   editContract() {
     this.router.navigate(['/contracts/edit', this.contract.id]);
   }
 
   get safeBody() {
-  return this.sanitizer.bypassSecurityTrustHtml(this.contract.contractBody);
-}
+    return this.sanitizer.bypassSecurityTrustHtml(this.contract.contractBody);
+  }
 }

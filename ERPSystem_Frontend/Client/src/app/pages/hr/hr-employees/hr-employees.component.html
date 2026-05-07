@@ -72,6 +72,13 @@
               </span>
             </th>
 
+            <th class="sortable" (click)="sort('experience')">
+              <span class="th-content">
+                Vechime
+                <span class="sort-icon">{{ getSortIcon('experience') }}</span>
+              </span>
+            </th>
+
             <th class="sortable" (click)="sort('salary')">
               <span class="th-content">
                 Salariu brut
@@ -99,6 +106,8 @@
             </td>
 
             <td>{{ e.hireDate | date:'dd.MM.yyyy' }}</td>
+
+            <td>{{ getExperience(e.hireDate) }}</td>
 
             <td>{{ e.salary }}</td>
 

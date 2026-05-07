@@ -114,7 +114,6 @@
 
                 <button *ngIf="!course.deletedAtUtc" class="toggle-btn small"
                   [ngClass]="s.isActive ? 'danger' : 'primary-soft'" (click)="toggleSessionStatus(s)"
-                  
                   [title]="s.enrolledActiveCount > 0 && s.isActive ? 'Are cursanți activi' : ''">
 
                   {{ s.isActive ? 'Dezactivează sesiunea' : 'Activează sesiunea' }}
@@ -126,78 +125,76 @@
           </tr>
 
           <tr *ngIf="expandedSessionId === s.id">
-          <td colspan="7" class="expand-cell">
+            <td colspan="7" class="expand-cell">
 
-  <div *ngIf="loadingEnrollments">Se încarcă...</div>
+              <div *ngIf="loadingEnrollments">Se încarcă...</div>
 
-  <div class="enrollments-wrapper" *ngIf="!loadingEnrollments && enrollments[s.id]?.length">
-    
-    <table>
-      <thead>
-        <tr>
-          <th>Nume</th>
-          <th>Email</th>
-          <th>Activ</th>
-          <th>Perioadă înscriere</th>
-          <th>Acțiuni</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let e of enrollments[s.id]">
-          <td>{{ e.studentName }}</td>
-          <td>{{ e.studentEmail }}</td>
-          <td>{{ e.isActive ? 'Da' : 'Nu' }}</td>
-          <td>
-            <div class="dates">
-              <div>
-                <strong>De la:</strong>
-                {{ e.enrolledAtUtc | date:'dd.MM.yyyy' }}
+              <div class="enrollments-wrapper" *ngIf="!loadingEnrollments && enrollments[s.id]?.length">
+
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Nume</th>
+                      <th>Email</th>
+                      <th>Activ</th>
+                      <th>Perioadă înscriere</th>
+                      <th>Acțiuni</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let e of enrollments[s.id]">
+                      <td>{{ e.studentName }}</td>
+                      <td>{{ e.studentEmail }}</td>
+                      <td>{{ e.isActive ? 'Da' : 'Nu' }}</td>
+                      <td>
+                        <div class="dates">
+                          <div>
+                            <strong>De la:</strong>
+                            {{ e.enrolledAtUtc | date:'dd.MM.yyyy' }}
+                          </div>
+
+                          <div *ngIf="e.unenrolledAtUtc">
+                            <strong>Până la:</strong>
+                            {{ e.unenrolledAtUtc | date:'dd.MM.yyyy' }}
+                          </div>
+
+                          <div *ngIf="!e.unenrolledAtUtc && e.isActive">
+                            Activ în prezent
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <ng-container *ngIf="!s.isActive">
+                          <button class="danger small" *ngIf="e.isActive" (click)="toggleEnrollment(s.id, e)">
+                            Dezactivează
+                          </button>
+                          <span *ngIf="!e.isActive" class="status-pill inactive">
+                            Inactiv
+                          </span>
+                        </ng-container>
+
+                        <ng-container *ngIf="s.isActive">
+                          <button class="danger small" (click)="toggleEnrollment(s.id, e)">
+                            {{ e.isActive ? 'Dezactivează' : 'Activează' }}
+                          </button>
+                        </ng-container>
+
+                        <button class="evaluation-btn small" [disabled]="!e.isActive"
+                          [title]="!e.isActive ? 'Student inactiv' : ''" (click)="openStudentEvaluationModal(s, e)">
+                          Evaluare
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
               </div>
 
-              <div *ngIf="e.unenrolledAtUtc">
-                <strong>Până la:</strong>
-                {{ e.unenrolledAtUtc | date:'dd.MM.yyyy' }}
+              <div *ngIf="!loadingEnrollments && !enrollments[s.id]?.length">
+                Nu există cursanți înscriși.
               </div>
 
-              <div *ngIf="!e.unenrolledAtUtc && e.isActive">
-                Activ în prezent
-              </div>
-            </div>
-          </td>
-          <td>
-            <ng-container *ngIf="!s.isActive">
-              <button class="danger small" *ngIf="e.isActive" (click)="toggleEnrollment(s.id, e)">
-                Dezactivează
-              </button>
-              <span *ngIf="!e.isActive" class="status-pill inactive">
-                Inactiv
-              </span>
-            </ng-container>
-
-            <ng-container *ngIf="s.isActive">
-              <button class="danger small" (click)="toggleEnrollment(s.id, e)">
-                {{ e.isActive ? 'Dezactivează' : 'Activează' }}
-              </button>
-            </ng-container>
-
-            <button class="evaluation-btn small"
-              [disabled]="!e.isActive"
-              [title]="!e.isActive ? 'Student inactiv' : ''"
-              (click)="openStudentEvaluationModal(s, e)">
-              Evaluare
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-  </div>
-
-  <div *ngIf="!loadingEnrollments && !enrollments[s.id]?.length">
-    Nu există cursanți înscriși.
-  </div>
-
-</td>
+            </td>
           </tr>
 
         </ng-container>

@@ -149,9 +149,9 @@ export class CoursesComponent implements OnInit {
     const action = course.isActive ? 'dezactivezi' : 'activezi';
 
     const confirmed = await this.confirmService.confirm(
-  `Sigur vrei să ${action} cursul "${course.name}"?`,
-  'Confirmare'
-);
+      `Sigur vrei să ${action} cursul "${course.name}"?`,
+      'Confirmare'
+    );
 
     if (!confirmed) return;
 
@@ -189,10 +189,10 @@ export class CoursesComponent implements OnInit {
       return;
     }
 
-   const confirmed = await this.confirmService.confirm(
-  `Sigur vrei să ștergi cursul "${course.name}"? Acesta va putea fi restaurat ulterior.`,
-  'Confirmare ștergere'
-);
+    const confirmed = await this.confirmService.confirm(
+      `Sigur vrei să ștergi cursul "${course.name}"? Acesta va putea fi restaurat ulterior.`,
+      'Confirmare ștergere'
+    );
 
     if (!confirmed) return;
 
@@ -226,27 +226,27 @@ export class CoursesComponent implements OnInit {
     });
   }
 
- exportCoursesExcel(): void {
-  this.courses
-    .exportCoursesExcel(this.q, this.statusFilter, this.deleteStatusFilter, this.scopeFilter)
-    .subscribe({
-      next: (blob: Blob) => {
-        const url = window.URL.createObjectURL(blob);
+  exportCoursesExcel(): void {
+    this.courses
+      .exportCoursesExcel(this.q, this.statusFilter, this.deleteStatusFilter, this.scopeFilter)
+      .subscribe({
+        next: (blob: Blob) => {
+          const url = window.URL.createObjectURL(blob);
 
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'cursuri.xlsx';
-        a.click();
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'cursuri.xlsx';
+          a.click();
 
-        window.URL.revokeObjectURL(url);
+          window.URL.revokeObjectURL(url);
 
-        this.snackbar.showSuccess('Exportul Excel a fost generat.', 1800);
-      },
-      error: () => {
-        this.snackbar.showError('Exportul Excel nu a putut fi generat.', 2500);
-      }
-    });
-}
+          this.snackbar.showSuccess('Exportul Excel a fost generat.', 1800);
+        },
+        error: () => {
+          this.snackbar.showError('Exportul Excel nu a putut fi generat.', 2500);
+        }
+      });
+  }
 
   applyPagination() {
     this.totalPages = Math.max(1, Math.ceil(this.items.length / this.pageSize));

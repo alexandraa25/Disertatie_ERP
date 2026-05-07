@@ -132,6 +132,10 @@ export class HrEmployeesComponent implements OnInit {
   }
 
   sort(column: string): void {
+    if (column === 'experience') {
+      column = 'hireDate';
+    }
+
     if (this.sortBy === column) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     } else {
@@ -190,9 +194,12 @@ export class HrEmployeesComponent implements OnInit {
   }
 
   getSortIcon(column: string): string {
-    if (this.sortBy !== column) {
+    const realColumn = column === 'experience' ? 'hireDate' : column;
+
+    if (this.sortBy !== realColumn) {
       return '↕';
     }
+
     return this.sortDirection === 'asc' ? '↑' : '↓';
   }
 
@@ -252,4 +259,28 @@ export class HrEmployeesComponent implements OnInit {
     }
   }
 
+  getExperience(hireDate: string | Date): string {
+    if (!hireDate) return '-';
+
+    const start = new Date(hireDate);
+    const now = new Date();
+
+    let years = now.getFullYear() - start.getFullYear();
+    let months = now.getMonth() - start.getMonth();
+
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+
+    if (years <= 0) {
+      return `${months} luni`;
+    }
+
+    if (months === 0) {
+      return `${years} ${years === 1 ? 'an' : 'ani'}`;
+    }
+
+    return `${years} ${years === 1 ? 'an' : 'ani'} și ${months} luni`;
+  }
 }
