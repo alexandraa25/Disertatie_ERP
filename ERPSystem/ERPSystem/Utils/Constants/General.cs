@@ -93,7 +93,9 @@ namespace ERPSystem.Utils.Constants
                 public const string EMPLOYEE_DOCUMENT_VIEW = "/documents/{documentId}/view";
                 public const string EMPLOYEE_DOCUMENT_DOWNLOAD = "/documents/{documentId}/download";
                 public const string EMPLOYEE_DOCUMENT_DELETE = "/documents/{documentId}";
-               
+
+                public const string EXPORT_EMPLOYEES_EXCEL = "/export/excel";
+
 
 
 

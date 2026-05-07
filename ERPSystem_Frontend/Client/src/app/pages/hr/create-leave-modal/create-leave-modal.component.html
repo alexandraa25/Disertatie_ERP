@@ -6,7 +6,6 @@
 
   <mat-dialog-content class="dialog-content">
 
-    <!-- TIP -->
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Tip concediu</mat-label>
       <mat-select formControlName="leaveType">
@@ -14,6 +13,10 @@
         <mat-option value="Sick">Medical</mat-option>
         <mat-option value="Unpaid">Fără plată</mat-option>
       </mat-select>
+
+      <mat-error *ngIf="hasError('leaveType', 'required')">
+        Tipul concediului este obligatoriu
+      </mat-error>
     </mat-form-field>
 
     <!-- DATE -->
@@ -21,40 +24,48 @@
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Data început</mat-label>
-        <input matInput [matDatepicker]="startPicker"
-               formControlName="startDate"
-               [matDatepickerFilter]="dateFilter">
+        <input matInput [matDatepicker]="startPicker" formControlName="startDate" [matDatepickerFilter]="dateFilter">
+
         <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-       <mat-datepicker #startPicker [dateClass]="dateClass"></mat-datepicker>
-       
+        <mat-datepicker #startPicker [dateClass]="dateClass"></mat-datepicker>
+
+        <mat-error *ngIf="hasError('startDate', 'required')">
+          Data de început este obligatorie
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Data sfârșit</mat-label>
-        <input matInput [matDatepicker]="endPicker"
-               formControlName="endDate"
-               [matDatepickerFilter]="dateFilter">
+        <input matInput [matDatepicker]="endPicker" formControlName="endDate" [matDatepickerFilter]="dateFilter">
+
         <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-       <mat-datepicker #endPicker [dateClass]="dateClass"></mat-datepicker>
-       
+        <mat-datepicker #endPicker [dateClass]="dateClass"></mat-datepicker>
+
+        <mat-error *ngIf="hasError('endDate', 'required')">
+          Data de sfârșit este obligatorie
+        </mat-error>
+
+        <mat-error *ngIf="hasError('endDate', 'invalidRange')">
+          Data de sfârșit trebuie să fie după data de început
+        </mat-error>
       </mat-form-field>
 
     </div>
 
-   <mat-form-field appearance="outline" class="full-width" *ngIf="isEditMode">
-  <mat-label>Motiv</mat-label>
-  <textarea matInput formControlName="reason" rows="3"></textarea>
+    <mat-form-field appearance="outline" class="full-width" *ngIf="isEditMode">
+      <mat-label>Motiv</mat-label>
+      <textarea matInput formControlName="reason" rows="3"></textarea>
 
-  <mat-error *ngIf="leaveForm.get('reason')?.hasError('required')">
-    Motivul este obligatoriu
-  </mat-error>
-</mat-form-field>
+      <mat-error *ngIf="leaveForm.get('reason')?.hasError('required')">
+        Motivul este obligatoriu
+      </mat-error>
+    </mat-form-field>
 
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">
     <button mat-button type="button" (click)="close()">Anulează</button>
-    <button mat-raised-button color="primary" type="submit" [disabled]="leaveForm.invalid">
+    <button mat-raised-button color="primary" type="submit">
       Trimite
     </button>
   </mat-dialog-actions>

@@ -528,6 +528,16 @@ namespace ERPSystem.Modules.Leaves
                 if (query.StartTo.HasValue)
                     q = q.Where(l => l.StartDate <= query.StartTo);
 
+                if (!string.IsNullOrWhiteSpace(query.Search))
+                {
+                    var search = query.Search.Trim().ToLower();
+
+                    q = q.Where(l =>
+                        (l.Employee.FirstName + " " + l.Employee.LastName)
+                            .ToLower()
+                            .Contains(search));
+                }
+
                 q = query.SortBy switch
                 {
                     "EndDate" => query.SortOrder == "asc"
@@ -619,38 +629,7 @@ namespace ERPSystem.Modules.Leaves
             return new PublicResponse(true).SetSuccess(conflicts);
         }
 
-        public async Task<byte[]> ExportLeaves()
-        {
-            var leaves = await _context.EmployeeLeaves
-                .Include(l => l.Employee)
-                .ToListAsync();
-
-            using var workbook = new XLWorkbook();
-            var ws = workbook.Worksheets.Add("Leaves");
-
-            ws.Cell(1, 1).Value = "Employee";
-            ws.Cell(1, 2).Value = "Start";
-            ws.Cell(1, 3).Value = "End";
-            ws.Cell(1, 4).Value = "Type";
-            ws.Cell(1, 5).Value = "Status";
-
-            int row = 2;
-
-            foreach (var l in leaves)
-            {
-                ws.Cell(row, 1).Value = l.Employee.FirstName + " " + l.Employee.LastName;
-                ws.Cell(row, 2).Value = l.StartDate;
-                ws.Cell(row, 3).Value = l.EndDate;
-                ws.Cell(row, 4).Value = l.LeaveType;
-                ws.Cell(row, 5).Value = l.Status;
-                row++;
-            }
-
-            using var stream = new MemoryStream();
-            workbook.SaveAs(stream);
-
-            return stream.ToArray();
-        }
+       
 
         public static int GetWorkingDays(  DateTime start,  DateTime end, List<DateTime> holidays)
         {

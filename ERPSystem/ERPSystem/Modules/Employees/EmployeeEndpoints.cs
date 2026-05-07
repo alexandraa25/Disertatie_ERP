@@ -15,10 +15,39 @@ namespace ERPSystem.Modules.Employees
         {
             
             group.MapPost(Route.EMPLOYEE,
-               async ([FromForm] CreateEmployeeFullRequest request, EmployeeService service) =>
-                    await service.CreateEmployeeFullAsync(request))
-                .DisableAntiforgery()
-                 .WithDefaultApiSettings("CreateEmployee", "Creare angajat", "CREATE_EMPLOYEE", false);
+                 async (HttpRequest httpRequest, EmployeeService service) =>
+                 {
+                     var form = await httpRequest.ReadFormAsync();
+
+                     var request = new CreateEmployeeFullRequest
+                     {
+                         Mode = form["mode"],
+                         UserId = form["userId"],
+                         FirstName = form["firstName"],
+                         LastName = form["lastName"],
+                         Email = form["email"],
+                         HireDate = DateTime.Parse(form["hireDate"]!),
+                         JobTitle = form["jobTitle"],
+                         Salary = decimal.TryParse(form["salary"], out var salary) ? salary : 0,
+                         ContractType = form["contractType"],
+                         Notes = form["notes"],
+                         PhoneNumber = form["phoneNumber"],
+                         EmergencyContactName = form["emergencyContactName"],
+                         EmergencyContactPhone = form["emergencyContactPhone"],
+                         Street = form["street"],
+                         City = form["city"],
+                         Country = form["country"],
+                         PostalCode = form["postalCode"],
+                         IBAN = form["IBAN"],
+                         BankName = form["bankName"],
+                         Files = form.Files.GetFiles("Files").ToArray(),
+                         DocumentTypes = form["DocumentTypes"].ToArray()
+                     };
+
+                     return await service.CreateEmployeeFullAsync(request);
+                 })
+              .DisableAntiforgery()
+              .WithDefaultApiSettings("CreateEmployee", "Creare angajat", "CREATE_EMPLOYEE", false);
 
             group.MapPut(Route.UPDATE_EMPLOYEE,
                 async ([FromBody] UpdateEmployeeRequest request, EmployeeService service) =>
@@ -26,11 +55,11 @@ namespace ERPSystem.Modules.Employees
                 .WithDefaultApiSettings(  "UpdateEmployee", "Actualizare angajat", "UPDATE_EMPLOYEE", false);
 
             group.MapPost(Route.EMPLOYEE_DOCUMENT,
-                async ([FromForm] UploadEmployeeDocsRequest request, EmployeeService service)
-                    => await service.UploadEmployeeDocuments(request))
-                .WithDefaultApiSettings("UploadEmployeeDocuments", "Incarcare documente angajat", "EMPLOYEE_DOCUMENT", false)
-                .DisableAntiforgery();
-               
+                async (HttpRequest request, EmployeeService service) =>
+                    await service.UploadEmployeeDocuments(request))
+               .DisableAntiforgery()
+               .WithDefaultApiSettings("UploadEmployeeDocuments", "Încarcă document angajat", "UPLOAD_EMPLOYEE_DOCUMENTS",  false);
+
             group.MapGet(Route.USERS,
                   async (EmployeeService service)
                     => await service.GetSimpleUsers())
@@ -70,7 +99,12 @@ namespace ERPSystem.Modules.Employees
 
             group.MapDelete(Route.EMPLOYEE_DOCUMENT_DELETE,
                async (Guid documentId, EmployeeService service) 
-               => await service.DeleteEmployeeDocumentAsync(documentId));
+                  => await service.DeleteEmployeeDocumentAsync(documentId));
+
+            group.MapGet(Route.EXPORT_EMPLOYEES_EXCEL,
+               async ( string? q, string? status, string? contractType, EmployeeService service)
+                   => await service.ExportEmployeesExcelAsync(  q, status, contractType))
+              .WithDefaultApiSettings( "ExportEmployeesExcel", "Exportă angajații în Excel", "EXPORT_EMPLOYEES_EXCEL", true);
 
         }
     }

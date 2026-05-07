@@ -1,201 +1,267 @@
 <div class="modal-overlay">
+  <div class="modal large" (click)="$event.stopPropagation()">
 
-    <div class="modal large" (click)="$event.stopPropagation()">
-
-        <div class="modal-header">
-            <h2>Create Employee</h2>
-            <button class="close-btn" (click)="closeModal()">✕</button>
-        </div>
-
-        <!-- 🔥 STEP INDICATOR -->
-        <div class="stepper">
-            <div *ngFor="let step of steps; let i = index" [class.active]="i === currentStep"
-                [class.done]="i < currentStep">
-                {{step}}
-            </div>
-        </div>
-
-        <form [formGroup]="createForm" (ngSubmit)="saveEmployee()">
-
-            <!-- STEP 1: USER -->
-            <div *ngIf="currentStep === 0">
-
-                <div class="switch">
-                    <button type="button" (click)="setMode('existing')"
-                        [class.active]="mode==='existing'">Existing</button>
-                    <button type="button" (click)="setMode('new')" [class.active]="mode==='new'">New</button>
-                </div>
-
-                <div *ngIf="mode==='existing'">
-                    <select formControlName="userId">
-                        <option value="">Select user</option>
-                        <option *ngFor="let u of users" [value]="u.id">
-                            {{u.firstName}} {{u.lastName}}
-                        </option>
-                    </select>
-
-                    <div class="error" *ngIf="submitted && !createForm.value.userId">
-                        User is required
-                    </div>
-                </div>
-                <div *ngIf="selectedUser" class="user-preview">
-
-                    <div class="user-name">
-                        {{selectedUser.firstName}} {{selectedUser.lastName}}
-                    </div>
-
-                    <div class="user-email">
-                        {{selectedUser.email}}
-                    </div>
-
-                    <div class="roles">
-                        <span *ngFor="let role of selectedUser.roles" class="role">
-                            {{role}}
-                        </span>
-                    </div>
-
-                </div>
-
-                <div *ngIf="mode==='new'" class="grid">
-                    <input placeholder="First Name" formControlName="firstName">
-                    <input placeholder="Last Name" formControlName="lastName">
-                    <input placeholder="Email" formControlName="email">
-
-                    <div class="error" *ngIf="submitted && !createForm.value.firstName">Required</div>
-                </div>
-
-            </div>
-
-            <!-- STEP 2: JOB -->
-            <div *ngIf="currentStep === 1" class="grid">
-                <input placeholder="Job Title" formControlName="jobTitle">
-                <input type="date" formControlName="hireDate">
-                <input type="number" placeholder="Salariu brut" formControlName="salary">
-
-                <select formControlName="contractType">
-                    <option value="">Select contract</option>
-                    <option value="FullTime">Full Time</option>
-                    <option value="PartTime">Part Time</option>
-                    <option value="Collaboration">Collaboration</option>
-                </select>
-
-                <textarea placeholder="Notes" formControlName="notes"></textarea>
-            </div>
-
-            <!-- STEP 3: CONTACT -->
-            <div *ngIf="currentStep === 2" class="grid">
-                <input placeholder="Phone Number" formControlName="phoneNumber">
-                <input placeholder="Emergency Name" formControlName="emergencyContactName">
-                <input placeholder="Emergency Phone" formControlName="emergencyContactPhone">
-            </div>
-
-            <!-- STEP 4: ADDRESS -->
-            <div *ngIf="currentStep === 3" class="grid">
-                <input placeholder="Street" formControlName="street">
-                <input placeholder="City" formControlName="city">
-                <input placeholder="Country" formControlName="country">
-                <input placeholder="Postal Code" formControlName="postalCode">
-            </div>
-
-            <!-- STEP 5: BANK -->
-            <div *ngIf="currentStep === 4" class="grid">
-                <input placeholder="IBAN" formControlName="iban">
-                <input placeholder="Bank Name" formControlName="bankName">
-            </div>
-
-            <!-- STEP 6: DOCUMENTS -->
-            <div *ngIf="currentStep === 5" class="upload-container">
-
-                <h3>Documente suplimentare</h3>
-
-                <p class="hint">Dimensiunea maximă a fișierului este de 1 MB</p>
-
-                <!-- DEFAULT TYPE (optional preset pentru upload rapid) -->
-
-                <!-- DROP ZONE -->
-                <div class="drop-zone" [class.dragging]="isDragging" (dragover)="onDragOver($event)"
-                    (dragleave)="onDragLeave($event)" (drop)="onDrop($event)">
-
-                    <div class="left">
-                        <div class="icon">📄⬆️</div>
-                        <div>
-                            <p class="main-text">Trageți și plasați fișiere</p>
-                            <p class="formats">.doc, .docx, .pdf, .txt, .jpg, .jpeg, .png, .ppt, .pptx</p>
-                        </div>
-                    </div>
-
-                    <label class="upload-btn">
-                        ⬆ Selectați fișierele
-                        <input type="file" multiple hidden accept=".doc,.docx,.pdf,.txt,.jpg,.jpeg,.png,.ppt,.pptx"
-                            (change)="onFileSelected($event)" />
-                    </label>
-
-                </div>
-
-                <!-- ERRORS -->
-                <div class="upload-errors" *ngIf="fileErrors.length">
-                    <div class="error-item" *ngFor="let error of fileErrors">
-                        {{ error }}
-                    </div>
-                </div>
-
-                <!-- FILE LIST -->
-                <div class="file-list" *ngIf="selectedFiles.length">
-
-                    <div class="file-item" *ngFor="let item of selectedFiles; let i = index">
-
-                        <!-- FILE INFO -->
-                        <div class="file-info">
-                            <span class="file-icon">📄</span>
-
-                            <div class="file-meta">
-                                <span class="file-name">{{ item.file.name }}</span>
-                                <span class="file-size">{{ formatFileSize(item.file.size) }}</span>
-                            </div>
-                        </div>
-
-                        <!-- TYPE PER FILE -->
-                        <div class="doc-type-inline">
-
-                            <select [(ngModel)]="item.documentType">
-                                <option value="Contract">Contract</option>
-                                <option value="ActAditional">Act Adițional</option>
-                                <option value="Cerere">Cerere</option>
-                                <option value="CV">CV</option>
-                                <option value="custom">Alt tip</option>
-                            </select>
-
-                            <input *ngIf="item.documentType === 'custom'" [(ngModel)]="item.customType"
-                                placeholder="Tip document..." />
-
-                        </div>
-
-                        <!-- DELETE -->
-                        <button type="button" class="delete-btn" (click)="removeFile(i)">
-                            🗑
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- 🔥 ACTIONS -->
-            <div class="actions">
-                <button type="button" (click)="prev()" [disabled]="currentStep===0">Back</button>
-
-                <button type="button" *ngIf="currentStep < steps.length - 1" (click)="next()">
-                    Next
-                </button>
-
-                <button type="submit" *ngIf="currentStep === steps.length - 1">
-                    Create
-                </button>
-            </div>
-
-        </form>
-
+    <div class="modal-header">
+      <h2>Create Employee</h2>
+      <button class="close-btn" type="button" (click)="closeModal()">✕</button>
     </div>
 
+    <div class="stepper">
+      <div
+        *ngFor="let step of steps; let i = index"
+        [class.active]="i === currentStep"
+        [class.done]="i < currentStep">
+        {{ step }}
+      </div>
+    </div>
+
+    <form [formGroup]="createForm" (ngSubmit)="saveEmployee()">
+
+      <div *ngIf="currentStep === 0">
+        <div class="switch">
+          <button type="button" (click)="setMode('existing')" [class.active]="mode === 'existing'">
+            Existing
+          </button>
+          <button type="button" (click)="setMode('new')" [class.active]="mode === 'new'">
+            New
+          </button>
+        </div>
+
+        <div *ngIf="mode === 'existing'">
+          <select formControlName="userId">
+            <option value="">Select user</option>
+            <option *ngFor="let u of users" [value]="u.id">
+              {{ u.firstName }} {{ u.lastName }}
+            </option>
+          </select>
+
+          <div class="error" *ngIf="hasError('userId', 'required')">
+            User is required
+          </div>
+        </div>
+
+        <div *ngIf="selectedUser" class="user-preview">
+          <div class="user-name">
+            {{ selectedUser.firstName }} {{ selectedUser.lastName }}
+          </div>
+
+          <div class="user-email">
+            {{ selectedUser.email }}
+          </div>
+
+          <div class="roles">
+            <span *ngFor="let role of selectedUser.roles" class="role">
+              {{ role }}
+            </span>
+          </div>
+        </div>
+
+        <div *ngIf="mode === 'new'" class="grid">
+          <div>
+            <input placeholder="First Name" formControlName="firstName">
+            <div class="error" *ngIf="hasError('firstName', 'required')">
+              First name is required
+            </div>
+            <div class="error" *ngIf="hasError('firstName', 'maxlength')">
+              First name is too long
+            </div>
+          </div>
+
+          <div>
+            <input placeholder="Last Name" formControlName="lastName">
+            <div class="error" *ngIf="hasError('lastName', 'required')">
+              Last name is required
+            </div>
+            <div class="error" *ngIf="hasError('lastName', 'maxlength')">
+              Last name is too long
+            </div>
+          </div>
+
+          <div>
+            <input placeholder="Email" formControlName="email">
+            <div class="error" *ngIf="hasError('email', 'required')">
+              Email is required
+            </div>
+            <div class="error" *ngIf="hasError('email', 'email')">
+              Email invalid
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="currentStep === 1" class="grid">
+        <div>
+          <input placeholder="Job Title" formControlName="jobTitle">
+          <div class="error" *ngIf="hasError('jobTitle', 'required')">
+            Job title is required
+          </div>
+        </div>
+
+        <div>
+          <input type="date" formControlName="hireDate">
+          <div class="error" *ngIf="hasError('hireDate', 'required')">
+            Hire date is required
+          </div>
+        </div>
+
+        <div>
+          <input type="number" placeholder="Salariu brut" formControlName="salary">
+          <div class="error" *ngIf="hasError('salary', 'min')">
+            Salary must be positive
+          </div>
+        </div>
+
+        <div>
+          <select formControlName="contractType">
+            <option value="">Select contract</option>
+            <option value="FullTime">Full Time</option>
+            <option value="PartTime">Part Time</option>
+            <option value="Collaboration">Collaboration</option>
+          </select>
+
+          <div class="error" *ngIf="hasError('contractType', 'required')">
+            Contract type is required
+          </div>
+        </div>
+
+        <div>
+          <textarea placeholder="Notes" formControlName="notes"></textarea>
+          <div class="error" *ngIf="hasError('notes', 'maxlength')">
+            Notes cannot exceed 500 characters
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="currentStep === 2" class="grid">
+        <div>
+          <input placeholder="Phone Number" formControlName="phoneNumber">
+          <div class="error" *ngIf="hasError('phoneNumber', 'pattern')">
+            Phone number invalid
+          </div>
+        </div>
+
+        <div>
+          <input placeholder="Emergency Name" formControlName="emergencyContactName">
+        </div>
+
+        <div>
+          <input placeholder="Emergency Phone" formControlName="emergencyContactPhone">
+          <div class="error" *ngIf="hasError('emergencyContactPhone', 'pattern')">
+            Emergency phone invalid
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="currentStep === 3" class="grid">
+        <input placeholder="Street" formControlName="street">
+        <input placeholder="City" formControlName="city">
+        <input placeholder="Country" formControlName="country">
+        <input placeholder="Postal Code" formControlName="postalCode">
+      </div>
+
+      <div *ngIf="currentStep === 4" class="grid">
+        <div>
+          <input placeholder="IBAN" formControlName="iban">
+          <div class="error" *ngIf="hasError('iban', 'pattern')">
+            IBAN invalid. Exemplu: RO49AAAA1B31007593840000
+          </div>
+        </div>
+
+        <input placeholder="Bank Name" formControlName="bankName">
+      </div>
+
+      <div *ngIf="currentStep === 5" class="upload-container">
+        <h3>Documente suplimentare</h3>
+
+        <p class="hint">Dimensiunea maximă a fișierului este de 1 MB</p>
+
+        <div
+          class="drop-zone"
+          [class.dragging]="isDragging"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)">
+
+          <div class="left">
+            <div class="icon">📄⬆️</div>
+            <div>
+              <p class="main-text">Trageți și plasați fișiere</p>
+              <p class="formats">.doc, .docx, .pdf, .txt, .jpg, .jpeg, .png, .ppt, .pptx</p>
+            </div>
+          </div>
+
+          <label class="upload-btn">
+            ⬆ Selectați fișierele
+            <input
+              type="file"
+              multiple
+              hidden
+              accept=".doc,.docx,.pdf,.txt,.jpg,.jpeg,.png,.ppt,.pptx"
+              (change)="onFileSelected($event)" />
+          </label>
+        </div>
+
+        <div class="upload-errors" *ngIf="fileErrors.length">
+          <div class="error-item" *ngFor="let error of fileErrors">
+            {{ error }}
+          </div>
+        </div>
+
+        <div class="file-list" *ngIf="selectedFiles.length">
+          <div class="file-item" *ngFor="let item of selectedFiles; let i = index">
+
+            <div class="file-info">
+              <span class="file-icon">📄</span>
+
+              <div class="file-meta">
+                <span class="file-name">{{ item.file.name }}</span>
+                <span class="file-size">{{ formatFileSize(item.file.size) }}</span>
+              </div>
+            </div>
+
+            <div class="doc-type-inline">
+              <select
+                [(ngModel)]="item.documentType"
+                [ngModelOptions]="{ standalone: true }">
+                <option value="Contract">Contract</option>
+                <option value="ActAditional">Act Adițional</option>
+                <option value="Cerere">Cerere</option>
+                <option value="CV">CV</option>
+                <option value="custom">Alt tip</option>
+              </select>
+
+              <input
+                *ngIf="item.documentType === 'custom'"
+                [(ngModel)]="item.customType"
+                [ngModelOptions]="{ standalone: true }"
+                placeholder="Tip document..." />
+
+              <div class="error" *ngIf="submitted && item.documentType === 'custom' && !item.customType">
+                Tipul documentului este obligatoriu
+              </div>
+            </div>
+
+            <button type="button" class="delete-btn" (click)="removeFile(i)">
+              🗑
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" (click)="prev()" [disabled]="currentStep === 0">
+          Back
+        </button>
+
+        <button type="button" *ngIf="currentStep < steps.length - 1" (click)="next()">
+          Next
+        </button>
+
+        <button type="submit" *ngIf="currentStep === steps.length - 1">
+          Create
+        </button>
+      </div>
+
+    </form>
+  </div>
 </div>

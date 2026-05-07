@@ -10,6 +10,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { Component } from '@angular/core';
 import { LeaveService } from '../../services/leave.service';
 import { Inject } from '@angular/core';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 
 
 @Component({
@@ -28,15 +29,16 @@ export class CreateLeaveModalComponent {
   constructor(
     private fb: FormBuilder,
     private leaveService: LeaveService,
+     private snackbar: SnackbarService,
     private dialogRef: MatDialogRef<CreateLeaveModalComponent>, 
      @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.leaveForm = this.fb.group({
-      startDate: [''],
-      endDate: [''],
-      leaveType: ['Vacation'],
-      reason: ['']
-    });
+  startDate: ['', Validators.required],
+  endDate: ['', Validators.required],
+  leaveType: ['Vacation', Validators.required],
+  reason: ['']
+});
   }
 
   ngOnInit() {
@@ -105,18 +107,53 @@ export class CreateLeaveModalComponent {
     this.dialogRef.close();
   }
 
-  submit() {
-    if (this.leaveForm.invalid) {
-      this.leaveForm.markAllAsTouched();
-      return;
-    }
+ submit() {
 
-    const value = this.leaveForm.value;
+  if (this.leaveForm.invalid) {
+    this.leaveForm.markAllAsTouched();
 
-    if (!this.isEditMode) {
-      delete value.reason;
-    }
+    this.snackbar.showError(
+      'Completează toate câmpurile obligatorii.',
+      2500
+    );
 
-    this.dialogRef.close(value);
+    return;
   }
+
+  const value = this.leaveForm.value;
+
+  if (new Date(value.endDate) < new Date(value.startDate)) {
+
+    this.leaveForm.get('endDate')?.setErrors({
+      invalidRange: true
+    });
+
+    this.leaveForm.get('endDate')?.markAsTouched();
+
+    this.snackbar.showError(
+      'Data de sfârșit trebuie să fie după data de început.',
+      3000
+    );
+
+    return;
+  }
+
+  if (!this.isEditMode) {
+    delete value.reason;
+  }
+
+  this.snackbar.showSuccess(
+    this.isEditMode
+      ? 'Concediul a fost actualizat.'
+      : 'Cererea de concediu este pregătită.',
+    1800
+  );
+
+  this.dialogRef.close(value);
+}
+
+  hasError(controlName: string, errorName: string): boolean {
+  const control = this.leaveForm.get(controlName);
+  return !!control && control.hasError(errorName) && control.touched;
+}
 }

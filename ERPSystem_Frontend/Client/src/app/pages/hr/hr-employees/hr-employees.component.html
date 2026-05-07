@@ -6,32 +6,10 @@
     </div>
 
     <div class="page-header-actions">
-      <button class="btn btn-light" (click)="exportCSV()">Export CSV</button>
+      <button class="btn btn-light" (click)="exportExcel()">Export Excel</button>
       <button class="btn btn-primary" (click)="openCreate()">Adaugă angajat</button>
     </div>
   </div>
-
-  <!-- <div class="stats-grid">
-    <div class="stat-card">
-      <span class="stat-title">Total angajați</span>
-      <strong>{{ dashboard?.totalEmployees }}</strong>
-    </div>
-
-    <div class="stat-card">
-      <span class="stat-title">Activi</span>
-      <strong>{{ dashboard?.activeEmployees }}</strong>
-    </div>
-
-    <div class="stat-card">
-      <span class="stat-title">Încetați</span>
-      <strong>{{ dashboard?.terminatedEmployees }}</strong>
-    </div>
-
-    <div class="stat-card">
-      <span class="stat-title">Angajări noi</span>
-      <strong>{{ dashboard?.newHiresThisMonth }}</strong>
-    </div>
-  </div> -->
 
   <div class="filters-card">
     <div class="filters-top">
@@ -138,8 +116,6 @@
           </tr>
         </tbody>
       </table>
-
-
     </div>
 
     <div class="pagination" *ngIf="totalPages > 1">
@@ -162,9 +138,7 @@
 
     <label>Document justificativ</label>
 
-    <!-- DOCUMENT TYPE -->
     <div class="doc-type-box">
-
       <select [(ngModel)]="terminationDocumentType" (change)="onTerminationDocTypeChange()">
         <option value="DecizieIncetare">Decizie încetare</option>
         <option value="Demisie">Demisie</option>
@@ -178,7 +152,6 @@
 
     </div>
 
-    <!-- FILE -->
     <input type="file" (change)="onTerminationFileSelected($event)" accept=".pdf,.doc,.docx,.jpg,.png" />
 
     <div *ngIf="terminationFile">
@@ -193,5 +166,4 @@
   </div>
 </div>
 
-<app-add-employees *ngIf="showCreate" (close)="cancelCreate()" (created)="onEmployeeCreated()">
-</app-add-employees>
+<app-add-employees *ngIf="showCreate" (close)="cancelCreate()" (created)="onEmployeeCreated()"></app-add-employees>

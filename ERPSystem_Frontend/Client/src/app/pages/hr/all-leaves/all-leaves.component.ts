@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LeaveService } from '../../services/leave.service';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 
 @Component({
   selector: 'app-all-leaves',
@@ -17,25 +18,16 @@ export class AllLeavesComponent implements OnInit {
   searchTerm = '';
   selected: Set<string> = new Set();
 
-  sort = {
-    column: 'startDate',
-    direction: 'desc'
-  };
+  sort = { column: 'startDate', direction: 'desc'};
 
-  // filtre
-  filters = {
-    status: '',
-    leaveType: '',
-    page: 1,
-    pageSize: 5
-  };
+  filters = {status: '', leaveType: '', page: 1, pageSize: 10};
 
   loading = false;
   private searchTimeout: any;
 
   showRejectModal = false;
-selectedLeave: any = null;
-rejectReason = '';
+  selectedLeave: any = null;
+  rejectReason = '';
 
   startDate = '';
   endDate = '';
@@ -44,33 +36,34 @@ rejectReason = '';
   loadingConflicts = false;
   checkedConflicts = false;
 
-  constructor(private leaveService: LeaveService) { }
+  constructor(private leaveService: LeaveService, private snackbar: SnackbarService) { }
 
   ngOnInit() {
     this.loadLeaves();
   }
 
-  loadLeaves() {
-    this.loading = true;
+ loadLeaves() {
+  this.loading = true;
 
-    const params = {
-      ...this.filters,
-      search: this.searchTerm,
-      sortBy: this.sort.column,
-      sortOrder: this.sort.direction
-    };
+  const params = {
+    ...this.filters,
+    search: this.searchTerm,
+    sortBy: this.sort.column,
+    sortOrder: this.sort.direction
+  };
 
-    this.leaveService.getAllLeaves(params).subscribe({
-      next: (res: any) => {
-        this.leaves = res.value.data;
-        this.total = res.value.total;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      }
-    });
-  }
+  this.leaveService.getAllLeaves(params).subscribe({
+    next: (res: any) => {
+      this.leaves = res.value.data;
+      this.total = res.value.total;
+      this.loading = false;
+    },
+    error: () => {
+      this.loading = false;
+      this.snackbar.showError('Eroare la încărcarea concediilor.', 2500);
+    }
+  });
+}
 
   onSearchChange() {
     this.filters.page = 1;
@@ -108,16 +101,6 @@ rejectReason = '';
   changePage(p: number) {
     this.filters.page = p;
     this.loadLeaves();
-  }
-
-  exportExcel() {
-    this.leaveService.exportExcel().subscribe(blob => {
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'concedii.xlsx';
-      a.click();
-    });
   }
 
   getStatusLabel(status: string): string {
@@ -162,7 +145,7 @@ rejectReason = '';
 
   checkConflicts() {
     if (!this.startDate || !this.endDate) {
-      alert('Selectează perioada.');
+      this.snackbar.showError('Selectează perioada.', 2200);
       return;
     }
 
@@ -175,57 +158,69 @@ rejectReason = '';
         this.conflicts = res.value || [];
         this.loadingConflicts = false;
         this.checkedConflicts = true;
+
+        if (this.conflicts.length) {
+          this.snackbar.showError('Au fost găsite conflicte în perioada selectată.', 2500);
+        } else {
+          this.snackbar.showSuccess('Nu există conflicte în perioada selectată.', 1800);
+        }
       },
       error: () => {
         this.loadingConflicts = false;
         this.checkedConflicts = true;
         this.conflicts = [];
+
+        this.snackbar.showError('Eroare la verificarea conflictelor.', 2500);
       }
     });
   }
 
   get totalPages(): number {
-  return Math.ceil(this.total / this.filters.pageSize);
-}
-
-
-approveLeave(id: string) {
-  this.leaveService.approve(id).subscribe(() => {
-    this.loadLeaves(); // 🔥 refresh list
-  });
-}
-
-
-
-openRejectModal(leave: any) {
-  this.selectedLeave = leave;
-  this.rejectReason = '';
-  this.showRejectModal = true;
-}
-
-closeRejectModal() {
-  this.showRejectModal = false;
-  this.selectedLeave = null;
-  this.rejectReason = '';
-}
-
-confirmReject() {
-  if (!this.selectedLeave) return;
-
-  if (!this.rejectReason || !this.rejectReason.trim()) {
-    alert('Completează motivul respingerii.');
-    return;
+    return Math.ceil(this.total / this.filters.pageSize);
   }
 
-  this.leaveService.reject(this.selectedLeave.id, this.rejectReason.trim()).subscribe({
-    next: () => {
-      this.closeRejectModal();
-      this.loadLeaves();
-    },
-    error: () => {
-      alert('A apărut o eroare la respingerea concediului.');
+  approveLeave(id: string) {
+    this.leaveService.approve(id).subscribe({
+      next: () => {
+        this.snackbar.showSuccess('Concediul a fost aprobat.', 1800);
+        this.loadLeaves();
+      },
+      error: () => {
+        this.snackbar.showError('Concediul nu a putut fi aprobat.', 2500);
+      }
+    });
+  }
+
+  openRejectModal(leave: any) {
+    this.selectedLeave = leave;
+    this.rejectReason = '';
+    this.showRejectModal = true;
+  }
+
+  closeRejectModal() {
+    this.showRejectModal = false;
+    this.selectedLeave = null;
+    this.rejectReason = '';
+  }
+
+  confirmReject() {
+    if (!this.selectedLeave) return;
+
+    if (!this.rejectReason || !this.rejectReason.trim()) {
+      this.snackbar.showError('Completează motivul respingerii.', 2200);
+      return;
     }
-  });
-}
+
+    this.leaveService.reject(this.selectedLeave.id, this.rejectReason.trim()).subscribe({
+      next: () => {
+        this.snackbar.showSuccess('Concediul a fost respins.', 1800);
+        this.closeRejectModal();
+        this.loadLeaves();
+      },
+      error: () => {
+        this.snackbar.showError('A apărut o eroare la respingerea concediului.', 2500);
+      }
+    });
+  }
 
 }

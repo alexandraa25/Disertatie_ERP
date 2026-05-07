@@ -4,7 +4,8 @@
     {
         public Guid EmployeeId { get; set; }
 
-        public List<string> DocumentTypes { get; set; } = new();
-        public List<IFormFile> Files { get; set; } = new();
+        public IFormFile? File { get; set; }
+
+        public string? DocumentType { get; set; }
     }
 }

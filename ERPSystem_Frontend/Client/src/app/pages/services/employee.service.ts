@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { HttpClient } from '@angular/common/http'
+import { HttpClient, HttpParams } from '@angular/common/http'
 import { Observable } from 'rxjs'
 import { Employee, HrDashboard, SimpleUser } from '../models/employee.model'
 import { PublicResponse } from '../../app.model'
@@ -67,6 +67,29 @@ downloadDocument(documentId: string) {
 deleteDocument(documentId: string) {
   return this.http.delete<any>(
     `${this.baseUrl}/documents/${documentId}`
+  );
+}
+
+// employees.service.ts
+
+exportEmployeesExcel( q?: string,status?: string, contractType?: string) {
+  let params = new HttpParams();
+
+  if (q)
+    params = params.set('q', q);
+
+  if (status)
+    params = params.set('status', status);
+
+  if (contractType)
+    params = params.set('contractType', contractType);
+
+  return this.http.get(
+    `${this.baseUrl}/export/excel`,
+    {
+      params,
+      responseType: 'blob'
+    }
   );
 }
 

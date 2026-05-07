@@ -9,6 +9,8 @@
         public DateTime? StartFrom { get; set; }
         public DateTime? StartTo { get; set; }
 
+        public string? Search { get; set; }
+
         public string? SortBy { get; set; } = "StartDate"; // StartDate, EndDate
         public string? SortOrder { get; set; } = "desc";   // asc / desc
 

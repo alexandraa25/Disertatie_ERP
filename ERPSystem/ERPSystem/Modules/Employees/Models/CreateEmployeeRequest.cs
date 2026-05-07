@@ -35,8 +35,10 @@ namespace ERPSystem.Modules.Employees.Models
         public string? BankName { get; set; }
 
         // DOCUMENTE
-        public List<IFormFile>? Files { get; set; }
+        [FromForm(Name = "Files")]
+        public IFormFile[] Files { get; set; } = Array.Empty<IFormFile>();
 
-        public List<string>? DocumentTypes { get; set; }
+        [FromForm(Name = "DocumentTypes")]
+        public string[] DocumentTypes { get; set; } = Array.Empty<string>();
     }
 }

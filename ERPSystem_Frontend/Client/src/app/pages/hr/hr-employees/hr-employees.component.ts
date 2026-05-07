@@ -3,15 +3,17 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
-
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 import { AddEmployeesComponent } from '../add-employees/add-employees.component';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee, HrDashboard } from '../../models/employee.model';
+import { ConfirmService } from '../../services/confirm.service';
+import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
 
 @Component({
   selector: 'app-hr-employees',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, AddEmployeesComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, AddEmployeesComponent, ConfirmCustomModalComponent],
   templateUrl: './hr-employees.component.html',
   styleUrls: ['./hr-employees.component.css']
 })
@@ -29,7 +31,7 @@ export class HrEmployeesComponent implements OnInit {
   sortDirection: 'asc' | 'desc' = 'desc';
 
   page = 1;
-  pageSize = 5;
+  pageSize = 10;
   totalCount = 0;
   totalPages = 0;
 
@@ -45,12 +47,13 @@ export class HrEmployeesComponent implements OnInit {
 
   constructor(
     private service: EmployeeService,
-    private router: Router
+    private router: Router,
+    private snackBar: SnackbarService,
+    private confirmService: ConfirmService
   ) { }
 
   ngOnInit(): void {
     this.loadEmployees();
-    this.loadDashboard();
 
     this.searchChanged
       .pipe(
@@ -61,22 +64,6 @@ export class HrEmployeesComponent implements OnInit {
         this.page = 1;
         this.loadEmployees();
       });
-  }
-
-  loadDashboard(): void {
-    this.service.getDashboard().subscribe({
-      next: (res: any) => {
-        if (!res.isSuccess) {
-          alert(res.error?.errorMessage);
-          return;
-        }
-
-        this.dashboard = res.value;
-      },
-      error: () => {
-        alert('Eroare la încărcarea dashboard-ului.');
-      }
-    });
   }
 
   loadEmployees(): void {
@@ -97,7 +84,10 @@ export class HrEmployeesComponent implements OnInit {
         this.loading = false;
 
         if (!res.isSuccess) {
-          alert(res.error?.errorMessage);
+          this.snackBar.showError(
+            res.error?.errorMessage || 'Eroare la încărcarea angajaților.',
+            2500
+          );
           return;
         }
 
@@ -107,7 +97,7 @@ export class HrEmployeesComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
-        alert('Eroare la încărcarea angajaților.');
+        this.snackBar.showError('Eroare la încărcarea angajaților.', 2500);
       }
     });
   }
@@ -124,7 +114,6 @@ export class HrEmployeesComponent implements OnInit {
     this.showCreate = false;
     this.page = 1;
     this.loadEmployees();
-    this.loadDashboard();
   }
 
   onSearchChange(): void {
@@ -163,25 +152,6 @@ export class HrEmployeesComponent implements OnInit {
     this.loadEmployees();
   }
 
-
-
-  // reactivateEmployee(employee: Employee): void {
-  //   if (!this.service.reactivateEmployee) {
-  //     alert('Metoda de reactivare nu este încă implementată în service.');
-  //     return;
-  //   }
-
-  //   this.service.reactivateEmployee(employee.id).subscribe({
-  //     next: () => {
-  //       this.loadEmployees();
-  //       this.loadDashboard();
-  //     },
-  //     error: () => {
-  //       alert('Eroare la reactivarea angajatului.');
-  //     }
-  //   });
-  // }
-
   viewDetails(employee: Employee): void {
     if (!employee?.id) {
       return;
@@ -190,32 +160,32 @@ export class HrEmployeesComponent implements OnInit {
     this.router.navigate(['/employee', employee.id]);
   }
 
-  exportCSV(): void {
-    let csv = 'Nume,Functie,Status,Data angajarii,Salariu brut,Tip contract\n';
+  exportExcel(): void {
+    this.service
+      .exportEmployeesExcel(this.searchText, this.statusFilter, this.contractFilter)
+      .subscribe({
+        next: (blob: Blob) => {
+          const url = window.URL.createObjectURL(blob);
 
-    this.employees.forEach((e) => {
-      const fullName = `${e.firstName ?? ''} ${e.lastName ?? ''}`.trim();
-      const hireDate = e.hireDate ? new Date(e.hireDate).toLocaleDateString('ro-RO') : '';
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'angajati.xlsx';
+          a.click();
 
-      csv += `"${fullName}","${e.jobTitle ?? ''}","${e.employmentStatus ?? ''}","${hireDate}","${e.salary ?? ''}","${e.contractType ?? ''}"\n`;
-    });
+          window.URL.revokeObjectURL(url);
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'angajati.csv';
-    a.click();
-
-    window.URL.revokeObjectURL(url);
+          this.snackBar.showSuccess('Exportul Excel a fost generat.', 1800);
+        },
+        error: () => {
+          this.snackBar.showError('Exportul Excel nu a putut fi generat.', 2500);
+        }
+      });
   }
 
   getSortIndicator(column: string): string {
     if (this.sortBy !== column) {
       return '';
     }
-
     return this.sortDirection === 'asc' ? '↑' : '↓';
   }
 
@@ -223,10 +193,8 @@ export class HrEmployeesComponent implements OnInit {
     if (this.sortBy !== column) {
       return '↕';
     }
-
     return this.sortDirection === 'asc' ? '↑' : '↓';
   }
-
 
   terminateEmployee(employee: Employee): void {
     this.employeeToTerminate = employee;
@@ -241,8 +209,8 @@ export class HrEmployeesComponent implements OnInit {
 
     this.terminationFile = input.files[0];
   }
-  confirmTerminate(): void {
 
+  confirmTerminate(): void {
     if (!this.employeeToTerminate) return;
 
     const formData = new FormData();
@@ -256,21 +224,22 @@ export class HrEmployeesComponent implements OnInit {
 
     if (this.terminationFile) {
       formData.append('File', this.terminationFile);
-      formData.append('DocumentType', finalType); // 🔥 AICI
+      formData.append('DocumentType', finalType);
     }
 
     this.service.terminateEmployee(this.employeeToTerminate.id, formData)
       .subscribe({
         next: () => {
+          this.snackBar.showSuccess('Contractul angajatului a fost încetat.', 1800);
           this.loadEmployees();
-          this.loadDashboard();
           this.closeTerminateModal();
         },
         error: () => {
-          alert('Eroare la încetarea angajatului.');
+          this.snackBar.showError('Eroare la încetarea angajatului.', 2500);
         }
       });
   }
+
   closeTerminateModal(): void {
     this.terminateModalOpen = false;
     this.employeeToTerminate = null;

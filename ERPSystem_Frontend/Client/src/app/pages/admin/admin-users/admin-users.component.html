@@ -1,29 +1,12 @@
 <div class="container">
-
-
-    <div class="stats">
-
-        <div class="card">
-            <h3>{{totalUsers}}</h3>
-            <p>Total utilizatori</p>
-        </div>
-
-        <div class="card">
-            <h3>{{activeUsers}}</h3>
-            <p>Utilizatori activi</p>
-        </div>
-
-        <div class="card">
-            <h3>{{inactiveUsers}}</h3>
-            <p>Utilizatori inactivi</p>
-        </div>
-
-        <div class="card">
-            <h3>{{adminUsers}}</h3>
-            <p>Administratori</p>
-        </div>
-
+  <div class="page-hero">
+    <div>
+      <h2>Utilizatori</h2>
+      <p>Gestionează conturile, rolurile și statusurile utilizatorilor.</p>
     </div>
+  </div>
+
+
 
     <div *ngIf="employeesWithoutUser?.length" class="section">
 

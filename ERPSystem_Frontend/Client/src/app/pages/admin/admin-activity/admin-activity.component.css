@@ -1,357 +1,244 @@
-@import "@ng-select/ng-select/themes/default.theme.css";
-
-/* =======================
-   CARD & LAYOUT
-======================= */
-.card {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 50px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
-  margin: 100px 60px 20px;
-  overflow: visible;
+.page {
+  max-width: 1200px;
+  margin: 90px auto 40px;
+  padding: 0 24px;
 }
 
-h2 {
-  font-size: 20px;
-  font-weight: 600;
+.page-hero {
   margin-bottom: 20px;
 }
 
-/* =======================
-   FILTER BAR
-======================= */
-.filters {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 16px;
-  align-items: center;
-  padding: 16px;
-  background: #f9fafb;
-  border-radius: 14px;
-  border: 1px solid #f1f5f9;
-  margin-bottom: 30px;
+.page-hero h2 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.page-hero p {
+  margin: 8px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.card,
+.filters-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+}
+
+.filters-card {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  align-items: flex-end;
+  padding: 26px 22px 28px;
+  margin-bottom: 18px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  overflow: visible;
 }
 
 .filter-group {
+  min-width: 0;
+  position: relative;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 7px;
+}
+
+.filter-group:last-child {
+  min-width: 280px;
 }
 
 .filter-group label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #9ca3af;
-  text-transform: uppercase;
-}
-
-/* =======================
-   NG-SELECT
-======================= */
-ng-select {
-  width: 220px;
-  min-width: 220px;
-}
-
-/* container */
-::ng-deep .ng-select .ng-select-container {
-  min-height: 42px;
-  border-radius: 10px !important;
-  border: 1px solid #e5e7eb !important;
-  background: #fff;
-  transition: all 0.2s ease;
-}
-
-/* focus */
-::ng-deep .ng-select.ng-select-focused .ng-select-container {
-  border-color: #6366f1 !important;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
-}
-
-/* dropdown */
-::ng-deep .ng-dropdown-panel {
-  position: absolute !important;
-  z-index: 9999 !important;
-  border-radius: 10px;
-  margin-top: 6px;
-  background: #ffffff !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-}
-
-/* options */
-::ng-deep .ng-option {
-  padding: 10px;
-}
-
-::ng-deep .ng-option:hover {
-  background: #f3f4f6 !important;
-}
-
-/* placeholder */
-::ng-deep .ng-select .ng-placeholder {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #9ca3af;
-  pointer-events: none;
-}
-
-/* hide placeholder when selected */
-::ng-deep .ng-select.ng-select-multiple .ng-value-container:not(:empty) ~ .ng-placeholder {
-  display: none !important;
-}
-
-/* values */
-::ng-deep .ng-select .ng-value {
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 800;
   white-space: nowrap;
 }
 
-/* multi chips */
-::ng-deep .ng-select.ng-select-multiple .ng-value-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 4px 6px;
-}
-
-::ng-deep .ng-select.ng-select-multiple .ng-value {
-  background: #eef2ff;
-  border-radius: 8px;
-  padding: 4px 8px;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-}
-
-::ng-deep .ng-select.ng-select-multiple .ng-value-icon {
-  margin-left: 6px;
-  font-size: 12px;
-}
-
-/* =======================
-   DATE PICKER (MATCH NG-SELECT)
-======================= */
-/* wrapper */
-.date-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* field */
-.date-field {
-  width: 240px;
-}
-
-/* 🔥 fix material să arate ca ng-select */
-::ng-deep .mat-mdc-text-field-wrapper {
-  height: 42px;
-  border-radius: 10px !important;
+::ng-deep ng-select .ng-select-container {
+  min-height: 44px !important;
+  border-radius: 14px !important;
   border: 1px solid #e5e7eb !important;
-  background: #fff !important;
-  padding: 0 10px !important;
-  display: flex;
-  align-items: center;
+  background: #f8fafc !important;
+  box-shadow: none !important;
 }
 
-/* scoate underline */
-::ng-deep .mdc-line-ripple {
-  display: none !important;
+::ng-deep ng-select.ng-select-focused .ng-select-container {
+  border-color: #6366f1 !important;
+  background: white !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12) !important;
 }
 
-/* fix input spacing */
-::ng-deep .mat-mdc-form-field-infix {
-  padding: 0 !important;
-  min-height: auto !important;
+::ng-deep .ng-select .ng-value-container {
+  padding-left: 10px !important;
 }
 
-/* 🔥 IMPORTANT: iconul rămâne în linie */
-::ng-deep .mat-datepicker-toggle {
-  margin-left: auto;
+::ng-deep .ng-dropdown-panel {
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 14px !important;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18) !important;
+  z-index: 99999 !important;
+  overflow: hidden !important;
+}
+::ng-deep .ng-dropdown-panel .ng-dropdown-panel-items {
+  background: white !important;
+  max-height: 280px !important;
 }
 
-/* ❌ buton reset */
-.clear-date {
-  height: 42px;
-  width: 42px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  color: #6b7280;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+::ng-deep .ng-dropdown-panel .ng-option {
+  background: white !important;
+  color: #0f172a !important;
+  padding: 10px 14px !important;
+  font-size: 14px !important;
 }
 
-.clear-date:hover {
-  background: #fee2e2;
-  color: #ef4444;
-  border-color: #fecaca;
+::ng-deep .ng-dropdown-panel .ng-option:hover,
+::ng-deep .ng-dropdown-panel .ng-option.ng-option-marked {
+  background: #eef2ff !important;
+  color: #4338ca !important;
 }
 
-.date-wrapper {
-  position: relative;
+::ng-deep .ng-dropdown-panel .ng-option.ng-option-selected {
+  background: #e0e7ff !important;
+  color: #3730a3 !important;
+  font-weight: 800 !important;
 }
 
-.date-presets {
-  display: flex;
-  gap: 8px;
-  margin-top: 6px;
+::ng-deep ng-select {
+  width: 100%;
 }
 
-.date-presets button {
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  font-size: 12px;
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.2s ease;
+@media (max-width: 1100px) {
+  .filters-card {
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    min-width: calc(50% - 7px);
+  }
 }
 
-.date-presets button:hover {
-  border-color: #6366f1;
-  color: #6366f1;
-  background: #eef2ff;
+@media (max-width: 700px) {
+  .filters-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    min-width: 100%;
+  }
+}
+.loading,
+.card > div[ng-reflect-ng-if] {
+  text-align: center;
+  padding: 32px;
+  color: #64748b;
+  font-style: italic;
 }
 
-/* trigger-ul intern */
-.date-picker .trigger {
-  height: 42px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  padding: 0 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.date-picker .trigger:hover {
-  border-color: #6366f1;
-}
-
-/* icon mai clean */
-.date-picker .trigger::after {
-  content: "📅";
-  font-size: 14px;
-  opacity: 0.6;
-}
-/* =======================
-   TIMELINE / LOGS
-======================= */
 .log-group {
-  position: relative;
-  padding-left: 20px;
-  margin-bottom: 32px;
+  margin-top: 18px;
 }
 
 .group-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: #6b7280;
-  margin-bottom: 16px;
-  text-transform: uppercase;
+  display: inline-flex;
+  margin-bottom: 12px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4338ca;
+  font-size: 12px;
+  font-weight: 800;
 }
 
-/* vertical line */
-.log-group::before {
-  content: "";
-  position: absolute;
-  left: 6px;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: #e5e7eb;
-}
-
-/* item */
 .log-item {
   position: relative;
-  margin-bottom: 18px;
-  padding: 18px;
-  background: #ffffff;
-  border-radius: 12px;
-  border: 1px solid #f1f5f9;
-  transition: all 0.2s ease;
+  padding: 14px 16px 14px 46px;
+  margin-bottom: 10px;
+  border: 1px solid #eef2f7;
+  border-radius: 16px;
+  background: #f8fafc;
+  transition: 0.15s ease;
 }
 
 .log-item:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  background: white;
   transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
 }
 
-/* dot */
 .log-item::before {
-  content: "";
+  content: '';
   position: absolute;
-  left: -20px;
-  top: 22px;
+  left: 16px;
+  top: 18px;
   width: 12px;
   height: 12px;
-  border-radius: 50%;
-  background: #9ca3af;
+  border-radius: 999px;
+  background: #6366f1;
 }
 
-/* colors */
-.log-create::before { background: #10b981; }
-.log-update::before { background: #3b82f6; }
-.log-delete::before { background: #ef4444; }
+.log-create::before {
+  background: #22c55e;
+}
 
-/* meta */
+.log-update::before {
+  background: #f59e0b;
+}
+
+.log-delete::before {
+  background: #ef4444;
+}
+
 .log-meta {
-  font-size: 14px;
-  color: #6b7280;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .log-meta span {
-  font-weight: 500;
-  color: #374151;
+  color: #475569;
 }
 
-/* text */
 .log-text {
-  font-size: 16px;
-  color: #111827;
-  line-height: 1.6;
-}
-
-/* states */
-.loading,
-.empty {
-  color: #9ca3af;
-  font-style: italic;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 14px;
-  margin-top: 30px;
+  gap: 12px;
+  margin-top: 20px;
 }
 
 .pagination button {
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 8px 14px;
   border: 1px solid #e5e7eb;
   background: white;
+  color: #334155;
   cursor: pointer;
-  transition: 0.2s;
+  border-radius: 10px;
+  font-weight: 800;
 }
 
 .pagination button:hover:not(:disabled) {
-  border-color: #6366f1;
-  color: #6366f1;
+  background: #f8fafc;
+  transform: translateY(-1px);
 }
 
 .pagination button:disabled {
@@ -360,6 +247,22 @@ ng-select {
 }
 
 .pagination span {
-  font-size: 14px;
-  color: #374151;
+  color: #334155;
+  font-weight: 700;
+}
+
+@media (max-width: 1000px) {
+  .filters {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 0 12px;
+  }
+
+  .filters {
+    grid-template-columns: 1fr;
+  }
 }

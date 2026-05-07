@@ -8,9 +8,23 @@
       <div class="sub"> {{employee.jobTitle}} · <span class="status"> {{employee.employmentStatus === 'Active' ? 'Activ'
           : employee.employmentStatus === 'Terminated' ? 'Încheiat' : employee.employmentStatus}} </span> </div>
     </div>
-    <div class="actions"> <button *ngIf="!isEditMode" (click)="enableEdit()"> ✏ Edit </button> <button
-        *ngIf="isEditMode" (click)="save()"> 💾 Save </button> <button *ngIf="isEditMode" (click)="cancelEdit()"> ✖
-        Cancel </button> </div>
+    <div class="actions">
+      <button type="button" class="back-btn" (click)="goBack()">
+        ← Înapoi
+      </button>
+
+      <button type="button" *ngIf="activeTab === 'info' && !isEditMode" (click)="enableEdit()">
+        ✏ Edit
+      </button>
+
+      <button type="button" *ngIf="activeTab === 'info' && isEditMode" (click)="save()">
+        💾 Save
+      </button>
+
+      <button type="button" *ngIf="activeTab === 'info' && isEditMode" (click)="cancelEdit()">
+        ✖ Cancel
+      </button>
+    </div>
   </div>
 
   <!-- TABS -->
@@ -37,7 +51,6 @@
 
     <div class="col">
 
-      <!-- ================= GENERAL ================= -->
       <div class="section">
         <h3>Informații generale</h3>
 
@@ -61,7 +74,6 @@
           <input *ngIf="isEditMode" type="number" [(ngModel)]="editModel.salary" />
         </div>
 
-        <!-- CONTRACT TYPE (DROP-DOWN) -->
         <div class="item">
           <label>Tip contract</label>
 
@@ -74,7 +86,6 @@
           </select>
         </div>
 
-        <!-- JOB TITLE -->
         <div class="item">
           <label>Funcție</label>
 
@@ -85,7 +96,6 @@
 
       </div>
 
-      <!-- ================= ADRESĂ ================= -->
       <div class="section">
         <h3>Adresă</h3>
 
@@ -132,10 +142,7 @@
 
     </div>
 
-    <!-- ================= COL 2 ================= -->
     <div class="col">
-
-      <!-- ================= CONTACT ================= -->
       <div class="section">
         <h3>Contact</h3>
 
@@ -180,7 +187,6 @@
         </div>
       </div>
 
-      <!-- ================= BANK ================= -->
       <div class="section">
         <h3>Date bancare</h3>
 
@@ -204,21 +210,15 @@
           <input *ngIf="isEditMode" [(ngModel)]="editModel.bank.bankName" />
         </div>
       </div>
-
     </div>
-
   </div>
-
 
   <!-- DOCUMENTS TAB -->
   <div *ngIf="activeTab === 'documents'" class="section">
 
     <h3>Documente</h3>
 
-    <!-- UPLOAD ZONE -->
     <div class="upload-box">
-
-      <!-- DOCUMENT TYPE -->
       <div class="type-row">
         <select [(ngModel)]="documentType" (change)="onDocTypeChange()">
           <option value="Contract">Contract</option>
@@ -232,27 +232,22 @@
           placeholder="Introdu tip document..." />
       </div>
 
-      <!-- FILE INPUT -->
-      <input type="file" multiple (change)="onFileSelected($event)" accept=".doc,.docx,.pdf,.jpg,.png" />
+      <input type="file" (change)="onFileSelected($event)" accept=".doc,.docx,.pdf,.jpg,.jpeg,.png,.txt,.ppt,.pptx" />
 
-      <!-- FILE LIST -->
       <div class="file-list" *ngIf="selectedFiles.length">
-        <div class="file-item" *ngFor="let file of selectedFiles; let i = index">
-
+        <div class="file-item">
           <div>
-            📄 {{ file.name }}
-
+            📄 {{ selectedFiles[0].name }}
             <small class="tag">
               {{ getResolvedDocType() }}
             </small>
           </div>
 
-          <button class="remove" (click)="removeFile(i)">✖</button>
-
+          <button type="button" class="remove" (click)="removeFile()"> ✖ </button>
         </div>
       </div>
 
-      <button class="upload-btn" (click)="uploadDocuments()" [disabled]="selectedFiles.length === 0">
+      <button type="button" class="upload-btn" (click)="uploadDocuments()" [disabled]="selectedFiles.length === 0">
         Upload
       </button>
 
@@ -260,7 +255,6 @@
 
     <hr />
 
-    <!-- EXISTING DOCUMENTS -->
     <div class="doc-row" *ngFor="let doc of employee.documents">
 
       <div>
@@ -269,33 +263,34 @@
       </div>
 
       <div class="doc-actions">
-  <button type="button" (click)="openDocument(doc)">
-    Vizualizează
-  </button>
+        <button type="button" (click)="openDocument(doc)">
+          Vizualizează
+        </button>
 
-  <button type="button" class="download-btn" (click)="downloadDocument(doc)">
-    Descarcă
-  </button>
+        <button type="button" class="download-btn" (click)="downloadDocument(doc)">
+          Descarcă
+        </button>
 
-  <button type="button" class="delete-btn" (click)="deleteDocument(doc)">
-    Șterge
-  </button>
-</div>
-
+        <button type="button" class="delete-btn" (click)="deleteDocument(doc)">
+          Șterge
+        </button>
+      </div>
     </div>
-
   </div>
 
   <!-- LEAVES TAB -->
   <div *ngIf="activeTab === 'leaves'" class="section">
 
     <h3>Concedii</h3>
+  
+    <div *ngIf="!pagedLeaves.length" class="empty-text">
+  Nu există concedii.
+</div>
 
     <div class="leave-list">
 
-      <div class="leave-card" *ngFor="let leave of employee.leaves">
+      <div class="leave-card" *ngFor="let leave of pagedLeaves">
 
-        <!-- INFO -->
         <div class="leave-info">
           <strong>
             {{leave.startDate | date:'dd MMM yyyy'}} -
@@ -312,89 +307,99 @@
             • {{leave.days}} zile
           </p>
 
-          <!-- 🔥 motiv (doar dacă există) -->
           <small *ngIf="leave.reason">
             Motiv: {{leave.reason}}
           </small>
         </div>
 
-        <!-- ACTIONS -->
         <div class="leave-actions">
 
           <span class="status" [ngClass]="leave.status.toLowerCase()">
             {{leave.status}}
           </span>
 
-          <!-- ✔ APPROVE -->
           <button *ngIf="leave.status === 'Pending'" class="approve-btn" (click)="approveLeave(leave.id)">
             ✔Aproba
           </button>
 
-          <!-- ✖ REJECT -->
           <button *ngIf="leave.status === 'Pending'" class="reject-btn" (click)="rejectLeave(leave)">
             ✖Respinge
           </button>
-
         </div>
-
       </div>
-
     </div>
 
+    <div class="pagination" *ngIf="leaveTotalPages > 1">
+  <button type="button" (click)="changeLeavePage(leavePage - 1)" [disabled]="leavePage === 1">
+    Înapoi
+  </button>
+
+  <span>Pagina {{ leavePage }} din {{ leaveTotalPages }}</span>
+
+  <button type="button" (click)="changeLeavePage(leavePage + 1)" [disabled]="leavePage === leaveTotalPages">
+    Înainte
+  </button>
+</div>
   </div>
 
   <!-- AUDIT TAB -->
- <div *ngIf="activeTab === 'audit'" class="section">
+  <div *ngIf="activeTab === 'audit'" class="section">
 
-  <h3>Istoric modificări</h3>
+    <h3>Istoric modificări</h3>
 
-  <div *ngIf="!activityLogs.length" class="empty-text">
-    Nu există modificări.
-  </div>
+    <div *ngIf="!activityLogs.length" class="empty-text">
+      Nu există modificări.
+    </div>
 
-  <div class="audit-list" *ngIf="activityLogs.length">
+    <div class="audit-list" *ngIf="activityLogs.length">
 
-    <div class="audit-item" *ngFor="let log of activityLogs">
+      <div class="audit-item" *ngFor="let log of pagedActivityLogs">
 
-      <div class="audit-icon">
-        {{
+        <div class="audit-icon">
+          {{
           log.action === 'EmployeeCreated' ? '✓' :
           log.action === 'EmployeeUpdated' ? '✏' :
           log.action === 'EmployeeDocumentsUploaded' ? '📄' :
           log.action === 'EmployeeTerminated' ? '⚠' :
           '•'
-        }}
-      </div>
+          }}
+        </div>
 
-      <div class="audit-content">
+        <div class="audit-content">
 
-        <div class="audit-title">
-          {{
+          <div class="audit-title">
+            {{
             log.action === 'EmployeeCreated' ? 'Angajat creat' :
             log.action === 'EmployeeUpdated' ? 'Date modificate' :
             log.action === 'EmployeeDocumentsUploaded' ? 'Documente încărcate' :
             log.action === 'EmployeeTerminated' ? 'Angajat încetat' :
             log.action
-          }}
-        </div>
+            }}
+          </div>
 
-        <div class="audit-description">
-          {{ log.description }}
-        </div>
+          <div class="audit-description">
+            {{ log.description }}
+          </div>
 
-        <div class="audit-meta">
-          {{ log.performedBy || 'system' }} · 
-          {{ log.createdAtUtc | date:'dd.MM.yyyy HH:mm' }}
+          <div class="audit-meta">
+            {{ log.performedBy || 'system' }} ·
+            {{ log.createdAtUtc | date:'dd.MM.yyyy HH:mm' }}
+          </div>
         </div>
-
       </div>
-
     </div>
+    <div class="pagination" *ngIf="auditTotalPages > 1">
+  <button type="button" (click)="changeAuditPage(auditPage - 1)" [disabled]="auditPage === 1">
+    Înapoi
+  </button>
 
-  </div>
+  <span>Pagina {{ auditPage }} din {{ auditTotalPages }}</span>
 
+  <button type="button" (click)="changeAuditPage(auditPage + 1)" [disabled]="auditPage === auditTotalPages">
+    Înainte
+  </button>
 </div>
-
+  </div>
 </div>
 
 <app-confirm-custom-modal></app-confirm-custom-modal>

@@ -62,14 +62,7 @@ namespace ERPSystem.Modules.Leaves
 
          
 
-            group.MapGet(Route.EXPORT_LEAVES, async (LeavesService service) =>
-            {
-                var file = await service.ExportLeaves();
-
-                return Results.File(file,
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    "leaves.xlsx");
-            });
+          
         }
     }
 }

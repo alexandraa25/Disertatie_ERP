@@ -1,4 +1,5 @@
-﻿using ERPSystem.Data.Context;
+﻿using ClosedXML.Excel;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Employees.Models;
 using ERPSystem.Modules.Leaves;
@@ -48,6 +49,16 @@ public class EmployeeService
                 string? firstName = request.FirstName;
                 string? lastName = request.LastName;
                 string? email = request.Email;
+
+                Console.WriteLine($"FILES COUNT: {request.Files?.Length ?? 0}");
+
+                if (request.Files != null)
+                {
+                    foreach (var file in request.Files)
+                    {
+                        Console.WriteLine(file.FileName);
+                    }
+                }
 
                 if (!string.IsNullOrWhiteSpace(request.UserId))
                 {
@@ -113,20 +124,22 @@ public class EmployeeService
                     BankName = request.BankName
                 });
 
-                if (request.Files != null && request.Files.Any())
+                if (request.Files.Any())
                 {
                     var allowedExtensions = new[]
                     {
-                    ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".txt", ".ppt", ".pptx"
-                };
+        ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".txt", ".ppt", ".pptx"
+    };
 
                     var root = Directory.GetCurrentDirectory();
                     var uploadPath = Path.Combine(root, "uploads", "employees", employee.Id.ToString());
 
                     Directory.CreateDirectory(uploadPath);
 
-                    foreach (var file in request.Files)
+                    for (int i = 0; i < request.Files.Length; i++)
                     {
+                        var file = request.Files[i];
+
                         var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
 
                         if (!allowedExtensions.Contains(ext))
@@ -134,6 +147,14 @@ public class EmployeeService
 
                         if (file.Length > 1 * 1024 * 1024)
                             return response.SetError("VALIDATION", $"File too large: {file.FileName}");
+
+                        var documentType =
+                            request.DocumentTypes.Length > i
+                                ? request.DocumentTypes[i]
+                                : "Document";
+
+                        if (string.IsNullOrWhiteSpace(documentType))
+                            documentType = "Document";
 
                         var newFileName = $"{Guid.NewGuid()}{ext}";
                         var filePath = Path.Combine(uploadPath, newFileName);
@@ -147,7 +168,8 @@ public class EmployeeService
                             EmployeeId = employee.Id,
                             FileName = file.FileName,
                             FilePath = filePath,
-                            ContentType = file.ContentType,
+                            ContentType = file.ContentType ?? "application/octet-stream",
+                            DocumentType = documentType,
                             UploadedAt = DateTime.UtcNow
                         });
                     }
@@ -359,80 +381,72 @@ public class EmployeeService
         });
     }
 
-    public async Task<PublicResponse> UploadEmployeeDocuments(UploadEmployeeDocsRequest request)
+    public async Task<PublicResponse> UploadEmployeeDocuments(HttpRequest httpRequest)
     {
         var response = new PublicResponse(true);
 
+        var form = await httpRequest.ReadFormAsync();
+
+        var employeeIdRaw = form["EmployeeId"].FirstOrDefault();
+
+        if (!Guid.TryParse(employeeIdRaw, out var employeeId))
+            return response.SetError("VALIDATION", "EmployeeId invalid");
+
+        var file = form.Files.GetFile("File");
+        var documentType = form["DocumentType"].FirstOrDefault();
+
         var employee = await _context.Employees
-            .FirstOrDefaultAsync(x => x.Id == request.EmployeeId);
+            .FirstOrDefaultAsync(x => x.Id == employeeId);
 
         if (employee == null)
             return response.SetError("NOT_FOUND", "Employee not found");
 
-        if (request.Files == null || !request.Files.Any())
-            return response.SetError("VALIDATION", "No files uploaded");
+        if (file == null)
+            return response.SetError("VALIDATION", "No file uploaded");
+
+        var allowedExtensions = new[]
+        {
+        ".pdf", ".jpg", ".jpeg", ".png",
+        ".doc", ".docx", ".txt", ".ppt", ".pptx"
+    };
+
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+        if (!allowedExtensions.Contains(ext))
+            return response.SetError("VALIDATION", "Invalid file type");
+
+        if (file.Length > 1 * 1024 * 1024)
+            return response.SetError("VALIDATION", "File too large");
 
         var root = Directory.GetCurrentDirectory();
         var uploadPath = Path.Combine(root, "uploads", "employees", employee.Id.ToString());
 
         Directory.CreateDirectory(uploadPath);
 
-        for (int i = 0; i < request.Files.Count; i++)
+        var fileName = $"{Guid.NewGuid()}{ext}";
+        var path = Path.Combine(uploadPath, fileName);
+
+        await using var stream = new FileStream(path, FileMode.Create);
+        await file.CopyToAsync(stream);
+
+        _context.EmployeeDocuments.Add(new EmployeeDocument
         {
-            var file = request.Files[i];
-            var docType = request.DocumentTypes.ElementAtOrDefault(i) ?? "Unknown";
-
-            var ext = Path.GetExtension(file.FileName);
-            var fileName = $"{Guid.NewGuid()}{ext}";
-            var path = Path.Combine(uploadPath, fileName);
-
-            await using var stream = new FileStream(path, FileMode.Create);
-            await file.CopyToAsync(stream);
-
-            _context.EmployeeDocuments.Add(new EmployeeDocument
-            {
-                Id = Guid.NewGuid(),
-                EmployeeId = employee.Id,
-                FileName = file.FileName,
-                FilePath = path,
-                ContentType = file.ContentType ?? "application/octet-stream",
-                DocumentType = docType, // 🔥 aici
-                UploadedAt = DateTime.UtcNow
-            });
-        }
+            Id = Guid.NewGuid(),
+            EmployeeId = employee.Id,
+            FileName = file.FileName,
+            FilePath = path,
+            ContentType = file.ContentType ?? "application/octet-stream",
+            DocumentType = string.IsNullOrWhiteSpace(documentType) ? "Document" : documentType,
+            UploadedAt = DateTime.UtcNow
+        });
 
         await _context.SaveChangesAsync();
 
         await AddEmployeeActivityLogAsync(
             employee.Id,
-            "EmployeeDocumentsUploaded",
-            $"Au fost încărcate {request.Files.Count} document(e) pentru angajatul {employee.FirstName} {employee.LastName}."
+            "EmployeeDocumentUploaded",
+            $"A fost încărcat documentul {file.FileName} pentru angajatul {employee.FirstName} {employee.LastName}."
         );
-
-        await _notificationService.CreateNotificationForRolesAsync(
-             roleNames: new[] { "HR", "Admin", "Secretary" },
-             eventType: NotificationEvents.Employee,
-             title: "Documente încărcate",
-             message: $"Au fost încărcate {request.Files.Count} document(e) pentru angajatul {employee.FirstName} {employee.LastName}.",
-             type: "Info",
-             link: $"/employee/{employee.Id}",
-             entityType: "Employee",
-             entityId: employee.Id.ToString()
-         );
-
-        if (!string.IsNullOrWhiteSpace(employee.UserId))
-        {
-            await _notificationService.CreateNotificationAsync(
-                userId: employee.UserId,
-                eventType: NotificationEvents.Employee,
-                title: "Documente noi în profil",
-                message: $"Au fost încărcate {request.Files.Count} document(e) în profilul tău.",
-                type: "Info",
-                link: "/profil-user",
-                entityType: "Employee",
-                entityId: employee.Id.ToString()
-            );
-        }
 
         return response.SetSuccess(true);
     }
@@ -865,5 +879,266 @@ public class EmployeeService
         {
             return response.SetError("SERVER", ex.Message);
         }
+    }
+    public async Task<IResult> ExportEmployeesExcelAsync( string? q,string? status, string? contractType)
+    {
+        var query = _context.Employees
+            .Include(x => x.Address)
+            .Include(x => x.Bank)
+            .Include(x => x.Contact)
+            .Include(x => x.Documents)
+            .Include(x => x.Leaves)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            q = q.Trim();
+
+            query = query.Where(x =>
+                x.FirstName.Contains(q) ||
+                x.LastName.Contains(q) ||
+                (x.Email != null && x.Email.Contains(q)) ||
+                x.JobTitle.Contains(q));
+        }
+
+        if (!string.IsNullOrWhiteSpace(status))
+            query = query.Where(x => x.EmploymentStatus == status);
+
+        if (!string.IsNullOrWhiteSpace(contractType))
+            query = query.Where(x => x.ContractType == contractType);
+
+        var employees = await query
+            .OrderBy(x => x.EmploymentStatus == "Terminated")
+            .ThenBy(x => x.LastName)
+            .ThenBy(x => x.FirstName)
+            .ToListAsync();
+
+        using var wb = new XLWorkbook();
+
+        var employeesWs = wb.Worksheets.Add("Angajați");
+        var detailsWs = wb.Worksheets.Add("Detalii");
+        var documentsWs = wb.Worksheets.Add("Documente");
+        var leavesWs = wb.Worksheets.Add("Concedii");
+
+        var employeeHeaders = new[]
+        {
+        "ID", "Nume", "Prenume", "Email", "Funcție",
+        "Status", "Tip contract", "Salariu",
+        "Data angajării", "Data încetării",
+        "Zile concediu/an", "Zile reportate",
+        "Nr. documente", "Nr. concedii",
+        "Creat la", "Actualizat la"
+    };
+
+        for (int i = 0; i < employeeHeaders.Length; i++)
+            employeesWs.Cell(1, i + 1).Value = employeeHeaders[i];
+
+        var row = 2;
+
+        foreach (var e in employees)
+        {
+            employeesWs.Cell(row, 1).Value = e.Id.ToString();
+            employeesWs.Cell(row, 2).Value = e.LastName;
+            employeesWs.Cell(row, 3).Value = e.FirstName;
+            employeesWs.Cell(row, 4).Value = e.Email ?? "";
+            employeesWs.Cell(row, 5).Value = e.JobTitle;
+            employeesWs.Cell(row, 6).Value = GetEmployeeStatusRo(e.EmploymentStatus);
+            employeesWs.Cell(row, 7).Value = GetContractTypeRo(e.ContractType);
+            employeesWs.Cell(row, 8).Value = e.Salary;
+            employeesWs.Cell(row, 9).Value = e.HireDate;
+            employeesWs.Cell(row, 10).Value = e.TerminationDate;
+            employeesWs.Cell(row, 11).Value = e.VacationDaysPerYear;
+            employeesWs.Cell(row, 12).Value = e.CarryOverDays;
+            employeesWs.Cell(row, 13).Value = e.Documents?.Count ?? 0;
+            employeesWs.Cell(row, 14).Value = e.Leaves?.Count ?? 0;
+            employeesWs.Cell(row, 15).Value = e.CreatedAt;
+            employeesWs.Cell(row, 16).Value = e.UpdatedAt;
+
+            row++;
+        }
+
+        var detailsHeaders = new[]
+        {
+        "ID angajat", "Nume complet",
+        "Telefon", "Contact urgență", "Telefon urgență",
+        "Stradă", "Oraș", "Țară", "Cod poștal",
+        "IBAN", "Bancă", "Observații"
+    };
+
+        for (int i = 0; i < detailsHeaders.Length; i++)
+            detailsWs.Cell(1, i + 1).Value = detailsHeaders[i];
+
+        row = 2;
+
+        foreach (var e in employees)
+        {
+            employeesWs.Cell(row, 1).Value = e.Id.ToString();
+            detailsWs.Cell(row, 2).Value = $"{e.LastName} {e.FirstName}";
+            detailsWs.Cell(row, 3).Value = e.Contact?.PhoneNumber ?? "";
+            detailsWs.Cell(row, 4).Value = e.Contact?.EmergencyContactName ?? "";
+            detailsWs.Cell(row, 5).Value = e.Contact?.EmergencyContactPhone ?? "";
+            detailsWs.Cell(row, 6).Value = e.Address?.Street ?? "";
+            detailsWs.Cell(row, 7).Value = e.Address?.City ?? "";
+            detailsWs.Cell(row, 8).Value = e.Address?.Country ?? "";
+            detailsWs.Cell(row, 9).Value = e.Address?.PostalCode ?? "";
+            detailsWs.Cell(row, 10).Value = e.Bank?.IBAN ?? "";
+            detailsWs.Cell(row, 11).Value = e.Bank?.BankName ?? "";
+            detailsWs.Cell(row, 12).Value = e.Notes ?? "";
+
+            row++;
+        }
+
+        var documentHeaders = new[]
+        {
+        "ID document", "ID angajat", "Nume angajat",
+        "Nume fișier", "Tip document", "Content type",
+        "Cale fișier", "Încărcat la", "Încărcat de"
+    };
+
+        for (int i = 0; i < documentHeaders.Length; i++)
+            documentsWs.Cell(1, i + 1).Value = documentHeaders[i];
+
+        row = 2;
+
+        foreach (var e in employees)
+        {
+            foreach (var d in (e.Documents ?? new List<EmployeeDocument>())
+                .OrderByDescending(x => x.UploadedAt))
+            {
+                documentsWs.Cell(row, 1).Value = d.Id.ToString();
+                documentsWs.Cell(row, 2).Value = e.Id.ToString();
+                documentsWs.Cell(row, 3).Value = $"{e.LastName} {e.FirstName}";
+                documentsWs.Cell(row, 4).Value = d.FileName;
+                documentsWs.Cell(row, 5).Value = d.DocumentType;
+                documentsWs.Cell(row, 6).Value = d.ContentType;
+                documentsWs.Cell(row, 7).Value = d.FilePath;
+                documentsWs.Cell(row, 8).Value = d.UploadedAt;
+                documentsWs.Cell(row, 9).Value = d.UploadedBy ?? "";
+
+                row++;
+            }
+        }
+
+        var leaveHeaders = new[]
+        {
+        "ID concediu", "ID angajat", "Nume angajat",
+        "Tip concediu", "Data început", "Data sfârșit",
+        "Nr. zile", "Status", "Aprobat de",
+        "Motiv / Observații", "Creat la"
+    };
+
+        for (int i = 0; i < leaveHeaders.Length; i++)
+            leavesWs.Cell(1, i + 1).Value = leaveHeaders[i];
+
+        row = 2;
+
+        foreach (var e in employees)
+        {
+            foreach (var l in (e.Leaves ?? new List<EmployeeLeave>())
+                .OrderByDescending(x => x.StartDate))
+            {
+                leavesWs.Cell(row, 1).Value = l.Id.ToString();
+                leavesWs.Cell(row, 2).Value = e.Id.ToString();
+                leavesWs.Cell(row, 3).Value = $"{e.LastName} {e.FirstName}";
+                leavesWs.Cell(row, 4).Value = GetLeaveTypeRo(l.LeaveType);
+                leavesWs.Cell(row, 5).Value = l.StartDate;
+                leavesWs.Cell(row, 6).Value = l.EndDate;
+                leavesWs.Cell(row, 7).Value = (l.EndDate.Date - l.StartDate.Date).Days + 1;
+                leavesWs.Cell(row, 8).Value = GetLeaveStatusRo(l.Status);
+                leavesWs.Cell(row, 9).Value = l.ApprovedBy ?? "";
+                leavesWs.Cell(row, 10).Value = l.ReasonUpdate ?? "";
+                leavesWs.Cell(row, 11).Value = l.CreatedAt;
+
+                row++;
+            }
+        }
+
+        FormatSheet(employeesWs);
+        FormatSheet(detailsWs);
+        FormatSheet(documentsWs);
+        FormatSheet(leavesWs);
+
+        using var ms = new MemoryStream();
+        wb.SaveAs(ms);
+
+        return Results.File(
+            ms.ToArray(),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            $"angajati_{DateTime.UtcNow:yyyyMMdd_HHmm}.xlsx"
+        );
+    }
+
+    private static string GetEmployeeStatusRo(string? status)
+    {
+        return status switch
+        {
+            "Active" => "Activ",
+            "Terminated" => "Încetat",
+            "Suspended" => "Suspendat",
+            _ => status ?? ""
+        };
+    }
+
+    private static string GetContractTypeRo(string? type)
+    {
+        return type switch
+        {
+            "FullTime" => "Normă întreagă",
+            "PartTime" => "Part-time",
+            "Collaboration" => "Colaborare",
+            _ => type ?? ""
+        };
+    }
+
+    private static string GetLeaveTypeRo(string? type)
+    {
+        return type switch
+        {
+            "Vacation" => "Concediu odihnă",
+            "Medical" => "Medical",
+            "Unpaid" => "Fără plată",
+            _ => type ?? ""
+        };
+    }
+
+    private static string GetLeaveStatusRo(string? status)
+    {
+        return status switch
+        {
+            "Pending" => "În așteptare",
+            "Approved" => "Aprobat",
+            "Rejected" => "Respins",
+            _ => status ?? ""
+        };
+    }
+
+    private static void FormatSheet(IXLWorksheet ws)
+    {
+        var usedRange = ws.RangeUsed();
+
+        if (usedRange == null)
+            return;
+
+        usedRange.SetAutoFilter();
+
+        var header = ws.Row(1);
+        header.Style.Font.Bold = true;
+        header.Style.Fill.BackgroundColor = XLColor.FromHtml("#1E293B");
+        header.Style.Font.FontColor = XLColor.White;
+        header.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+        usedRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+        usedRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+        usedRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+
+        ws.Columns().AdjustToContents();
+
+        foreach (var column in ws.Columns())
+        {
+            if (column.Width > 45)
+                column.Width = 45;
+        }
+
+        ws.SheetView.FreezeRows(1);
     }
 }

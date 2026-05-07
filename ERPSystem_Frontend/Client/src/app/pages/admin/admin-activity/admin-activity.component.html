@@ -1,11 +1,12 @@
-<div class="card">
+<div class="page">
+  <div class="page-hero">
+    <div>
+      <h2>Audit general</h2>
+      <p>Monitorizează activitatea, modificările și acțiunile efectuate în sistem.</p>
+    </div>
+  </div>
 
-  <h2>Audit general</h2>
-
-  <!-- FILTERS -->
-
-
-  <div class="filters">
+    <div class="filters-card">
 
     <div class="filter-group">
       <label>Entitate</label>
@@ -23,6 +24,13 @@
       </ng-select>
     </div>
 
+     <div class="filter-group">
+      <label>Perioadă</label>
+      <app-date-range-picker [from]="filters.from" [to]="filters.to" (rangeChange)="onDateChange($event)">
+      </app-date-range-picker>
+    </div>
+
+
     <div class="filter-group">
       <label>Utilizator</label>
       <ng-select [items]="users" [(ngModel)]="filters.performedBy" [multiple]="true"
@@ -31,14 +39,10 @@
       </ng-select>
     </div>
 
-    <div class="filter-group">
-      <label>Perioadă</label>
-      <app-date-range-picker [from]="filters.from" [to]="filters.to" (rangeChange)="onDateChange($event)">
-      </app-date-range-picker>
-    </div>
-
+   
   </div>
 
+  <div class="card">
   <!-- LOADING -->
   <div *ngIf="loading" class="loading">
     Se încarcă...
@@ -88,6 +92,8 @@
     <button (click)="nextPage()" [disabled]="filters.page === totalPages">
       Next →
     </button>
+
+  </div>
 
   </div>
 

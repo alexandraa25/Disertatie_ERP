@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Output, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, Validators } from '@angular/forms';
 import { EmployeeService } from '../../services/employee.service';
 import { CommonModule } from '@angular/common';
 import { SimpleUser } from '../../models/employee.model';
+import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 
 @Component({
   selector: 'app-add-employees',
@@ -39,31 +40,31 @@ export class AddEmployeesComponent implements OnInit {
   selectedUser: any = null;
 
 
-  constructor(private fb: FormBuilder, private employeeService: EmployeeService) {
+  constructor(private fb: FormBuilder, private employeeService: EmployeeService, private snackbar: SnackbarService) {
     this.createForm = this.fb.group({
       mode: ['existing'],
 
       userId: [''],
       firstName: [''],
       lastName: [''],
-      email: [''],
+      email: ['', [Validators.email]],
 
-      jobTitle: [''],
-      hireDate: [''],
-      salary: [''],
-      contractType: [''],
-      notes: [''],
+      jobTitle: ['', [Validators.required]],
+      hireDate: ['', [Validators.required]],
+      salary: [null, [Validators.min(0)]],
+      contractType: ['', [Validators.required]],
+      notes: ['', [Validators.maxLength(500)]],
 
-      phoneNumber: [''],
+      phoneNumber: ['', [Validators.pattern(/^[0-9+\s()-]{7,20}$/)]],
       emergencyContactName: [''],
-      emergencyContactPhone: [''],
+      emergencyContactPhone: ['', [Validators.pattern(/^[0-9+\s()-]{7,20}$/)]],
 
       street: [''],
       city: [''],
       country: [''],
       postalCode: [''],
 
-      iban: [''],
+      iban: ['', [Validators.pattern(/^RO[a-zA-Z0-9]{22}$/)]],
       bankName: ['']
     });
   }
@@ -71,6 +72,7 @@ export class AddEmployeesComponent implements OnInit {
 
   ngOnInit() {
     this.loadUsers();
+    this.setMode(this.mode);
 
     this.createForm.get('userId')?.valueChanges.subscribe(id => {
       if (!this.users || this.users.length === 0) return;
@@ -82,21 +84,28 @@ export class AddEmployeesComponent implements OnInit {
 
   loadUsers() {
     this.employeeService.getUsers()
-      .subscribe(res => {
+      .subscribe({
+        next: (res: any) => {
+          if (!res.isSuccess) {
+            this.snackbar.showError(res.error?.errorMessage || 'Eroare la încărcarea utilizatorilor.', 2500);
+            return;
+          }
 
-        if (!res.isSuccess) {
-          alert(res.error?.errorMessage);
-          return;
+          this.users = res.value;
+        },
+        error: () => {
+          this.snackbar.showError('Eroare la încărcarea utilizatorilor.', 2500);
         }
-
-        this.users = res.value;
       });
   }
 
   next() {
     this.submitted = true;
 
-    if (!this.validateStep()) return;
+    if (!this.validateStep()) {
+      this.snackbar.showError('Completează câmpurile obligatorii.', 2200);
+      return;
+    }
 
     this.currentStep++;
     this.submitted = false;
@@ -112,40 +121,53 @@ export class AddEmployeesComponent implements OnInit {
     this.selectedUser = null;
 
     this.createForm.patchValue({
-      userId: null,
+      userId: '',
       firstName: '',
       lastName: '',
       email: ''
     });
+
+    if (mode === 'existing') {
+      this.f['userId'].setValidators([Validators.required]);
+
+      this.f['firstName'].clearValidators();
+      this.f['lastName'].clearValidators();
+      this.f['email'].setValidators([Validators.email]);
+    } else {
+      this.f['userId'].clearValidators();
+
+      this.f['firstName'].setValidators([Validators.required, Validators.maxLength(100)]);
+      this.f['lastName'].setValidators([Validators.required, Validators.maxLength(100)]);
+      this.f['email'].setValidators([Validators.required, Validators.email]);
+    }
+
+    this.f['userId'].updateValueAndValidity();
+    this.f['firstName'].updateValueAndValidity();
+    this.f['lastName'].updateValueAndValidity();
+    this.f['email'].updateValueAndValidity();
   }
 
   validateStep(): boolean {
+    const stepControls: Record<number, string[]> = {
+      0: this.mode === 'existing'
+        ? ['userId']
+        : ['firstName', 'lastName', 'email'],
+      1: ['jobTitle', 'hireDate', 'salary', 'contractType', 'notes'],
+      2: ['phoneNumber', 'emergencyContactName', 'emergencyContactPhone'],
+      3: ['street', 'city', 'country', 'postalCode'],
+      4: ['iban', 'bankName'],
+      5: []
+    };
 
-    // STEP 1
-    if (this.currentStep === 0) {
-      if (this.mode === 'existing') {
-        return !!this.createForm.value.userId;
-      }
+    const controls = stepControls[this.currentStep] ?? [];
 
-      return (
-        this.createForm.value.firstName &&
-        this.createForm.value.lastName &&
-        this.createForm.value.email
-      );
-    }
+    controls.forEach(name => {
+      this.createForm.get(name)?.markAsTouched();
+      this.createForm.get(name)?.updateValueAndValidity();
+    });
 
-    // STEP 2
-    if (this.currentStep === 1) {
-      return (
-        this.createForm.value.jobTitle &&
-        this.createForm.value.hireDate &&
-        this.createForm.value.contractType
-      );
-    }
-
-    return true;
+    return controls.every(name => this.createForm.get(name)?.valid);
   }
-
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -173,14 +195,14 @@ export class AddEmployeesComponent implements OnInit {
   }
 
   onFileSelected(event: Event): void {
-  const input = event.target as HTMLInputElement;
+    const input = event.target as HTMLInputElement;
 
-  if (!input.files || input.files.length === 0) return;
+    if (!input.files || input.files.length === 0) return;
 
-  this.processFiles(Array.from(input.files));
+    this.processFiles(Array.from(input.files));
 
-  input.value = '';
-}
+    input.value = '';
+  }
 
   onDocTypeChange() {
     if (this.documentType !== 'custom') {
@@ -220,10 +242,10 @@ export class AddEmployeesComponent implements OnInit {
       }
 
       this.selectedFiles.push({
-  file,
-  documentType: this.documentType,
-  customType: this.customDocumentType
-});
+        file,
+        documentType: this.documentType,
+        customType: this.customDocumentType
+      });
     });
   }
 
@@ -247,10 +269,24 @@ export class AddEmployeesComponent implements OnInit {
     return `${(size / (1024 * 1024)).toFixed(2)} MB`;
   }
 
-
-
   saveEmployee() {
-    if (!this.createForm.valid) {
+    this.submitted = true;
+console.log('SAVE EMPLOYEE');
+console.log(this.selectedFiles);
+    for (let i = 0; i < this.steps.length; i++) {
+      this.currentStep = i;
+
+      if (!this.validateStep()) {
+        return;
+      }
+    }
+
+    const invalidCustomDoc = this.selectedFiles.some(
+      x => x.documentType === 'custom' && !x.customType?.trim()
+    );
+
+    if (invalidCustomDoc) {
+      this.currentStep = 5;
       return;
     }
 
@@ -274,42 +310,48 @@ export class AddEmployeesComponent implements OnInit {
     formData.append('city', formValue.city || '');
     formData.append('country', formValue.country || '');
     formData.append('postalCode', formValue.postalCode || '');
-    formData.append('iban', formValue.iban || '');
+    formData.append('IBAN', formValue.iban || '');
     formData.append('bankName', formValue.bankName || '');
 
-    // 🔥 DOCUMENTE + TYPE PER FILE
-    for (const item of this.selectedFiles) {
+   for (const item of this.selectedFiles) {
+  const finalType =
+    item.documentType === 'custom'
+      ? item.customType || ''
+      : item.documentType;
 
-      const finalType =
-        item.documentType === 'custom'
-          ? item.customType || ''
-          : item.documentType;
+  formData.append('Files', item.file, item.file.name);
+  formData.append('DocumentTypes', finalType);
+}
 
-      formData.append('Files', item.file, item.file.name);
-      formData.append('DocumentTypes', finalType);
-    }
+console.log(formData.getAll('Files'));
+console.log(formData.getAll('DocumentTypes'));
 
     this.employeeService.createEmployee(formData).subscribe({
       next: (res: any) => {
         if (!res?.isSuccess) {
-          alert(res?.error?.errorMessage || 'Eroare la salvare');
+          this.snackbar.showError(res?.error?.errorMessage || 'Eroare la salvare.', 2500);
           return;
         }
 
+        this.snackbar.showSuccess('Angajatul a fost creat cu succes.', 1800);
         this.finish();
       },
       error: (err) => {
         console.error(err);
-        alert('Eroare la salvare');
+        this.snackbar.showError('Eroare la salvare.', 2500);
       }
     });
   }
 
   finish() {
     this.createForm.reset();
+    this.mode = 'existing';
+    this.setMode(this.mode);
+
     this.selectedFiles = [];
     this.currentStep = 0;
     this.selectedUser = null;
+    this.submitted = false;
 
     this.created.emit();
     this.close.emit();
@@ -319,5 +361,21 @@ export class AddEmployeesComponent implements OnInit {
     this.close.emit();
   }
 
+
+  get f() {
+    return this.createForm.controls;
+  }
+
+  hasError(controlName: string, errorName?: string): boolean {
+    const control = this.createForm.get(controlName);
+
+    if (!control) return false;
+
+    if (errorName) {
+      return control.hasError(errorName) && (control.touched || this.submitted);
+    }
+
+    return control.invalid && (control.touched || this.submitted);
+  }
 
 }
