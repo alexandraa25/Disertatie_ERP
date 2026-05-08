@@ -1,419 +1,330 @@
-
-
-/* ========================= */
-/* PAGE WRAPPER */
-/* ========================= */
-
 .section {
-  margin-top: 25px;
-}
+  margin-top: 24px;
 
-/* ========================= */
-/* CONTRACT CARD */
-/* ========================= */
+}
 
 .contract-section {
-  background: #ffffff;
-  padding: 32px;
-  border-radius: 18px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
-  min-height: 700px;
+  max-width: 1050px;
+  margin: 90px auto 40px;
+  padding: 28px;
+  background: #f8fafc;
+  border-radius: 22px;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  transition: 0.2s ease;
-   max-width: 94%;
-  width: 100%;
-  margin-top: 100px;
+  gap: 22px;
 }
-
-/* ========================= */
-/* HEADER */
-/* ========================= */
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 .section-header h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1e293b;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
 }
-
-/* ========================= */
-/* STATUS BADGE */
-/* ========================= */
-
-.badge {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.draft { background: #e5e7eb; }
-.finalized { background: #facc15; }
-.signed { background: #22c55e; color: white; }
-.active { background: #3b82f6; color: white; }
-.cancelled { background: #ef4444; color: white; }
-
-/* ========================= */
-/* CONTRACT BODY - VIEW MODE */
-/* ========================= */
 
 .contract-container {
   display: flex;
-  justify-content: center; /* 👈 centrează pe orizontală */
-  margin-bottom: 20px;
+  justify-content: center;
 }
-
-/* .contract-body p {
-  margin: 4px 0;   
-}
-
-.contract-body h3 {
-  margin-top: 16px;
-  margin-bottom: 6px; */
 
 .contract-body {
-  background: #f8fafc;
-  padding: 28px;
-  border-radius: 14px;
-  font-family: "Courier New", monospace;
-  font-size: 14px;
-  line-height: 1.7;
-  border: 1px solid #e2e8f0;
-  max-height: 600px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 650px;
   overflow-y: auto;
-  
-  line-height: 1.6;
-   max-width: 800px;
-     margin: 40px auto;
-  padding: 30px;
-
-  background: #fff;
-  border-radius: 12px;
-
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  padding: 34px 42px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+  font-family: "Times New Roman", serif;
+  font-size: 15px;
+  line-height: 1.45;
+  color: #111827;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
-/* ========================= */
-/* EDIT MODE */
-/* ========================= */
+:host ::ng-deep .contract-body h3 {
+  margin: 18px 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+:host ::ng-deep .contract-body p {
+  margin: 7px 0;
+}
+
+:host ::ng-deep .contract-body ul {
+  margin: 8px 0 12px 24px;
+  padding-left: 18px;
+}
+
+:host ::ng-deep .contract-body li {
+  margin: 4px 0;
+}
+
+:host ::ng-deep .contract-body p:empty {
+  display: none;
+}
+
+.warning {
+  padding: 14px 16px;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+  border-radius: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
 
 .body-edit {
-  animation: fadeIn 0.25s ease-in-out;
-    white-space: pre-line;
+  animation: fadeIn 0.2s ease-in-out;
 }
 
 .editor {
   width: 100%;
-  min-height: 500px;
-  padding: 20px;
-  border-radius: 14px;
-  border: 1px solid #cbd5e1;
-  font-family: monospace;
-  font-size: 14px;
-  resize: vertical;
-  background: #ffffff;
-  box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
-   white-space: pre-line;
 }
 
-/* ========================= */
-/* EDIT BUTTON */
-/* ========================= */
-
-.edit-btn {
-  background: #2563eb;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-weight: 500;
-  transition: 0.2s ease;
+:host ::ng-deep .ql-toolbar {
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px 16px 0 0;
+  border-color: #cbd5e1;
 }
 
-.edit-btn:hover {
-  background: #1e40af;
-  transform: translateY(-2px);
+:host ::ng-deep .ql-container {
+  max-width: 900px;
+  min-height: 620px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 0 0 16px 16px;
+  border-color: #cbd5e1;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.08);
 }
 
-/* ========================= */
-/* EDIT ACTIONS */
-/* ========================= */
+:host ::ng-deep .ql-editor {
+  min-height: 620px;
+  padding: 34px 42px;
+  font-family: "Times New Roman", serif;
+  font-size: 15px;
+  line-height: 1.45;
+  color: #111827;
+}
 
-.edit-actions {
+:host ::ng-deep .ql-editor h3 {
+  margin: 18px 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+:host ::ng-deep .ql-editor p {
+  margin: 7px 0;
+}
+
+:host ::ng-deep .ql-editor ul {
+  margin: 8px 0 12px 24px;
+  padding-left: 18px;
+}
+
+:host ::ng-deep .ql-editor li {
+  margin: 4px 0;
+}
+
+.signatures-section {
+  background: white;
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+}
+
+.signatures-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
   margin-top: 18px;
-  display: flex;
-  gap: 12px;
 }
 
-/* ========================= */
-/* WORKFLOW BUTTONS */
-/* ========================= */
+.signature-box {
+  padding: 20px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 16px;
+  text-align: center;
+  background: #f8fafc;
+}
+
+.signature-box h4 {
+  margin: 0 0 12px;
+  color: #0f172a;
+}
+
+.signature-img {
+  max-width: 100%;
+  max-height: 110px;
+  margin: 10px 0;
+}
+
+.no-sign {
+  color: #94a3b8;
+  font-style: italic;
+  margin: 22px 0;
+}
+
+.sign-date {
+  font-size: 12px;
+  color: #64748b;
+}
 
 .actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 25px;
+  padding-top: 18px;
+  border-top: 1px solid #e2e8f0;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+.back-btn,
+.secondary {
+  background: #e2e8f0;
+  color: #334155;
+  padding: 9px 14px;
+  border-radius: 10px;
+}
+
+.back-btn:hover,
+.secondary:hover {
+  background: #cbd5e1;
+}
+
+.edit-btn,
+.primary {
+  background: #2563eb;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.edit-btn:hover,
+.primary:hover {
+  background: #1d4ed8;
 }
 
 .actions button {
   padding: 10px 16px;
   border-radius: 10px;
-  border: none;
-  font-weight: 500;
-  cursor: pointer;
-  transition: 0.2s;
+  font-weight: 600;
+  background: #e2e8f0;
+  color: #334155;
 }
 
-.actions button:hover {
-  transform: translateY(-2px);
-}
-
-
-/* Workflow */
-
-.actions button:nth-child(1) {
+.actions button:first-child {
   background: #facc15;
-  color: black;
+  color: #1f2937;
 }
 
-.actions button:nth-child(2) {
-  background: #3b82f6;
-  color: white;
+.success {
+  background: #22c55e !important;
+  color: white !important;
 }
 
-.actions button:nth-child(3) {
-  background: #22c55e;
-  color: white;
-}
-
-.actions .danger {
+.danger {
   background: #ef4444 !important;
-  color: white;
+  color: white !important;
 }
 
-/* ========================= */
-/* ANIMATION */
-/* ========================= */
+.edit-actions {
+  max-width: 900px;
+  margin: 18px auto 0;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.badge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.draft { background: #e5e7eb; color: #374151; }
+.finalized { background: #facc15; color: #422006; }
+.signed { background: #22c55e; color: white; }
+.active { background: #3b82f6; color: white; }
+.cancelled { background: #ef4444; color: white; }
+
+.loading {
+  margin-top: 120px;
+  text-align: center;
+  color: #64748b;
+  font-weight: 600;
+}
 
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: translateY(6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-.signatures-grid {
-  display: flex;
-  gap: 40px;
-  margin-top: 20px;
-}
+@media (max-width: 900px) {
+  .contract-section {
+    margin-top: 70px;
+    padding: 18px;
+  }
 
-.signature-box {
-  flex: 1;
-  border: 1px solid #ddd;
-  padding: 16px;
-  border-radius: 8px;
-  text-align: center;
-}
+  .section-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 
-.signature-img {
-  max-width: 100%;
-  max-height: 120px;
-  margin: 10px 0;
-}
+  .signatures-grid {
+    grid-template-columns: 1fr;
+  }
 
-.no-sign {
-  color: #999;
-  font-style: italic;
-  margin: 20px 0;
-}
+  .contract-body,
+  :host ::ng-deep .ql-toolbar,
+  :host ::ng-deep .ql-container {
+    max-width: 100%;
+  }
 
-.sign-date {
-  font-size: 12px;
-  color: #666;
-}
-
-.protected-field {
-  background: #fff3cd;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: bold;
-  border: 1px solid #ffeeba;
-
-  pointer-events: none;
-}
-
-
-.pdf-preview {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.pdf-content {
-  width: 210mm;
-  min-height: 297mm;
-
-  background: white;
-  padding: 25mm;
-  margin: 0 auto;
-
-  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-  border-radius: 6px;
-
-  font-family: "Times New Roman", serif;
-  font-size: 14px;
-  line-height: 1.6;
-
-  white-space: pre-wrap;
-}
-
-.pdf-content,
-.contract-body {
-  margin: 0 0 8px 0;
-    line-height: 1.5;
-  font-family: "Times New Roman", serif;
-   word-break: break-word;
-  overflow-wrap: break-word;
-}
-.contract-body p:empty,
-.pdf-content p:empty {
-  display: none;       /* 🔥 elimină <p>&nbsp;</p> */
-}
-
-
-
-.ql-container {
-  width: 210mm;
-  min-height: 297mm;
-  margin: 0 auto;
-
-  background: white;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-}
-
-
-.ql-editor {
-  padding: 25mm;
-  font-family: "Times New Roman", serif;
-  font-size: 14px;
-  line-height: 1.9; /* 🔥 mai aerisit */
-}
-
-.ql-editor p {
-  margin-bottom: 12px;
-}
-
-hr {
-  margin: 20px 0;
-  border: none;
-  border-top: 1px solid #ccc;
-}
-
-.ql-toolbar {
-  width: 210mm;
-  margin: 0 auto;
-  border-radius: 10px 10px 0 0;
-}
-
-.body-edit {
-  display: block;
-  flex-direction: column;
-  align-items: center;
-}
-
-.primary {
-  background: linear-gradient(135deg, #6366f1, #4f46e5);
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: none;
-  font-weight: 500;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(99,102,241,0.3);
-}
-
-.secondary {
-  background: #f1f5f9;
-  color: #334155;
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-}
-
-.secondary:hover {
-  background: #e2e8f0;
-}
-
-button {
-  font-family: inherit;
-}
-
-button:not(.primary):not(.secondary) {
-  background: #e2e8f0;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 6px;
-}
-
-.preview-actions {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
-
-.preview-actions button {
-  min-width: 160px;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.back-btn {
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
-
-  padding: 6px 12px;
-  border-radius: 8px;
-
-  font-size: 13px;
-  cursor: pointer;
-
-  transition: 0.2s;
-}
-
-.back-btn:hover {
-  background: #e2e8f0;
-  transform: translateY(-1px);
-}
-
-.success {
-  background: #22c55e;
-  color: white;
-}
-
-.danger {
-  background: #ef4444;
-  color: white;
+  .contract-body,
+  :host ::ng-deep .ql-editor {
+    padding: 24px;
+  }
 }

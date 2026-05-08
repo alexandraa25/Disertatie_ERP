@@ -8,7 +8,6 @@
         SignedByClient,
         Signed,
         Active,
-        Suspended,
         Completed,
         Expired,
         Cancelled

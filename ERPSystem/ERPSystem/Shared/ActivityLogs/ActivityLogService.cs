@@ -1,4 +1,5 @@
 ﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Student.Models;
 using ERPSystem.Shared.ActivityLogs;
 using Microsoft.EntityFrameworkCore;
@@ -50,7 +51,6 @@ public class ActivityLogService
         }).ToList();
     }
 
-
     public async Task<PagedResult<ActivityLogDto>> GetAllActivity(List<string>? entityTypes, List<string>? actions, List<string>? performedBy, DateTime? from, DateTime? to, int page, int pageSize)
     {
         var query = _db.ActivityLog.AsQueryable();
@@ -77,12 +77,13 @@ public class ActivityLogService
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-
-        return new PagedResult<ActivityLogDto>(
-            page,
-            pageSize,
-            total,
-            logs.Select(log => new ActivityLogDto
+       
+        return new PagedResult<ActivityLogDto>
+        {
+            Page = page,
+            PageSize = pageSize,
+            Total = total,
+            Items = logs.Select(log => new ActivityLogDto
             {
                 EntityType = log.EntityType,
                 EntityId = log.EntityId,
@@ -91,7 +92,7 @@ public class ActivityLogService
                 Description = log.Description,
                 PerformedBy = log.PerformedBy
             }).ToList()
-        );
+        };
     }
 
     public async Task<object> GetFilterOptions()
@@ -120,5 +121,20 @@ public class ActivityLogService
             actions, 
             users
         };
+    }
+
+    public void Add(  string entityType, string entityId,  string action, string description, string? performedBy = null)
+    {
+        _db.ActivityLog.Add(new ActivityLog
+        {
+            EntityType = entityType,
+            EntityId = entityId,
+            Action = action,
+            Description = description,
+            CreatedAtUtc = DateTime.UtcNow,
+            PerformedBy = string.IsNullOrWhiteSpace(performedBy)
+                ? "system"
+                : performedBy
+        });
     }
 }

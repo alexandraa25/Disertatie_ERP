@@ -75,11 +75,6 @@ public static class ContractsEndpoints
                 => await service.DownloadContractAsync(id))
            .WithDefaultApiSettings( "DownloadContract","Descarcă PDF contract","GET", false);
 
-        group.MapPut(Route.CONTRACT_SUSPEND,
-            async (int id, ContractsService service)
-                => await service.SuspendAsync(id))
-            .WithDefaultApiSettings( "SuspendContract","Suspendă contractul","UPDATE",false);
-
         group.MapPut(Route.CONTRACT_COMPLETE,
             async (int id, ContractsService service)
                 => await service.CompleteAsync(id))

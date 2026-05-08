@@ -7,7 +7,7 @@ export interface CreateDiscountDto {
 
 export interface CreateContractDto {
   guardianId: number | null; 
-  studentIds: number[];
+  studentId: number;
   startDate: string;
   endDate?: string | null;   
   isUnlimited: boolean;

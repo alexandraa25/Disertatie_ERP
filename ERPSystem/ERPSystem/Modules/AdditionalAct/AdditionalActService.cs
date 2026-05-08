@@ -18,16 +18,30 @@ namespace ERPSystem.Modules.AdditionalAct
         private readonly ApplicationDbContext _db;
         private readonly ILogger<ContractsService> _logger;
         private readonly PdfService _pdfService;
-        private readonly EmailBusinessLogic _emailBusinessLogic;
         private readonly NotificationsService _notificationsService;
+        private readonly TemplateRendererService _templateRenderer;
+        private readonly ActivityLogService _activityLogService;
+        private readonly ContractPricingService _pricingService;
+        private readonly ContractInstallmentService _installmentService;
 
-        public AdditionalActService(ApplicationDbContext db, ILogger<ContractsService> logger, EmailBusinessLogic emailBusinessLogic, PdfService pdfService, NotificationsService notificationsService)
+        public AdditionalActService(
+            ApplicationDbContext db, 
+            ILogger<ContractsService> logger, 
+            PdfService pdfService, 
+            NotificationsService notificationsService, 
+            TemplateRendererService templateRenderer,
+            ActivityLogService activityLogService,
+            ContractPricingService pricingService,
+            ContractInstallmentService installmentService)
         {
             _db = db;
             _logger = logger;
-            _emailBusinessLogic = emailBusinessLogic;
             _pdfService = pdfService;
             _notificationsService = notificationsService;
+            _templateRenderer = templateRenderer;
+            _activityLogService = activityLogService;
+            _pricingService = pricingService;
+            _installmentService = installmentService;
         }
 
         public async Task<PublicResponse> CreateAdditionalActAsync(int contractId, CreateAdditionalActDto dto)
@@ -36,6 +50,10 @@ namespace ERPSystem.Modules.AdditionalAct
 
             var contract = await _db.StudentContracts
                 .Include(c => c.Parties)
+                    .ThenInclude(p => p.Guardian)
+                .Include(c => c.Parties)
+                    .ThenInclude(p => p.Student)
+                .Include(c => c.Courses)
                 .Include(c => c.InstallmentsList)
                 .FirstOrDefaultAsync(c => c.Id == contractId);
 
@@ -48,13 +66,6 @@ namespace ERPSystem.Modules.AdditionalAct
             if (dto.Types == null || !dto.Types.Any())
                 return response.SetError(ErrorCodes.InvalidParameters, "At least one type required");
 
-            var descriptions = new List<string>();
-
-            var studentId = contract.Parties
-                .Where(p => p.StudentId != null)
-                .Select(p => p.StudentId.Value)
-                .FirstOrDefault();
-
             var act = new ContractAdditionalAct
             {
                 ContractId = contract.Id,
@@ -64,146 +75,22 @@ namespace ERPSystem.Modules.AdditionalAct
                 Items = new List<ContractAdditionalActItem>()
             };
 
-            var workingMonthly = contract.MonthlyAmount;
-            var workingTotal = contract.TotalAmount;
-
-            foreach (var type in dto.Types)
+            try
             {
-                var item = new ContractAdditionalActItem
+                var buildResult = await BuildAdditionalActItemsAsync(contract, dto);
+
+                foreach (var item in buildResult.Items)
                 {
-                    Type = type
-                };
-
-                switch (type)
-                {
-                    // =========================
-                    // ADD COURSE
-                    // =========================
-                    case AdditionalActType.AddCourse:
-
-                        if (!dto.CourseSessionIds?.Any() ?? true)
-                            return response.SetError(ErrorCodes.InvalidParameters, "Course required");
-
-                        var sessionId = dto.CourseSessionIds.First();
-
-                        var enrollment = await _db.CourseEnrollments
-                            .Include(e => e.Session)
-                                .ThenInclude(s => s.Course)
-                            .FirstOrDefaultAsync(e =>
-                                e.CourseSessionId == sessionId &&
-                                e.StudentId == studentId &&
-                                e.IsActive);
-
-                        if (enrollment == null)
-                            return response.SetError(ErrorCodes.InvalidParameters, "Enrollment not found");
-
-                        if (enrollment.ContractId != null)
-                            return response.SetError(ErrorCodes.InvalidParameters, "Already in contract");
-
-                        var price = enrollment.Session.Fee;
-
-                        // 🔥 UPDATE
-                        workingMonthly += price;
-
-                        if (workingTotal.HasValue)
-                            workingTotal += price;
-
-                        item.CourseSessionId = sessionId;
-                        item.NewValue = workingTotal?.ToString("0.00")
-                            ?? workingMonthly.ToString("0.00");
-
-                        descriptions.Add($"Adăugat curs: {enrollment.Session.Course.Name} (+{price} RON)");
-
-                        break;
-
-                    // =========================
-                    // REMOVE COURSE
-                    // =========================
-                    case AdditionalActType.RemoveCourse:
-
-                        if (!dto.CourseSessionIds?.Any() ?? true)
-                            return response.SetError(ErrorCodes.InvalidParameters, "Course required");
-
-                        var removeSessionId = dto.CourseSessionIds.First();
-
-                        var existingEnrollment = await _db.CourseEnrollments
-                            .Include(e => e.Session)
-                                .ThenInclude(s => s.Course)
-                            .FirstOrDefaultAsync(e =>
-                                e.CourseSessionId == removeSessionId &&
-                                e.ContractId == contract.Id);
-
-                        if (existingEnrollment == null)
-                            return response.SetError(ErrorCodes.InvalidParameters, "Course not in contract");
-
-                        var removePrice = existingEnrollment.Session.Fee;
-
-                        workingMonthly = Math.Max(0, workingMonthly - removePrice);
-
-                        if (workingTotal.HasValue)
-                            workingTotal = Math.Max(0, workingTotal.Value - removePrice);
-
-                        item.CourseSessionId = removeSessionId;
-                        item.NewValue = workingTotal?.ToString("0.00")
-                            ?? workingMonthly.ToString("0.00");
-
-                        descriptions.Add($"Eliminat curs: {existingEnrollment.Session.Course.Name} (-{removePrice} RON)");
-
-                        break;
-
-                    // =========================
-                    // EXTEND PERIOD
-                    // =========================
-                    case AdditionalActType.ExtendPeriod:
-
-                        if (!dto.NewEndDate.HasValue)
-                            return response.SetError(ErrorCodes.InvalidParameters, "New date required");
-
-                        item.NewValue = dto.NewEndDate.Value.ToString("yyyy-MM-dd");
-
-                        // 🔥 recalcul total dacă NU e abonament
-                        if (workingTotal.HasValue)
-                        {
-                            var months = CalculateMonths(contract.StartDate, dto.NewEndDate.Value);
-                            workingTotal = workingMonthly * months;
-                        }
-
-                        descriptions.Add($"Extins până la {dto.NewEndDate.Value:dd.MM.yyyy}");
-
-                        break;
-
-                    // =========================
-                    // CHANGE PRICE
-                    // =========================
-                    case AdditionalActType.ChangePrice:
-
-                        if (!dto.NewPrice.HasValue || dto.NewPrice <= 0)
-                            return response.SetError(ErrorCodes.InvalidParameters, "Invalid price");
-
-                        if (workingTotal.HasValue)
-                        {
-                            workingTotal = dto.NewPrice.Value;
-                        }
-                        else
-                        {
-                            workingMonthly = dto.NewPrice.Value;
-                        }
-
-                        item.NewValue = dto.NewPrice.Value.ToString("0.00");
-
-                        descriptions.Add($"Preț modificat la {dto.NewPrice} RON");
-
-                        break;
+                    act.Items.Add(item);
                 }
 
-                act.Items.Add(item);
+                act.Description = buildResult.Description;
+            }
+            catch (InvalidOperationException ex)
+            {
+                return response.SetError(ErrorCodes.InvalidParameters, ex.Message);
             }
 
-            act.Description = string.Join(" | ", descriptions);
-
-            // =========================
-            // STUDENTS + GUARDIAN
-            // =========================
             var studentIds = contract.Parties
                 .Where(p => p.StudentId != null)
                 .Select(p => p.StudentId.Value)
@@ -222,24 +109,18 @@ namespace ERPSystem.Modules.AdditionalAct
                     ?.Guardian;
             }
 
-            // =========================
-            // BODY GENERATION
-            // =========================
             act.Body = await GenerateAdditionalActBody(contract, act, guardian, students);
 
             _db.ContractAdditionalAct.Add(act);
 
             await _db.SaveChangesAsync();
 
-            _db.ActivityLog.Add(new ActivityLog
-            {
-                EntityType = nameof(ContractAdditionalAct),
-                EntityId = act.Id.ToString(),
-                Action = "Create",
-                Description = $"Actul adițional {act.ActNumber} a fost creat pentru contractul {contract.ContractNumber}. {act.Description}",
-                CreatedAtUtc = DateTime.UtcNow,
-                PerformedBy = "system"
-            });
+            _activityLogService.Add(
+                nameof(ContractAdditionalAct),
+                act.Id.ToString(),
+                "Create",
+                $"Actul adițional {act.ActNumber} a fost creat pentru contractul {contract.ContractNumber}. {act.Description}"
+            );
 
             await _db.SaveChangesAsync();
 
@@ -274,7 +155,9 @@ namespace ERPSystem.Modules.AdditionalAct
                 return response.SetError(ErrorCodes.InvalidParameters, "Body is required");
 
             act.Body = dto.Body;
-          
+
+            act.PdfPath = null;
+
             await _db.SaveChangesAsync();
 
             return response.SetSuccess(new { act.Id });
@@ -288,6 +171,14 @@ namespace ERPSystem.Modules.AdditionalAct
                 .Include(a => a.Items)
                 .Include(a => a.Contract)
                     .ThenInclude(c => c.Parties)
+                        .ThenInclude(p => p.Guardian)
+                .Include(a => a.Contract)
+                    .ThenInclude(c => c.Parties)
+                        .ThenInclude(p => p.Student)
+                .Include(a => a.Contract)
+                    .ThenInclude(c => c.Courses)
+                .Include(a => a.Contract)
+                    .ThenInclude(c => c.InstallmentsList)
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (act == null)
@@ -300,95 +191,21 @@ namespace ERPSystem.Modules.AdditionalAct
 
             act.Items.Clear();
 
-            var descriptions = new List<string>();
-
-            var studentId = contract.Parties
-                .Where(p => p.StudentId != null)
-                .Select(p => p.StudentId.Value)
-                .FirstOrDefault();
-
-            foreach (var type in dto.Types)
+            try
             {
-                var item = new ContractAdditionalActItem
+                var buildResult = await BuildAdditionalActItemsAsync(contract, dto, act.Id);
+
+                foreach (var item in buildResult.Items)
                 {
-                    ActId = act.Id,
-                    Type = type
-                };
-
-                switch (type)
-                {
-                    case AdditionalActType.AddCourse:
-
-                        var sessionId = dto.CourseSessionIds?.FirstOrDefault();
-
-                        var enrollment = await _db.CourseEnrollments
-                            .Include(e => e.Session)
-                                .ThenInclude(s => s.Course)
-                            .FirstOrDefaultAsync(e =>
-                                e.CourseSessionId == sessionId &&
-                                e.StudentId == studentId &&
-                                e.IsActive);
-
-                        if (enrollment == null)
-                            return response.SetError(ErrorCodes.InvalidParameters, "Enrollment not found");
-
-                        var addPrice = enrollment.Session.Fee;
-                        var newTotalAdd = contract.TotalAmount + addPrice;
-
-                        item.CourseSessionId = sessionId;
-                        item.NewValue = newTotalAdd.ToString();
-
-                        descriptions.Add($"Adăugat curs: {enrollment.Session.Course.Name} (+{addPrice} RON → total {newTotalAdd})");
-                        break;
-
-                    case AdditionalActType.RemoveCourse:
-
-                        var removeSessionId = dto.CourseSessionIds?.FirstOrDefault();
-
-                        var existingEnrollment = await _db.CourseEnrollments
-                            .Include(e => e.Session)
-                                .ThenInclude(s => s.Course)
-                            .FirstOrDefaultAsync(e =>
-                                e.CourseSessionId == removeSessionId &&
-                                e.ContractId == contract.Id);
-
-                        if (existingEnrollment == null)
-                            return response.SetError(ErrorCodes.InvalidParameters, "Course not in contract");
-
-                        var removePrice = existingEnrollment.Session.Fee;
-                        var newTotalRemove = contract.TotalAmount - removePrice;
-
-                        item.CourseSessionId = removeSessionId;
-                        item.NewValue = newTotalRemove.ToString();
-
-                        descriptions.Add($"Eliminat curs: {existingEnrollment.Session.Course.Name} (-{removePrice} RON → total {newTotalRemove})");
-                        break;
-
-                    case AdditionalActType.ExtendPeriod:
-
-                        if (!dto.NewEndDate.HasValue)
-                            return response.SetError(ErrorCodes.InvalidParameters, "New date required");
-
-                        item.NewValue = dto.NewEndDate.Value.ToString("yyyy-MM-dd");
-
-                        descriptions.Add($"Extins până la {dto.NewEndDate.Value:dd.MM.yyyy}");
-                        break;
-
-                    case AdditionalActType.ChangePrice:
-
-                        if (!dto.NewPrice.HasValue || dto.NewPrice <= 0)
-                            return response.SetError(ErrorCodes.InvalidParameters, "Invalid price");
-
-                        item.NewValue = dto.NewPrice.Value.ToString();
-
-                        descriptions.Add($"Preț modificat la {dto.NewPrice} RON");
-                        break;
+                    act.Items.Add(item);
                 }
 
-                act.Items.Add(item);
+                act.Description = buildResult.Description;
             }
-
-            act.Description = string.Join(" | ", descriptions);
+            catch (InvalidOperationException ex)
+            {
+                return response.SetError(ErrorCodes.InvalidParameters, ex.Message);
+            }
 
             var studentIds = contract.Parties
                 .Where(p => p.StudentId != null)
@@ -409,7 +226,7 @@ namespace ERPSystem.Modules.AdditionalAct
             }
 
             act.Body = await GenerateAdditionalActBody(contract, act, guardian, students);
-
+            act.PdfPath = null;
             await _db.SaveChangesAsync();
 
             return response.SetSuccess(new { act.Id });
@@ -431,14 +248,12 @@ namespace ERPSystem.Modules.AdditionalAct
 
             act.Status = AdditionalActStatus.Finalized;
 
-            _db.ActivityLog.Add(new ActivityLog
-            {
-                EntityType = nameof(ContractAdditionalAct),
-                EntityId = act.Id.ToString(),
-                Action = "Finalized",
-                Description = $"Act {act.ActNumber} finalizat",
-                CreatedAtUtc = DateTime.UtcNow
-            });
+            _activityLogService.Add(
+                 nameof(ContractAdditionalAct),
+                 act.Id.ToString(),
+                 "Finalized",
+                 $"Act {act.ActNumber} finalizat"
+             );
 
             await _db.SaveChangesAsync();
 
@@ -465,32 +280,16 @@ namespace ERPSystem.Modules.AdditionalAct
             if (act == null)
                 return Results.NotFound();
 
+            if (act.Status != AdditionalActStatus.Applied)
+                return Results.BadRequest("Actul adițional nu este aplicat încă.");
+
             if (string.IsNullOrEmpty(act.PdfPath))
                 return Results.BadRequest("PDF not generated");
 
             var filePath = Path.Combine("wwwroot", "contracts", act.PdfPath);
 
             if (!File.Exists(filePath))
-            {
-                // 🔥 regenerează PDF dacă lipsește
-                var fileName = _pdfService.GeneratePdf(new PdfDocumentModel
-                {
-                    Title = "ACT ADIȚIONAL",
-                    Number = act.ActNumber,
-                    Body = act.Body,
-                    CompanyName = act.Contract.CompanyNameSnapshot,
-                    BeneficiaryName = act.Contract.BeneficiaryNameSnapshot,
-                    AdminSignature = act.AdminSignature,
-                    ClientSignature = act.ClientSignature,
-                    AdminSignedAt = act.AdminSignedAtUtc,
-                    ClientSignedAt = act.ClientSignedAtUtc
-                }, "ACT");
-
-                act.PdfPath = fileName;
-                await _db.SaveChangesAsync();
-
-                filePath = Path.Combine("wwwroot", "contracts", fileName);
-            }
+                return Results.NotFound("PDF file not found");
 
             var bytes = await File.ReadAllBytesAsync(filePath);
 
@@ -519,31 +318,42 @@ namespace ERPSystem.Modules.AdditionalAct
             if (act == null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Not found");
 
-            var dto = new AdditionalActDetailsDto(
-                act.Id,
-                act.ActNumber,
-                act.Status.ToString(),
-                act.Description,
-                act.Body,
-                act.CreatedAtUtc,
-                act.ContractId,
+            var dto = new AdditionalActDetailsDto
+            {
+                Id = act.Id,
+                ActNumber = act.ActNumber,
+                Status = act.Status.ToString(),
+                Description = act.Description,
+                Body = act.Body,
+                CreatedAtUtc = act.CreatedAtUtc,
+                ContractId = act.ContractId,
 
-                // 🔥 Parties (opțional, dar util)
-                act.Contract.Parties.Select(p => new ContractPartyDto(
-                    p.StudentId,
-                    p.Student != null ? p.Student.FirstName + " " + p.Student.LastName : null,
-                    p.GuardianId,
-                    p.Guardian != null ? p.Guardian.FirstName + " " + p.Guardian.LastName : null,
-                    p.Role.ToString()
-                )).ToList(),
+                // Parties
+                Parties = act.Contract.Parties
+                  .Select(p => new ContractPartyDto
+                  {
+                      StudentId = p.StudentId,
+                      StudentName = p.Student != null
+                          ? p.Student.FirstName + " " + p.Student.LastName
+                          : null,
+                      GuardianId = p.GuardianId,
+                      GuardianName = p.Guardian != null
+                          ? p.Guardian.FirstName + " " + p.Guardian.LastName
+                          : null,
+                      Role = p.Role.ToString()
+                  })
+                  .ToList(),
 
-                // 🔥 Items
-                act.Items.Select(i => new AdditionalActItemDto(
-                    i.Type.ToString(),
-                    i.CourseSessionId,
-                    i.NewValue
-                )).ToList()
-            );
+                // Items
+                Items = act.Items
+                   .Select(i => new AdditionalActItemDto
+                   {
+                       Type = i.Type.ToString(),
+                       CourseSessionId = i.CourseSessionId,
+                       NewValue = i.NewValue
+                   })
+                   .ToList()
+                       };
 
             return response.SetSuccess(dto);
         }
@@ -564,31 +374,42 @@ namespace ERPSystem.Modules.AdditionalAct
                 .OrderByDescending(a => a.CreatedAtUtc)
                 .ToListAsync();
 
-            var result = acts.Select(a => new AdditionalActDetailsDto(
-                a.Id,
-                a.ActNumber,
-                a.Status.ToString(),
-                a.Description,
-                a.Body,
-                a.CreatedAtUtc,
-                a.ContractId,
+            var result = acts.Select(a => new AdditionalActDetailsDto
+            {
+                Id = a.Id,
+                ActNumber = a.ActNumber,
+                Status = a.Status.ToString(),
+                Description = a.Description,
+                Body = a.Body,
+                CreatedAtUtc = a.CreatedAtUtc,
+                ContractId = a.ContractId,
 
-                // 🔥 PARTIES
-                a.Contract.Parties.Select(p => new ContractPartyDto(
-                    p.StudentId,
-                    p.Student != null ? p.Student.FirstName + " " + p.Student.LastName : null,
-                    p.GuardianId,
-                    p.Guardian != null ? p.Guardian.FirstName + " " + p.Guardian.LastName : null,
-                    p.Role.ToString()
-                )).ToList(),
+                // PARTIES
+                Parties = a.Contract.Parties
+                    .Select(p => new ContractPartyDto
+                    {
+                        StudentId = p.StudentId,
+                        StudentName = p.Student != null
+                            ? p.Student.FirstName + " " + p.Student.LastName
+                            : null,
+                        GuardianId = p.GuardianId,
+                        GuardianName = p.Guardian != null
+                            ? p.Guardian.FirstName + " " + p.Guardian.LastName
+                            : null,
+                        Role = p.Role.ToString()
+                    })
+                    .ToList(),
 
-                // 🔥 ITEMS
-                a.Items.Select(i => new AdditionalActItemDto(
-                    i.Type.ToString(),
-                    i.CourseSessionId,
-                    i.NewValue
-                )).ToList()
-            )).ToList();
+                // ITEMS
+                Items = a.Items
+                   .Select(i => new AdditionalActItemDto
+                   {
+                       Type = i.Type.ToString(),
+                       CourseSessionId = i.CourseSessionId,
+                       NewValue = i.NewValue
+                   })
+                   .ToList()
+                     }).ToList();
 
             return response.SetSuccess(result);
         }
@@ -614,36 +435,41 @@ namespace ERPSystem.Modules.AdditionalAct
             var effectiveDate = DateTime.UtcNow.ToString("dd.MM.yyyy");
 
             var sessionIds = act.Items
-        .Where(i => i.CourseSessionId.HasValue)
-        .Select(i => i.CourseSessionId.Value)
-        .ToList();
+               .Where(i => i.CourseSessionId.HasValue)
+               .Select(i => i.CourseSessionId.Value)
+               .ToList();
 
             var sessions = await _db.CourseSessions
                 .Include(s => s.Course)
                 .Where(s => sessionIds.Contains(s.Id))
                 .ToDictionaryAsync(s => s.Id);
-            // 🔥 schimbări (logică în funcție de tip)
 
-            var changes = string.Join("\n",
-             act.Items.Select(i =>
-             {
-                 return i.Type switch
+            var changes = string.Join("<br/>",
+                 act.Items.Select(i =>
                  {
-                     AdditionalActType.AddCourse =>
-                         $"• Curs adăugat: {sessions[i.CourseSessionId.Value].Course.Name}",
+                     return i.Type switch
+                     {
+                         AdditionalActType.AddCourse when i.CourseSessionId.HasValue =>
+                             $"• Curs adăugat: {sessions[i.CourseSessionId.Value].Course.Name} (+{i.NewValue} RON)",
+             
+                         AdditionalActType.RemoveCourse when i.CourseSessionId.HasValue =>
+                             $"• Curs eliminat: {sessions[i.CourseSessionId.Value].Course.Name} (-{i.NewValue} RON)",
 
-                     AdditionalActType.RemoveCourse =>
-                         $"• Curs eliminat: {sessions[i.CourseSessionId.Value].Course.Name}",
+                         AdditionalActType.ExtendPeriod =>
+                              DateTime.TryParse(i.NewValue, out var parsedDate)
+                              ? $"• Perioadă extinsă până la {parsedDate:dd.MM.yyyy}" : $"• Perioadă extinsă până la {i.NewValue}",
 
-                     AdditionalActType.ExtendPeriod =>
-                         $"• Perioadă extinsă până la {i.NewValue}",
-
-                     AdditionalActType.ChangePrice =>
-                         $"• Preț modificat la {i.NewValue} RON",
-
-                     _ => ""
-                 };
-             }));
+                         AdditionalActType.AddDiscount =>
+                             $"• Discount aplicat: -{i.NewValue} RON",
+             
+                         AdditionalActType.IncreasePrice =>
+                             $"• Majorare preț: +{i.NewValue} RON",
+             
+                         _ => ""
+                     };
+                 })
+                 .Where(x => !string.IsNullOrWhiteSpace(x))
+             );
 
             var values = new Dictionary<string, string>
             {
@@ -672,176 +498,432 @@ namespace ERPSystem.Modules.AdditionalAct
                 ["Changes"] = changes,
                 ["EffectiveDate"] = effectiveDate,
 
+                ["Total"] = contract.TotalAmount.HasValue ? $"{contract.TotalAmount.Value:0.00} RON" : "-",
+
+                ["MonthlyAmount"] = $"{contract.MonthlyAmount:0.00} RON",
+
+                ["ContractEndDate"] = contract.EndDate.HasValue  ? contract.EndDate.Value.ToString("dd.MM.yyyy") : "Nelimitat",
+
                 ["AdminSignDate"] = contract.AdminSignedAtUtc?.ToString("dd.MM.yyyy") ?? "",
                 ["ClientSignDate"] = contract.ClientSignedAtUtc?.ToString("dd.MM.yyyy") ?? ""
             };
 
-            return ApplyTemplate(template, values);
+            return _templateRenderer.Render(template, values);
         }
 
-        private string ApplyTemplate(string template, Dictionary<string, string> values)
-        {
-            foreach (var item in values)
-            {
-                template = template.Replace($"{{{{{item.Key}}}}}", item.Value ?? "");
-            }
-
-            return template;
-        }
-
-
-        public async Task<PublicResponse> ApplyAdditionalActAsync(int actId)
+        public async Task<PublicResponse> ApplyAdditionalActAsync(int actId, bool saveChanges = true)
         {
             var response = new PublicResponse(true);
 
             var act = await _db.ContractAdditionalAct
-                .Include(a => a.Contract)
-                    .ThenInclude(c => c.InstallmentsList)
-                .Include(a => a.Items)
-                .FirstOrDefaultAsync(a => a.Id == actId);
+              .Include(a => a.Contract)
+                  .ThenInclude(c => c.InstallmentsList)
+              .Include(a => a.Contract)
+                  .ThenInclude(c => c.Discounts)
+              .Include(a => a.Contract)
+                  .ThenInclude(c => c.PriceAdjustments)
+                      .ThenInclude(p => p.CourseSession)
+              .Include(a => a.Items)
+              .FirstOrDefaultAsync(a => a.Id == actId);
 
             if (act == null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Act not found");
 
-           
+            if (act.Status == AdditionalActStatus.Applied)
+                return response.SetError(ErrorCodes.InvalidParameters, "Act already applied");
+
+            if (act.Status != AdditionalActStatus.SignedByClient)
+                return response.SetError(ErrorCodes.InvalidParameters, "Act must be signed by client before applying");
+
             var contract = act.Contract;
 
             if (contract.Status != ContractStatus.Active)
                 return response.SetError(ErrorCodes.InvalidParameters, "Contract not active");
 
-            // 🔥 calcul working values (NU modificăm contract direct!)
-            var workingMonthly = contract.InstallmentsList
-                .OrderBy(i => i.DueDate)
-                .Select(i => i.Amount)
-                .FirstOrDefault();
-
-            var workingTotal = contract.TotalAmount;
-
             foreach (var item in act.Items)
             {
                 switch (item.Type)
                 {
-                    // =========================
-                    // ADD COURSE
-                    // =========================
                     case AdditionalActType.AddCourse:
-
-                        var enrollment = await _db.CourseEnrollments
-                            .FirstOrDefaultAsync(e =>
-                                e.CourseSessionId == item.CourseSessionId &&
-                                e.StudentId != null &&
-                                e.ContractId == null);
-
-                        if (enrollment != null)
                         {
+                            if (!item.CourseSessionId.HasValue)
+                                return response.SetError(ErrorCodes.InvalidParameters, "Course required");
+
+                            var enrollment = await _db.CourseEnrollments
+                                .FirstOrDefaultAsync(e =>
+                                    e.CourseSessionId == item.CourseSessionId.Value &&
+                                    e.StudentId != null &&
+                                    e.ContractId == null &&
+                                    e.IsActive);
+
+                            if (enrollment == null)
+                                return response.SetError(ErrorCodes.InvalidParameters, "Enrollment not found or already in contract");
+
                             enrollment.ContractId = contract.Id;
+
+                            break;
                         }
 
-                        var addPrice = await _db.CourseSessions
-                            .Where(s => s.Id == item.CourseSessionId)
-                            .Select(s => s.Fee)
-                            .FirstOrDefaultAsync();
-
-                        workingMonthly += addPrice;
-
-                        if (workingTotal.HasValue)
-                            workingTotal += addPrice;
-
-                        break;
-
-                    // =========================
-                    // REMOVE COURSE
-                    // =========================
                     case AdditionalActType.RemoveCourse:
-
-                        var existing = await _db.CourseEnrollments
-                            .FirstOrDefaultAsync(e =>
-                                e.CourseSessionId == item.CourseSessionId &&
-                                e.ContractId == contract.Id);
-
-                        if (existing != null)
                         {
+                            if (!item.CourseSessionId.HasValue)
+                                return response.SetError(ErrorCodes.InvalidParameters, "Course required");
+
+                            var existing = await _db.CourseEnrollments
+                                .FirstOrDefaultAsync(e =>
+                                    e.CourseSessionId == item.CourseSessionId.Value &&
+                                    e.ContractId == contract.Id &&
+                                    !e.IsActive);
+
+                            if (existing == null)
+                                return response.SetError(ErrorCodes.InvalidParameters, "Removed course not found in contract");
+
                             existing.ContractId = null;
+
+                            break;
                         }
 
-                        var removePrice = await _db.CourseSessions
-                            .Where(s => s.Id == item.CourseSessionId)
-                            .Select(s => s.Fee)
-                            .FirstOrDefaultAsync();
-
-                        workingMonthly = Math.Max(0, workingMonthly - removePrice);
-
-                        if (workingTotal.HasValue)
-                            workingTotal = Math.Max(0, workingTotal.Value - removePrice);
-
-                        break;
-
-                    // =========================
-                    // EXTEND PERIOD
-                    // =========================
                     case AdditionalActType.ExtendPeriod:
-
-                        if (DateTime.TryParse(item.NewValue, out var newDate))
                         {
+                            if (!DateTime.TryParse(item.NewValue, out var newDate))
+                                return response.SetError(ErrorCodes.InvalidParameters, "Invalid end date");
+
                             contract.EndDate = newDate;
-
-                            if (workingTotal.HasValue)
-                            {
-                                var months = CalculateMonths(contract.StartDate, newDate);
-                                workingTotal = workingMonthly * months;
-                            }
+                            break;
                         }
 
-                        break;
-
-                    // =========================
-                    // CHANGE PRICE
-                    // =========================
-                    case AdditionalActType.ChangePrice:
-
-                        if (decimal.TryParse(item.NewValue, out var newPrice))
+                    case AdditionalActType.AddDiscount:
                         {
-                            if (workingTotal.HasValue)
+                            if (!item.CourseSessionId.HasValue)
+                                return response.SetError(ErrorCodes.InvalidParameters, "Course session required for discount");
+
+                            if (!decimal.TryParse(item.NewValue, out var discount) || discount <= 0)
+                                return response.SetError(ErrorCodes.InvalidParameters, "Invalid discount");
+
+                            contract.PriceAdjustments.Add(new ContractPriceAdjustment
                             {
-                                workingTotal = newPrice;
-                            }
-                            else
-                            {
-                                workingMonthly = newPrice;
-                            }
+                                ContractId = contract.Id,
+                                CourseSessionId = item.CourseSessionId.Value,
+                                Type = PriceAdjustmentType.Discount,
+                                Amount = discount,
+                                Reason = $"Act adițional {act.ActNumber}",
+                                CreatedAtUtc = DateTime.UtcNow
+                            });
+
+                            break;
                         }
 
-                        break;
+                    case AdditionalActType.IncreasePrice:
+                        {
+                            if (!item.CourseSessionId.HasValue)
+                                return response.SetError(ErrorCodes.InvalidParameters, "Course session required for increase");
+
+                            if (!decimal.TryParse(item.NewValue, out var increase) || increase <= 0)
+                                return response.SetError(ErrorCodes.InvalidParameters, "Invalid increase");
+
+                            contract.PriceAdjustments.Add(new ContractPriceAdjustment
+                            {
+                                ContractId = contract.Id,
+                                CourseSessionId = item.CourseSessionId.Value,
+                                Type = PriceAdjustmentType.Increase,
+                                Amount = increase,
+                                Reason = $"Act adițional {act.ActNumber}",
+                                CreatedAtUtc = DateTime.UtcNow
+                            });
+
+                            break;
+                        }
+
+                    default:
+                        return response.SetError(ErrorCodes.InvalidParameters, "Unsupported change type");
                 }
             }
 
-            // =========================
-            // 🔥 UPDATE INSTALLMENTS
-            // =========================
-            if (contract.InstallmentsList.Any())
+            var activeSessionIds = await _db.CourseEnrollments
+                .Where(e => e.ContractId == contract.Id && e.IsActive)
+                .Select(e => e.CourseSessionId)
+                .Distinct()
+                .ToListAsync();
+
+            var sessions = await _db.CourseSessions
+                .Where(s => activeSessionIds.Contains(s.Id))
+                .ToListAsync();
+
+            var pricing = _pricingService.CalculatePricing(sessions, contract);
+
+            var appliedDate = DateTime.UtcNow.Date;
+
+            contract.MonthlyAmount = pricing.MonthlyAmount;
+            contract.TotalAmount = pricing.TotalAmount;
+
+            var unpaidInstallments = contract.InstallmentsList
+                .Where(i =>
+                    !i.IsPaid &&
+                    i.DueDate.Date >= appliedDate)
+                .ToList();
+
+            var installmentStartDate = unpaidInstallments.Any()
+                ? unpaidInstallments.Min(i => i.DueDate.Date)
+                : appliedDate;
+
+            _db.ContractInstallments.RemoveRange(unpaidInstallments);
+
+            var newInstallments = _installmentService.BuildInstallmentsForRemainingPeriod(
+               installmentStartDate,
+               contract.EndDate ?? installmentStartDate,
+               contract.IsUnlimited,
+               pricing
+            );
+
+            foreach (var installment in newInstallments)
             {
-                foreach (var inst in contract.InstallmentsList)
-                {
-                    inst.Amount = workingMonthly;
-                }
+                installment.ContractId = contract.Id;
             }
 
-            // =========================
-            // 🔥 OPTIONAL: update total (DOAR pentru calcul intern)
-            // =========================
-            if (workingTotal.HasValue)
-            {
-                contract.TotalAmount = workingTotal;
-            }
-
-            // ⚠️ NU modificăm ContractBody!
-            // ⚠️ NU regenerăm PDF!
+            _db.ContractInstallments.AddRange(newInstallments);
 
             act.Status = AdditionalActStatus.Applied;
+            act.AppliedAtUtc = DateTime.UtcNow;
 
-            await _db.SaveChangesAsync();
+            _activityLogService.Add(
+                nameof(ContractAdditionalAct),
+                act.Id.ToString(),
+                "Applied",
+                $"Actul adițional {act.ActNumber} a fost aplicat"
+            );
+            if (saveChanges)
+            {
+                await _db.SaveChangesAsync();
+
+                act.PdfPath = _pdfService.GenerateAdditionalActPdf(act);
+
+                await _db.SaveChangesAsync();
+            }
+            else
+            {
+                act.PdfPath = _pdfService.GenerateAdditionalActPdf(act);
+            }
 
             return response.SetSuccess();
+        }
+
+        private async Task<(List<ContractAdditionalActItem> Items, string Description)> BuildAdditionalActItemsAsync( StudentContract contract, CreateAdditionalActDto dto, int? actId = null)
+        {
+            var items = new List<ContractAdditionalActItem>();
+            var descriptions = new List<string>();
+
+            if (dto.Types == null || !dto.Types.Any())
+                throw new InvalidOperationException("At least one type required");
+
+            var studentId = contract.Parties
+                .Where(p => p.StudentId.HasValue)
+                .Select(p => p.StudentId!.Value)
+                .FirstOrDefault();
+
+            if (studentId == 0)
+                throw new InvalidOperationException("Student not found");
+
+            var workingMonthly = contract.MonthlyAmount;
+            var workingTotal = contract.TotalAmount;
+
+            var selectedSessionIds = dto.AddCourseSessionIds
+              .Concat(dto.RemoveCourseSessionIds)
+              .Distinct()
+              .ToList();
+
+            var openActStatuses = new[]
+            {
+                  AdditionalActStatus.Draft,
+                  AdditionalActStatus.Finalized,
+                  AdditionalActStatus.SentToClient,
+                  AdditionalActStatus.SignedByClient
+              };
+
+            if (selectedSessionIds.Any())
+            {
+                var alreadyUsed = await _db.ContractAdditionalAct
+                    .Where(a =>
+                        a.ContractId == contract.Id &&
+                        a.Id != actId &&
+                        openActStatuses.Contains(a.Status))
+                    .SelectMany(a => a.Items)
+                    .Where(i =>
+                        i.CourseSessionId.HasValue &&
+                        selectedSessionIds.Contains(i.CourseSessionId.Value))
+                    .AnyAsync();
+
+                if (alreadyUsed)
+                    throw new InvalidOperationException("Unul dintre cursuri este deja inclus într-un alt act adițional neaplicat.");
+            }
+
+            foreach (var type in dto.Types.Distinct())
+            {
+                switch (type)
+                {
+                    case AdditionalActType.AddCourse:
+                        {
+                            if (!dto.AddCourseSessionIds.Any())
+                                throw new InvalidOperationException("Course required");
+
+                            foreach (var sessionId in dto.AddCourseSessionIds.Distinct())
+                            {
+                                var enrollment = await _db.CourseEnrollments
+                                    .Include(e => e.Session)
+                                        .ThenInclude(s => s.Course)
+                                    .FirstOrDefaultAsync(e =>
+                                        e.CourseSessionId == sessionId &&
+                                        e.StudentId == studentId &&
+                                        e.IsActive);
+
+                                if (enrollment == null)
+                                    throw new InvalidOperationException("Enrollment not found");
+
+                                if (enrollment.ContractId != null)
+                                    throw new InvalidOperationException("Already in contract");
+
+                                var price = enrollment.Session.Fee;
+
+                                workingMonthly += price;
+
+                                if (workingTotal.HasValue)
+                                    workingTotal += price;
+
+                                items.Add(new ContractAdditionalActItem
+                                {
+                                    ActId = actId ?? 0,
+                                    Type = type,
+                                    CourseSessionId = sessionId,
+                                    NewValue = price.ToString("0.00")
+                                });
+
+                                descriptions.Add($"Adăugat curs: {enrollment.Session.Course.Name} (+{price:0.00} RON)");
+                            }
+
+                            break;
+                        }
+
+                    case AdditionalActType.RemoveCourse:
+                        {
+                            if (!dto.RemoveCourseSessionIds.Any())
+                                throw new InvalidOperationException("Course required");
+
+                            foreach (var sessionId in dto.RemoveCourseSessionIds.Distinct())
+                            {
+                                var existingEnrollment = await _db.CourseEnrollments
+                                    .Include(e => e.Session)
+                                        .ThenInclude(s => s.Course)
+                                    .FirstOrDefaultAsync(e =>
+                                        e.CourseSessionId == sessionId &&
+                                        e.ContractId == contract.Id &&
+                                        !e.IsActive);
+
+                                if (existingEnrollment == null)
+                                    throw new InvalidOperationException("Course not removed from contract");
+
+                                var price = existingEnrollment.Session.Fee;
+
+                                workingMonthly = Math.Max(0, workingMonthly - price);
+
+                                if (workingTotal.HasValue)
+                                    workingTotal = Math.Max(0, workingTotal.Value - price);
+
+                                items.Add(new ContractAdditionalActItem
+                                {
+                                    ActId = actId ?? 0,
+                                    Type = type,
+                                    CourseSessionId = sessionId,
+                                    NewValue = price.ToString("0.00")
+                                });
+
+                                descriptions.Add($"Eliminat curs: {existingEnrollment.Session.Course.Name} (-{price:0.00} RON)");
+                            }
+
+                            break;
+                        }
+
+                    case AdditionalActType.ExtendPeriod:
+                        {
+                            if (!dto.NewEndDate.HasValue)
+                                throw new InvalidOperationException("New date required");
+
+                            if (contract.EndDate.HasValue &&
+                                dto.NewEndDate.Value <= contract.EndDate.Value)
+                            {
+                                throw new InvalidOperationException("New end date must be after current end date");
+                            }
+
+                            items.Add(new ContractAdditionalActItem
+                            {
+                                ActId = actId ?? 0,
+                                Type = type,
+                                NewValue = dto.NewEndDate.Value.ToString("yyyy-MM-dd")
+                            });
+
+                            if (workingTotal.HasValue)
+                            {
+                                var months = CalculateMonths(contract.StartDate, dto.NewEndDate.Value);
+                                workingTotal = workingMonthly * months;
+                            }
+
+                            descriptions.Add($"Extins până la {dto.NewEndDate.Value:dd.MM.yyyy}");
+
+                            break;
+                        }
+
+                    case AdditionalActType.AddDiscount:
+                        {
+                            if (dto.PriceAdjustments == null || !dto.PriceAdjustments.Any())
+                                throw new InvalidOperationException("Discount required");
+
+                            foreach (var adj in dto.PriceAdjustments)
+                            {
+                                if (adj.CourseSessionId <= 0 || adj.Amount <= 0)
+                                    throw new InvalidOperationException("Invalid discount");
+
+                                items.Add(new ContractAdditionalActItem
+                                {
+                                    ActId = actId ?? 0,
+                                    Type = type,
+                                    CourseSessionId = adj.CourseSessionId,
+                                    NewValue = adj.Amount.ToString("0.00")
+                                });
+
+                                descriptions.Add($"Discount aplicat pentru sesiunea #{adj.CourseSessionId}: -{adj.Amount:0.00} RON");
+                            }
+
+                            break;
+                        }
+
+                    case AdditionalActType.IncreasePrice:
+                        {
+                            if (dto.PriceAdjustments == null || !dto.PriceAdjustments.Any())
+                                throw new InvalidOperationException("Increase required");
+
+                            foreach (var adj in dto.PriceAdjustments)
+                            {
+                                if (adj.CourseSessionId <= 0 || adj.Amount <= 0)
+                                    throw new InvalidOperationException("Invalid increase");
+
+                                items.Add(new ContractAdditionalActItem
+                                {
+                                    ActId = actId ?? 0,
+                                    Type = type,
+                                    CourseSessionId = adj.CourseSessionId,
+                                    NewValue = adj.Amount.ToString("0.00")
+                                });
+
+                                descriptions.Add($"Majorare aplicată pentru sesiunea #{adj.CourseSessionId}: +{adj.Amount:0.00} RON");
+                            }
+
+                            break;
+                        }
+
+                    default:
+                        throw new InvalidOperationException("Unsupported change type");
+                }
+            }
+
+            return (items, string.Join(" | ", descriptions));
         }
 
         private int CalculateMonths(DateTime start, DateTime end)

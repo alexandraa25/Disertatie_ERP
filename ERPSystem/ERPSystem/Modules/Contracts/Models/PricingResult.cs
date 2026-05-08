@@ -2,10 +2,14 @@
 {
     public class PricingResult
     {
-        public decimal PackageTotal { get; set; }
-        public decimal SubscriptionMonthly { get; set; }
-        public int? SubscriptionMonths { get; set; }
-        public decimal? SubscriptionTotal { get; set; }
-        public decimal? Total { get; set; }
+        public decimal PackageAmount { get; set; }
+        public decimal MonthlyAmount { get; set; }
+
+        public decimal? TotalAmount { get; set; }
+
+        public decimal DiscountTotal { get; set; }
+        public int Months { get; set; }
+
+        public decimal TotalDiscountAmount { get; set; }
     }
 }

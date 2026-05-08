@@ -140,7 +140,7 @@ public class NotificationsService
         await _context.SaveChangesAsync();
     }
 
-    public async Task CreateNotificationForRolesAsync(  string[] roleNames, string eventType,  string title, string message, string type = "Info", string? link = null, string? entityType = null,  string? entityId = null)
+    public async Task CreateNotificationForRolesAsync( string[] roleNames, string eventType, string title, string message, string type = "Info", string? link = null, string? entityType = null, string? entityId = null)
     {
         var userIds = await _context.UserRoles
             .Join(_context.Roles,
@@ -152,18 +152,36 @@ public class NotificationsService
             .Distinct()
             .ToListAsync();
 
-        foreach (var userId in userIds)
-        {
-            await CreateNotificationAsync(
-                userId: userId,
-                eventType: eventType,
-                title: title,
-                message: message,
-                type: type,
-                link: link,
-                entityType: entityType,
-                entityId: entityId
-            );
-        }
+        var disabledUserIds = await _context.UserNotificationSettings
+            .Where(x =>
+                userIds.Contains(x.UserId) &&
+                x.EventType == eventType &&
+                x.Channel == NotificationChannel.InApp &&
+                !x.Enabled)
+            .Select(x => x.UserId)
+            .ToListAsync();
+
+        var notifications = userIds
+            .Where(userId => !disabledUserIds.Contains(userId))
+            .Select(userId => new Notification
+            {
+                UserId = userId,
+                EventType = eventType,
+                Title = title,
+                Message = message,
+                Type = type,
+                Link = link,
+                EntityType = entityType,
+                EntityId = entityId,
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            })
+            .ToList();
+
+        if (!notifications.Any())
+            return;
+
+        _context.Notifications.AddRange(notifications);
+        await _context.SaveChangesAsync();
     }
 }

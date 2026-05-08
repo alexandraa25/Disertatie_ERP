@@ -332,9 +332,6 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       case 'Active':
         return 'view';
 
-      case 'Suspended':
-        return 'resume';
-
       case 'Completed':
       case 'Expired':
       case 'Cancelled':
@@ -367,9 +364,6 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       case 'view':
         return '📄 Vizualizează';
 
-      case 'resume':
-        return '▶️ Reia contract';
-
       default:
         return '➕ Creează contract';
     }
@@ -384,7 +378,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
         break;
 
       case 'edit':
-        this.openContract(this.contract.id); // sau edit
+        this.openContract(this.contract.id); 
         break;
 
       case 'send':
@@ -465,21 +459,21 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       }
     });
   }
-  activateContract() {
 
+  activateContract() {
     const dialogRef = this.dialog.open(AdminSignatureModalComponent, {
       width: '600px',
-      data: this.contract.id
+      data: {
+        id: this.contract.id,
+        type: 'contract'
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
-
       if (result) {
         this.loadContractsList();
       }
-
     });
-
   }
 
   isExpired(): boolean {
@@ -505,30 +499,6 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
     const today = new Date();
 
     return Math.ceil((end.getTime() - today.getTime()) / (1000 * 3600 * 24));
-  }
-
-  async suspend(): Promise<void> {
-    if (!(await this.confirmService.confirm('Suspendăm contractul?', 'Confirmare'))) return;
-
-    this.contracts.suspend(this.contract.id).subscribe({
-      next: () => {
-        this.snackbar.showSuccess('Contract suspendat.', 1800);
-        this.loadContractsList();
-      },
-      error: (err) => this.snackbar.showError(this.getErrorMessage(err, 'Contractul nu a putut fi suspendat.'), 2500)
-    });
-  }
-
-  async resume(): Promise<void> {
-    if (!(await this.confirmService.confirm('Reluăm contractul?', 'Confirmare'))) return;
-
-    this.contracts.resume(this.contract.id).subscribe({
-      next: () => {
-        this.snackbar.showSuccess('Contract reluat.', 1800);
-        this.loadContractsList();
-      },
-      error: (err) => this.snackbar.showError(this.getErrorMessage(err, 'Contractul nu a putut fi reluat.'), 2500)
-    });
   }
 
   async complete(): Promise<void> {
@@ -610,6 +580,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       }
     });
   }
+
   openAct(id: number) {
     this.router.navigate(['/additional-act', id]);
   }
@@ -642,6 +613,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       }
     });
   }
+
   calculateSummary() {
     this.total = this.installments.reduce((s, i) => s + i.amount, 0);
     this.paid = this.installments.reduce((s, i) => s + i.paidAmount, 0);
@@ -772,7 +744,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       }
     });
   }
-  
+
   setStudentTab(tab: 'evaluations' | 'analytics') {
     this.studentTab = tab;
 

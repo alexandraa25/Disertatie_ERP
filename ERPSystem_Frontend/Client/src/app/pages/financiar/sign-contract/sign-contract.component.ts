@@ -16,7 +16,21 @@ export class SignContractComponent implements OnInit {
 
   token!: string;
 
-  @ViewChild('canvas') canvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvas')
+  set canvasRef(canvas: ElementRef<HTMLCanvasElement> | undefined) {
+    if (!canvas) return;
+
+    this.canvas = canvas;
+
+    const nativeCanvas = canvas.nativeElement;
+    this.ctx = nativeCanvas.getContext('2d')!;
+
+    this.ctx.lineWidth = 2;
+    this.ctx.lineCap = 'round';
+    this.ctx.strokeStyle = '#000';
+  }
+
+  canvas!: ElementRef<HTMLCanvasElement>;
 
   private ctx!: CanvasRenderingContext2D;
 
@@ -26,6 +40,11 @@ export class SignContractComponent implements OnInit {
   contract: any;
   document: any;
   documentType: 'contract' | 'act' = 'contract';
+
+  invalidToken = false;
+  alreadySigned = false;
+
+  expiredToken = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -38,44 +57,41 @@ export class SignContractComponent implements OnInit {
     this.token = this.route.snapshot.paramMap.get('token')!;
 
     if (!this.token) {
-      this.snackbar.showError('Link de semnare invalid.', 2500);
+      this.invalidToken = true;
       return;
     }
 
     this.contracts.getForSigning(this.token).subscribe({
       next: (res: any) => {
         if (res?.isSuccess === false || !res?.value) {
-          this.snackbar.showError(
-            res?.error?.errorMessage || 'Documentul nu a putut fi încărcat.',
-            2500
-          );
+          this.handleSigningError(res?.error?.errorMessage);
           return;
         }
 
         this.document = res.value;
-        this.documentType = res.value.type || (res.value.contractBody ? 'contract' : 'act');
+
+        this.documentType =
+          res.value.type?.toLowerCase() === 'additionalact'
+            ? 'act'
+            : 'contract';
       },
-      error: () => {
-        this.snackbar.showError('Documentul nu a putut fi încărcat.', 2500);
+
+      error: (err) => {
+        this.handleSigningError(
+          err?.error?.error?.errorMessage ||
+          err?.error?.errorMessage ||
+          err?.error?.message
+        );
       }
     });
   }
+
   get safeBody() {
     const html = this.document?.contractBody || this.document?.body;
     return this.sanitizer.bypassSecurityTrustHtml(html || '');
   }
 
-  ngAfterViewInit() {
-    const canvas = this.canvas.nativeElement;
-
-    this.ctx = canvas.getContext('2d')!;
-
-    this.ctx.lineWidth = 2;
-    this.ctx.lineCap = 'round';
-    this.ctx.strokeStyle = '#000';
-  }
-
-  startDrawing(event: MouseEvent) {
+  startDrawing(event: PointerEvent) {
     const rect = this.canvas.nativeElement.getBoundingClientRect();
 
     this.drawing = true;
@@ -86,7 +102,7 @@ export class SignContractComponent implements OnInit {
     );
   }
 
-  draw(event: MouseEvent) {
+  draw(event: PointerEvent) {
     if (!this.drawing) return;
 
     const rect = this.canvas.nativeElement.getBoundingClientRect();
@@ -95,6 +111,7 @@ export class SignContractComponent implements OnInit {
       event.clientX - rect.left,
       event.clientY - rect.top
     );
+
     this.ctx.stroke();
   }
 
@@ -103,11 +120,8 @@ export class SignContractComponent implements OnInit {
   }
 
   clear() {
-
     const canvas = this.canvas.nativeElement;
-
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-
   }
 
   sign() {
@@ -147,6 +161,8 @@ export class SignContractComponent implements OnInit {
   }
 
   hasSignature(): boolean {
+    if (!this.canvas?.nativeElement) return false;
+
     const canvas = this.canvas.nativeElement;
     const blank = document.createElement('canvas');
 
@@ -154,6 +170,26 @@ export class SignContractComponent implements OnInit {
     blank.height = canvas.height;
 
     return canvas.toDataURL() !== blank.toDataURL();
+  }
+
+  private handleSigningError(errorMessage: string): void {
+    const code = (errorMessage || '').toUpperCase();
+
+    this.invalidToken = false;
+    this.alreadySigned = false;
+    this.expiredToken = false;
+
+    if (code.includes('ALREADY_SIGNED')) {
+      this.alreadySigned = true;
+      return;
+    }
+
+    if (code.includes('TOKEN_EXPIRED')) {
+      this.expiredToken = true;
+      return;
+    }
+
+    this.invalidToken = true;
   }
 
 }

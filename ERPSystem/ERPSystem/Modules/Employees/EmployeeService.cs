@@ -3,6 +3,7 @@ using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Employees.Models;
 using ERPSystem.Modules.Leaves;
+using ERPSystem.Shared.BusinessLogic;
 using ERPSystem.Shared.Notifications;
 using ERPSystem.Utils.Response;
 using Microsoft.AspNetCore.Identity;
@@ -17,14 +18,16 @@ public class EmployeeService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly HolidayService _holidayService;
     private readonly NotificationsService _notificationService;
+    private readonly ExcelExportService _excelExportService;
 
 
-    public EmployeeService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, HolidayService holidayService, NotificationsService notificationService)
+    public EmployeeService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, HolidayService holidayService, NotificationsService notificationService, ExcelExportService excelExportService)
     {
         _context = context;
         _userManager = userManager;
         _holidayService = holidayService;
         _notificationService = notificationService;
+        _excelExportService = excelExportService;
     }
 
     public async Task<PublicResponse> CreateEmployeeFullAsync(CreateEmployeeFullRequest request)
@@ -1053,10 +1056,10 @@ public class EmployeeService
             }
         }
 
-        FormatSheet(employeesWs);
-        FormatSheet(detailsWs);
-        FormatSheet(documentsWs);
-        FormatSheet(leavesWs);
+        _excelExportService.FormatSheet(employeesWs);
+        _excelExportService.FormatSheet(detailsWs);
+        _excelExportService.FormatSheet(documentsWs);
+        _excelExportService.FormatSheet(leavesWs);
 
         using var ms = new MemoryStream();
         wb.SaveAs(ms);
@@ -1112,33 +1115,5 @@ public class EmployeeService
         };
     }
 
-    private static void FormatSheet(IXLWorksheet ws)
-    {
-        var usedRange = ws.RangeUsed();
-
-        if (usedRange == null)
-            return;
-
-        usedRange.SetAutoFilter();
-
-        var header = ws.Row(1);
-        header.Style.Font.Bold = true;
-        header.Style.Fill.BackgroundColor = XLColor.FromHtml("#1E293B");
-        header.Style.Font.FontColor = XLColor.White;
-        header.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-
-        usedRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-        usedRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
-        usedRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-
-        ws.Columns().AdjustToContents();
-
-        foreach (var column in ws.Columns())
-        {
-            if (column.Width > 45)
-                column.Width = 45;
-        }
-
-        ws.SheetView.FreezeRows(1);
-    }
+ 
 }

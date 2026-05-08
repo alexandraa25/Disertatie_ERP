@@ -1,9 +1,33 @@
+<div *ngIf="invalidToken" class="invalid-wrapper">
+
+  <div class="invalid-card">
+
+    <div class="icon">⚠️</div>
+
+    <h2>Link invalid sau expirat</h2>
+
+    <p>
+      Acest link de semnare nu mai este disponibil.
+      Te rugăm să contactezi administratorul pentru un nou link.
+    </p>
+
+  </div>
+
+</div>
+
+<div *ngIf="alreadySigned" class="signed-wrapper">
+  <div class="signed-card">
+    <div class="icon success-icon">✅</div>
+    <h2>Document deja semnat</h2>
+    <p>
+      Acest document a fost deja semnat anterior și nu mai necesită nicio acțiune.
+    </p>
+  </div>
+</div>
+
 <div class="page" *ngIf="document">
 
-  <!-- HEADER -->
   <div class="header">
-
-
 
     <div class="title-block">
       <h2 class="contract-title">
@@ -13,7 +37,6 @@
         </span>
       </h2>
 
-      <!-- STATUS -->
       <span class="status" [ngClass]="document?.status">
         {{ document?.status }}
       </span>
@@ -21,50 +44,41 @@
 
   </div>
 
-  <!-- INFO (pentru act adițional) -->
   <div *ngIf="documentType === 'act'" class="info">
     📎 Acest act modifică contractul {{ document?.contractNumber }}
   </div>
 
-  <!-- DOCUMENT -->
   <div class="contract-container">
-
     <div class="contract-body" [innerHTML]="safeBody"></div>
-
   </div>
 
-  <!-- SIGNATURE -->
   <div *ngIf="!signed" class="signature-section">
 
     <h3 class="signature-title">Semnătura dvs.</h3>
 
-    <canvas #canvas width="600" height="200" (mousedown)="startDrawing($event)" (mousemove)="draw($event)"
-      (mouseup)="stopDrawing()" (mouseleave)="stopDrawing()">
+    <canvas #canvas width="600" height="200" (pointerdown)="startDrawing($event)" (pointermove)="draw($event)"
+      (pointerup)="stopDrawing()" (pointerleave)="stopDrawing()">
     </canvas>
 
     <div class="buttons">
 
-      <button class="btn secondary" (click)="clear()">
+      <button class="btn-secondary" (click)="clear()">
         🗑 Șterge
       </button>
 
-      <button class="btn primary" (click)="sign()" [disabled]="loading || !hasSignature()">
+      <button class="btn-primary" (click)="sign()" [disabled]="loading || !hasSignature()">
         ✍️ Semnează {{ documentType === 'act' ? 'actul' : 'contractul' }}
       </button>
 
     </div>
-
   </div>
 
-  <!-- SUCCESS -->
   <div *ngIf="signed" class="success">
     ✅ {{ documentType === 'act' ? 'Act semnat' : 'Contract semnat' }} cu succes!
   </div>
-
 </div>
 
-<!-- LOADING -->
-<div *ngIf="!document" class="loading">
+<div *ngIf="!document && !invalidToken && !alreadySigned && !expiredToken" class="loading">
   <div class="spinner"></div>
   <p>Se încarcă documentul...</p>
 </div>

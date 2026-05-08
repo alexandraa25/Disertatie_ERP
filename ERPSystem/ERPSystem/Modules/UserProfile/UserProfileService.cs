@@ -289,12 +289,13 @@ public class UserProfileService
                     x.EventType == eventType &&
                     x.Channel == channel);
 
-                result.Add(new NotificationSettingDto(
-                    eventType,
-                    channel,
-                    setting?.Enabled ?? true,
-                    setting?.Digest ?? GetDefaultDigest(channel)
-                ));
+                result.Add(new NotificationSettingDto
+                {
+                    EventType = eventType,
+                    Channel = channel,
+                    Enabled = setting?.Enabled ?? true,
+                    Digest = setting?.Digest ?? GetDefaultDigest(channel)
+                });
             }
         }
 

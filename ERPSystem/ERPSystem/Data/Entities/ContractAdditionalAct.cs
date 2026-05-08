@@ -14,6 +14,8 @@ namespace ERPSystem.Data.Entities
 
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 
+        public DateTime? AppliedAtUtc { get; set; }
+
         public AdditionalActStatus Status { get; set; }
 
         public string? Body { get; set; }

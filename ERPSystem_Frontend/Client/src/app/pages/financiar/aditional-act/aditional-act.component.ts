@@ -7,31 +7,37 @@ import { FormsModule } from '@angular/forms';
 import { StudentCourseDetailsDto } from '../../models/student.model';
 import { AdditionalActService } from '../../services/additional-act.service';
 import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
+import { RomanianDayPipe } from '../../../components/pipes/romanian-day.pipe';
 
 @Component({
   selector: 'app-aditional-act',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RomanianDayPipe],
   templateUrl: './aditional-act.component.html',
   styleUrls: ['./aditional-act.component.css']
 })
 export class AditionalActComponent implements OnInit {
 
   selectedTypes: string[] = [];
-  selectedCourseId: number | null = null;
+
+  selectedAddCourseIds: number[] = [];
+  selectedRemoveCourseIds: number[] = [];
+
   newEndDate: string | null = null;
-  newPrice: number | null = null;
-  description: string = '';
+  priceAdjustments: {
+    courseSessionId: number | null;
+    amount: number | null;
+  }[] = [];
+
+  description = '';
   contract: any;
 
   allCourses: StudentCourseDetailsDto[] = [];
   availableCourses: StudentCourseDetailsDto[] = [];
-  inactiveCourses: StudentCourseDetailsDto[] = [];
-  studentCourses: any[] = [];
+  removedCoursesFromContract: StudentCourseDetailsDto[] = [];
 
   actId?: number;
   isEdit = false;
-
   contractId!: number;
 
   constructor(
@@ -44,26 +50,21 @@ export class AditionalActComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    const contractId = this.route.snapshot.paramMap.get('contractId');
+    const actId = this.route.snapshot.paramMap.get('actId');
 
-  const contractId = this.route.snapshot.paramMap.get('contractId');
-  const actId = this.route.snapshot.paramMap.get('actId');
+    if (actId) {
+      this.actId = Number(actId);
+      this.isEdit = true;
+      this.loadAct(this.actId);
+      return;
+    }
 
-  if (actId) {
-    this.actId = Number(actId);
-    this.isEdit = true;
-    this.loadAct(this.actId); 
-  } 
-  else if (contractId) {
-    this.contractId = Number(contractId);
-    this.loadContract();
-    this.loadCourses();
-  }
-}
-
-  onTypeChange() {
-    this.selectedCourseId = null;
-    this.newEndDate = null;
-    this.newPrice = null;
+    if (contractId) {
+      this.contractId = Number(contractId);
+      this.loadContract();
+      this.loadCourses();
+    }
   }
 
   toggleType(type: string) {
@@ -72,221 +73,302 @@ export class AditionalActComponent implements OnInit {
     if (index > -1) {
       this.selectedTypes.splice(index, 1);
 
-      if (type === 'AddCourse' || type === 'RemoveCourse') {
-        this.selectedCourseId = null;
+      if (type === 'AddCourse') {
+        this.selectedAddCourseIds = [];
+      }
+
+      if (type === 'RemoveCourse') {
+        this.selectedRemoveCourseIds = [];
       }
 
       if (type === 'ExtendPeriod') {
         this.newEndDate = null;
       }
 
-      if (type === 'ChangePrice') {
-        this.newPrice = null;
+      if (type === 'AddDiscount' || type === 'IncreasePrice') {
+        this.priceAdjustments = [];
       }
 
-    } else {
-      this.selectedTypes.push(type);
+      return;
     }
+
+    if (type === 'AddDiscount') {
+      this.selectedTypes = this.selectedTypes.filter(t => t !== 'IncreasePrice');
+      this.priceAdjustments = [];
+    }
+
+    if (type === 'IncreasePrice') {
+      this.selectedTypes = this.selectedTypes.filter(t => t !== 'AddDiscount');
+      this.priceAdjustments = [];
+    }
+
+    this.selectedTypes.push(type);
   }
 
- loadContract() {
-  this.contractsService.getById(this.contractId).subscribe({
-    next: (res: any) => {
-      if (res?.isSuccess === false || !res?.value) {
-        this.snackbar.showError('Contractul nu a putut fi încărcat.', 2500);
-        return;
-      }
+  loadContract() {
+    this.contractsService.getById(this.contractId).subscribe({
+      next: (res: any) => {
+        if (res?.isSuccess === false || !res?.value) {
+          this.snackbar.showError('Contractul nu a putut fi încărcat.', 2500);
+          return;
+        }
 
-      this.contract = res.value;
-    },
-    error: () => {
-      this.snackbar.showError('Eroare la încărcarea contractului.', 2500);
-    }
-  });
-}
+        this.contract = res.value;
+      },
+      error: () => {
+        this.snackbar.showError('Eroare la încărcarea contractului.', 2500);
+      }
+    });
+  }
 
   loadAct(id: number) {
-  this.additionalActService.getById(id).subscribe((res: any) => {
+    this.additionalActService.getById(id).subscribe((res: any) => {
+      const act = res.value;
 
-    const act = res.value;
-    if (!act) return;
+      if (!act) return;
 
-    this.contractId = act.contractId;
-    this.contract = act.contract;
+      this.contractId = act.contractId;
 
-    this.loadContract();
-    this.loadCourses();
+      this.loadContract();
+      this.loadCourses();
 
-    this.selectedTypes = act.items.map((i: any) =>
-        this.mapEnumToString(i.type)  
-       );
+      this.selectedTypes = Array.from(
+        new Set<string>(
+          act.items.map((i: any) => this.mapEnumToString(i.type))
+        )
+      );
 
-    const courseItem = act.items.find((i: any) => i.courseSessionId);
-    if (courseItem) {
-      this.selectedCourseId = courseItem.courseSessionId;
-    }
+      this.selectedAddCourseIds = act.items
+        .filter((i: any) =>
+          this.mapEnumToString(i.type) === 'AddCourse' &&
+          i.courseSessionId
+        )
+        .map((i: any) => Number(i.courseSessionId));
 
-    const extend = act.items.find((i: any) => i.type === 'ExtendPeriod');
-    if (extend) {
-      this.newEndDate = extend.newValue;
-    }
+      this.selectedRemoveCourseIds = act.items
+        .filter((i: any) =>
+          this.mapEnumToString(i.type) === 'RemoveCourse' &&
+          i.courseSessionId
+        )
+        .map((i: any) => Number(i.courseSessionId));
 
-    const price = act.items.find((i: any) => i.type === 'ChangePrice');
-    if (price) {
-      this.newPrice = Number(price.newValue);
-    }
+      const extend = act.items.find((i: any) =>
+        this.mapEnumToString(i.type) === 'ExtendPeriod'
+      );
 
-    this.description = act.description;
-  });
-}
+      if (extend) {
+        this.newEndDate = extend.newValue;
+      }
 
-  get priceDiff(): number | null {
-    if (!this.newPrice || !this.contract?.totalAmount) return null;
-    return this.newPrice - this.contract.totalAmount;
+      this.priceAdjustments = act.items
+        .filter((i: any) =>
+          ['AddDiscount', 'IncreasePrice'].includes(this.mapEnumToString(i.type)) &&
+          i.courseSessionId
+        )
+        .map((i: any) => ({
+          courseSessionId: Number(i.courseSessionId),
+          amount: Number(i.newValue)
+        }));
+
+      this.description = act.description;
+    });
   }
 
   loadCourses() {
-    this.studentsService.getStudentCoursesByContract(this.contractId) 
-      .subscribe(res => {
-
-        console.log(res); 
-
-        this.allCourses = res.value.items; 
+    this.studentsService.getStudentCoursesByContract(this.contractId)
+      .subscribe((res: any) => {
+        this.allCourses = res.value.items;
 
         this.availableCourses = this.allCourses.filter(c =>
           c.isActive && !c.contractId
         );
 
-        this.inactiveCourses = this.allCourses.filter(c =>
-          !c.isActive && c.contractId === this.contractId
+        this.removedCoursesFromContract = this.allCourses.filter(c =>
+          !c.isActive && Number(c.contractId) === Number(this.contractId)
         );
       });
   }
 
   save() {
+    if (!this.selectedTypes.length) {
+      this.snackbar.showError('Selectează cel puțin un tip.', 2200);
+      return;
+    }
 
-    if (!this.selectedTypes || this.selectedTypes.length === 0) {
-  this.snackbar.showError('Selectează cel puțin un tip.', 2200);
-  return;
-}
+    if (
+      this.selectedTypes.includes('AddCourse') &&
+      this.selectedAddCourseIds.length === 0
+    ) {
+      this.snackbar.showError('Selectează cel puțin un curs de adăugat.', 2200);
+      return;
+    }
 
-if (
-  (this.selectedTypes.includes('AddCourse') ||
-    this.selectedTypes.includes('RemoveCourse')) &&
-  !this.selectedCourseId
-) {
-  this.snackbar.showError('Selectează cursul.', 2200);
-  return;
-}
+    if (
+      this.selectedTypes.includes('RemoveCourse') &&
+      this.selectedRemoveCourseIds.length === 0
+    ) {
+      this.snackbar.showError('Selectează cel puțin un curs de eliminat.', 2200);
+      return;
+    }
 
-if (this.selectedTypes.includes('ExtendPeriod') && !this.newEndDate) {
-  this.snackbar.showError('Selectează data nouă de final.', 2200);
-  return;
-}
+    if (this.selectedTypes.includes('ExtendPeriod') && !this.newEndDate) {
+      this.snackbar.showError('Selectează data nouă de final.', 2200);
+      return;
+    }
 
-if (
-  this.selectedTypes.includes('ChangePrice') &&
-  (this.newPrice === null || this.newPrice <= 0)
-) {
-  this.snackbar.showError('Introdu un preț valid.', 2200);
-  return;
-}
+    if (
+      (this.selectedTypes.includes('AddDiscount') ||
+        this.selectedTypes.includes('IncreasePrice')) &&
+      this.priceAdjustments.length === 0
+    ) {
+      this.snackbar.showError('Adaugă cel puțin o sesiune pentru ajustare.', 2200);
+      return;
+    }
+
+    if (
+      (this.selectedTypes.includes('AddDiscount') ||
+        this.selectedTypes.includes('IncreasePrice')) &&
+      this.priceAdjustments.some(x => !x.courseSessionId || !x.amount || x.amount <= 0)
+    ) {
+      this.snackbar.showError('Completează sesiunea și valoarea pentru fiecare ajustare.', 2200);
+      return;
+    }
 
     const map: any = {
       AddCourse: 0,
       RemoveCourse: 1,
       ExtendPeriod: 2,
-      ChangePrice: 3
+      AddDiscount: 3,
+      IncreasePrice: 4
     };
 
     const dto: any = {
       types: this.selectedTypes.map(t => map[t]),
-      description: this.description || ''
+      description: this.description || '',
+      addCourseSessionIds: this.selectedAddCourseIds.map(Number),
+      removeCourseSessionIds: this.selectedRemoveCourseIds.map(Number),
+      newEndDate: this.selectedTypes.includes('ExtendPeriod')
+        ? this.newEndDate
+        : null,
+      priceAdjustments:
+        this.selectedTypes.includes('AddDiscount') ||
+          this.selectedTypes.includes('IncreasePrice')
+          ? this.priceAdjustments.map(x => ({
+            courseSessionId: Number(x.courseSessionId),
+            amount: Number(x.amount)
+          }))
+          : []
     };
 
-    if (
-      this.selectedTypes.includes('AddCourse') ||
-      this.selectedTypes.includes('RemoveCourse')
-    ) {
-      dto.courseSessionIds = [this.selectedCourseId];
-    }
+    const request$ = this.isEdit && this.actId
+      ? this.additionalActService.update(this.actId, dto)
+      : this.additionalActService.create(this.contractId, dto);
 
-    if (this.selectedTypes.includes('ExtendPeriod')) {
-      dto.newEndDate = this.newEndDate;
-    }
+    request$.subscribe({
+      next: (res: any) => {
+        if (res?.isSuccess === false) {
+          this.snackbar.showError(
+            res.error?.errorMessage || 'Actul adițional nu a putut fi salvat.',
+            2500
+          );
+          return;
+        }
 
-    if (this.selectedTypes.includes('ChangePrice')) {
-      dto.newPrice = this.newPrice;
-    }
+        const id = this.isEdit ? this.actId : res?.value?.id;
 
-    if (this.isEdit && this.actId) {
+        this.snackbar.showSuccess(
+          this.isEdit
+            ? 'Act adițional actualizat cu succes.'
+            : 'Act adițional creat cu succes.',
+          1800
+        );
 
-     this.additionalActService.update(this.actId, dto).subscribe({
-  next: (res: any) => {
-    if (res?.isSuccess === false) {
-      this.snackbar.showError(
-        res.error?.errorMessage || 'Actul adițional nu a putut fi actualizat.',
-        2500
-      );
-      return;
-    }
-
-    this.snackbar.showSuccess('Act adițional actualizat cu succes.', 1800);
-    this.router.navigate(['/additional-act', this.actId]);
-  },
-  error: (err) => {
-    console.error(err);
-    this.snackbar.showError(
-      err.error?.message || 'Eroare la actualizarea actului adițional.',
-      2500
-    );
-  }
-});
-
-    } else {
-
-    this.additionalActService.create(this.contractId, dto).subscribe({
-  next: (res: any) => {
-    if (res?.isSuccess === false) {
-      this.snackbar.showError(
-        res.error?.errorMessage || 'Actul adițional nu a putut fi creat.',
-        2500
-      );
-      return;
-    }
-
-    const id = res?.value?.id;
-
-    this.snackbar.showSuccess('Act adițional creat cu succes.', 1800);
-
-    if (id) {
-      this.router.navigate(['/additional-act', id]);
-    }
-  },
-  error: (err) => {
-    console.error(err);
-    this.snackbar.showError(
-      err.error?.message || 'Eroare la crearea actului adițional.',
-      2500
-    );
-  }
-});
-    }
+        if (id) {
+          this.router.navigate(['/additional-act', id]);
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        this.snackbar.showError(
+          err.error?.message || 'Eroare la salvarea actului adițional.',
+          2500
+        );
+      }
+    });
   }
 
   goBack() {
     this.router.navigate(['/students']);
   }
 
-mapEnumToString(type: number): string {
-  const map: any = {
-    0: 'AddCourse',
-    1: 'RemoveCourse',
-    2: 'ExtendPeriod',
-    3: 'ChangePrice'
-  };
-  return map[type];
+  mapEnumToString(type: number | string): string {
+    if (typeof type === 'string') return type;
+
+    const map: any = {
+      0: 'AddCourse',
+      1: 'RemoveCourse',
+      2: 'ExtendPeriod',
+      3: 'AddDiscount',
+      4: 'IncreasePrice'
+    };
+
+    return map[type];
+  }
+
+  addPriceAdjustment() {
+    this.priceAdjustments.push({
+      courseSessionId: null,
+      amount: null
+    });
+  }
+
+  removePriceAdjustment(index: number) {
+    this.priceAdjustments.splice(index, 1);
+  }
+
+  get sessionsForAdjustment() {
+    return this.allCourses.filter(c =>
+      c.isActive ||
+      Number(c.contractId) === Number(this.contractId) ||
+      this.selectedAddCourseIds.includes(Number(c.sessionId)) ||
+      this.selectedRemoveCourseIds.includes(Number(c.sessionId))
+    );
+  }
+
+  getSessionById(sessionId: number | null) {
+  if (!sessionId) return null;
+
+  return this.sessionsForAdjustment.find(x =>
+    Number(x.sessionId) === Number(sessionId)
+  );
 }
 
-}
+getAdjustmentPreview(adj: any): string | null {
 
+  if (!adj.courseSessionId || !adj.amount) {
+    return null;
+  }
+
+  const session = this.sessionsForAdjustment.find(
+    x => x.sessionId === adj.courseSessionId
+  );
+
+  if (!session) {
+    return null;
+  }
+
+  const isNewCourse =
+    this.selectedAddCourseIds.includes(session.sessionId) &&
+    !session.contractId;
+
+  const current = Number(session.price);
+
+  const next = this.selectedTypes.includes('AddDiscount')
+    ? Math.max(0, current - Number(adj.amount))
+    : current + Number(adj.amount);
+
+  return isNewCourse
+    ? `Curs nou: ${current} RON → ${next} RON`
+    : `${current} RON → ${next} RON`;
+}
+}

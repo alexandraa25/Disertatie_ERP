@@ -15,8 +15,19 @@
     <div class="section-header">
       <h3>Informații contract</h3>
       <div class="badge">
-        <span *ngIf="finalTotal === null">Abonament</span>
-        <span *ngIf="finalTotal !== null">Contract fix</span>
+
+        <span *ngIf="hasSubscriptionCourses && !hasFixedPackageCourses">
+          Abonament
+        </span>
+
+        <span *ngIf="!hasSubscriptionCourses && hasFixedPackageCourses">
+          Pachet fix
+        </span>
+
+        <span *ngIf="hasSubscriptionCourses && hasFixedPackageCourses">
+          Contract mixt
+        </span>
+
       </div>
     </div>
 
@@ -84,166 +95,176 @@
         <div class="course-title">{{ c.courseName }}</div>
 
         <div class="course-details" *ngIf="c.dayOfWeek">
-          {{ c.dayOfWeek }} • {{ c.startTime }} - {{ c.endTime }}
+          {{ c.dayOfWeek | roDay }} • {{ c.startTime }} - {{ c.endTime }}
         </div>
 
         <div class="course-details" *ngIf="c.teacherName">
           Profesor: {{ c.teacherName }}
         </div>
-        
-        <div class="course-details" *ngIf="c.feeType">
-          Profesor: {{ c.feeType }}
-        </div>
 
         <div class="course-price">
-          {{ c.price }} RON
+          {{ getFeeTypeLabel(c.feeType) }} • {{ c.price }} RON
         </div>
       </div>
     </div>
 
-    <div class="total-box">
-
-      <div>Subtotal: {{ subtotal | number:'1.2-2' }} RON</div>
-
-      <div *ngIf="monthlyAmount">
-        Lunar: {{ monthlyAmount | number:'1.2-2' }} RON
-      </div>
-
-      <div *ngIf="finalTotal !== null">
-        Total: {{ finalTotal | number:'1.2-2' }} RON
-      </div>
-
-      <div *ngIf="finalTotal === null">
-        Total: Abonament lunar
-      </div>
-
-    </div>
   </section>
 
   <!-- PERIOD -->
-  <section class="card">
-    <h3>Perioadă contract</h3>
+  <section class="card"> 
+  <h3>Perioadă contract</h3>
 
-    <div class="grid-2">
-      <div class="field">
-        <label>Data început *</label>
-        <input type="date" formControlName="startDate" />
-      </div>
-
-      <div class="field" *ngIf="!contractForm.get('isUnlimited')?.value">
-        <label>Data sfârșit</label>
-        <input type="date" formControlName="endDate" />
-      </div>
+  <div class="grid-2">
+    <div class="field">
+      <label>Data început *</label>
+      <input type="date" formControlName="startDate" />
     </div>
 
-    <div class="checkbox-row">
-      <input type="checkbox" formControlName="isUnlimited" id="unlimited" />
-      <label for="unlimited">Perioadă nelimitată</label>
+    <div class="field" *ngIf="!contractForm.get('isUnlimited')?.value">
+      <label>Data sfârșit *</label>
+      <input type="date" formControlName="endDate" />
     </div>
-
-    <div class="error" *ngIf="contractForm.errors?.['endRequired']">
-      Data de sfârșit este obligatorie pentru contract limitat.
-    </div>
-
-    <div class="error" *ngIf="contractForm.errors?.['invalidRange']">
-      Data de sfârșit trebuie să fie după data de început.
-    </div>
-  </section>
-
-  <!-- INSTALLMENTS -->
-  <section class="card" *ngIf="finalTotal !== null">
-    <h3>Plată</h3>
-
-    <div class="field small">
-      <label>Rate</label>
-      <input type="number" formControlName="installments" min="1" />
-    </div>
-  </section>
-  
-  <section class="card">
-  <div class="section-header">
-    <h3>Campanie marketing</h3>
   </div>
 
-  <div class="field">
-    <label>Campanie disponibilă</label>
-
-    <select formControlName="marketingCampaignId"
-            (change)="onMarketingCampaignChange()">
-      <option [ngValue]="null">Fără campanie</option>
-
-      <option *ngFor="let c of availableCampaigns" [ngValue]="c.id">
-        {{ c.name }} -
-        {{ getDiscountLabel(c.discountType, c.discountValue) }}
-      </option>
-    </select>
+  <div class="checkbox-row" *ngIf="hasSubscriptionCourses">
+    <input type="checkbox" formControlName="isUnlimited" id="unlimited" />
+    <label for="unlimited">Perioadă nelimitată</label>
   </div>
 
-  <div class="info" *ngIf="availableCampaigns.length === 0">
-    Nu există campanii disponibile pentru cursurile selectate.
+  <div class="info" *ngIf="hasFixedPackageCourses && !hasSubscriptionCourses">
+    Pentru pachetele fixe este necesară o dată de sfârșit.
+  </div>
+
+
+  <div class="error" *ngIf="contractForm.errors?.['invalidRange']">
+    Data de sfârșit trebuie să fie după data de început.
   </div>
 </section>
+
+  <!-- INSTALLMENTS -->
+  <section class="card" *ngIf="hasFixedPackageCourses">
+  <h3>Plată pachet</h3>
+
+  <div class="field small">
+    <label>Număr rate</label>
+
+    <input
+      type="number"
+      formControlName="installments"
+      min="1"
+    />
+  </div>
+
+  <div class="info" *ngIf="hasSubscriptionCourses">
+    Abonamentele lunare se achită separat lunar.
+  </div>
+</section>
+
+  <section class="card">
+    <div class="section-header">
+      <h3>Campanie marketing</h3>
+    </div>
+
+    <div class="field">
+      <label>Campanie disponibilă</label>
+
+      <select formControlName="marketingCampaignId" (change)="onMarketingCampaignChange()">
+        <option [ngValue]="null">Fără campanie</option>
+
+        <option *ngFor="let c of availableCampaigns" [ngValue]="c.id">
+          {{ c.name }} -
+          {{ getDiscountLabel(c.discountType, c.discountValue) }}
+        </option>
+      </select>
+    </div>
+
+    <div class="info" *ngIf="availableCampaigns.length === 0">
+      Nu există campanii disponibile pentru cursurile selectate.
+    </div>
+  </section>
 
   <section class="card" *ngIf="!contractForm.get('marketingCampaignId')?.value">
 
-  <div class="section-header">
-    <h3>Discounturi</h3>
+    <div class="section-header">
+      <h3>Discounturi</h3>
 
-    <button type="button" (click)="addDiscount()">
-      + Adaugă
-    </button>
-  </div>
-
-  <div formArrayName="discounts">
-
-    <div *ngFor="let d of discounts.controls; let i = index"
-         [formGroupName]="i"
-         class="discount-card">
-
-      <select formControlName="type">
-        <option value="Percentage">%</option>
-        <option value="FixedAmount">RON</option>
-      </select>
-
-      <input type="number" formControlName="value" placeholder="Valoare" />
-
-      <div class="error" *ngIf="d.get('value')?.errors?.['max']">
-        Maxim 100%
-      </div>
-
-      <select formControlName="scope">
-        <option value="Total">Total</option>
-
-        <option value="Subscription" [disabled]="!hasSubscription">
-          Abonament
-        </option>
-
-        <option value="Package" [disabled]="!hasPackage">
-          Pachet
-        </option>
-      </select>
-
-      <div class="discount-impact">
-        -{{ getDiscountImpact(d) | number:'1.2-2' }} RON
-      </div>
-
-      <input type="text" formControlName="reason" placeholder="Motiv" />
-
-      <button type="button" (click)="removeDiscount(i)">
-        ✕
+      <button type="button" (click)="addDiscount()">
+        + Adaugă
       </button>
+    </div>
+
+    <div formArrayName="discounts">
+
+      <div *ngFor="let d of discounts.controls; let i = index" [formGroupName]="i" class="discount-card">
+
+        <select formControlName="type">
+          <option value="Percentage">%</option>
+          <option value="FixedAmount">RON</option>
+        </select>
+
+        <input type="number" formControlName="value" placeholder="Valoare" />
+
+        <div class="error" *ngIf="d.get('value')?.errors?.['max']">
+          Maxim 100%
+        </div>
+
+        <select formControlName="scope">
+          <option value="Total">Total</option>
+
+          <option value="Subscription" [disabled]="!hasSubscriptionCourses">
+            Abonament
+          </option>
+
+          <option value="Package" [disabled]="!hasFixedPackageCourses">
+            Pachet
+          </option>
+        </select>
+        
+
+        <input type="text" formControlName="reason" placeholder="Motiv" />
+
+        <button type="button" (click)="removeDiscount(i)">
+          ✕
+        </button>
+
+      </div>
 
     </div>
 
+  </section>
+
+ <div class="estimated-total">
+
+  <div *ngIf="hasFixedPackageCourses">
+    Pachet fix:
+    {{ packageAmount | number:'1.2-2' }} RON
   </div>
 
-</section>
+  <div *ngIf="hasSubscriptionCourses">
+    Abonament:
+    {{ monthlyAmount | number:'1.2-2' }} RON / lună
+  </div>
 
-<div class="estimated-total">
-  Total estimat:
-  {{ finalTotal !== null
-    ? (finalTotal | number:'1.2-2') + ' RON'
-    : (monthlyAmount | number:'1.2-2') + ' RON / lună' }}
+  <div *ngIf="discountTotal > 0">
+    Discount aplicat:
+    -{{ discountTotal | number:'1.2-2' }} RON
+  </div>
+
+  <div *ngIf="contractForm.get('isUnlimited')?.value && hasFixedPackageCourses">
+    Cost inițial:
+    {{ initialPaymentEstimated | number:'1.2-2' }} RON
+  </div>
+
+  <div *ngIf="contractForm.get('isUnlimited')?.value && hasSubscriptionCourses">
+    Total perioadă:
+    nedeterminat
+  </div>
+
+  <div *ngIf="!contractForm.get('isUnlimited')?.value">
+    Total estimat perioadă:
+    {{ periodTotalEstimated | number:'1.2-2' }} RON
+  </div>
+
 </div>
 
   <!-- SUBMIT -->
@@ -259,3 +280,5 @@
   </button>
 
 </form>
+
+<app-confirm-custom-modal></app-confirm-custom-modal>

@@ -21,6 +21,7 @@ export class AdminSignatureModalComponent implements AfterViewInit {
   drawing = false;
   loading = false;
   signed = false;
+  hasDrawn = false;
 
   constructor(
     private contracts: ContractsService,
@@ -31,39 +32,51 @@ export class AdminSignatureModalComponent implements AfterViewInit {
   ) { }
 
   ngAfterViewInit() {
-    const canvas = this.canvas.nativeElement;
+    setTimeout(() => {
+      const canvas = this.canvas.nativeElement;
 
-    canvas.width = canvas.offsetWidth;
-    canvas.height = 220;
+      canvas.width = canvas.clientWidth;
+      canvas.height = 220;
 
-    this.ctx = canvas.getContext('2d')!;
+      this.ctx = canvas.getContext('2d')!;
 
-    this.ctx.lineWidth = 2;
-    this.ctx.lineCap = 'round';
-    this.ctx.strokeStyle = '#111'; // 🔥 după setarea width
+      this.ctx.lineWidth = 2;
+      this.ctx.lineCap = 'round';
+      this.ctx.strokeStyle = '#111';
+    });
   }
 
-  startDrawing(event: MouseEvent) {
+  startDrawing(event: PointerEvent) {
+    if (!this.ctx) return;
+
+    event.preventDefault();
+
+    const canvas = this.canvas.nativeElement;
+    const rect = canvas.getBoundingClientRect();
+
     this.drawing = true;
-
-    const rect = this.canvas.nativeElement.getBoundingClientRect();
-
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    this.hasDrawn = true;
 
     this.ctx.beginPath();
-    this.ctx.moveTo(x, y);
+    this.ctx.moveTo(
+      event.clientX - rect.left,
+      event.clientY - rect.top
+    );
   }
 
-  draw(event: MouseEvent) {
-    if (!this.drawing) return;
+  draw(event: PointerEvent) {
+    if (!this.drawing || !this.ctx) return;
 
-    const rect = this.canvas.nativeElement.getBoundingClientRect();
+    event.preventDefault();
 
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const canvas = this.canvas.nativeElement;
+    const rect = canvas.getBoundingClientRect();
 
-    this.ctx.lineTo(x, y);
+    this.ctx.lineTo(
+      event.clientX - rect.left,
+      event.clientY - rect.top
+    );
+
     this.ctx.stroke();
   }
 
@@ -72,14 +85,13 @@ export class AdminSignatureModalComponent implements AfterViewInit {
   }
 
   clear() {
-
     const canvas = this.canvas.nativeElement;
-
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+    this.hasDrawn = false;
   }
 
   sign() {
-    if (!this.hasSignature()) {
+    if (!this.hasDrawn) {
       this.snackbar.showError('Te rugăm să adaugi semnătura.', 2200);
       return;
     }
@@ -119,13 +131,8 @@ export class AdminSignatureModalComponent implements AfterViewInit {
     });
   }
 
-  hasSignature(): boolean {
-    const canvas = this.canvas.nativeElement;
-    const blank = document.createElement('canvas');
-
-    blank.width = canvas.width;
-    blank.height = canvas.height;
-
-    return canvas.toDataURL() !== blank.toDataURL();
+  close() {
+    this.dialogRef.close(false);
   }
+
 }

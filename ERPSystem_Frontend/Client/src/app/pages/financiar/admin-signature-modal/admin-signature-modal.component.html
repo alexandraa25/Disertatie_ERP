@@ -2,19 +2,12 @@
 
   <div class="signature-card">
 
-    <!-- 🔴 buton închidere -->
-    <!--<button class="close-btn" (click)="close()">✖</button>-->
+    <button class="close-btn" (click)="close()">✖</button>
 
     <h2>✍️ Semnătura administratorului</h2>
 
-    <!-- 🔥 IMPORTANT: scoatem width/height -->
-    <canvas
-      #canvas
-      class="signature-canvas"
-      (mousedown)="startDrawing($event)"
-      (mousemove)="draw($event)"
-      (mouseup)="stopDrawing()"
-      (mouseleave)="stopDrawing()">
+    <canvas #canvas class="signature-canvas" (pointerdown)="startDrawing($event)" (pointermove)="draw($event)"
+      (pointerup)="stopDrawing()" (pointerleave)="stopDrawing()">
     </canvas>
 
     <div class="signature-hint">
@@ -24,15 +17,11 @@
     <div class="signature-actions">
       <button class="btn-clear" (click)="clear()">🗑 Șterge</button>
 
-      <button
-        class="btn-sign"
-        [disabled]="loading || !hasSignature()"
-        (click)="sign()">
+      <button class="btn-sign" [disabled]="loading || !hasDrawn" (click)="sign()">
         ✍️ Semnează
       </button>
     </div>
 
-    <!-- ✅ mesaj succes -->
     <div *ngIf="signed" class="signature-success">
       ✔ Semnătură salvată cu succes!
     </div>

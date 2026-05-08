@@ -5,6 +5,7 @@
         AddCourse,
         RemoveCourse,     
         ExtendPeriod,
-        ChangePrice
+        AddDiscount,
+        IncreasePrice
     }
 }

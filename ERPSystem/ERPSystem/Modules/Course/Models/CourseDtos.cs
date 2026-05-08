@@ -28,7 +28,6 @@ public class CreateCourseDto
 {
     public string Name { get; set; }
     public string? Description { get; set; }
-
     public List<CourseSessionUpsertDto> Sessions { get; set; } = new();
 }
 
@@ -37,7 +36,6 @@ public class UpdateCourseDto
     public string Name { get; set; }
     public string? Description { get; set; }
     public bool IsActive { get; set; }
-
     public List<CourseSessionUpsertDto> Sessions { get; set; } = new();
 }
 
@@ -52,7 +50,6 @@ public class CourseSessionUpsertDto
     public int? Capacity { get; set; }
     public string TeacherUserId { get; set; }
 
-    // 🔥 pricing
     public CourseFeeType FeeType { get; set; }
     public decimal Fee { get; set; }
 
@@ -73,7 +70,6 @@ public class CourseSessionDto
     public string TeacherUserId { get; set; }
     public string TeacherName { get; set; }
 
-    // 🔥 IMPORTANT pt UI
     public CourseFeeType FeeType { get; set; }
     public decimal Fee { get; set; }
     public int? TotalSessions { get; set; }

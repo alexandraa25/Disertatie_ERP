@@ -7,39 +7,49 @@ namespace ERPSystem.Modules.AdditionalAct.Models
     {
         public List<AdditionalActType> Types { get; set; } = new();
 
-        public List<int> CourseSessionIds { get; set; }
+        public List<int> AddCourseSessionIds { get; set; } = new();
 
-        public int? StudentId { get; set; }
+        public List<int> RemoveCourseSessionIds { get; set; } = new();
 
         public DateTime? NewEndDate { get; set; }
 
-        public decimal? NewPrice { get; set; }
+        public decimal? PriceAdjustment { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
+
+        public List<PriceAdjustmentDto> PriceAdjustments { get; set; } = new();
     }
 
-    public record AdditionalActDetailsDto(
-    int Id,
-    string ActNumber,
-    string Status,
-    string Description,
-    string Body,
-    DateTime CreatedAtUtc,
-    int ContractId,
+    public class PriceAdjustmentDto
+    {
+        public int CourseSessionId { get; set; }
 
-    List<ContractPartyDto> Parties,
-    List<AdditionalActItemDto> Items
-);
+        public decimal Amount { get; set; }
+    }
 
-    public record AdditionalActItemDto(
-    string Type,
-    int? CourseSessionId,
-    string? NewValue
-);
-    public record UpdateAdditionalActBodyDto(
-     string Body
- );
+    public class AdditionalActDetailsDto
+    {
+        public int Id { get; set; }
+        public string ActNumber { get; set; } = default!;
+        public string Status { get; set; } = default!;
+        public string Description { get; set; } = default!;
+        public string Body { get; set; } = default!;
+        public DateTime CreatedAtUtc { get; set; }
+        public int ContractId { get; set; }
 
+        public List<ContractPartyDto> Parties { get; set; } = new();
+        public List<AdditionalActItemDto> Items { get; set; } = new();
+    }
+
+    public class AdditionalActItemDto
+    {
+        public string Type { get; set; } = default!;
+        public int? CourseSessionId { get; set; }
+        public string? NewValue { get; set; }
+    }
+
+    public class UpdateAdditionalActBodyDto
+    {
+        public string Body { get; set; } = default!;
+    }
 }
-
-

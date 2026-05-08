@@ -4,17 +4,17 @@ import { ContractsService } from '../../services/contracts.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
-import { ViewChild, ElementRef } from '@angular/core';
-import html2pdf from 'html2pdf.js';
 import { DomSanitizer } from '@angular/platform-browser';
 import { MatDialog } from '@angular/material/dialog';
 import { AdminSignatureModalComponent } from '../admin-signature-modal/admin-signature-modal.component';
 import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
+import { ConfirmService } from '../../services/confirm.service';
+import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
 
 @Component({
   selector: 'app-contract-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, QuillModule],
+  imports: [CommonModule, FormsModule, QuillModule, ConfirmCustomModalComponent],
   templateUrl: './contract-details.component.html',
   styleUrls: ['./contract-details.component.css']
 })
@@ -25,17 +25,16 @@ export class ContractDetailsComponent implements OnInit {
   actionLoading = false;
   isEditingBody = false;
   editedBody = '';
-  showPreview = false;
   hasUnsavedChanges = false;
 
-  @ViewChild('pdfContent') pdfContent!: ElementRef;
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private contractsService: ContractsService,
     private dialog: MatDialog,
     private sanitizer: DomSanitizer,
-    private snackbar: SnackbarService
+    private snackbar: SnackbarService,
+    private confirmService: ConfirmService
 
   ) { }
 
@@ -69,21 +68,18 @@ export class ContractDetailsComponent implements OnInit {
       });
   }
 
-  finalize() {
-    if (!confirm('⚠️ După finalizare contractul devine blocat și nu mai poate fi modificat.\n\nContinui?')) {
-      return;
-    }
+  async finalize() {
+    const confirmed = await this.confirmService.confirm(
+      'Confirmare finalizare',
+      'După finalizare, contractul devine blocat și nu mai poate fi modificat. Continui?'
+    );
+
+    if (!confirmed) return;
 
     this.runAction(() =>
       this.contractsService.finalize(this.contract.id)
     );
   }
-
-  // sign() {
-  //   this.runAction(() =>
-  //     this.contractsService.sign(this.contract.id)
-  //   );
-  // }
 
   activate() {
     const dialogRef = this.dialog.open(AdminSignatureModalComponent, {
@@ -103,7 +99,14 @@ export class ContractDetailsComponent implements OnInit {
     });
   }
 
-  cancel() {
+  async cancel() {
+    const confirmed = await this.confirmService.confirm(
+      'Confirmare anulare',
+      'Sigur vrei să anulezi acest contract?'
+    );
+
+    if (!confirmed) return;
+
     this.runAction(() =>
       this.contractsService.cancel(this.contract.id)
     );
@@ -137,8 +140,11 @@ export class ContractDetailsComponent implements OnInit {
     switch (status) {
       case 'Draft': return 'badge draft';
       case 'Finalized': return 'badge finalized';
-      case 'Signed': return 'badge signed';
+      case 'SentToClient': return 'badge sent';
+      case 'SignedByClient': return 'badge signed-client';
       case 'Active': return 'badge active';
+      case 'Completed': return 'badge completed';
+      case 'Expired': return 'badge expired';
       case 'Cancelled': return 'badge cancelled';
       default: return 'badge';
     }
@@ -146,15 +152,27 @@ export class ContractDetailsComponent implements OnInit {
 
   startEditBody() {
     this.isEditingBody = true;
-    this.showPreview = false;
     this.editedBody = this.formatForEditor(this.contract.contractBody);
     this.hasUnsavedChanges = false;
   }
+
   formatForEditor(html: string) {
     return html || '';
   }
-  cancelEditBody() {
+
+  async cancelEditBody() {
+    if (this.hasUnsavedChanges) {
+      const confirmed = await this.confirmService.confirm(
+        'Modificări nesalvate',
+        'Ai modificări nesalvate. Sigur vrei să le pierzi?'
+      );
+
+      if (!confirmed) return;
+    }
+
     this.isEditingBody = false;
+    this.editedBody = '';
+    this.hasUnsavedChanges = false;
   }
 
   saveBody() {
@@ -192,28 +210,46 @@ export class ContractDetailsComponent implements OnInit {
       .trim();
   }
 
-  resetBody() {
+  async resetBody() {
 
-    if (!confirm('Se vor pierde modificările manuale. Continui?')) return;
+    const confirmed = await this.confirmService.confirm(
+      'Confirmare resetare',
+      'Se vor pierde modificările manuale. Continui?'
+    );
+
+    if (!confirmed) return;
 
     this.actionLoading = true;
 
     this.contractsService.resetBody(this.contract.id)
       .subscribe({
         next: (res: any) => {
+
           this.actionLoading = false;
 
           if (res?.isSuccess === false) {
-            this.snackbar.showError(res.error?.errorMessage || 'Template-ul nu a putut fi resetat.', 2500);
+            this.snackbar.showError(
+              res.error?.errorMessage || 'Template-ul nu a putut fi resetat.',
+              2500
+            );
             return;
           }
 
-          this.snackbar.showSuccess('Template resetat cu succes.', 1800);
+          this.snackbar.showSuccess(
+            'Template resetat cu succes.',
+            1800
+          );
+
           this.loadContract(this.contract.id);
         },
         error: () => {
+
           this.actionLoading = false;
-          this.snackbar.showError('Eroare la resetarea template-ului.', 2500);
+
+          this.snackbar.showError(
+            'Eroare la resetarea template-ului.',
+            2500
+          );
         }
       });
   }
@@ -255,49 +291,24 @@ export class ContractDetailsComponent implements OnInit {
     ]
   };
 
-  previewPdf() {
-    const element = this.pdfContent.nativeElement;
-
-    html2pdf()
-      .from(element)
-      .set({
-        margin: 10,
-        filename: 'contract-preview.pdf',
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      })
-      .save();
-  }
-
-  suspend() {
-    if (!confirm('Sigur vrei să suspendi contractul?')) return;
-
-    this.runAction(() =>
-      this.contractsService.suspend(this.contract.id)
+  async complete() {
+    const confirmed = await this.confirmService.confirm(
+      'Confirmare finalizare contract',
+      'Sigur vrei să marchezi contractul ca finalizat?'
     );
-  }
 
-  resume() {
-    this.runAction(() =>
-      this.contractsService.resume(this.contract.id)
-    );
-  }
-
-  complete() {
-    if (!confirm('Marchezi contractul ca finalizat?')) return;
+    if (!confirmed) return;
 
     this.runAction(() =>
       this.contractsService.complete(this.contract.id)
     );
   }
 
-
   restoreTemplateFromHtml(html: string): string {
     if (!html) return '';
 
     return html
       .replace(/<span[^>]*>(.*?)<\/span>/g, (_, value) => {
-        // map invers (simplu)
         if (value === this.contract.companyName) return '{{CompanyName}}';
         if (value === this.contract.total?.toString()) return '{{Total}}';
         if (value === this.contract.contractNumber) return '{{ContractNumber}}';

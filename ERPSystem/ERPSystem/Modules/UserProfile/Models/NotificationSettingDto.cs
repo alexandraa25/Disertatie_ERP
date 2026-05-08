@@ -1,14 +1,12 @@
 ﻿using ERPSystem.Data.Entities;
-using static ERPSystem.Utils.Constants.General.Route;
 
 namespace ERPSystem.Models.Notifications
 {
-    public record NotificationSettingDto(
-        string EventType,
-        NotificationChannel Channel,
-        bool Enabled,
-        DigestMode Digest
-    );
-
-    
+    public class NotificationSettingDto
+    {
+        public string EventType { get; set; }
+        public NotificationChannel Channel { get; set; }
+        public bool Enabled { get; set; }
+        public DigestMode Digest { get; set; }
+    }
 }

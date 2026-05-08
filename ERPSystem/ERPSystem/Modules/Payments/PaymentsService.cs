@@ -84,95 +84,19 @@ namespace ERPSystem.Modules.Payments
 
         public async Task<List<InstallmentDto>> GetInstallments(int contractId)
         {
-            var contract = await _db.StudentContracts
-                .Include(c => c.InstallmentsList)
-                .Include(c => c.AdditionalActs)
-                    .ThenInclude(a => a.Items)
-                .FirstOrDefaultAsync(c => c.Id == contractId);
-
-            if (contract == null)
-                return new List<InstallmentDto>();
-
-            // 🔥 1. CALCUL STATE
-            var monthly = contract.InstallmentsList
+            return await _db.ContractInstallments
+                .AsNoTracking()
+                .Where(i => i.ContractId == contractId)
                 .OrderBy(i => i.DueDate)
-                .Select(i => i.Amount)
-                .FirstOrDefault();
-
-            var total = contract.TotalAmount;
-            var endDate = contract.EndDate;
-
-            var appliedActs = contract.AdditionalActs
-                .Where(a => a.Status == AdditionalActStatus.Applied)
-                .ToList();
-
-            foreach (var act in appliedActs)
-            {
-                foreach (var item in act.Items)
+                .Select(i => new InstallmentDto
                 {
-                    switch (item.Type)
-                    {
-                        case AdditionalActType.AddCourse:
-                            monthly += decimal.Parse(item.NewValue ?? "0");
-                            if (total.HasValue) total += decimal.Parse(item.NewValue ?? "0");
-                            break;
-
-                        case AdditionalActType.RemoveCourse:
-                            monthly -= decimal.Parse(item.NewValue ?? "0");
-                            if (total.HasValue) total -= decimal.Parse(item.NewValue ?? "0");
-                            break;
-
-                        case AdditionalActType.ChangePrice:
-                            if (total.HasValue)
-                                total = decimal.Parse(item.NewValue ?? "0");
-                            else
-                                monthly = decimal.Parse(item.NewValue ?? "0");
-                            break;
-
-                        case AdditionalActType.ExtendPeriod:
-                            if (DateTime.TryParse(item.NewValue, out var newEnd))
-                                endDate = newEnd;
-                            break;
-                    }
-                }
-            }
-
-            // 🔥 2. GENEREZI RATE
-            var result = new List<InstallmentDto>();
-
-            if (total == null)
-            {
-                // abonament → doar lunar
-                result.AddRange(contract.InstallmentsList.Select(i => new InstallmentDto
-                {
-                    Id = i.Id, // 🔥 IMPORTANT
+                    Id = i.Id,
                     DueDate = i.DueDate,
-                    Amount = monthly,
-                    PaidAmount = i.PaidAmount
-                }));
-            }
-            else
-            {
-                var months = CalculateMonths(contract.StartDate, endDate ?? contract.StartDate);
-
-                for (int i = 0; i < months; i++)
-                {
-                    var due = contract.StartDate.AddMonths(i);
-
-                    var existing = contract.InstallmentsList
-                        .FirstOrDefault(x => x.DueDate.Month == due.Month && x.DueDate.Year == due.Year);
-
-                    result.Add(new InstallmentDto
-                    {
-                        Id = existing?.Id ?? 0,
-                        DueDate = due,
-                        Amount = monthly,
-                        PaidAmount = existing?.PaidAmount ?? 0
-                    });
-                }
-            }
-
-            return result;
+                    Amount = i.Amount,
+                    PaidAmount = i.PaidAmount,
+                    Status = i.Status.ToString()
+                })
+                .ToListAsync();
         }
 
         public async Task<List<Payment>> GetPayments(int contractId)

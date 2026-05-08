@@ -53,6 +53,11 @@ namespace ERPSystem.Configuration
             builder.Services.AddScoped<StudentsService>();
             builder.Services.AddScoped<CoursesService>();
             builder.Services.AddScoped<ContractsService>();
+            builder.Services.AddScoped<ContractInstallmentService>();
+            builder.Services.AddScoped<ContractPricingService>();
+            builder.Services.AddScoped<TemplateRendererService>();
+            builder.Services.AddScoped<ContractRecipientResolver>();
+            builder.Services.AddScoped<DocumentSigningService>();
             builder.Services.AddScoped<AdditionalActService>();
             builder.Services.AddScoped<PaymentsService>();
             builder.Services.AddScoped<DashboardService>();
@@ -69,7 +74,8 @@ namespace ERPSystem.Configuration
             builder.Services.AddScoped<StudentAnalyticsService>();
             builder.Services.AddScoped<ExternalAnalyticsService>();
             builder.Services.AddScoped<FeedbackGlobalAnalyticsService>();
-            
+            builder.Services.AddScoped<ExcelExportService>();
+
         }
 
         public static void ConfigureSettings(this WebApplicationBuilder builder)

@@ -361,7 +361,6 @@ namespace ERPSystem.Modules.Admin
             }
         }
 
-
         private string GetCurrentAdminEmail()
         {
             return _httpContextAccessor.HttpContext?.User?.Identity?.Name

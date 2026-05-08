@@ -103,4 +103,5 @@ public class StudentContract
     public ICollection<ContractInstallment> InstallmentsList { get; set; } = new List<ContractInstallment>();
 
     public ICollection<ContractAdditionalAct> AdditionalActs { get; set; } = new List<ContractAdditionalAct>();
+    public ICollection<ContractPriceAdjustment> PriceAdjustments { get; set; } = new List<ContractPriceAdjustment>();
 }

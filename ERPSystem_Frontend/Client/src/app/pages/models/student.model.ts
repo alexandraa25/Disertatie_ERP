@@ -41,7 +41,6 @@ export interface InvoiceDto {
 }
 
 
-
 export interface StudentCourseDetailsDto {
   courseId: number;
   courseName: string;
@@ -55,6 +54,9 @@ export interface StudentCourseDetailsDto {
   contractId : number;
   endedAtUtc :string;
   feeType : number;
+  contractPrice : number;
+  
+  
 }
 
 export interface StudentCoursesResponse {

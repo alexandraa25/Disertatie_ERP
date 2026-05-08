@@ -3,6 +3,7 @@ using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Student.Models;
 using ERPSystem.Modules.Students.Models;
+using ERPSystem.Shared.BusinessLogic;
 using ERPSystem.Shared.Notifications;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Enums;
@@ -18,13 +19,17 @@ public class StudentsService
     private readonly ApplicationDbContext _db;
     private readonly ILogger<StudentsService> _logger;
     private readonly NotificationsService _notificationService;
+    private readonly ExcelExportService _excelExportService;
+    private readonly ContractPricingService _pricingService;
 
 
-    public StudentsService(ApplicationDbContext db, ILogger<StudentsService> logger, NotificationsService notificationservice)
+    public StudentsService(ApplicationDbContext db, ILogger<StudentsService> logger, NotificationsService notificationservice, ExcelExportService excelExportService, ContractPricingService pricingService)
     {
         _db = db;
         _logger = logger;
         _notificationService = notificationservice;
+        _excelExportService = excelExportService;
+        _pricingService = pricingService;
     }
 
     public async Task<PublicResponse> GetStudentsAsync(  string? q,  int page,   int pageSize,  string? sortBy,  string? sortDir,  int? recentDays,  bool? onlyRecent, int? sessionId, string? statusFilter, string? deleteFilter)
@@ -36,20 +41,27 @@ public class StudentsService
         var total = await query.CountAsync();
 
         var items = await query
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .Select(s => new StudentListItemDto(
-                 s.Id,
-                 s.FullName,
-                 s.Email,
-                 s.Phone,
-                 s.IsActive,
-                 s.CreatedAtUtc,
-                 s.IsDeleted
-             ))
-            .ToListAsync();
+    .Skip((page - 1) * pageSize)
+    .Take(pageSize)
+    .Select(s => new StudentListItemDto
+    {
+        Id = s.Id,
+        FullName = s.FullName,
+        Email = s.Email,
+        Phone = s.Phone,
+        IsActive = s.IsActive,
+        CreatedAtUtc = s.CreatedAtUtc,
+        IsDeleted = s.IsDeleted
+    })
+    .ToListAsync();
 
-        return response.SetSuccess(new Student.Models.PagedResult<StudentListItemDto>(page, pageSize, total, items));
+        return response.SetSuccess(new Student.Models.PagedResult<StudentListItemDto>
+        {
+            Page = page,
+            PageSize = pageSize,
+            Total = total,
+            Items = items
+        });
     }
 
     public async Task<PublicResponse> GetByIdAsync(int id)
@@ -68,30 +80,32 @@ public class StudentsService
                 return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
 
             var guardians = s.StudentGuardians
-                .Select(sg => new GuardianDto(
-                    sg.Guardian.Id,
-                    sg.Guardian.FirstName,
-                    sg.Guardian.LastName,
-                    sg.Guardian.Email,
-                    sg.Guardian.Phone,
-                    sg.RelationshipType,
-                    sg.IsPrimaryContact
-                ))
+                .Select(sg => new GuardianDto
+                {
+                    Id = sg.Guardian.Id,
+                    FirstName = sg.Guardian.FirstName,
+                    LastName = sg.Guardian.LastName,
+                    Email = sg.Guardian.Email,
+                    Phone = sg.Guardian.Phone,
+                    RelationshipType = sg.RelationshipType,
+                    IsPrimaryContact = sg.IsPrimaryContact
+                })
                 .ToList();
 
-            var dto = new StudentDetailsDto(
-                   s.Id,
-                   s.FullName,
-                   s.FirstName,
-                   s.LastName,
-                   s.Email,
-                   s.Phone,
-                   s.Address,
-                   s.DateOfBirth,
-                   s.IsActive,
-                   s.IsDeleted,
-                   guardians
-               );
+            var dto = new StudentDetailsDto
+            {
+                Id = s.Id,
+                FullName = s.FullName,
+                FirstName = s.FirstName,
+                LastName = s.LastName,
+                Email = s.Email,
+                Phone = s.Phone,
+                Address = s.Address,
+                DateOfBirth = s.DateOfBirth,
+                IsActive = s.IsActive,
+                IsDeleted = s.IsDeleted,
+                Guardians = guardians
+            };
 
             return response.SetSuccess(dto);
         }
@@ -464,14 +478,15 @@ public class StudentsService
         }
 
         return await query
-            .OrderBy(s => s.FullName)
-            .Take(20)
-            .Select(s => new StudentOptionDto(
-                s.Id,
-                s.FullName,
-                s.IsMinor
-            ))
-            .ToListAsync();
+           .OrderBy(s => s.FullName)
+           .Take(20)
+           .Select(s => new StudentOptionDto
+           {
+               Id = s.Id,
+               FullName = s.FullName,
+               IsMinor = s.IsMinor
+           })
+           .ToListAsync();
     }
 
     public async Task<PublicResponse> GetStudentCoursesAsync(int studentId)
@@ -488,23 +503,23 @@ public class StudentsService
                 .Where(e => e.StudentId == studentId)
                 .Select(e => new StudentCourseDetailsDto
                 {
-                    CourseId = e.CourseId,
-                    CourseName = e.Session.Course.Name,
+                   CourseId = e.CourseId,
+                   CourseName = e.Session.Course.Name,
 
-                    Price = e.Session.Fee,
+                   Price = e.Session.Fee,
+                   FeeType = (int)e.Session.FeeType,
 
-                    SessionId = e.CourseSessionId,
-                    DayOfWeek = e.Session.DayOfWeek.ToString(),
-                    StartTime = e.Session.StartTime,
-                    EndTime = e.Session.EndTime,
+                   SessionId = e.CourseSessionId,
+                   DayOfWeek = e.Session.DayOfWeek.ToString(),
+                   StartTime = e.Session.StartTime,
+                   EndTime = e.Session.EndTime,
 
-                    TeacherName = e.Session.Teacher.FirstName + " " +
-                                  e.Session.Teacher.LastName,
+                   TeacherName = e.Session.Teacher.FirstName + " " +
+                  e.Session.Teacher.LastName,
 
-                    // 🔥 NOU
-                    IsActive = e.IsActive,
-                    EndedAtUtc = e.EndedAtUtc,
-                    ContractId = e.ContractId
+                   IsActive = e.IsActive,
+                   EndedAtUtc = e.EndedAtUtc,
+                   ContractId = e.ContractId
                 })
                 .ToListAsync();
 
@@ -530,7 +545,11 @@ public class StudentsService
         var response = new PublicResponse(true);
 
         var contract = await _db.StudentContracts
+            .AsNoTracking()
             .Include(c => c.Parties)
+            .Include(c => c.Discounts)
+            .Include(c => c.PriceAdjustments)
+                .ThenInclude(a => a.CourseSession)
             .FirstOrDefaultAsync(c => c.Id == contractId);
 
         if (contract == null)
@@ -544,8 +563,76 @@ public class StudentsService
         if (studentId == 0)
             return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
 
-        // 🔥 reutilizezi metoda ta existentă
-        return await GetStudentCoursesAsync(studentId);
+        var enrollments = await _db.CourseEnrollments
+            .AsNoTracking()
+            .Include(e => e.Session)
+                .ThenInclude(s => s.Course)
+            .Include(e => e.Session.Teacher)
+            .Where(e => e.StudentId == studentId)
+            .ToListAsync();
+
+        var contractSessions = enrollments
+            .Where(e => e.ContractId == contractId && e.IsActive)
+            .Select(e => e.Session)
+            .ToList();
+
+        var pricing = _pricingService.CalculatePricing(contractSessions, contract);
+
+        var totalMonthlyRaw = contractSessions
+            .Where(s => s.FeeType == CourseFeeType.Monthly)
+            .Sum(s => s.Fee);
+
+        var totalPackageRaw = contractSessions
+            .Where(s => s.FeeType == CourseFeeType.FixedPackage)
+            .Sum(s => s.Fee);
+
+        decimal GetContractPrice(CourseSession session)
+        {
+            if (session.FeeType == CourseFeeType.Monthly)
+            {
+                return totalMonthlyRaw > 0
+                    ? Math.Round((session.Fee / totalMonthlyRaw) * pricing.MonthlyAmount, 2)
+                    : 0;
+            }
+
+            return totalPackageRaw > 0
+                ? Math.Round((session.Fee / totalPackageRaw) * pricing.PackageAmount, 2)
+                : 0;
+        }
+
+        var result = enrollments.Select(e =>
+        {
+            var isInContract = e.ContractId == contractId;
+            var price = isInContract && e.IsActive
+                ? GetContractPrice(e.Session)
+                : e.Session.Fee;
+
+            return new StudentCourseDetailsDto
+            {
+                CourseId = e.CourseId,
+                CourseName = e.Session.Course.Name,
+
+                Price = price,
+                FeeType = (int)e.Session.FeeType,
+
+                SessionId = e.CourseSessionId,
+                DayOfWeek = e.Session.DayOfWeek.ToString(),
+                StartTime = e.Session.StartTime,
+                EndTime = e.Session.EndTime,
+
+                TeacherName = e.Session.Teacher.FirstName + " " + e.Session.Teacher.LastName,
+
+                IsActive = e.IsActive,
+                EndedAtUtc = e.EndedAtUtc,
+                ContractId = e.ContractId
+            };
+        }).ToList();
+
+        return response.SetSuccess(new
+        {
+            items = result,
+            totalAmount = pricing.TotalAmount
+        });
     }
 
     public async Task<PublicResponse> GetPrimaryGuardianAsync(int studentId)
@@ -560,16 +647,17 @@ public class StudentsService
             return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
 
         var guardian = await _db.StudentGuardians
-            .AsNoTracking()
-            .Include(sg => sg.Guardian)
-            .Where(sg => sg.StudentId == studentId && sg.IsPrimaryContact)
-            .Select(sg => new GuardianOptionDto(
-                sg.Guardian.Id,
-                sg.Guardian.FirstName + " " + sg.Guardian.LastName
-            ))
-            .FirstOrDefaultAsync();
+           .AsNoTracking()
+           .Include(sg => sg.Guardian)
+           .Where(sg => sg.StudentId == studentId && sg.IsPrimaryContact)
+           .Select(sg => new GuardianOptionDto
+           {
+               Id = sg.Guardian.Id,
+               FullName = sg.Guardian.FirstName + " " + sg.Guardian.LastName
+           })
+           .FirstOrDefaultAsync();
 
-        return response.SetSuccess(guardian); // poate fi null
+        return response.SetSuccess(guardian); 
     }
 
     public async Task<List<AvailableCourseDto>> GetAvailableCoursesForStudentAsync( int studentId, string? q)
@@ -778,45 +866,11 @@ public class StudentsService
             ws.Cell(row, 19).Value = s.DeletedAtUtc;
         }
 
-        FormatStudentsSheet(ws);
+        _excelExportService.FormatSheet(ws);
 
         using var ms = new MemoryStream();
         wb.SaveAs(ms);
         return ms.ToArray();
-    }
-    private static void FormatStudentsSheet(IXLWorksheet ws)
-    {
-        var usedRange = ws.RangeUsed();
-
-        if (usedRange == null)
-            return;
-
-        usedRange.SetAutoFilter();
-
-        var header = ws.Row(1);
-        header.Style.Font.Bold = true;
-        header.Style.Fill.BackgroundColor = XLColor.FromHtml("#1E293B");
-        header.Style.Font.FontColor = XLColor.White;
-        header.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-
-        usedRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-        usedRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
-        usedRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-
-        ws.Columns().AdjustToContents();
-
-        foreach (var column in ws.Columns())
-        {
-            if (column.Width > 45)
-                column.Width = 45;
-        }
-
-        ws.Column(8).Style.DateFormat.Format = "dd.MM.yyyy";
-        ws.Column(17).Style.DateFormat.Format = "dd.MM.yyyy HH:mm";
-        ws.Column(18).Style.DateFormat.Format = "dd.MM.yyyy HH:mm";
-        ws.Column(19).Style.DateFormat.Format = "dd.MM.yyyy HH:mm";
-
-        ws.SheetView.FreezeRows(1);
     }
 
     private IQueryable<Data.Entities.Student> ApplyStudentFilters(IQueryable<Data.Entities.Student> query,string? q, bool? onlyRecent, int? recentDays, int? sessionId, string? statusFilter, string? deleteFilter)

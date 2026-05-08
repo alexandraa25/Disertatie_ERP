@@ -18,13 +18,15 @@ public class CoursesService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<CoursesService> _logger;
     private readonly NotificationsService _notificationService;
+    private readonly ExcelExportService _excelExportService;
 
-    public CoursesService(ApplicationDbContext db, UserManager<ApplicationUser> userManager, ILogger<CoursesService> logger, NotificationsService notificationService)
+    public CoursesService(ApplicationDbContext db, UserManager<ApplicationUser> userManager, ILogger<CoursesService> logger, NotificationsService notificationService, ExcelExportService excelExportService)
     {
         _db = db;
         _userManager = userManager;
         _logger = logger;
         _notificationService = notificationService;
+        _excelExportService = excelExportService;
     }
 
     public async Task<PublicResponse> ListAsync(string? q, string? status, string? deleteStatus, DiscountScope? scope)
@@ -1387,8 +1389,8 @@ public class CoursesService
             }
         }
 
-        FormatSheet(coursesWs);
-        FormatSheet(sessionsWs);
+        _excelExportService.FormatSheet(coursesWs);
+        _excelExportService.FormatSheet(sessionsWs);
 
         using var ms = new MemoryStream();
         wb.SaveAs(ms);
@@ -1415,34 +1417,6 @@ public class CoursesService
         };
     }
 
-    private static void FormatSheet(IXLWorksheet ws)
-    {
-        var usedRange = ws.RangeUsed();
-
-        if (usedRange == null)
-            return;
-
-        usedRange.SetAutoFilter();
-
-        var header = ws.Row(1);
-        header.Style.Font.Bold = true;
-        header.Style.Fill.BackgroundColor = XLColor.FromHtml("#1E293B");
-        header.Style.Font.FontColor = XLColor.White;
-        header.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-
-        usedRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-        usedRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
-        usedRange.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-
-        ws.Columns().AdjustToContents();
-
-        foreach (var column in ws.Columns())
-        {
-            if (column.Width > 45)
-                column.Width = 45;
-        }
-
-        ws.SheetView.FreezeRows(1);
-    }
+   
 
 }

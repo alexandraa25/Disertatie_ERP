@@ -2,15 +2,12 @@
 {
     public enum AdditionalActStatus
     {
-        Draft,          // creat, editabil
-        Finalized,      // needitabil
-        SentToClient,   // trimis la semnat
-        SignedByClient ,
-        Active,    
-        Applied,// semnat de ambele părți
-        Cancelled,       // anulat manual
-        Completed,
-        Expired,
-        Suspended
+        Draft,            // editabil
+        Finalized,        // blocat
+        SentToClient,     // trimis la semnat
+        SignedByClient,   // clientul a semnat
+        Applied,          // semnat admin + efecte aplicate
+        Cancelled,        // anulat
+        Expired           // nu a mai fost aplicat la timp
     }
 }

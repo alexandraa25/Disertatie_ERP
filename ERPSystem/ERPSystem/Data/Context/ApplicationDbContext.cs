@@ -35,6 +35,7 @@ namespace ERPSystem.Data.Context
         public DbSet<ContractAdditionalAct> ContractAdditionalAct { get; set; }
         public DbSet<ContractAdditionalActItem> ContractAdditionalActItem { get; set; }
 
+        public DbSet<ContractPriceAdjustment> ContractPriceAdjustments { get; set; }
         public DbSet<MarketingCampaign> MarketingCampaigns { get; set; }
         public DbSet<MarketingCampaignCourseSessions> MarketingCampaignCourseSessions { get; set; }
         public DbSet<Payment> Payments { get; set; }
@@ -282,7 +283,13 @@ namespace ERPSystem.Data.Context
                .WithMany(mc => mc.ContractDiscounts)
                .HasForeignKey(cd => cd.MarketingCampaignId)
                .OnDelete(DeleteBehavior.NoAction);
-            
+
+            modelBuilder.Entity<ContractPriceAdjustment>()
+               .HasOne(x => x.Contract)
+               .WithMany(x => x.PriceAdjustments)
+               .HasForeignKey(x => x.ContractId)
+               .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<MarketingCampaign>(entity =>
             {
                 entity.Property(x => x.Name)

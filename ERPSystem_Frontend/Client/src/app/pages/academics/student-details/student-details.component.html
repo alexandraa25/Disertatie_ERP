@@ -17,8 +17,6 @@
                }">
             {{ student.isDeleted ? 'Arhivat' : student.isActive ? 'Activ' : 'Inactiv' }}
           </span>
-
-
         </div>
       </div>
     </div>
@@ -182,10 +180,10 @@
             </div>
           </div>
           <div class="pagination" *ngIf="courses.length > pageSize">
-  <button (click)="coursesPage = coursesPage - 1" [disabled]="coursesPage <= 1">◀</button>
-  <span>Pagina {{ coursesPage }} din {{ totalPages(courses) }}</span>
-  <button (click)="coursesPage = coursesPage + 1" [disabled]="coursesPage >= totalPages(courses)">▶</button>
-</div>
+            <button (click)="coursesPage = coursesPage - 1" [disabled]="coursesPage <= 1">◀</button>
+            <span>Pagina {{ coursesPage }} din {{ totalPages(courses) }}</span>
+            <button (click)="coursesPage = coursesPage + 1" [disabled]="coursesPage >= totalPages(courses)">▶</button>
+          </div>
         </div>
 
         <!-- 🔴 INACTIVE -->
@@ -219,10 +217,12 @@
 
           </div>
           <div class="pagination" *ngIf="inactiveCourses.length > pageSize">
-  <button (click)="inactiveCoursesPage = inactiveCoursesPage - 1" [disabled]="inactiveCoursesPage <= 1">◀</button>
-  <span>Pagina {{ inactiveCoursesPage }} din {{ totalPages(inactiveCourses) }}</span>
-  <button (click)="inactiveCoursesPage = inactiveCoursesPage + 1" [disabled]="inactiveCoursesPage >= totalPages(inactiveCourses)">▶</button>
-</div>
+            <button (click)="inactiveCoursesPage = inactiveCoursesPage - 1"
+              [disabled]="inactiveCoursesPage <= 1">◀</button>
+            <span>Pagina {{ inactiveCoursesPage }} din {{ totalPages(inactiveCourses) }}</span>
+            <button (click)="inactiveCoursesPage = inactiveCoursesPage + 1"
+              [disabled]="inactiveCoursesPage >= totalPages(inactiveCourses)">▶</button>
+          </div>
 
         </div>
 
@@ -403,10 +403,11 @@
             </tbody>
           </table>
           <div class="pagination" *ngIf="installments.length > pageSize">
-  <button (click)="installmentsPage = installmentsPage - 1" [disabled]="installmentsPage <= 1">◀</button>
-  <span>Pagina {{ installmentsPage }} din {{ totalPages(installments) }}</span>
-  <button (click)="installmentsPage = installmentsPage + 1" [disabled]="installmentsPage >= totalPages(installments)">▶</button>
-</div>
+            <button (click)="installmentsPage = installmentsPage - 1" [disabled]="installmentsPage <= 1">◀</button>
+            <span>Pagina {{ installmentsPage }} din {{ totalPages(installments) }}</span>
+            <button (click)="installmentsPage = installmentsPage + 1"
+              [disabled]="installmentsPage >= totalPages(installments)">▶</button>
+          </div>
 
         </div>
 
@@ -431,10 +432,11 @@
 
             </div>
             <div class="pagination" *ngIf="payments.length > pageSize">
-  <button (click)="paymentsPage = paymentsPage - 1" [disabled]="paymentsPage <= 1">◀</button>
-  <span>Pagina {{ paymentsPage }} din {{ totalPages(payments) }}</span>
-  <button (click)="paymentsPage = paymentsPage + 1" [disabled]="paymentsPage >= totalPages(payments)">▶</button>
-</div>
+              <button (click)="paymentsPage = paymentsPage - 1" [disabled]="paymentsPage <= 1">◀</button>
+              <span>Pagina {{ paymentsPage }} din {{ totalPages(payments) }}</span>
+              <button (click)="paymentsPage = paymentsPage + 1"
+                [disabled]="paymentsPage >= totalPages(payments)">▶</button>
+            </div>
           </div>
 
         </div>
@@ -480,10 +482,11 @@
         </div>
 
         <div class="pagination" *ngIf="activityLogs.length > pageSize">
-  <button (click)="activityPage = activityPage - 1" [disabled]="activityPage <= 1">◀</button>
-  <span>Pagina {{ activityPage }} din {{ totalPages(activityLogs) }}</span>
-  <button (click)="activityPage = activityPage + 1" [disabled]="activityPage >= totalPages(activityLogs)">▶</button>
-</div>
+          <button (click)="activityPage = activityPage - 1" [disabled]="activityPage <= 1">◀</button>
+          <span>Pagina {{ activityPage }} din {{ totalPages(activityLogs) }}</span>
+          <button (click)="activityPage = activityPage + 1"
+            [disabled]="activityPage >= totalPages(activityLogs)">▶</button>
+        </div>
       </div>
 
 
@@ -610,10 +613,11 @@
             </div>
 
             <div class="pagination" *ngIf="studentEvaluations.length > pageSize">
-  <button (click)="evaluationsPage = evaluationsPage - 1" [disabled]="evaluationsPage <= 1">◀</button>
-  <span>Pagina {{ evaluationsPage }} din {{ totalPages(studentEvaluations) }}</span>
-  <button (click)="evaluationsPage = evaluationsPage + 1" [disabled]="evaluationsPage >= totalPages(studentEvaluations)">▶</button>
-</div>
+              <button (click)="evaluationsPage = evaluationsPage - 1" [disabled]="evaluationsPage <= 1">◀</button>
+              <span>Pagina {{ evaluationsPage }} din {{ totalPages(studentEvaluations) }}</span>
+              <button (click)="evaluationsPage = evaluationsPage + 1"
+                [disabled]="evaluationsPage >= totalPages(studentEvaluations)">▶</button>
+            </div>
           </div>
         </div>
 

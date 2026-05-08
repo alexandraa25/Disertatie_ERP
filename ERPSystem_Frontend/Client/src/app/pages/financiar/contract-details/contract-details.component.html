@@ -2,38 +2,36 @@
   Se încarcă contract...
 </div>
 
-<div class="section contract-section">
+<div class="section contract-section" *ngIf="contract && !loading">
 
   <div *ngIf="isEditingBody" class="warning">
     ⚠️ Valorile automate (preț, cursuri etc) se modifică din formularul de contract.
-    <button *ngIf="contract.status === 'Draft'" (click)="editContract()">
-  ✏️ Editează contract
-</button>
+    <button *ngIf="contract.status === 'Draft'" class="primary" (click)="editContract()">
+      ✏️ Editează contract
+    </button>
   </div>
   <div class="section-header">
     <div class="header-left">
-    <button class="back-btn" (click)="goBack()">
-      ← Înapoi
-    </button>
+      <button class="back-btn" (click)="goBack()">
+        ← Înapoi
+      </button>
 
-    <h3>📄 Conținut Contract</h3>
-  </div>
+      <h3>📄 Conținut Contract</h3>
+    </div>
 
     <button *ngIf="contract.status === 'Draft' && !isEditingBody" class="edit-btn" type="button"
       (click)="startEditBody()">
       ✏️ Editează
     </button>
-  
-    </div>
- 
-<div class="contract-container">
-  <!-- VIEW -->
-  <div *ngIf="!isEditingBody">
-    <div class="contract-body" [innerHTML]="contract.contractBody">
-    </div>
-    </div>
+
   </div>
 
+  <div class="contract-container">
+    <div *ngIf="!isEditingBody">
+      <div class="contract-body" [innerHTML]="safeBody">
+      </div>
+    </div>
+  </div>
 
 
   <div class="section signatures-section" *ngIf="contract && !isEditingBody">
@@ -60,7 +58,6 @@
         </div>
       </div>
 
-      <!-- ADMIN -->
       <div class="signature-box">
         <h4>Administrator</h4>
 
@@ -79,14 +76,13 @@
     </div>
   </div>
 
-  <!-- EDIT -->
   <div *ngIf="isEditingBody" class="body-edit">
 
     <quill-editor [(ngModel)]="editedBody" (ngModelChange)="hasUnsavedChanges = true" [modules]="quillConfig"
       theme="snow" class="editor">
     </quill-editor>
 
-    <button *ngIf="contract.status === 'Draft'" (click)="resetBody()">
+    <button *ngIf="contract.status === 'Draft'" class="secondary" (click)="resetBody()">
       🔄 Reset → Revino la versiunea automată
     </button>
 
@@ -97,79 +93,36 @@
 
   </div>
 
-  <div *ngIf="showPreview && !isEditingBody" class="pdf-preview">
+  <div class="actions" *ngIf="!isEditingBody">
 
-    <div #pdfContent class="pdf-content" [innerHTML]="contract.contractBody">
-    </div>
+    <button *ngIf="contract.status === 'Draft'" (click)="finalize()">
+      ✔ Finalizează
+    </button>
 
-    <div class="preview-actions">
-      <button class="primary" (click)="previewPdf()">
-        ⬇️ Descarcă PDF
+    <button *ngIf="contract.status === 'Finalized'" (click)="sendToClient()">
+      📤 Trimite clientului
+    </button>
+
+    <button *ngIf="contract.status === 'SignedByClient'" (click)="activate()">
+      ✍️ Semnează (Admin)
+    </button>
+
+    <ng-container *ngIf="contract.status === 'Active'">
+
+      <button class="success" (click)="complete()">
+        ✅ Finalizat
       </button>
 
-      <button class="secondary" (click)="showPreview = false">
-        ❌ Închide
+      <button class="danger" (click)="cancel()">
+        ❌ Anulează
       </button>
-    </div>
 
+      <button (click)="downloadPdf()">
+        📄 PDF
+      </button>
+
+    </ng-container>
 
   </div>
 
-  <!-- WORKFLOW BUTTONS -->
-
-  <div class="actions" *ngIf="!isEditingBody">
-
-  <!-- DRAFT -->
-  <button *ngIf="contract.status === 'Draft'" (click)="finalize()">
-    ✔ Finalizează
-  </button>
-
-  <button *ngIf="contract.status === 'Draft'" (click)="showPreview = true">
-    👁 Preview PDF
-  </button>
-
-  <!-- FINALIZED -->
-  <button *ngIf="contract.status === 'Finalized'" (click)="sendToClient()">
-    📤 Trimite clientului
-  </button>
-
-  <!-- SIGNED BY CLIENT -->
-  <button *ngIf="contract.status === 'SignedByClient'" (click)="activate()">
-    ✍️ Semnează (Admin)
-  </button>
-
-  <!-- ACTIVE -->
-  <ng-container *ngIf="contract.status === 'Active'">
-
-    <button class="secondary" (click)="suspend()">
-      ⏸ Suspendă
-    </button>
-
-    <button class="success" (click)="complete()">
-      ✅ Finalizat
-    </button>
-
-    <button class="danger" (click)="cancel()">
-      ❌ Anulează
-    </button>
-
-    <button (click)="downloadPdf()">
-      📄 PDF
-    </button>
-
-  </ng-container>
-
-  <!-- SUSPENDED -->
-  <ng-container *ngIf="contract.status === 'Suspended'">
-
-    <button class="primary" (click)="resume()">
-      ▶️ Reia contract
-    </button>
-
-    <button class="danger" (click)="cancel()">
-      ❌ Anulează
-    </button>
-
-  </ng-container>
-
-</div>
+  <app-confirm-custom-modal></app-confirm-custom-modal>

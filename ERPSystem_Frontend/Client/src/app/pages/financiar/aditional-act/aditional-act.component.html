@@ -2,20 +2,18 @@
 
   <div class="header">
     <button class="back" (click)="goBack()">← Înapoi</button>
-   <h2>
-  {{ isEdit ? '✏️ Editează Act Adițional' : '➕ Act adițional' }}
-</h2>
+    <h2>
+      {{ isEdit ? '✏️ Editează Act Adițional' : '➕ Act adițional' }}
+    </h2>
   </div>
 
   <div class="card">
 
-    <!-- TIP ACT -->
     <div class="form-group">
       <label>Tip modificare</label>
 
       <div class="checkbox-list">
 
-        <!-- ADD COURSE -->
         <label>
           <input type="checkbox" [disabled]="availableCourses.length === 0"
             [checked]="selectedTypes.includes('AddCourse')" (change)="toggleType('AddCourse')" />
@@ -23,66 +21,42 @@
         </label>
 
         <div *ngIf="selectedTypes.includes('AddCourse')" class="sub-form">
-
-          <ng-container *ngIf="availableCourses.length > 0">
-
-            <select [(ngModel)]="selectedCourseId">
-              <option *ngFor="let c of availableCourses" [value]="c.sessionId">
-                {{ c.courseName }}
-              </option>
-            </select>
-
-          </ng-container>
-
-          <!-- <ng-template #noAvailableCourses>
-            <div class="empty-message">
-              ⚠️ Nu există cursuri disponibile pentru adăugare
-            </div>
-          </ng-template> -->
-
+          <select multiple [(ngModel)]="selectedAddCourseIds">
+            <option *ngFor="let c of availableCourses" [ngValue]="c.sessionId">
+              {{ c.courseName }}
+            </option>
+          </select>
         </div>
-        
-            <div class="empty-message" *ngIf='availableCourses.length === 0'>
-              ⚠️ Nu există cursuri disponibile pentru adăugare
-            </div>
-          
 
-        <!-- REMOVE COURSE -->
+        <div class="empty-message" *ngIf="availableCourses.length === 0">
+          ⚠️ Nu există cursuri disponibile pentru adăugare
+        </div>
+
         <label>
-          <input type="checkbox" [disabled]="inactiveCourses.length === 0"
+          <input type="checkbox" [disabled]="removedCoursesFromContract.length === 0"
             [checked]="selectedTypes.includes('RemoveCourse')" (change)="toggleType('RemoveCourse')" />
           Eliminare curs
         </label>
 
         <div *ngIf="selectedTypes.includes('RemoveCourse')" class="sub-form">
-
-          <ng-container *ngIf="inactiveCourses.length > 0">
-
-            <select [(ngModel)]="selectedCourseId">
-              <option *ngFor="let c of inactiveCourses" [value]="c.sessionId">
-                {{ c.courseName }}
-              </option>
-            </select>
-
-          </ng-container>
-
-          <!-- <ng-template #noInactiveCourses>
-            <div class="empty-message">
-              ⚠️ Nu există cursuri în contract pentru eliminare
-            </div>
-          </ng-template> -->
-
+          <select multiple [(ngModel)]="selectedRemoveCourseIds">
+            <option *ngFor="let c of removedCoursesFromContract" [ngValue]="c.sessionId">
+              {{ c.courseName }}
+            </option>
+          </select>
         </div>
-        
-        <div class="empty-message" *ngIf='inactiveCourses.length === 0'>
-              ⚠️ Nu există cursuri în contract pentru eliminare
-            </div>
 
-        <!-- EXTEND -->
-        <label> <input type="checkbox" [checked]="selectedTypes.includes('ExtendPeriod')"
-            (change)="toggleType('ExtendPeriod')" /> Prelungire contract </label>
+        <div class="empty-message" *ngIf="removedCoursesFromContract.length === 0">
+          ⚠️ Nu există cursuri în contract pentru eliminare
+        </div>
+
+        <label>
+          <input type="checkbox" [checked]="selectedTypes.includes('ExtendPeriod')"
+            (change)="toggleType('ExtendPeriod')" />
+          Prelungire contract
+        </label>
+
         <div *ngIf="selectedTypes.includes('ExtendPeriod')" class="sub-form">
-
           <div class="current-value">
             📅 Durată actuală:
             <strong>
@@ -98,43 +72,67 @@
 
           <label>Noua dată</label>
           <input type="date" [(ngModel)]="newEndDate" />
-
         </div>
 
-        <!-- PRICE -->
-        <label> <input type="checkbox" [checked]="selectedTypes.includes('ChangePrice')"
-            (change)="toggleType('ChangePrice')" /> Modificare preț </label>
-        <div *ngIf="selectedTypes.includes('ChangePrice')" class="sub-form">
+        <label>
+          <input type="checkbox" [checked]="selectedTypes.includes('AddDiscount')"
+            (change)="toggleType('AddDiscount')" />
+          Adăugare discount
+        </label>
+
+        <label>
+          <input type="checkbox" [checked]="selectedTypes.includes('IncreasePrice')"
+            (change)="toggleType('IncreasePrice')" />
+          Majorare preț
+        </label>
+
+        <div *ngIf="selectedTypes.includes('AddDiscount') || selectedTypes.includes('IncreasePrice')"
+          class="sub-form discount-card">
 
           <div class="current-value">
             💰 Preț actual:
             <strong>{{ contract?.totalAmount }} RON</strong>
           </div>
 
-          <label>Preț nou</label>
-          <input type="number" [(ngModel)]="newPrice" />
+          <button type="button" class="secondary" (click)="addPriceAdjustment()">
+            + Adaugă sesiune
+          </button>
 
-          <div *ngIf="priceDiff !== null">
-            Diferență:
-            <strong [style.color]="priceDiff > 0 ? 'green' : 'red'">
-              {{ priceDiff > 0 ? '+' : '' }}{{ priceDiff }} RON
-            </strong>
+          <div *ngFor="let adj of priceAdjustments; let i = index" class="discount-row">
+            <select [(ngModel)]="adj.courseSessionId">
+              <option [ngValue]="null">Selectează sesiunea</option>
+              <option *ngFor="let c of sessionsForAdjustment" [ngValue]="c.sessionId">
+                   {{ c.courseName }} 
+                   | {{ c.dayOfWeek | roDay }}
+                   {{ c.startTime }}-{{ c.endTime }}
+                   | {{ c.feeType == 2 ? 'Abonament' : 'Pachet' }}
+                   | {{ c.price }} RON
+              </option>
+            </select>
+
+            <input type="number" [(ngModel)]="adj.amount"
+              [placeholder]="selectedTypes.includes('AddDiscount') ? 'Discount' : 'Majorare'" />
+
+              <div class="price-preview" *ngIf="getAdjustmentPreview(adj)">
+                {{ getAdjustmentPreview(adj) }}
+              </div>
+
+            <button type="button" class="secondary" (click)="removePriceAdjustment(i)">
+              ✕
+            </button>
           </div>
-
         </div>
-
       </div>
+
     </div>
+  </div>
 
-
-    <!-- ACTIONS -->
-    <div class="actions">
-      <button class="secondary" (click)="goBack()">Anulează</button>
-      <button class="primary" (click)="save()">
-  {{ isEdit ? '💾 Salvează modificări' : '✔ Creează act' }}
-</button>
-    </div>
-
+  <div class="actions">
+    <button class="secondary" (click)="goBack()">Anulează</button>
+    <button class="primary" (click)="save()">
+      {{ isEdit ? '💾 Salvează modificări' : '✔ Creează act' }}
+    </button>
   </div>
 
 </div>
+
