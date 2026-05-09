@@ -1,92 +1,151 @@
 <div *ngIf="loading" class="loading">
   <div class="spinner"></div>
-  <p>Se încarcă...</p>
+  <p>Se încarcă actul adițional...</p>
 </div>
 
-<div *ngIf="act" class="container">
+<div *ngIf="act && !loading" class="act-page">
 
-  <!-- HEADER -->
-  <div class="header">
+  <div class="topbar">
+    <button class="back-btn" (click)="goBack()">← Înapoi</button>
 
-    <div class="left">
-      <button class="btn ghost" (click)="goBack()">← Înapoi</button>
-      <div>
-        <h3>📄 Act Adițional</h3>
-        <span class="status" [ngClass]="act.status">
-          {{ act.status }}
-        </span>
-      </div>
-    </div>
+    <div class="title-block">
+  <h2>
+    📄 Act adițional 
+    <strong>{{ ('#' + act.actNumber )|| ('#' + act.id) }}</strong>
+  </h2>
 
-    <div class="right">
-      <button 
-        *ngIf="act.status === 'Draft' && !isEditingBody"
-        class="btn primary"
-        (click)="startEditBody()">
-        ✏️ Editează
-      </button>
+  <p>
+    Document aferent contractului
+    <strong>{{ ('#' + act?.contractNumber) || ('#' + act?.contractId) }}</strong>
+  </p>
+</div>
 
-      <button 
-        *ngIf="act.status === 'Draft'"
-        class="btn outline"
-        (click)="editAct(act.id)">
-        Editează act
-      </button>
-    </div>
-
+    <span class="status" [ngClass]="act.status">
+      {{ act.status }}
+    </span>
   </div>
 
-  <!-- WARNING -->
   <div *ngIf="isEditingBody" class="warning">
-    ⚠️ Valorile automate (preț, cursuri etc) se modifică din formularul de contract.
+    ⚠️ Valorile automate precum prețuri, cursuri sau perioadă se modifică din formularul actului adițional.
   </div>
 
-  <!-- VIEW -->
-  <div *ngIf="!isEditingBody" class="card">
-    <div class="contract-body" [innerHTML]="formatForEditor(act.body)"></div>
+  <div class="toolbar">
+    <button 
+      *ngIf="act.status === 'Draft' && !isEditingBody"
+      class="btn primary"
+      (click)="startEditBody()">
+      ✏️ Editează conținut
+    </button>
+
+    <button 
+      *ngIf="act.status === 'Draft'"
+      class="btn outline"
+      (click)="editAct(act.id)">
+      ⚙️ Editează act
+    </button>
+
+     <button
+    *ngIf="act.status === 'Draft'"
+    class="btn danger"
+    (click)="deleteAct()">
+    🗑️ Șterge act
+  </button>
+  
   </div>
 
-  <!-- EDIT -->
-  <div *ngIf="isEditingBody" class="card">
+  <section *ngIf="!isEditingBody" class="document-card">
+    <div class="document-body" [innerHTML]="cleanBody(act.body)"></div>
+  </section>
+
+  <section *ngIf="isEditingBody" class="document-card editor-card">
     <quill-editor [(ngModel)]="editedBody"></quill-editor>
 
-    <div class="actions">
+    <div class="edit-actions">
       <button class="btn primary" (click)="saveBody()">💾 Salvează</button>
       <button class="btn ghost" (click)="cancelEditBody()">Anulează</button>
     </div>
+  </section>
+
+  <section class="signatures-section" *ngIf="act && !isEditingBody">
+
+  <div class="signatures-header">
+    <h3>✍️ Semnături</h3>
   </div>
 
-  <!-- FOOTER ACTIONS -->
-  <div class="actions">
+  <div class="signatures-grid">
+
+    <div class="signature-box">
+      <h4>Client</h4>
+
+      <img
+        *ngIf="act.clientSignature"
+        [src]="act.clientSignature"
+        class="signature-img" />
+
+      <div *ngIf="!act.clientSignature" class="no-sign">
+        Nesemnat
+      </div>
+
+      <div class="sign-date" *ngIf="act.clientSignedAtUtc">
+        Semnat la:
+        {{ act.clientSignedAtUtc | date:'dd.MM.yyyy HH:mm' }}
+      </div>
+    </div>
+
+    <div class="signature-box">
+      <h4>Administrator</h4>
+
+      <img
+        *ngIf="act.adminSignature"
+        [src]="act.adminSignature"
+        class="signature-img" />
+
+      <div *ngIf="!act.adminSignature" class="no-sign">
+        Nesemnat
+      </div>
+
+      <div class="sign-date" *ngIf="act.adminSignedAtUtc">
+        Semnat la:
+        {{ act.adminSignedAtUtc | date:'dd.MM.yyyy HH:mm' }}
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+  <div class="bottom-actions">
 
     <button 
       *ngIf="act?.status === 'Draft'"
       class="btn success"
       (click)="finalizeAct()">
-      Finalizează
+      ✔ Finalizează
     </button>
 
     <button 
       *ngIf="act?.status === 'Finalized'"
       class="btn primary"
       (click)="sendToClient()">
-      Trimite către client
+      📤 Trimite către client
     </button>
 
-   <button 
-  *ngIf="act?.status === 'SignedByClient'"
-  class="btn primary"
-  (click)="openAdminSignature()">
-  ✍️ Semnează administrator
-</button>
+    <button 
+      *ngIf="act?.status === 'SignedByClient'"
+      class="btn primary"
+      (click)="openAdminSignature()">
+      ✍️ Semnează administrator
+    </button>
 
-   <button 
-  *ngIf="act?.status === 'Active'"
-  class="btn outline"
-  (click)="downloadAct()">
-  📄 Descarcă PDF
-</button>
+    <button 
+      *ngIf="act?.status === 'Applied'"
+      class="btn outline"
+      (click)="downloadAct()">
+      📄 Descarcă PDF
+    </button>
 
   </div>
 
 </div>
+
+  <app-confirm-custom-modal></app-confirm-custom-modal>

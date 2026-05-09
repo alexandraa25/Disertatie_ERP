@@ -445,6 +445,9 @@ button {
   color: #6b7280;
   min-width: 90px;
   transition: 0.2s;
+  gap: 6px;
+  display: flex;
+  align-items: center;
 }
 
 .finance-summary .box strong {

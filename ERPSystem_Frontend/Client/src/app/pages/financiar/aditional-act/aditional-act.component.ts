@@ -39,6 +39,7 @@ export class AditionalActComponent implements OnInit {
   actId?: number;
   isEdit = false;
   contractId!: number;
+  studentId?: number;
 
   constructor(
     private route: ActivatedRoute,
@@ -114,6 +115,9 @@ export class AditionalActComponent implements OnInit {
         }
 
         this.contract = res.value;
+        this.studentId =
+          this.contract?.studentId ||
+          this.contract?.parties?.find((p: any) => p.studentId)?.studentId;
       },
       error: () => {
         this.snackbar.showError('Eroare la încărcarea contractului.', 2500);
@@ -128,6 +132,9 @@ export class AditionalActComponent implements OnInit {
       if (!act) return;
 
       this.contractId = act.contractId;
+      this.studentId =
+        act.studentId ||
+        act.parties?.find((p: any) => p.studentId)?.studentId;
 
       this.loadContract();
       this.loadCourses();
@@ -298,6 +305,11 @@ export class AditionalActComponent implements OnInit {
   }
 
   goBack() {
+    if (this.studentId) {
+      this.router.navigate(['/students', this.studentId]);
+      return;
+    }
+
     this.router.navigate(['/students']);
   }
 
@@ -336,39 +348,65 @@ export class AditionalActComponent implements OnInit {
   }
 
   getSessionById(sessionId: number | null) {
-  if (!sessionId) return null;
+    if (!sessionId) return null;
 
-  return this.sessionsForAdjustment.find(x =>
-    Number(x.sessionId) === Number(sessionId)
-  );
-}
-
-getAdjustmentPreview(adj: any): string | null {
-
-  if (!adj.courseSessionId || !adj.amount) {
-    return null;
+    return this.sessionsForAdjustment.find(x =>
+      Number(x.sessionId) === Number(sessionId)
+    );
   }
 
-  const session = this.sessionsForAdjustment.find(
-    x => x.sessionId === adj.courseSessionId
-  );
+  getAdjustmentPreview(adj: any): string | null {
 
-  if (!session) {
-    return null;
+    if (!adj.courseSessionId || !adj.amount) {
+      return null;
+    }
+
+    const session = this.sessionsForAdjustment.find(
+      x => x.sessionId === adj.courseSessionId
+    );
+
+    if (!session) {
+      return null;
+    }
+
+    const isNewCourse =
+      this.selectedAddCourseIds.includes(session.sessionId) &&
+      !session.contractId;
+
+    const current = Number(session.price);
+
+    const next = this.selectedTypes.includes('AddDiscount')
+      ? Math.max(0, current - Number(adj.amount))
+      : current + Number(adj.amount);
+
+    return isNewCourse
+      ? `Curs nou: ${current} RON → ${next} RON`
+      : `${current} RON → ${next} RON`;
   }
 
-  const isNewCourse =
-    this.selectedAddCourseIds.includes(session.sessionId) &&
-    !session.contractId;
+  toggleAddCourse(sessionId: number) {
+    const exists = this.selectedAddCourseIds.includes(sessionId);
 
-  const current = Number(session.price);
+    if (exists) {
+      this.selectedAddCourseIds =
+        this.selectedAddCourseIds.filter(x => x !== sessionId);
 
-  const next = this.selectedTypes.includes('AddDiscount')
-    ? Math.max(0, current - Number(adj.amount))
-    : current + Number(adj.amount);
+      return;
+    }
 
-  return isNewCourse
-    ? `Curs nou: ${current} RON → ${next} RON`
-    : `${current} RON → ${next} RON`;
-}
+    this.selectedAddCourseIds.push(sessionId);
+  }
+
+  toggleRemoveCourse(sessionId: number) {
+    const exists = this.selectedRemoveCourseIds.includes(sessionId);
+
+    if (exists) {
+      this.selectedRemoveCourseIds =
+        this.selectedRemoveCourseIds.filter(x => x !== sessionId);
+
+      return;
+    }
+
+    this.selectedRemoveCourseIds.push(sessionId);
+  }
 }

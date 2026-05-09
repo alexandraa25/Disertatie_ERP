@@ -153,7 +153,7 @@
             <div class="course-main">
               <div class="course-title-row">
                 <h4>{{ c.courseName }}</h4>
-                <span class="day-badge">{{ getRomanianDay(c.dayOfWeek) }}</span>
+                <span class="day-badge">{{ c.dayOfWeek | roDay }}</span>
               </div>
 
               <div class="course-meta">
@@ -197,7 +197,7 @@
               <span class="badge inactive">Încheiat</span>
               <div class="course-title-row">
                 <h4>{{ c.courseName }}</h4>
-                <span class="day-badge">{{ getRomanianDay(c.dayOfWeek) }}</span>
+                <span class="day-badge">{{ c.dayOfWeek | roDay }}</span>
               </div>
 
               <div class="course-meta">
@@ -314,7 +314,6 @@
           </div>
         </div>
 
-
         <!-- EMPTY -->
         <ng-template #noContract>
           <div class="empty-contract">
@@ -394,7 +393,7 @@
                 </td>
 
                 <td>
-                  <button *ngIf="i.paidAmount < i.amount" class="pay-btn" (click)="openPayModal(i)">
+                  <button *ngIf="canPayInstallment(i)" class="pay-btn" (click)="openPayModal(i)">
                     💳 Marchează ca plătit
                   </button>
                 </td>

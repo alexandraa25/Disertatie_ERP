@@ -97,6 +97,7 @@ export class EnrollStudentsComponent implements OnInit {
     this.courses.enroll(courseId, body).subscribe({
       next: () => {
         this.snackbar.showSuccess('Înscriere realizată cu succes.', 1800);
+        this.dialogRef.close(true);
         this.load();
       },
       error: (err) => {

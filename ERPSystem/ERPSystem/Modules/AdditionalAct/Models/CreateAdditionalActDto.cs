@@ -36,6 +36,14 @@ namespace ERPSystem.Modules.AdditionalAct.Models
         public string Body { get; set; } = default!;
         public DateTime CreatedAtUtc { get; set; }
         public int ContractId { get; set; }
+        public string? ContractNumber { get; set; }
+        public int? StudentId { get; set; }
+
+        public string? ClientSignature { get; set; }
+        public DateTime? ClientSignedAtUtc { get; set; }
+
+        public string? AdminSignature { get; set; }
+        public DateTime? AdminSignedAtUtc { get; set; }
 
         public List<ContractPartyDto> Parties { get; set; } = new();
         public List<AdditionalActItemDto> Items { get; set; } = new();

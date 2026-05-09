@@ -21,11 +21,34 @@
         </label>
 
         <div *ngIf="selectedTypes.includes('AddCourse')" class="sub-form">
-          <select multiple [(ngModel)]="selectedAddCourseIds">
-            <option *ngFor="let c of availableCourses" [ngValue]="c.sessionId">
-              {{ c.courseName }}
-            </option>
-          </select>
+          <div class="course-list">
+
+            <label *ngFor="let c of availableCourses" class="course-item">
+
+              <input type="checkbox" [checked]="selectedAddCourseIds.includes(c.sessionId)"
+                (change)="toggleAddCourse(c.sessionId)" />
+
+              <div class="course-content">
+
+                <div class="course-title">
+                  {{ c.courseName }}
+                </div>
+
+                <div class="course-meta">
+                  {{ c.dayOfWeek | roDay }}
+                  •
+                  {{ c.startTime }} - {{ c.endTime }}
+                  •
+                  {{ c.feeType == 2 ? 'Abonament' : 'Pachet' }}
+                  •
+                  {{ c.price }} RON
+                </div>
+
+              </div>
+
+            </label>
+
+          </div>
         </div>
 
         <div class="empty-message" *ngIf="availableCourses.length === 0">
@@ -39,11 +62,34 @@
         </label>
 
         <div *ngIf="selectedTypes.includes('RemoveCourse')" class="sub-form">
-          <select multiple [(ngModel)]="selectedRemoveCourseIds">
-            <option *ngFor="let c of removedCoursesFromContract" [ngValue]="c.sessionId">
-              {{ c.courseName }}
-            </option>
-          </select>
+          <div class="course-list">
+
+            <label *ngFor="let c of removedCoursesFromContract" class="course-item">
+
+              <input type="checkbox" [checked]="selectedRemoveCourseIds.includes(c.sessionId)"
+                (change)="toggleRemoveCourse(c.sessionId)" />
+
+              <div class="course-content">
+
+                <div class="course-title">
+                  {{ c.courseName }}
+                </div>
+
+                <div class="course-meta">
+                  {{ c.dayOfWeek | roDay }}
+                  •
+                  {{ c.startTime }} - {{ c.endTime }}
+                  •
+                  {{ c.feeType == 2 ? 'Abonament' : 'Pachet' }}
+                  •
+                  {{ c.price }} RON
+                </div>
+
+              </div>
+
+            </label>
+
+          </div>
         </div>
 
         <div class="empty-message" *ngIf="removedCoursesFromContract.length === 0">
@@ -102,20 +148,20 @@
             <select [(ngModel)]="adj.courseSessionId">
               <option [ngValue]="null">Selectează sesiunea</option>
               <option *ngFor="let c of sessionsForAdjustment" [ngValue]="c.sessionId">
-                   {{ c.courseName }} 
-                   | {{ c.dayOfWeek | roDay }}
-                   {{ c.startTime }}-{{ c.endTime }}
-                   | {{ c.feeType == 2 ? 'Abonament' : 'Pachet' }}
-                   | {{ c.price }} RON
+                {{ c.courseName }}
+                | {{ c.dayOfWeek | roDay }}
+                {{ c.startTime }}-{{ c.endTime }}
+                | {{ c.feeType == 2 ? 'Abonament' : 'Pachet' }}
+                | {{ c.price }} RON
               </option>
             </select>
 
             <input type="number" [(ngModel)]="adj.amount"
               [placeholder]="selectedTypes.includes('AddDiscount') ? 'Discount' : 'Majorare'" />
 
-              <div class="price-preview" *ngIf="getAdjustmentPreview(adj)">
-                {{ getAdjustmentPreview(adj) }}
-              </div>
+            <div class="price-preview" *ngIf="getAdjustmentPreview(adj)">
+              {{ getAdjustmentPreview(adj) }}
+            </div>
 
             <button type="button" class="secondary" (click)="removePriceAdjustment(i)">
               ✕
@@ -135,4 +181,3 @@
   </div>
 
 </div>
-

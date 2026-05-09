@@ -7,12 +7,14 @@ import { FormsModule } from '@angular/forms';
 import { QuillModule } from 'ngx-quill';
 import { AdminSignatureModalComponent } from '../admin-signature-modal/admin-signature-modal.component';
 import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
+import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
+import { ConfirmService } from '../../services/confirm.service';
 
 
 @Component({
   selector: 'app-additional-act-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, QuillModule],
+  imports: [CommonModule, FormsModule, QuillModule, ConfirmCustomModalComponent],
   templateUrl: './additional-act-details.component.html',
   styleUrl: './additional-act-details.component.css'
 })
@@ -28,7 +30,8 @@ export class AdditionalActDetailsComponent implements OnInit {
     private router: Router,
     private additionalActService: AdditionalActService,
     private dialog: MatDialog,
-    private snackbar: SnackbarService
+    private snackbar: SnackbarService,
+    private confirmService: ConfirmService
   ) { }
 
   ngOnInit() {
@@ -105,15 +108,26 @@ export class AdditionalActDetailsComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/contracts', this.act.contractId]);
+    if (this.act?.studentId) {
+      this.router.navigate(['/students', this.act.studentId]);
+      return;
+    }
+
+    this.router.navigate(['/students']);
   }
 
   editAct(id: number) {
     this.router.navigate(['/additional-act/edit', id]);
 
   }
-  finalizeAct() {
-    if (!confirm('Sigur finalizezi actul?')) return;
+
+  async finalizeAct() {
+    const confirmed = await this.confirmService.confirm(
+      'Sigur finalizezi actul adițional?',
+      'Confirmare'
+    );
+
+    if (!confirmed) return;
 
     this.loading = true;
 
@@ -135,8 +149,13 @@ export class AdditionalActDetailsComponent implements OnInit {
     });
   }
 
-  sendToClient() {
-    if (!confirm('Trimite actul către client?')) return;
+  async sendToClient() {
+    const confirmed = await this.confirmService.confirm(
+      'Trimite actul adițional către client?',
+      'Confirmare'
+    );
+
+    if (!confirmed) return;
 
     this.loading = true;
 
@@ -157,6 +176,7 @@ export class AdditionalActDetailsComponent implements OnInit {
       }
     });
   }
+
 
   getStatusName(status: number) {
     switch (status) {
@@ -200,4 +220,38 @@ export class AdditionalActDetailsComponent implements OnInit {
         }
       });
   }
+
+  cleanBody(html: string): string {
+    if (!html) return '';
+
+    return html
+      .replace(/<p>\s*<\/p>/g, '')
+      .replace(/<p><br><\/p>/g, '')
+      .replace(/(<br\s*\/?>\s*){2,}/gi, '<br>')
+      .replace(/\n{2,}/g, '\n')
+      .trim();
+  }
+
+  async deleteAct(): Promise<void> {
+    const confirmed = await this.confirmService.confirm(
+      'Sigur dorești să ștergi acest act adițional?',
+      'Confirmare ștergere'
+    );
+
+    if (!confirmed) return;
+
+    this.loading = true;
+
+    this.additionalActService.delete(this.act.id).subscribe({
+      next: () => {
+        this.snackbar.showSuccess('Actul adițional a fost șters.');
+        this.router.navigate(['/students', this.act.studentId]);
+      },
+      error: () => {
+        this.loading = false;
+        this.snackbar.showError('Actul adițional nu a putut fi șters.');
+      }
+    });
+  }
+
 }

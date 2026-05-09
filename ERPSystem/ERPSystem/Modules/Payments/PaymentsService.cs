@@ -14,11 +14,13 @@ namespace ERPSystem.Modules.Payments
     {
         private readonly ApplicationDbContext _db;
         private readonly ILogger<PaymentsService> _logger;
+        private readonly ContractPricingService _pricingService;
 
-        public PaymentsService(ApplicationDbContext db, ILogger<PaymentsService> logger)
+        public PaymentsService(ApplicationDbContext db, ILogger<PaymentsService> logger, ContractPricingService pricingService)
         {
             _db = db;
             _logger = logger;
+            _pricingService = pricingService;
         }
 
         public async Task<PublicResponse> PayInstallmentAsync(PayInstallmentDto dto)
@@ -32,18 +34,23 @@ namespace ERPSystem.Modules.Payments
                 .Include(i => i.Contract)
                 .FirstOrDefaultAsync(i => i.Id == dto.InstallmentId);
 
-            if (installment == null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Rata nu există");
+            if (installment.Status == InstallmentStatus.Paid)
+                return response.SetError(
+                    ErrorCodes.InvalidParameters,
+                    "Rata este deja plătită"
+                );
 
-            if (installment.Contract.Status != ContractStatus.Active)
-                return response.SetError(ErrorCodes.InvalidParameters, "Contractul nu este activ");
+            if (installment.Status == InstallmentStatus.Cancelled ||
+                installment.Status == InstallmentStatus.Expired)
+            {
+                return response.SetError(ErrorCodes.InvalidParameters, "Rata nu mai poate fi plătită");
+            }
 
             var remaining = installment.Amount - installment.PaidAmount;
 
             if (remaining <= 0)
                 return response.SetError(ErrorCodes.InvalidParameters, "Rata este deja plătită");
 
-            // 🔥 nu permite overpay pe rată (poți schimba dacă vrei)
             var amountToApply = Math.Min(dto.Amount, remaining);
 
             installment.PaidAmount += amountToApply;
@@ -84,6 +91,8 @@ namespace ERPSystem.Modules.Payments
 
         public async Task<List<InstallmentDto>> GetInstallments(int contractId)
         {
+            await GenerateNextUnlimitedInstallmentForContractAsync(contractId);
+
             return await _db.ContractInstallments
                 .AsNoTracking()
                 .Where(i => i.ContractId == contractId)
@@ -130,6 +139,73 @@ namespace ERPSystem.Modules.Payments
         {
             return (end.Year - start.Year) * 12 +
                    (end.Month - start.Month) + 1;
+        }
+
+        private async Task GenerateNextUnlimitedInstallmentForContractAsync(int contractId)
+        {
+            var contract = await _db.StudentContracts
+                .Include(c => c.Courses)
+                .Include(c => c.InstallmentsList)
+                .FirstOrDefaultAsync(c =>
+                    c.Id == contractId &&
+                    c.IsUnlimited &&
+                    c.Status == ContractStatus.Active);
+
+            if (contract == null)
+                return;
+
+            var pricing = _pricingService.CalculatePricingFromContractCourses(contract);
+
+            if (pricing.MonthlyAmount <= 0)
+                return;
+
+            var today = DateTime.UtcNow.Date;
+
+            var orderedInstallments = contract.InstallmentsList
+                .OrderBy(i => i.DueDate)
+                .ToList();
+
+            var firstDueDate = orderedInstallments
+                .Select(i => (DateTime?)i.DueDate.Date)
+                .FirstOrDefault() ?? contract.StartDate.Date;
+
+            var lastDueDate = orderedInstallments
+                .Select(i => (DateTime?)i.DueDate.Date)
+                .LastOrDefault();
+
+            var nextDueDate = lastDueDate.HasValue
+                ? AddMonthKeepingDay(lastDueDate.Value, firstDueDate.Day)
+                : firstDueDate;
+
+            if (nextDueDate > today)
+                return;
+
+            var alreadyExists = contract.InstallmentsList.Any(i =>
+                i.DueDate.Year == nextDueDate.Year &&
+                i.DueDate.Month == nextDueDate.Month);
+
+            if (alreadyExists)
+                return;
+
+            contract.InstallmentsList.Add(new ContractInstallment
+            {
+                ContractId = contract.Id,
+                DueDate = nextDueDate,
+                Amount = Math.Round(pricing.MonthlyAmount, 2),
+                PaidAmount = 0,
+                Status = InstallmentStatus.Pending
+            });
+
+            await _db.SaveChangesAsync();
+        }
+
+        private static DateTime AddMonthKeepingDay(DateTime date, int targetDay)
+        {
+            var nextMonth = date.AddMonths(1);
+            var daysInMonth = DateTime.DaysInMonth(nextMonth.Year, nextMonth.Month);
+            var day = Math.Min(targetDay, daysInMonth);
+
+            return new DateTime(nextMonth.Year, nextMonth.Month, day);
         }
     }
 }

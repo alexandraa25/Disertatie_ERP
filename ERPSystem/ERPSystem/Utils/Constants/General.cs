@@ -182,8 +182,10 @@ namespace ERPSystem.Utils.Constants
                 public const string GET_CONTRACTS_OVERVIEW = "/overview";
                 public const string EXPORT_CONTRACTS_OVERVIEW = "/export";
                 public const string EXPORT_CONTRACTS_INSTALLMENTS= "/export/installments";
+                public const string GENERATE_UNLIMITED_INSTALLMENTS = "/unlimited-installments";
                
-                
+
+
             }
            public static class AdditionalAct
            {
@@ -196,6 +198,7 @@ namespace ERPSystem.Utils.Constants
                 public const string ACT_SEND_TO_CLIENT = "{id}/send";
                 public const string ACT_ADMIN_SIGN = "/{id}/admin-sign";
                 public const string DOWNLOAD_ACT = "/{id}/download";
+                public const string DELETE_ACT = "/{id}/delete";
             }
 
             public static class Payments

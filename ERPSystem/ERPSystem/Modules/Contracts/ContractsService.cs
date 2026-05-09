@@ -129,7 +129,6 @@ public class ContractsService
                     );
             }
 
-
             var sessions = await _db.CourseSessions
                 .Include(x => x.Course)
                 .Where(x => dto.CourseSessionIds.Contains(x.Id))
@@ -203,20 +202,8 @@ public class ContractsService
                 contract.BeneficiaryAddressSnapshot = student.Address;
             }
 
-            foreach (var session in sessions)
-            {
-                contract.Courses.Add(new ContractCourse
-                {
-                    CourseSessionId = session.Id,
-                    CourseNameSnapshot = session.Course.Name,
-                    SessionNameSnapshot = session.Title,
-                    PriceSnapshot = session.Fee,
-                    FeeType = session.FeeType
-                });
-            }
-
-
-            ERPSystem.Data.Entities.MarketingCampaign? marketingCampaign = null;
+            
+            Data.Entities.MarketingCampaign? marketingCampaign = null;
 
             if (dto.MarketingCampaignId.HasValue)
             {
@@ -287,7 +274,25 @@ public class ContractsService
                 }
             }
 
-            var pricing = _pricingService.CalculatePricing(sessions, contract);
+            foreach (var session in sessions)
+            {
+                var priceSnapshot = _pricingService.CalculateCourseSnapshotPrice(
+                    session,
+                    sessions,
+                    contract
+                );
+
+                contract.Courses.Add(new ContractCourse
+                {
+                    CourseSessionId = session.Id,
+                    CourseNameSnapshot = session.Course.Name,
+                    SessionNameSnapshot = session.Title,
+                    PriceSnapshot = priceSnapshot,
+                    FeeType = session.FeeType
+                });
+            }
+
+            var pricing = _pricingService.CalculatePricingFromContractCourses(contract);
 
             contract.TotalAmount = pricing.TotalAmount;
             contract.MonthlyAmount = pricing.MonthlyAmount;
@@ -467,7 +472,21 @@ public class ContractsService
             }
         }
 
-        var pricing = _pricingService.CalculatePricing(sessions, contract);
+        foreach (var contractCourse in contract.Courses)
+        {
+            var session = sessions.FirstOrDefault(s => s.Id == contractCourse.CourseSessionId);
+
+            if (session == null)
+                return response.SetError(ErrorCodes.InvalidParameters, "Sesiunea cursului nu a fost găsită.");
+
+            contractCourse.PriceSnapshot = _pricingService.CalculateCourseSnapshotPrice(
+                session,
+                sessions,
+                contract
+            );
+        }
+
+        var pricing = _pricingService.CalculatePricingFromContractCourses(contract);
 
         contract.TotalAmount = pricing.TotalAmount;
         contract.MonthlyAmount = pricing.MonthlyAmount;
@@ -651,14 +670,21 @@ public class ContractsService
 
         contract.Status = ContractStatus.Cancelled;
         contract.UpdatedAtUtc = DateTime.UtcNow;
+
         foreach (var act in acts)
         {
             act.Status = AdditionalActStatus.Cancelled;
         }
 
+        var today = DateTime.UtcNow.Date;
+        var tomorrow = DateTime.UtcNow.Date.AddDays(1);
+
         var installments = await _db.ContractInstallments
-          .Where(i => i.ContractId == contract.Id && !i.IsPaid)
-          .ToListAsync();
+           .Where(i =>
+               i.ContractId == contract.Id &&
+               i.PaidAmount < i.Amount &&
+               i.DueDate >= tomorrow)
+           .ToListAsync();
 
         foreach (var i in installments)
         {
@@ -681,6 +707,7 @@ public class ContractsService
         foreach (var e in enrollments)
         {
             e.IsActive = false;
+            e.ContractId = null;
             e.EndedAtUtc = DateTime.UtcNow;
 
             _activityLogService.Add(
@@ -740,8 +767,14 @@ public class ContractsService
 
         }
 
+        var today = DateTime.UtcNow.Date;
+        var tomorrow = DateTime.UtcNow.Date.AddDays(1);
+
         var installments = await _db.ContractInstallments
-           .Where(i => i.ContractId == contract.Id && !i.IsPaid)
+           .Where(i =>
+               i.ContractId == contract.Id &&
+               i.PaidAmount < i.Amount &&
+               i.DueDate >= tomorrow)
            .ToListAsync();
 
         foreach (var i in installments)
@@ -766,6 +799,7 @@ public class ContractsService
         foreach (var e in enrollments)
         {
             e.IsActive = false;
+            e.ContractId = null;
             e.EndedAtUtc = contract.EndDate ?? DateTime.UtcNow;
 
             _activityLogService.Add(
@@ -822,7 +856,7 @@ public class ContractsService
              );
              
             var installments = await _db.ContractInstallments
-               .Where(i => i.ContractId == contract.Id && !i.IsPaid)
+              .Where(i => i.ContractId == contract.Id &&!i.IsPaid &&  i.DueDate.Date > DateTime.UtcNow.Date)
               .ToListAsync();
 
             foreach (var i in installments)
@@ -969,16 +1003,22 @@ public class ContractsService
             return response.SetError(ErrorCodes.InvalidParameters, "Not found");
 
         var monthlyAmount = contract.TotalAmount == null
-     ? contract.InstallmentsList.FirstOrDefault()?.Amount ?? 0
-     : 0;
+            ? contract.InstallmentsList.FirstOrDefault()?.Amount ?? 0
+            : 0;
 
         var displayTotal = contract.TotalAmount.HasValue
-    ? $"{contract.TotalAmount.Value:F2} RON"
-    : $"{monthlyAmount:F2} RON / lună";
+            ? $"{contract.TotalAmount.Value:F2} RON"
+            : $"{monthlyAmount:F2} RON / lună";
+
+
 
         var dto = new ContractDetailsDto
         {
             Id = contract.Id,
+            StudentId = contract.Parties
+              .Where(p => p.StudentId.HasValue)
+              .Select(p => p.StudentId)
+              .FirstOrDefault(),
             ContractNumber = contract.ContractNumber,
             StartDate = contract.StartDate,
             EndDate = contract.EndDate,

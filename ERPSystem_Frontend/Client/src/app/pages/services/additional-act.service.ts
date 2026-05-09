@@ -49,6 +49,11 @@ downloadAct(id: number) {
   });
 }
 
+delete(id: number) {
+  return this.http.delete(
+    `${this.baseUrl}/${id}/delete`);
+}
+
 saveFile(blob: Blob, fileName: string) {
   const url = window.URL.createObjectURL(blob);
 

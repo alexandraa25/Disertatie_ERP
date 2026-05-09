@@ -26,6 +26,7 @@ export class ContractDetailsComponent implements OnInit {
   isEditingBody = false;
   editedBody = '';
   hasUnsavedChanges = false;
+  studentId!: number;
 
   constructor(
     private route: ActivatedRoute,
@@ -50,8 +51,6 @@ export class ContractDetailsComponent implements OnInit {
       .subscribe({
         next: (res) => {
 
-          console.log('RESPONSE:', res);
-
           if (!res.isSuccess || !res.value) {
             this.snackbar.showError('Contractul nu a fost găsit.', 2500);
             this.loading = false;
@@ -59,6 +58,9 @@ export class ContractDetailsComponent implements OnInit {
           }
 
           this.contract = res.value;
+          this.studentId =
+             this.contract?.studentId ||
+             this.contract?.student?.id;
           this.loading = false;
         },
         error: () => {
@@ -332,8 +334,15 @@ export class ContractDetailsComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/students']);
+    console.log(this.studentId);
+  if (this.contract?.studentId) {
+    this.router.navigate(['/students', this.contract.studentId]);
+    return;
   }
+
+  this.router.navigate(['/students']);
+  }
+
 
   editContract() {
     this.router.navigate(['/contracts/edit', this.contract.id]);

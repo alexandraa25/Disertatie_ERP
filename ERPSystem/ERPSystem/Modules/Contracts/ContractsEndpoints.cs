@@ -95,7 +95,9 @@ public static class ContractsEndpoints
                  => await service.ExportContractsExcelAsync(from, to))
             .WithDefaultApiSettings( "ExportContracts", "Export contracte pentru contabil", "EXPORT_CONTRACTS", true);
 
-       
+    
+
+         
     }
 
 }

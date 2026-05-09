@@ -352,6 +352,7 @@ public class DocumentSigningService
             case SigningEntityType.AdditionalAct:
                 {
                     var act = await _db.ContractAdditionalAct
+                        .Include(a => a.Contract)
                         .FirstOrDefaultAsync(a => a.Id == signingToken.EntityId);
 
                     if (act == null)
@@ -474,7 +475,7 @@ public class DocumentSigningService
 
                         act.AdminSignature = signature;
                         act.AdminSignedAtUtc = DateTime.UtcNow;
-                        act.Status = AdditionalActStatus.Applied;
+                        
 
                         // 🔥 APPLY LOGIC REALĂ
                         await _additionalActService.ApplyAdditionalActAsync(act.Id, saveChanges: false);

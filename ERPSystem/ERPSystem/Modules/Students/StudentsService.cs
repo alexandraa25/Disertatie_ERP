@@ -41,19 +41,19 @@ public class StudentsService
         var total = await query.CountAsync();
 
         var items = await query
-    .Skip((page - 1) * pageSize)
-    .Take(pageSize)
-    .Select(s => new StudentListItemDto
-    {
-        Id = s.Id,
-        FullName = s.FullName,
-        Email = s.Email,
-        Phone = s.Phone,
-        IsActive = s.IsActive,
-        CreatedAtUtc = s.CreatedAtUtc,
-        IsDeleted = s.IsDeleted
-    })
-    .ToListAsync();
+           .Skip((page - 1) * pageSize)
+           .Take(pageSize)
+           .Select(s => new StudentListItemDto
+           {
+               Id = s.Id,
+               FullName = s.FullName,
+               Email = s.Email,
+               Phone = s.Phone,
+               IsActive = s.IsActive,
+               CreatedAtUtc = s.CreatedAtUtc,
+               IsDeleted = s.IsDeleted
+           })
+           .ToListAsync();
 
         return response.SetSuccess(new Student.Models.PagedResult<StudentListItemDto>
         {
@@ -547,9 +547,7 @@ public class StudentsService
         var contract = await _db.StudentContracts
             .AsNoTracking()
             .Include(c => c.Parties)
-            .Include(c => c.Discounts)
-            .Include(c => c.PriceAdjustments)
-                .ThenInclude(a => a.CourseSession)
+            .Include(c => c.Courses)
             .FirstOrDefaultAsync(c => c.Id == contractId);
 
         if (contract == null)
@@ -571,40 +569,20 @@ public class StudentsService
             .Where(e => e.StudentId == studentId)
             .ToListAsync();
 
-        var contractSessions = enrollments
-            .Where(e => e.ContractId == contractId && e.IsActive)
-            .Select(e => e.Session)
-            .ToList();
+        var contractCoursesBySessionId = contract.Courses
+            .ToDictionary(c => c.CourseSessionId);
 
-        var pricing = _pricingService.CalculatePricing(contractSessions, contract);
-
-        var totalMonthlyRaw = contractSessions
-            .Where(s => s.FeeType == CourseFeeType.Monthly)
-            .Sum(s => s.Fee);
-
-        var totalPackageRaw = contractSessions
-            .Where(s => s.FeeType == CourseFeeType.FixedPackage)
-            .Sum(s => s.Fee);
-
-        decimal GetContractPrice(CourseSession session)
-        {
-            if (session.FeeType == CourseFeeType.Monthly)
-            {
-                return totalMonthlyRaw > 0
-                    ? Math.Round((session.Fee / totalMonthlyRaw) * pricing.MonthlyAmount, 2)
-                    : 0;
-            }
-
-            return totalPackageRaw > 0
-                ? Math.Round((session.Fee / totalPackageRaw) * pricing.PackageAmount, 2)
-                : 0;
-        }
+        var pricing = _pricingService.CalculatePricingFromContractCourses(contract);
 
         var result = enrollments.Select(e =>
         {
-            var isInContract = e.ContractId == contractId;
-            var price = isInContract && e.IsActive
-                ? GetContractPrice(e.Session)
+            var isInContract =
+                e.ContractId == contractId &&
+                e.IsActive &&
+                contractCoursesBySessionId.ContainsKey(e.CourseSessionId);
+
+            var price = isInContract
+                ? contractCoursesBySessionId[e.CourseSessionId].PriceSnapshot
                 : e.Session.Fee;
 
             return new StudentCourseDetailsDto
@@ -631,10 +609,11 @@ public class StudentsService
         return response.SetSuccess(new
         {
             items = result,
-            totalAmount = pricing.TotalAmount
+            totalAmount = pricing.TotalAmount,
+            monthlyAmount = pricing.MonthlyAmount,
+            packageAmount = pricing.PackageAmount
         });
     }
-
     public async Task<PublicResponse> GetPrimaryGuardianAsync(int studentId)
     {
         var response = new PublicResponse(true);

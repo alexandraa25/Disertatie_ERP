@@ -21,13 +21,14 @@ import { PayModalComponent } from '../../financiar/pay-modal/pay-modal.component
 import { FormsModule } from '@angular/forms';
 import { FeedbackService } from '../../services/feedback.service';
 import { Chart, registerables } from 'chart.js';
+import { RomanianDayPipe } from '../../../components/pipes/romanian-day.pipe';
 
 Chart.register(...registerables);
 
 @Component({
   selector: 'app-student-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmCustomModalComponent],
+  imports: [CommonModule, FormsModule, ConfirmCustomModalComponent, RomanianDayPipe],
   templateUrl: './student-details.component.html',
   styleUrls: ['./student-details.component.css']
 })
@@ -116,6 +117,10 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroyStudentChart();
+  }
+
   goBack() {
     this.router.navigate(['/students']);
   }
@@ -135,6 +140,44 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  private getErrorMessage(err: any, fallback: string): string {
+    return err?.error?.message ||
+      err?.error?.errorMessage ||
+      err?.error?.title ||
+      fallback;
+  }
+
+  // ================= TAB: INFORMAȚII =================
+  openEdit(id: number): void {
+    if (this.student?.isDeleted) {
+      this.snackbar.showError('Cursantul arhivat nu poate fi editat.', 2500);
+      return;
+    }
+
+    if (this.dialog.openDialogs.length > 0) {
+      return;
+    }
+
+    const dialogRef = this.dialog.open(StudentFormComponent, {
+      width: '720px',
+      maxWidth: '92vw',
+      panelClass: 'student-dialog',
+      data: { id }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.snackbar.showSuccess('Datele cursantului au fost actualizate.', 1800);
+        this.students.get(this.student.id).subscribe({
+          next: (res) => this.student = res,
+          error: () => this.loadContractsList()
+        });
+        this.loadContractsList();
+      }
+    });
+  }
+
+  // ================= TAB: CURSURI =================
   loadCourses(): void {
     this.students.getStudentCourses(this.student.id).subscribe({
       next: (res: any) => {
@@ -153,37 +196,6 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
         );
       }
     });
-  }
-
-  getRomanianDay(day: any): string {
-
-    const mapByNumber: Record<number, string> = {
-      0: 'Duminică',
-      1: 'Luni',
-      2: 'Marți',
-      3: 'Miercuri',
-      4: 'Joi',
-      5: 'Vineri',
-      6: 'Sâmbătă'
-    };
-
-    if (!isNaN(day)) {
-      return mapByNumber[Number(day)] ?? day;
-    }
-
-    const normalized = day?.toString().toLowerCase();
-
-    const mapByName: Record<string, string> = {
-      monday: 'Luni',
-      tuesday: 'Marți',
-      wednesday: 'Miercuri',
-      thursday: 'Joi',
-      friday: 'Vineri',
-      saturday: 'Sâmbătă',
-      sunday: 'Duminică'
-    };
-
-    return mapByName[normalized] ?? day;
   }
 
   openEnrollModal(): void {
@@ -237,6 +249,15 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
+  get pagedCourses() {
+    return this.paginate(this.courses, this.coursesPage);
+  }
+
+  get pagedInactiveCourses() {
+    return this.paginate(this.inactiveCourses, this.inactiveCoursesPage);
+  }
+
+  // ================= TAB: FINANCIAR - CONTRACTE =================
   loadContractsList(): void {
     this.contracts.listContracts(this.student.id).subscribe({
       next: (res: any) => {
@@ -278,11 +299,11 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       }
     });
   }
+
   selectContract(c: any) {
     this.contract = c; // instant UI
     this.loadContractDetails(c.id); // refresh real
   }
-
 
   onSelectContract(contractId: number) {
     const selected = this.contractsList.find(c => c.id == contractId);
@@ -290,6 +311,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       this.selectContract(selected);
     }
   }
+
   get sortedContracts() {
     if (!this.contractsList) return [];
 
@@ -378,7 +400,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
         break;
 
       case 'edit':
-        this.openContract(this.contract.id); 
+        this.openContract(this.contract.id);
         break;
 
       case 'send':
@@ -407,35 +429,6 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
 
   openContract(id: number) {
     this.router.navigate(['/contracts', id]);
-  }
-
-  openEdit(id: number): void {
-    if (this.student?.isDeleted) {
-      this.snackbar.showError('Cursantul arhivat nu poate fi editat.', 2500);
-      return;
-    }
-
-    if (this.dialog.openDialogs.length > 0) {
-      return;
-    }
-
-    const dialogRef = this.dialog.open(StudentFormComponent, {
-      width: '720px',
-      maxWidth: '92vw',
-      panelClass: 'student-dialog',
-      data: { id }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.snackbar.showSuccess('Datele cursantului au fost actualizate.', 1800);
-        this.students.get(this.student.id).subscribe({
-          next: (res) => this.student = res,
-          error: () => this.loadContractsList()
-        });
-        this.loadContractsList();
-      }
-    });
   }
 
   async sendContract(): Promise<void> {
@@ -561,6 +554,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
+  // ================= TAB: FINANCIAR - ACTE ADIȚIONALE =================
   createAct() {
     this.router.navigate([`/contracts/${this.contract.id}/additional-act`]);
   }
@@ -585,6 +579,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
     this.router.navigate(['/additional-act', id]);
   }
 
+  // ================= TAB: FINANCIAR - RATE / PLĂȚI =================
   loadFinancial(): void {
     if (!this.contract) return;
 
@@ -624,6 +619,25 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
     if (i.paidAmount === 0) return 'Neplătit';
     if (i.paidAmount < i.amount) return 'Parțial';
     return 'Plătit';
+  }
+
+  getInstallmentClass(i: any) {
+
+    const overdue =
+      i.paidAmount < i.amount &&
+      new Date(i.dueDate) < new Date();
+
+    if (overdue) return 'danger';
+
+    if (i.paidAmount < i.amount) return 'warning';
+
+    return 'success';
+  }
+
+  canPayInstallment(i: any): boolean {
+    return i.paidAmount < i.amount &&
+      i.status !== 'Cancelled' &&
+      i.status !== 'Expired';
   }
 
   openPayModal(i: any) {
@@ -671,19 +685,15 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  getInstallmentClass(i: any) {
-
-    const overdue =
-      i.paidAmount < i.amount &&
-      new Date(i.dueDate) < new Date();
-
-    if (overdue) return 'danger';
-
-    if (i.paidAmount < i.amount) return 'warning';
-
-    return 'success';
+  get pagedInstallments() {
+    return this.paginate(this.installments, this.installmentsPage);
   }
 
+  get pagedPayments() {
+    return this.paginate(this.payments, this.paymentsPage);
+  }
+
+  // ================= TAB: ISTORIC =================
   loadActivity(): void {
     if (!this.student?.id) return;
 
@@ -702,6 +712,11 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       });
   }
 
+  get pagedActivityLogs() {
+    return this.paginate(this.activityLogs, this.activityPage);
+  }
+
+  // ================= TAB: EVALUĂRI PROFESOR =================
   loadStudentEvaluations(): void {
     if (!this.student?.id) return;
 
@@ -798,10 +813,6 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.destroyStudentChart();
-  }
-
   destroyStudentChart(): void {
     if (this.studentChart) {
       this.studentChart.destroy();
@@ -818,37 +829,11 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getErrorMessage(err: any, fallback: string): string {
-    return err?.error?.message ||
-      err?.error?.errorMessage ||
-      err?.error?.title ||
-      fallback;
-  }
-
-  get pagedCourses() {
-    return this.paginate(this.courses, this.coursesPage);
-  }
-
-  get pagedInactiveCourses() {
-    return this.paginate(this.inactiveCourses, this.inactiveCoursesPage);
-  }
-
-  get pagedInstallments() {
-    return this.paginate(this.installments, this.installmentsPage);
-  }
-
-  get pagedPayments() {
-    return this.paginate(this.payments, this.paymentsPage);
-  }
-
-  get pagedActivityLogs() {
-    return this.paginate(this.activityLogs, this.activityPage);
-  }
-
   get pagedStudentEvaluations() {
     return this.paginate(this.studentEvaluations, this.evaluationsPage);
   }
 
+ // =================  HELPERS =================
   totalPages(list: any[]): number {
     return Math.max(1, Math.ceil((list?.length ?? 0) / this.pageSize));
   }

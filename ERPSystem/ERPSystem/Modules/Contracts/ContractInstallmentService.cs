@@ -1,9 +1,14 @@
-﻿using ERPSystem.Data.Entities;
+﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Contracts.Models;
 using ERPSystem.Utils.Enums;
+using Microsoft.EntityFrameworkCore;
 
 public class ContractInstallmentService
 {
+
+  
+
     public List<ContractInstallment> BuildInstallments( DateTime startDate,  bool isUnlimited, int packageInstallments, PricingResult pricing)
     {
         var result = new List<ContractInstallment>();
@@ -53,18 +58,20 @@ public class ContractInstallmentService
         return result;
     }
 
-    public List<ContractInstallment> BuildInstallmentsForRemainingPeriod( DateTime startDate,  DateTime contractEndDate, bool isUnlimited, PricingResult pricing)
+    public List<ContractInstallment> BuildInstallmentsForRemainingPeriod(  DateTime startDate,  DateTime contractEndDate, bool isUnlimited,  int packageInstallments,  PricingResult pricing)
     {
         var result = new List<ContractInstallment>();
 
         startDate = startDate.Date;
         contractEndDate = contractEndDate.Date;
 
+        packageInstallments = packageInstallments <= 0 ? 1 : packageInstallments;
+
         if (!isUnlimited && contractEndDate < startDate)
             return result;
 
         var months = isUnlimited
-            ? 1
+            ? Math.Max(1, packageInstallments)
             : ((contractEndDate.Year - startDate.Year) * 12)
               + contractEndDate.Month
               - startDate.Month
@@ -72,18 +79,40 @@ public class ContractInstallmentService
 
         months = Math.Max(1, months);
 
+        var hasPackage = pricing.PackageAmount > 0;
+        var hasSubscription = pricing.MonthlyAmount > 0;
+
+        var packageInstallmentsToUse = hasPackage
+            ? Math.Min(packageInstallments, months)
+            : 0;
+
+        var packageInstallmentValue = packageInstallmentsToUse > 0
+            ? Math.Floor((pricing.PackageAmount / packageInstallmentsToUse) * 100) / 100
+            : 0;
+
+        var totalAssigned = packageInstallmentValue * packageInstallmentsToUse;
+        var remainder = pricing.PackageAmount - totalAssigned;
+
         for (var i = 0; i < months; i++)
         {
-            var dueDate = startDate.AddMonths(i);
+            var amount = 0m;
 
-            decimal amount = 0;
-
-            if (pricing.MonthlyAmount > 0)
+            if (hasSubscription)
                 amount += pricing.MonthlyAmount;
+
+            if (hasPackage && i < packageInstallmentsToUse)
+            {
+                var packagePart = packageInstallmentValue;
+
+                if (i == packageInstallmentsToUse - 1)
+                    packagePart += remainder;
+
+                amount += packagePart;
+            }
 
             result.Add(new ContractInstallment
             {
-                DueDate = dueDate,
+                DueDate = startDate.AddMonths(i),
                 Amount = Math.Round(amount, 2),
                 PaidAmount = 0,
                 Status = InstallmentStatus.Pending
@@ -92,4 +121,6 @@ public class ContractInstallmentService
 
         return result;
     }
+
+   
 }

@@ -47,7 +47,12 @@ namespace ERPSystem.Modules.AdditionalAct
                 async (int id, AdditionalActService service)
                     => await service.DownloadActAsync(id)) 
                .WithDefaultApiSettings("DownloadAct", "Descarcă act adițional", "GET", false);
-               
+
+            group.MapDelete(Route.DELETE_ACT,
+                async (int id, AdditionalActService service)
+                    => await service.DeleteAdditionalActAsync(id))
+                .WithDefaultApiSettings( "DeleteAdditionalAct", "Ștergere act adițional", "DELETE",  false);
+
             group.MapGet(Route.LIST_ACT,
                 async ([FromRoute] int contractId, AdditionalActService service)
                      => await service.ListAdditionalActsAsync(contractId))

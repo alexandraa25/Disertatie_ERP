@@ -1,4 +1,5 @@
-﻿using ERPSystem.Data.Context;
+﻿using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.AdditionalAct.Models;
 using ERPSystem.Modules.Contracts;
@@ -10,6 +11,7 @@ using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Enums;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
+using static ERPSystem.Utils.Constants.General.Route;
 
 namespace ERPSystem.Modules.AdditionalAct
 {
@@ -300,6 +302,42 @@ namespace ERPSystem.Modules.AdditionalAct
             );
         }
 
+        public async Task<PublicResponse> DeleteAdditionalActAsync(int id)
+        {
+            var response = new PublicResponse(true);
+
+            var act = await _db.ContractAdditionalAct
+                .Include(a => a.Items)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (act == null)
+                return response.SetError(
+                    ErrorCodes.InvalidParameters,
+                    "Act not found"
+                );
+
+            if (act.Status != AdditionalActStatus.Draft)
+                return response.SetError(
+                    ErrorCodes.InvalidParameters,
+                    "Only draft acts can be deleted"
+                );
+
+            _db.ContractAdditionalActItem.RemoveRange(act.Items);
+
+            _db.ContractAdditionalAct.Remove(act);
+
+            _activityLogService.Add(
+                nameof(ContractAdditionalAct),
+                act.Id.ToString(),
+                "Delete",
+                $"Actul adițional {act.ActNumber} a fost șters"
+            );
+
+            await _db.SaveChangesAsync();
+
+            return response.SetSuccess();
+        }
+
         public async Task<PublicResponse> GetAdditionalActByIdAsync(int id)
         {
             var response = new PublicResponse(true);
@@ -322,11 +360,25 @@ namespace ERPSystem.Modules.AdditionalAct
             {
                 Id = act.Id,
                 ActNumber = act.ActNumber,
+
+                ContractId = act.ContractId,
+                ContractNumber = act.Contract.ContractNumber,
+
+                StudentId = act.Contract.Parties
+                  .Where(p => p.StudentId.HasValue)
+                  .Select(p => p.StudentId)
+                  .FirstOrDefault(),
+
                 Status = act.Status.ToString(),
                 Description = act.Description,
                 Body = act.Body,
                 CreatedAtUtc = act.CreatedAtUtc,
-                ContractId = act.ContractId,
+
+                ClientSignature = act.ClientSignature,
+                ClientSignedAtUtc = act.ClientSignedAtUtc,
+                AdminSignature = act.AdminSignature,
+                AdminSignedAtUtc = act.AdminSignedAtUtc,
+
 
                 // Parties
                 Parties = act.Contract.Parties
@@ -444,6 +496,17 @@ namespace ERPSystem.Modules.AdditionalAct
                 .Where(s => sessionIds.Contains(s.Id))
                 .ToDictionaryAsync(s => s.Id);
 
+            string SessionLabel(int sessionId)
+            {
+                var s = sessions[sessionId];
+
+                var typeLabel = s.FeeType == CourseFeeType.Monthly
+                    ? "abonament lunar"
+                    : "pachet fix";
+
+                return $"{s.Course.Name} - {s.Title}, {s.DayOfWeek}, {s.StartTime}-{s.EndTime} ({typeLabel})";
+            }
+
             var changes = string.Join("<br/>",
                  act.Items.Select(i =>
                  {
@@ -459,17 +522,150 @@ namespace ERPSystem.Modules.AdditionalAct
                               DateTime.TryParse(i.NewValue, out var parsedDate)
                               ? $"• Perioadă extinsă până la {parsedDate:dd.MM.yyyy}" : $"• Perioadă extinsă până la {i.NewValue}",
 
-                         AdditionalActType.AddDiscount =>
-                             $"• Discount aplicat: -{i.NewValue} RON",
-             
-                         AdditionalActType.IncreasePrice =>
-                             $"• Majorare preț: +{i.NewValue} RON",
-             
+                         AdditionalActType.AddDiscount when i.CourseSessionId.HasValue =>
+                             $"• Discount aplicat pentru {SessionLabel(i.CourseSessionId.Value)}: -{i.NewValue} RON",
+
+                         AdditionalActType.IncreasePrice when i.CourseSessionId.HasValue =>
+                             $"• Majorare preț pentru {SessionLabel(i.CourseSessionId.Value)}: +{i.NewValue} RON",
+
                          _ => ""
                      };
                  })
                  .Where(x => !string.IsNullOrWhiteSpace(x))
              );
+
+            var previewCourses = contract.Courses
+                 .Select(c => new ContractCourse
+                 {
+                     ContractId = c.ContractId,
+                     CourseSessionId = c.CourseSessionId,
+                     CourseNameSnapshot = c.CourseNameSnapshot,
+                     SessionNameSnapshot = c.SessionNameSnapshot,
+                     PriceSnapshot = c.PriceSnapshot,
+                     FeeType = c.FeeType
+                 })
+                 .ToList();
+
+            foreach (var item in act.Items)
+            {
+                if (!item.CourseSessionId.HasValue)
+                    continue;
+
+                var sessionId = item.CourseSessionId.Value;
+
+                switch (item.Type)
+                {
+                    case AdditionalActType.AddCourse:
+                        {
+                            var session = sessions[sessionId];
+
+                            previewCourses.Add(new ContractCourse
+                            {
+                                ContractId = contract.Id,
+                                CourseSessionId = session.Id,
+                                CourseNameSnapshot = session.Course.Name,
+                                SessionNameSnapshot = session.Title,
+                                PriceSnapshot = session.Fee,
+                                FeeType = session.FeeType
+                            });
+
+                            break;
+                        }
+
+                    case AdditionalActType.RemoveCourse:
+                        {
+                            previewCourses.RemoveAll(c => c.CourseSessionId == sessionId);
+                            break;
+                        }
+
+                    case AdditionalActType.AddDiscount:
+                        {
+                            if (!decimal.TryParse(item.NewValue, out var discountValue))
+                                break;
+
+                            var course = previewCourses.FirstOrDefault(c => c.CourseSessionId == sessionId);
+
+                            if (course != null)
+                                course.PriceSnapshot = Math.Max(0, course.PriceSnapshot - discountValue);
+
+                            break;
+                        }
+
+                    case AdditionalActType.IncreasePrice:
+                        {
+                            if (!decimal.TryParse(item.NewValue, out var increase))
+                                break;
+
+                            var course = previewCourses.FirstOrDefault(c => c.CourseSessionId == sessionId);
+
+                            if (course != null)
+                                course.PriceSnapshot += increase;
+
+                            break;
+                        }
+                }
+            }
+
+            var previewContract = new StudentContract
+            {
+                StartDate = contract.StartDate,
+                EndDate = contract.EndDate,
+                IsUnlimited = contract.IsUnlimited,
+                Courses = previewCourses
+            };
+
+            var pricing = _pricingService.CalculatePricingFromContractCourses(previewContract);
+
+            var contractType = contract.IsUnlimited
+                ? "Abonament nelimitat"
+                : "Contract pe perioadă determinată";
+
+            var subtotalValue = pricing.PackageAmount + pricing.MonthlyAmount;
+            var subtotal = $"{subtotalValue:0.00} RON";
+
+            var packageAmount = pricing.PackageAmount > 0
+                ? $"{pricing.PackageAmount:0.00} RON"
+                : "-";
+
+            var monthlyAmount = pricing.MonthlyAmount > 0
+                ? $"{pricing.MonthlyAmount:0.00} RON / lună"
+                : "-";
+
+            var adjustmentsTotal = act.Items
+               .Where(i =>
+                   (i.Type == AdditionalActType.AddDiscount ||
+                    i.Type == AdditionalActType.IncreasePrice) &&
+                   decimal.TryParse(i.NewValue, out _))
+               .Sum(i =>
+               {
+                   var value = decimal.Parse(i.NewValue);
+               
+                   return i.Type == AdditionalActType.AddDiscount
+                       ? -value
+                       : value;
+               });
+
+            var discount = adjustmentsTotal != 0
+                ? $"{adjustmentsTotal:+0.00;-0.00} RON"
+                : "-";
+
+            var totalLabel = contract.IsUnlimited
+                ? "Total pachet"
+                : "Total contract";
+
+            var total = pricing.TotalAmount.HasValue
+                ? $"{pricing.TotalAmount.Value:0.00} RON"
+                : "-";
+
+            var paymentPlan = "Ratele viitoare se actualizează începând cu data aplicării actului adițional.";
+
+            var changesPrice =
+               act.Items.Any(i =>
+                   i.Type == AdditionalActType.AddCourse ||
+                   i.Type == AdditionalActType.RemoveCourse ||
+                   i.Type == AdditionalActType.AddDiscount ||
+                   i.Type == AdditionalActType.IncreasePrice
+               );
 
             var values = new Dictionary<string, string>
             {
@@ -498,12 +694,22 @@ namespace ERPSystem.Modules.AdditionalAct
                 ["Changes"] = changes,
                 ["EffectiveDate"] = effectiveDate,
 
-                ["Total"] = contract.TotalAmount.HasValue ? $"{contract.TotalAmount.Value:0.00} RON" : "-",
-
-                ["MonthlyAmount"] = $"{contract.MonthlyAmount:0.00} RON",
+                ["Total"] = total,
+                ["MonthlyAmount"] = monthlyAmount,
 
                 ["ContractEndDate"] = contract.EndDate.HasValue  ? contract.EndDate.Value.ToString("dd.MM.yyyy") : "Nelimitat",
 
+                ["PricingSection"] = changesPrice
+                        ? $@"
+                    <h3>IV. PREȚUL ACTUALIZAT AL CONTRACTULUI</h3>
+                    <p>Tip contract: {contractType}</p>
+                    <p>Subtotal actualizat: {subtotal}</p>
+                    <p>Pachet fix actualizat: {packageAmount}</p>
+                    <p>Abonament lunar actualizat: {monthlyAmount}</p>
+                    <p>Discount / ajustări aplicate: {discount}</p>
+                    <p><strong>{totalLabel}: {total}</strong></p>
+                    <p>{paymentPlan}</p>"
+                        : "",
                 ["AdminSignDate"] = contract.AdminSignedAtUtc?.ToString("dd.MM.yyyy") ?? "",
                 ["ClientSignDate"] = contract.ClientSignedAtUtc?.ToString("dd.MM.yyyy") ?? ""
             };
@@ -516,15 +722,20 @@ namespace ERPSystem.Modules.AdditionalAct
             var response = new PublicResponse(true);
 
             var act = await _db.ContractAdditionalAct
-              .Include(a => a.Contract)
-                  .ThenInclude(c => c.InstallmentsList)
-              .Include(a => a.Contract)
-                  .ThenInclude(c => c.Discounts)
-              .Include(a => a.Contract)
-                  .ThenInclude(c => c.PriceAdjustments)
-                      .ThenInclude(p => p.CourseSession)
-              .Include(a => a.Items)
-              .FirstOrDefaultAsync(a => a.Id == actId);
+                .Include(a => a.Contract)
+                    .ThenInclude(c => c.Parties)
+                .Include(a => a.Contract)
+                    .ThenInclude(c => c.Courses)
+                .Include(a => a.Contract)
+                    .ThenInclude(c => c.InstallmentsList)
+                .Include(a => a.Contract)
+                    .ThenInclude(c => c.Discounts)
+                .Include(a => a.Contract)
+                    .ThenInclude(c => c.PriceAdjustments)
+                        .ThenInclude(p => p.CourseSession)
+                .Include(a => a.Items)
+                .FirstOrDefaultAsync(a => a.Id == actId);
+              
 
             if (act == null)
                 return response.SetError(ErrorCodes.InvalidParameters, "Act not found");
@@ -540,6 +751,14 @@ namespace ERPSystem.Modules.AdditionalAct
             if (contract.Status != ContractStatus.Active)
                 return response.SetError(ErrorCodes.InvalidParameters, "Contract not active");
 
+            var studentId = contract.Parties
+                .Where(p => p.StudentId.HasValue)
+                .Select(p => p.StudentId!.Value)
+                .FirstOrDefault();
+
+            if (studentId == 0)
+                return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+
             foreach (var item in act.Items)
             {
                 switch (item.Type)
@@ -550,16 +769,42 @@ namespace ERPSystem.Modules.AdditionalAct
                                 return response.SetError(ErrorCodes.InvalidParameters, "Course required");
 
                             var enrollment = await _db.CourseEnrollments
+                                .Include(e => e.Session)
+                                    .ThenInclude(s => s.Course)
                                 .FirstOrDefaultAsync(e =>
                                     e.CourseSessionId == item.CourseSessionId.Value &&
-                                    e.StudentId != null &&
+                                    e.StudentId == studentId &&
                                     e.ContractId == null &&
                                     e.IsActive);
 
                             if (enrollment == null)
-                                return response.SetError(ErrorCodes.InvalidParameters, "Enrollment not found or already in contract");
+                                return response.SetError(
+                                    ErrorCodes.InvalidParameters,
+                                    "Enrollment not found or already in contract"
+                                );
+
+                            var alreadyInContractCourses = await _db.ContractCourses
+                                .AnyAsync(c =>
+                                    c.ContractId == contract.Id &&
+                                    c.CourseSessionId == item.CourseSessionId.Value);
+
+                            if (alreadyInContractCourses)
+                                return response.SetError(
+                                    ErrorCodes.InvalidParameters,
+                                    "Course already exists in contract"
+                                );
 
                             enrollment.ContractId = contract.Id;
+
+                            _db.ContractCourses.Add(new ContractCourse
+                            {
+                                ContractId = contract.Id,
+                                CourseSessionId = enrollment.Session.Id,
+                                CourseNameSnapshot = enrollment.Session.Course.Name,
+                                SessionNameSnapshot = enrollment.Session.Title,
+                                PriceSnapshot = enrollment.Session.Fee,
+                                FeeType = enrollment.Session.FeeType
+                            });
 
                             break;
                         }
@@ -575,6 +820,14 @@ namespace ERPSystem.Modules.AdditionalAct
                                     e.ContractId == contract.Id &&
                                     !e.IsActive);
 
+                            var contractCourse = await _db.ContractCourses
+                             .FirstOrDefaultAsync(c =>
+                                 c.ContractId == contract.Id &&
+                                 c.CourseSessionId == item.CourseSessionId.Value);
+
+                            if (contractCourse != null)
+                                _db.ContractCourses.Remove(contractCourse);
+
                             if (existing == null)
                                 return response.SetError(ErrorCodes.InvalidParameters, "Removed course not found in contract");
 
@@ -588,7 +841,11 @@ namespace ERPSystem.Modules.AdditionalAct
                             if (!DateTime.TryParse(item.NewValue, out var newDate))
                                 return response.SetError(ErrorCodes.InvalidParameters, "Invalid end date");
 
-                            contract.EndDate = newDate;
+                            if (DateTime.TryParse(item.NewValue, out var newEndDate))
+                            {
+                                contract.EndDate = newEndDate;
+                                contract.IsUnlimited = false;
+                            }
                             break;
                         }
 
@@ -600,6 +857,14 @@ namespace ERPSystem.Modules.AdditionalAct
                             if (!decimal.TryParse(item.NewValue, out var discount) || discount <= 0)
                                 return response.SetError(ErrorCodes.InvalidParameters, "Invalid discount");
 
+                            var contractCourse = await _db.ContractCourses
+                                .FirstOrDefaultAsync(c =>
+                                    c.ContractId == contract.Id &&
+                                    c.CourseSessionId == item.CourseSessionId.Value);
+
+                            if (contractCourse == null)
+                                return response.SetError(ErrorCodes.InvalidParameters, "Course not found in contract");
+
                             contract.PriceAdjustments.Add(new ContractPriceAdjustment
                             {
                                 ContractId = contract.Id,
@@ -609,6 +874,8 @@ namespace ERPSystem.Modules.AdditionalAct
                                 Reason = $"Act adițional {act.ActNumber}",
                                 CreatedAtUtc = DateTime.UtcNow
                             });
+
+                            contractCourse.PriceSnapshot = Math.Max(0, contractCourse.PriceSnapshot - discount);
 
                             break;
                         }
@@ -621,6 +888,14 @@ namespace ERPSystem.Modules.AdditionalAct
                             if (!decimal.TryParse(item.NewValue, out var increase) || increase <= 0)
                                 return response.SetError(ErrorCodes.InvalidParameters, "Invalid increase");
 
+                            var contractCourse = await _db.ContractCourses
+                                .FirstOrDefaultAsync(c =>
+                                    c.ContractId == contract.Id &&
+                                    c.CourseSessionId == item.CourseSessionId.Value);
+
+                            if (contractCourse == null)
+                                return response.SetError(ErrorCodes.InvalidParameters, "Course not found in contract");
+
                             contract.PriceAdjustments.Add(new ContractPriceAdjustment
                             {
                                 ContractId = contract.Id,
@@ -631,6 +906,8 @@ namespace ERPSystem.Modules.AdditionalAct
                                 CreatedAtUtc = DateTime.UtcNow
                             });
 
+                            contractCourse.PriceSnapshot += increase;
+
                             break;
                         }
 
@@ -639,17 +916,7 @@ namespace ERPSystem.Modules.AdditionalAct
                 }
             }
 
-            var activeSessionIds = await _db.CourseEnrollments
-                .Where(e => e.ContractId == contract.Id && e.IsActive)
-                .Select(e => e.CourseSessionId)
-                .Distinct()
-                .ToListAsync();
-
-            var sessions = await _db.CourseSessions
-                .Where(s => activeSessionIds.Contains(s.Id))
-                .ToListAsync();
-
-            var pricing = _pricingService.CalculatePricing(sessions, contract);
+            var pricing = _pricingService.CalculatePricingFromContractCourses(contract);
 
             var appliedDate = DateTime.UtcNow.Date;
 
@@ -669,10 +936,11 @@ namespace ERPSystem.Modules.AdditionalAct
             _db.ContractInstallments.RemoveRange(unpaidInstallments);
 
             var newInstallments = _installmentService.BuildInstallmentsForRemainingPeriod(
-               installmentStartDate,
-               contract.EndDate ?? installmentStartDate,
-               contract.IsUnlimited,
-               pricing
+                installmentStartDate,
+                contract.EndDate ?? installmentStartDate,
+                contract.IsUnlimited,
+                contract.Installments,
+                pricing
             );
 
             foreach (var installment in newInstallments)
@@ -707,7 +975,7 @@ namespace ERPSystem.Modules.AdditionalAct
             return response.SetSuccess();
         }
 
-        private async Task<(List<ContractAdditionalActItem> Items, string Description)> BuildAdditionalActItemsAsync( StudentContract contract, CreateAdditionalActDto dto, int? actId = null)
+        private async Task<(List<ContractAdditionalActItem> Items, string Description)> BuildAdditionalActItemsAsync(StudentContract contract, CreateAdditionalActDto dto, int? actId = null)
         {
             var items = new List<ContractAdditionalActItem>();
             var descriptions = new List<string>();
@@ -723,21 +991,19 @@ namespace ERPSystem.Modules.AdditionalAct
             if (studentId == 0)
                 throw new InvalidOperationException("Student not found");
 
-            var workingMonthly = contract.MonthlyAmount;
-            var workingTotal = contract.TotalAmount;
-
             var selectedSessionIds = dto.AddCourseSessionIds
-              .Concat(dto.RemoveCourseSessionIds)
-              .Distinct()
-              .ToList();
+                .Concat(dto.RemoveCourseSessionIds)
+                .Concat(dto.PriceAdjustments?.Select(x => x.CourseSessionId) ?? Enumerable.Empty<int>())
+                .Where(x => x > 0)
+                .Distinct()
+                .ToList();
 
             var openActStatuses = new[]
-            {
-                  AdditionalActStatus.Draft,
-                  AdditionalActStatus.Finalized,
-                  AdditionalActStatus.SentToClient,
-                  AdditionalActStatus.SignedByClient
-              };
+               { 
+                AdditionalActStatus.Draft, 
+                AdditionalActStatus.Finalized, 
+                AdditionalActStatus.SentToClient, 
+                AdditionalActStatus.SignedByClient  };
 
             if (selectedSessionIds.Any())
             {
@@ -762,7 +1028,7 @@ namespace ERPSystem.Modules.AdditionalAct
                 {
                     case AdditionalActType.AddCourse:
                         {
-                            if (!dto.AddCourseSessionIds.Any())
+                            if (dto.AddCourseSessionIds == null || !dto.AddCourseSessionIds.Any())
                                 throw new InvalidOperationException("Course required");
 
                             foreach (var sessionId in dto.AddCourseSessionIds.Distinct())
@@ -781,12 +1047,12 @@ namespace ERPSystem.Modules.AdditionalAct
                                 if (enrollment.ContractId != null)
                                     throw new InvalidOperationException("Already in contract");
 
-                                var price = enrollment.Session.Fee;
+                                var session = enrollment.Session;
+                                var price = session.Fee;
 
-                                workingMonthly += price;
-
-                                if (workingTotal.HasValue)
-                                    workingTotal += price;
+                                var typeLabel = session.FeeType == CourseFeeType.Monthly
+                                    ? "abonament lunar"
+                                    : "pachet fix";
 
                                 items.Add(new ContractAdditionalActItem
                                 {
@@ -796,7 +1062,10 @@ namespace ERPSystem.Modules.AdditionalAct
                                     NewValue = price.ToString("0.00")
                                 });
 
-                                descriptions.Add($"Adăugat curs: {enrollment.Session.Course.Name} (+{price:0.00} RON)");
+                                descriptions.Add(
+                                    $"Curs adăugat: {session.Course.Name} - {session.Title} " +
+                                    $"({typeLabel}): +{price:0.00} RON"
+                                );
                             }
 
                             break;
@@ -804,28 +1073,34 @@ namespace ERPSystem.Modules.AdditionalAct
 
                     case AdditionalActType.RemoveCourse:
                         {
-                            if (!dto.RemoveCourseSessionIds.Any())
+                            if (dto.RemoveCourseSessionIds == null || !dto.RemoveCourseSessionIds.Any())
                                 throw new InvalidOperationException("Course required");
 
                             foreach (var sessionId in dto.RemoveCourseSessionIds.Distinct())
                             {
+                                var contractCourse = await _db.ContractCourses
+                                    .FirstOrDefaultAsync(c =>
+                                        c.ContractId == contract.Id &&
+                                        c.CourseSessionId == sessionId);
+
+                                if (contractCourse == null)
+                                    throw new InvalidOperationException("Course not found in contract");
+
                                 var existingEnrollment = await _db.CourseEnrollments
-                                    .Include(e => e.Session)
-                                        .ThenInclude(s => s.Course)
                                     .FirstOrDefaultAsync(e =>
                                         e.CourseSessionId == sessionId &&
                                         e.ContractId == contract.Id &&
+                                        e.StudentId == studentId &&
                                         !e.IsActive);
 
                                 if (existingEnrollment == null)
-                                    throw new InvalidOperationException("Course not removed from contract");
+                                    throw new InvalidOperationException("Course enrollment not found in contract");
 
-                                var price = existingEnrollment.Session.Fee;
+                                var price = contractCourse.PriceSnapshot;
 
-                                workingMonthly = Math.Max(0, workingMonthly - price);
-
-                                if (workingTotal.HasValue)
-                                    workingTotal = Math.Max(0, workingTotal.Value - price);
+                                var typeLabel = contractCourse.FeeType == CourseFeeType.Monthly
+                                    ? "abonament lunar"
+                                    : "pachet fix";
 
                                 items.Add(new ContractAdditionalActItem
                                 {
@@ -835,7 +1110,10 @@ namespace ERPSystem.Modules.AdditionalAct
                                     NewValue = price.ToString("0.00")
                                 });
 
-                                descriptions.Add($"Eliminat curs: {existingEnrollment.Session.Course.Name} (-{price:0.00} RON)");
+                                descriptions.Add(
+                                    $"Curs eliminat: {contractCourse.CourseNameSnapshot} - {contractCourse.SessionNameSnapshot} " +
+                                    $"({typeLabel}): -{price:0.00} RON"
+                                );
                             }
 
                             break;
@@ -847,10 +1125,8 @@ namespace ERPSystem.Modules.AdditionalAct
                                 throw new InvalidOperationException("New date required");
 
                             if (contract.EndDate.HasValue &&
-                                dto.NewEndDate.Value <= contract.EndDate.Value)
-                            {
+                                dto.NewEndDate.Value.Date <= contract.EndDate.Value.Date)
                                 throw new InvalidOperationException("New end date must be after current end date");
-                            }
 
                             items.Add(new ContractAdditionalActItem
                             {
@@ -859,13 +1135,7 @@ namespace ERPSystem.Modules.AdditionalAct
                                 NewValue = dto.NewEndDate.Value.ToString("yyyy-MM-dd")
                             });
 
-                            if (workingTotal.HasValue)
-                            {
-                                var months = CalculateMonths(contract.StartDate, dto.NewEndDate.Value);
-                                workingTotal = workingMonthly * months;
-                            }
-
-                            descriptions.Add($"Extins până la {dto.NewEndDate.Value:dd.MM.yyyy}");
+                            descriptions.Add($"Perioadă extinsă până la {dto.NewEndDate.Value:dd.MM.yyyy}");
 
                             break;
                         }
@@ -880,6 +1150,17 @@ namespace ERPSystem.Modules.AdditionalAct
                                 if (adj.CourseSessionId <= 0 || adj.Amount <= 0)
                                     throw new InvalidOperationException("Invalid discount");
 
+                                var session = await _db.CourseSessions
+                                    .Include(s => s.Course)
+                                    .FirstOrDefaultAsync(s => s.Id == adj.CourseSessionId);
+
+                                if (session == null)
+                                    throw new InvalidOperationException("Course session not found");
+
+                                var typeLabel = session.FeeType == CourseFeeType.Monthly
+                                    ? "abonament lunar"
+                                    : "pachet fix";
+
                                 items.Add(new ContractAdditionalActItem
                                 {
                                     ActId = actId ?? 0,
@@ -888,7 +1169,10 @@ namespace ERPSystem.Modules.AdditionalAct
                                     NewValue = adj.Amount.ToString("0.00")
                                 });
 
-                                descriptions.Add($"Discount aplicat pentru sesiunea #{adj.CourseSessionId}: -{adj.Amount:0.00} RON");
+                                descriptions.Add(
+                                    $"Discount aplicat pentru {session.Course.Name} - {session.Title} " +
+                                    $"({typeLabel}): -{adj.Amount:0.00} RON"
+                                );
                             }
 
                             break;
@@ -904,6 +1188,17 @@ namespace ERPSystem.Modules.AdditionalAct
                                 if (adj.CourseSessionId <= 0 || adj.Amount <= 0)
                                     throw new InvalidOperationException("Invalid increase");
 
+                                var session = await _db.CourseSessions
+                                    .Include(s => s.Course)
+                                    .FirstOrDefaultAsync(s => s.Id == adj.CourseSessionId);
+
+                                if (session == null)
+                                    throw new InvalidOperationException("Course session not found");
+
+                                var typeLabel = session.FeeType == CourseFeeType.Monthly
+                                    ? "abonament lunar"
+                                    : "pachet fix";
+
                                 items.Add(new ContractAdditionalActItem
                                 {
                                     ActId = actId ?? 0,
@@ -912,7 +1207,10 @@ namespace ERPSystem.Modules.AdditionalAct
                                     NewValue = adj.Amount.ToString("0.00")
                                 });
 
-                                descriptions.Add($"Majorare aplicată pentru sesiunea #{adj.CourseSessionId}: +{adj.Amount:0.00} RON");
+                                descriptions.Add(
+                                    $"Majorare preț pentru {session.Course.Name} - {session.Title} " +
+                                    $"({typeLabel}): +{adj.Amount:0.00} RON"
+                                );
                             }
 
                             break;
@@ -925,11 +1223,8 @@ namespace ERPSystem.Modules.AdditionalAct
 
             return (items, string.Join(" | ", descriptions));
         }
+       
 
-        private int CalculateMonths(DateTime start, DateTime end)
-        {
-            return (end.Year - start.Year) * 12 +
-                   (end.Month - start.Month) + 1;
-        }
+
     }
 }

@@ -4,17 +4,44 @@ using ERPSystem.Utils.Enums;
 
 public class ContractPricingService
 {
-    public PricingResult CalculatePricing( List<CourseSession> sessions,  StudentContract contract)
+    public decimal CalculateCourseSnapshotPrice(  CourseSession session,  List<CourseSession> allSessions,  StudentContract contract)
+    {
+        var price = session.Fee;
+
+        foreach (var discount in contract.Discounts)
+        {
+            switch (discount.Scope)
+            {
+                case DiscountScope.Package:
+                    if (session.FeeType == CourseFeeType.FixedPackage)
+                        price = ApplyCourseDiscountValue(price, discount);
+                    break;
+
+                case DiscountScope.Subscription:
+                    if (session.FeeType == CourseFeeType.Monthly)
+                        price = ApplyCourseDiscountValue(price, discount);
+                    break;
+
+                case DiscountScope.Total:
+                    price = ApplyTotalDiscountToCourse(session, allSessions, contract, discount, price);
+                    break;
+            }
+        }
+
+        return Math.Max(0, Math.Round(price, 2));
+    }
+
+    public PricingResult CalculatePricingFromContractCourses(StudentContract contract)
     {
         var result = new PricingResult
         {
-            PackageAmount = sessions
-                .Where(s => s.FeeType == CourseFeeType.FixedPackage)
-                .Sum(s => s.Fee),
+            PackageAmount = contract.Courses
+                .Where(c => c.FeeType == CourseFeeType.FixedPackage)
+                .Sum(c => c.PriceSnapshot),
 
-            MonthlyAmount = sessions
-                .Where(s => s.FeeType == CourseFeeType.Monthly)
-                .Sum(s => s.Fee),
+            MonthlyAmount = contract.Courses
+                .Where(c => c.FeeType == CourseFeeType.Monthly)
+                .Sum(c => c.PriceSnapshot),
 
             Months = !contract.IsUnlimited && contract.EndDate.HasValue
                 ? ((contract.EndDate.Value.Year - contract.StartDate.Year) * 12)
@@ -24,16 +51,6 @@ public class ContractPricingService
                 : 0
         };
 
-        foreach (var adjustment in contract.PriceAdjustments ?? new List<ContractPriceAdjustment>())
-        {
-            ApplyPriceAdjustment(result, adjustment, sessions);
-        }
-
-        foreach (var discount in contract.Discounts ?? new List<ContractDiscount>())
-        {
-            ApplyDiscount(result, discount, contract.IsUnlimited);
-        }
-
         result.TotalAmount = contract.IsUnlimited
             ? result.PackageAmount > 0 ? result.PackageAmount : null
             : result.PackageAmount + result.MonthlyAmount * result.Months;
@@ -41,46 +58,46 @@ public class ContractPricingService
         return result;
     }
 
-    private static void ApplyDiscount( PricingResult result, ContractDiscount discount, bool isUnlimited)
+    private static decimal ApplyTotalDiscountToCourse( CourseSession session, List<CourseSession> allSessions,  StudentContract contract, ContractDiscount discount, decimal price)
     {
-        switch (discount.Scope)
-        {
-            case DiscountScope.Package:
-                result.PackageAmount = ApplyDiscountValue(result.PackageAmount, discount, result);
-                break;
+        if (discount.Type == DiscountType.Percentage)
+            return ApplyCourseDiscountValue(price, discount);
 
-            case DiscountScope.Subscription:
-                result.MonthlyAmount = ApplyDiscountValue(result.MonthlyAmount, discount, result);
-                break;
+        var months = !contract.IsUnlimited && contract.EndDate.HasValue
+            ? ((contract.EndDate.Value.Year - contract.StartDate.Year) * 12)
+              + contract.EndDate.Value.Month
+              - contract.StartDate.Month
+              + 1
+            : 0;
 
-            case DiscountScope.Total:
-                if (isUnlimited)
-                {
-                    if (result.PackageAmount > 0)
-                        result.PackageAmount = ApplyDiscountValue(result.PackageAmount, discount, result);
+        var packageTotal = allSessions
+            .Where(s => s.FeeType == CourseFeeType.FixedPackage)
+            .Sum(s => s.Fee);
 
-                    if (result.MonthlyAmount > 0)
-                        result.MonthlyAmount = ApplyDiscountValue(result.MonthlyAmount, discount, result);
-                }
-                else
-                {
-                    var total = result.PackageAmount + result.MonthlyAmount * result.Months;
-                    var discountedTotal = ApplyDiscountValue(total, discount, result);
+        var monthlyTotal = allSessions
+            .Where(s => s.FeeType == CourseFeeType.Monthly)
+            .Sum(s => s.Fee);
 
-                    if (total > 0)
-                    {
-                        var ratio = discountedTotal / total;
+        var total = contract.IsUnlimited
+            ? packageTotal + monthlyTotal
+            : packageTotal + monthlyTotal * months;
 
-                        result.PackageAmount = Math.Round(result.PackageAmount * ratio, 2);
-                        result.MonthlyAmount = Math.Round(result.MonthlyAmount * ratio, 2);
-                    }
-                }
+        if (total <= 0)
+            return price;
 
-                break;
-        }
+        var courseTotalWeight = session.FeeType == CourseFeeType.Monthly
+            ? session.Fee * months
+            : session.Fee;
+
+        var allocatedDiscount = discount.Value * courseTotalWeight / total;
+
+        if (session.FeeType == CourseFeeType.Monthly && months > 0)
+            allocatedDiscount /= months;
+
+        return Math.Max(0, Math.Round(price - allocatedDiscount, 2));
     }
 
-    private static decimal ApplyDiscountValue( decimal amount, ContractDiscount discount, PricingResult result)
+    private static decimal ApplyCourseDiscountValue( decimal amount, ContractDiscount discount)
     {
         if (amount <= 0 || discount.Value <= 0)
             return amount;
@@ -89,41 +106,6 @@ public class ContractPricingService
             ? amount - amount * (discount.Value / 100m)
             : amount - discount.Value;
 
-        var safeDiscounted = Math.Max(0, Math.Round(discounted, 2));
-        var diff = amount - safeDiscounted;
-
-        if (diff > 0)
-            result.DiscountTotal += diff;
-
-        return safeDiscounted;
-    }
-
-    private static void ApplyPriceAdjustment(  PricingResult result, ContractPriceAdjustment adjustment, List<CourseSession> sessions)
-    {
-        if (adjustment.Amount <= 0)
-            return;
-
-        var session = sessions.FirstOrDefault(s => s.Id == adjustment.CourseSessionId);
-
-        if (session == null)
-            return;
-
-        var signedAmount = adjustment.Type == PriceAdjustmentType.Increase
-            ? adjustment.Amount
-            : -adjustment.Amount;
-
-        if (session.FeeType == CourseFeeType.Monthly)
-        {
-            result.MonthlyAmount = Math.Max(0, result.MonthlyAmount + signedAmount);
-        }
-        else
-        {
-            result.PackageAmount = Math.Max(0, result.PackageAmount + signedAmount);
-        }
-
-        if (adjustment.Type == PriceAdjustmentType.Discount)
-        {
-            result.DiscountTotal += adjustment.Amount;
-        }
+        return Math.Max(0, Math.Round(discounted, 2));
     }
 }

@@ -34,6 +34,7 @@ public class ContractDetailsDto
 {
     public int Id { get; set; }
     public string ContractNumber { get; set; } = default!;
+    public int? StudentId { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public bool IsUnlimited { get; set; }
