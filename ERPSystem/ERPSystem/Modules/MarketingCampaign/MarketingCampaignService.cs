@@ -6,8 +6,6 @@ using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Enums;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-
 
 public class MarketingCampaignService 
 {

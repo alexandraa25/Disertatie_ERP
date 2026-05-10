@@ -2,18 +2,24 @@
 {
     public class EmailConstants
     {
-        public const string FIRST_NAME = "FIRST_NAME";
-        public const string CONFIRMATION_EMAIL_URL = "CONFIRMATION_EMAIL_URL";
-        public const string YEAR = "YEAR";
-        public const string CONFIRMATION_LOGIN_CODE = "CONFIRMATION_LOGIN_CODE";
-        public const string FORGOT_PASSWORD_URL = "FORGOT_PASSWORD_URL";
-        public const string EMAIL = "EMAIL";
-        public const string PASSWORD = "PASSWORD";
-        public const string CLIENT_NAME = "{{ClientName}}";
-        public const string CONTRACT_NUMBER = "{{ContractNumber}}"; 
-        public const string ACT_NUMBER = "{{ActNumber}}";
-        public const string DESCRIPTION = "{{Description}}";
-        public const string SIGN_URL = "{{SignLink}}";
+        public const string FIRST_NAME = "{{FIRST_NAME}}";
+        public const string EMAIL = "{{EMAIL}}";
+        public const string PASSWORD = "{{PASSWORD}}";
+        public const string YEAR = "{{YEAR}}";
+
+        public const string CONFIRMATION_EMAIL_URL = "{{CONFIRMATION_EMAIL_URL}}";
+        public const string CONFIRMATION_LOGIN_CODE = "{{CONFIRMATION_LOGIN_CODE}}";
+        public const string FORGOT_PASSWORD_URL = "{{FORGOT_PASSWORD_URL}}";
+
+        public const string CLIENT_NAME = "{{CLIENT_NAME}}";
+        public const string CONTRACT_NUMBER = "{{CONTRACT_NUMBER}}";
+        public const string COURSE_LIST = "{{COURSE_LIST}}";
+
+        public const string ACT_NUMBER = "{{ACT_NUMBER}}";
+        public const string DESCRIPTION = "{{DESCRIPTION}}";
+
+        public const string SIGN_URL = "{{SIGN_URL}}";
+
         public const string CAMPAIGN_NAME = "{{CAMPAIGN_NAME}}";
         public const string CAMPAIGN_DESCRIPTION = "{{CAMPAIGN_DESCRIPTION}}";
         public const string CAMPAIGN_SESSIONS = "{{CAMPAIGN_SESSIONS}}";

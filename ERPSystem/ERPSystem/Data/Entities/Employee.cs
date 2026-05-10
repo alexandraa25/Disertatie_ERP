@@ -46,7 +46,6 @@ namespace ERPSystem.Data.Entities
         // zile rămase din anul trecut
         public int CarryOverDays { get; set; } = 0;
 
-        public ICollection<EmployeeContract>? Contracts { get; set; }
 
         public ICollection<EmployeeLeave>? Leaves { get; set; }
 

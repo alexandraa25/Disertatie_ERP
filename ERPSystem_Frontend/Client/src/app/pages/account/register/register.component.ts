@@ -6,14 +6,14 @@ import { AuthService } from '../../services/auth.service';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 import { ViewChild } from '@angular/core';
-import { InfoModalComponent } from '../../../components/info-modal/info-modal.component';
+
 
 @Component({
   selector: 'app-register',
   standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [CommonModule, ReactiveFormsModule, MatSnackBarModule, InfoModalComponent]
+  imports: [CommonModule, ReactiveFormsModule, MatSnackBarModule]
 
 })
 export class RegisterComponent implements OnInit {
@@ -22,8 +22,7 @@ export class RegisterComponent implements OnInit {
   isLoading = false;
   errorAnim = false;
   roles: any[] = [];
-  @ViewChild(InfoModalComponent, { static: false })
-  infoModal!: InfoModalComponent;
+
 
   jobTitleFromQuery: string | null = null;
 
@@ -154,15 +153,6 @@ export class RegisterComponent implements OnInit {
         1800
       );
 
-      this.infoModal.open(
-        'Utilizator creat cu succes',
-        'Parola temporară a fost generată',
-        randomPassword
-      );
-
-      this.infoModal.closed.subscribe(() => {
-        this.onModalConfirmed(true);
-      });
     },
     error: () => {
       this.isLoading = false;

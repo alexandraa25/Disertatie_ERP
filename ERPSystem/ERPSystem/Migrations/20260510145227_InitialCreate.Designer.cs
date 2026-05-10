@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ERPSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260326201343_UpdateCreateContract")]
-    partial class UpdateCreateContract
+    [Migration("20260510145227_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.0")
+                .HasAnnotation("ProductVersion", "10.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -46,8 +46,9 @@ namespace ERPSystem.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("EntityId")
-                        .HasColumnType("int");
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("EntityType")
                         .IsRequired()
@@ -240,6 +241,9 @@ namespace ERPSystem.Migrations
                     b.Property<DateTime?>("AdminSignedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("AppliedAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Body")
                         .HasColumnType("nvarchar(max)");
 
@@ -360,6 +364,9 @@ namespace ERPSystem.Migrations
                     b.Property<int>("ContractId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("MarketingCampaignId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Reason")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -378,6 +385,8 @@ namespace ERPSystem.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ContractId");
+
+                    b.HasIndex("MarketingCampaignId");
 
                     b.ToTable("ContractDiscounts");
                 });
@@ -403,6 +412,9 @@ namespace ERPSystem.Migrations
                     b.Property<decimal>("PaidAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -440,6 +452,41 @@ namespace ERPSystem.Migrations
                     b.HasIndex("StudentId");
 
                     b.ToTable("ContractParties");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.ContractPriceAdjustment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ContractId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CourseSessionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContractId");
+
+                    b.HasIndex("CourseSessionId");
+
+                    b.ToTable("ContractPriceAdjustments");
                 });
 
             modelBuilder.Entity("ERPSystem.Data.Entities.ContractTemplate", b =>
@@ -480,11 +527,17 @@ namespace ERPSystem.Migrations
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
@@ -542,6 +595,89 @@ namespace ERPSystem.Migrations
                     b.ToTable("CourseEnrollments");
                 });
 
+            modelBuilder.Entity("ERPSystem.Data.Entities.CourseReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("AnalyzedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double?>("BehaviorScore")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CoursePaceRating")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("CourseScore")
+                        .HasColumnType("float");
+
+                    b.Property<int>("CourseSessionId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CourseStructureRating")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Emotion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("FeedbackFormId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Keywords")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("MaterialsRating")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NegativePercent")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NeutralPercent")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PositivePercent")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Sentiment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("SentimentScore")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("TeacherClarityRating")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TeacherEngagementRating")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("TeacherScore")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("TeacherSupportRating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TopicsJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CourseReviews");
+                });
+
             modelBuilder.Entity("ERPSystem.Data.Entities.CourseSession", b =>
                 {
                     b.Property<int>("Id")
@@ -595,6 +731,92 @@ namespace ERPSystem.Migrations
                     b.ToTable("CourseSessions");
                 });
 
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmailLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("FailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("HtmlContent")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RecipientMode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ReferenceId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("SentCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TotalRecipients")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("EmailLogs");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmailRecipientLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EmailLogId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsSent")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmailLogId");
+
+                    b.ToTable("EmailRecipientLogs");
+                });
+
             modelBuilder.Entity("ERPSystem.Data.Entities.EmailTemplate", b =>
                 {
                     b.Property<int>("Id")
@@ -639,6 +861,9 @@ namespace ERPSystem.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("CarryOverDays")
+                        .HasColumnType("int");
+
                     b.Property<string>("ContractType")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -646,9 +871,16 @@ namespace ERPSystem.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("EmploymentStatus")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("HireDate")
                         .HasColumnType("datetime2");
@@ -657,6 +889,10 @@ namespace ERPSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
@@ -675,6 +911,9 @@ namespace ERPSystem.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("VacationDaysPerYear")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")
@@ -686,39 +925,88 @@ namespace ERPSystem.Migrations
                     b.ToTable("Employees");
                 });
 
-            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeContract", b =>
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeAddress", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("ContractType")
+                    b.Property<string>("City")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FileUrl")
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Salary")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeId");
+                    b.HasIndex("EmployeeId")
+                        .IsUnique();
 
-                    b.ToTable("EmployeeContracts");
+                    b.ToTable("EmployeeAddress");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeBank", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("IBAN")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId")
+                        .IsUnique();
+
+                    b.ToTable("EmployeeBank");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeContact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EmergencyContactName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EmergencyContactPhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId")
+                        .IsUnique();
+
+                    b.ToTable("EmployeeContact");
                 });
 
             modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeDocument", b =>
@@ -727,6 +1015,10 @@ namespace ERPSystem.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("DocumentType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -734,7 +1026,11 @@ namespace ERPSystem.Migrations
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("FileUrl")
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -773,6 +1069,9 @@ namespace ERPSystem.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ReasonUpdate")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -785,6 +1084,41 @@ namespace ERPSystem.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("EmployeeLeaves");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.FeedbackForm", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CourseSessionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FeedbackForms");
                 });
 
             modelBuilder.Entity("ERPSystem.Data.Entities.Guardian", b =>
@@ -843,6 +1177,146 @@ namespace ERPSystem.Migrations
                     b.ToTable("Guardians");
                 });
 
+            modelBuilder.Entity("ERPSystem.Data.Entities.MarketingCampaign", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("DiscountScope")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DiscountType")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("DiscountValue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MarketingCampaigns");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.MarketingCampaignCourseSessions", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseSessionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MarketingCampaignId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseSessionId");
+
+                    b.HasIndex("MarketingCampaignId");
+
+                    b.ToTable("MarketingCampaignCourseSessions");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.Notification", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("EntityId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("EntityType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Link")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("SeenAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasDefaultValue("Info");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EntityType", "EntityId");
+
+                    b.HasIndex("UserId", "CreatedAt");
+
+                    b.HasIndex("UserId", "IsRead");
+
+                    b.HasIndex("UserId", "IsRead", "CreatedAt");
+
+                    b.ToTable("Notifications");
+                });
+
             modelBuilder.Entity("ERPSystem.Data.Entities.Payment", b =>
                 {
                     b.Property<int>("Id")
@@ -895,6 +1369,28 @@ namespace ERPSystem.Migrations
                     b.ToTable("Payments");
                 });
 
+            modelBuilder.Entity("ERPSystem.Data.Entities.PublicHoliday", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PublicHolidays");
+                });
+
             modelBuilder.Entity("ERPSystem.Data.Entities.SigningToken", b =>
                 {
                     b.Property<int>("Id")
@@ -945,6 +1441,9 @@ namespace ERPSystem.Migrations
                     b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
@@ -959,6 +1458,9 @@ namespace ERPSystem.Migrations
                         .HasColumnType("nvarchar(120)");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
@@ -1111,6 +1613,83 @@ namespace ERPSystem.Migrations
                     b.ToTable("StudentContracts");
                 });
 
+            modelBuilder.Entity("ERPSystem.Data.Entities.StudentEvaluation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("AnalyzedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("AttendanceScore")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("BehaviorScore")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("BehaviorScoreNlp")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CourseSessionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Emotion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Keywords")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("NegativePercent")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NeutralPercent")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PositivePercent")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProgressScore")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("ProgressScoreNlp")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Sentiment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("SentimentScore")
+                        .HasColumnType("float");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("StudentRiskScore")
+                        .HasColumnType("float");
+
+                    b.Property<string>("TeacherUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TopicsJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StudentEvaluations");
+                });
+
             modelBuilder.Entity("ERPSystem.Data.Entities.StudentGuardian", b =>
                 {
                     b.Property<int>("StudentId")
@@ -1171,6 +1750,70 @@ namespace ERPSystem.Migrations
                         .IsUnique();
 
                     b.ToTable("UserNotificationSettings");
+                });
+
+            modelBuilder.Entity("ExternalReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("AnalyzedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Emotion")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Keywords")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("NegativePercent")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NeutralPercent")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PositivePercent")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("PublicPerceptionScore")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Sentiment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("SentimentScore")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TargetId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TopicsJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ExternalReviews");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1355,7 +1998,14 @@ namespace ERPSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ERPSystem.Data.Entities.MarketingCampaign", "MarketingCampaign")
+                        .WithMany("ContractDiscounts")
+                        .HasForeignKey("MarketingCampaignId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.Navigation("Contract");
+
+                    b.Navigation("MarketingCampaign");
                 });
 
             modelBuilder.Entity("ERPSystem.Data.Entities.ContractInstallment", b =>
@@ -1394,6 +2044,23 @@ namespace ERPSystem.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("ERPSystem.Data.Entities.ContractPriceAdjustment", b =>
+                {
+                    b.HasOne("ERPSystem.Data.Entities.StudentContract", "Contract")
+                        .WithMany("PriceAdjustments")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ERPSystem.Data.Entities.CourseSession", "CourseSession")
+                        .WithMany()
+                        .HasForeignKey("CourseSessionId");
+
+                    b.Navigation("Contract");
+
+                    b.Navigation("CourseSession");
+                });
+
             modelBuilder.Entity("ERPSystem.Data.Entities.CourseEnrollment", b =>
                 {
                     b.HasOne("ERPSystem.Data.Entities.StudentContract", "Contract")
@@ -1413,7 +2080,7 @@ namespace ERPSystem.Migrations
                         .IsRequired();
 
                     b.HasOne("ERPSystem.Data.Entities.Student", "Student")
-                        .WithMany()
+                        .WithMany("Enrollments")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1446,6 +2113,17 @@ namespace ERPSystem.Migrations
                     b.Navigation("Teacher");
                 });
 
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmailRecipientLog", b =>
+                {
+                    b.HasOne("ERPSystem.Data.Entities.EmailLog", "EmailLog")
+                        .WithMany("Recipients")
+                        .HasForeignKey("EmailLogId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("EmailLog");
+                });
+
             modelBuilder.Entity("ERPSystem.Data.Entities.Employee", b =>
                 {
                     b.HasOne("ERPSystem.Data.Entities.ApplicationUser", "User")
@@ -1456,11 +2134,33 @@ namespace ERPSystem.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeContract", b =>
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeAddress", b =>
                 {
                     b.HasOne("ERPSystem.Data.Entities.Employee", "Employee")
-                        .WithMany("Contracts")
-                        .HasForeignKey("EmployeeId")
+                        .WithOne("Address")
+                        .HasForeignKey("ERPSystem.Data.Entities.EmployeeAddress", "EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeBank", b =>
+                {
+                    b.HasOne("ERPSystem.Data.Entities.Employee", "Employee")
+                        .WithOne("Bank")
+                        .HasForeignKey("ERPSystem.Data.Entities.EmployeeBank", "EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmployeeContact", b =>
+                {
+                    b.HasOne("ERPSystem.Data.Entities.Employee", "Employee")
+                        .WithOne("Contact")
+                        .HasForeignKey("ERPSystem.Data.Entities.EmployeeContact", "EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1487,6 +2187,34 @@ namespace ERPSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.MarketingCampaignCourseSessions", b =>
+                {
+                    b.HasOne("ERPSystem.Data.Entities.CourseSession", "CourseSession")
+                        .WithMany()
+                        .HasForeignKey("CourseSessionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("ERPSystem.Data.Entities.MarketingCampaign", "MarketingCampaign")
+                        .WithMany("CourseSessions")
+                        .HasForeignKey("MarketingCampaignId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CourseSession");
+
+                    b.Navigation("MarketingCampaign");
+                });
+
+            modelBuilder.Entity("ERPSystem.Data.Entities.Notification", b =>
+                {
+                    b.HasOne("ERPSystem.Data.Entities.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ERPSystem.Data.Entities.Payment", b =>
@@ -1599,9 +2327,18 @@ namespace ERPSystem.Migrations
                     b.Navigation("Enrollments");
                 });
 
+            modelBuilder.Entity("ERPSystem.Data.Entities.EmailLog", b =>
+                {
+                    b.Navigation("Recipients");
+                });
+
             modelBuilder.Entity("ERPSystem.Data.Entities.Employee", b =>
                 {
-                    b.Navigation("Contracts");
+                    b.Navigation("Address");
+
+                    b.Navigation("Bank");
+
+                    b.Navigation("Contact");
 
                     b.Navigation("Documents");
 
@@ -1613,8 +2350,17 @@ namespace ERPSystem.Migrations
                     b.Navigation("StudentGuardians");
                 });
 
+            modelBuilder.Entity("ERPSystem.Data.Entities.MarketingCampaign", b =>
+                {
+                    b.Navigation("ContractDiscounts");
+
+                    b.Navigation("CourseSessions");
+                });
+
             modelBuilder.Entity("ERPSystem.Data.Entities.Student", b =>
                 {
+                    b.Navigation("Enrollments");
+
                     b.Navigation("StudentGuardians");
                 });
 
@@ -1629,6 +2375,8 @@ namespace ERPSystem.Migrations
                     b.Navigation("InstallmentsList");
 
                     b.Navigation("Parties");
+
+                    b.Navigation("PriceAdjustments");
                 });
 #pragma warning restore 612, 618
         }

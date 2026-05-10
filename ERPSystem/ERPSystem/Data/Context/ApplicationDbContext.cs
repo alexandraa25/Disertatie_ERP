@@ -47,7 +47,6 @@ namespace ERPSystem.Data.Context
 
         public DbSet<EmployeeBank> EmployeeBank { get; set; }
 
-        public DbSet<EmployeeContract> EmployeeContracts { get; set; }
         public DbSet<EmployeeLeave> EmployeeLeaves { get; set; }
         public DbSet<EmployeeDocument> EmployeeDocuments { get; set; }
 
@@ -411,12 +410,6 @@ namespace ERPSystem.Data.Context
                .Property(x => x.Salary)
                .HasPrecision(18, 2);
              
-            modelBuilder.Entity<EmployeeContract>()
-               .HasOne(x => x.Employee)
-               .WithMany(x => x.Contracts)
-               .HasForeignKey(x => x.EmployeeId)
-               .OnDelete(DeleteBehavior.Cascade);
-
             modelBuilder.Entity<EmployeeLeave>()
                .HasOne(x => x.Employee)
                .WithMany(x => x.Leaves)
