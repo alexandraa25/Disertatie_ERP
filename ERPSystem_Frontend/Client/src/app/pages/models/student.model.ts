@@ -98,6 +98,20 @@ export interface GuardianOption {
   fullName: string;
 }
 
+export interface AvailableCourseDto {
+  courseId: number;
+  sessionId: number;
+  courseName: string;
+  teacherName: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  price: number;
+  capacity: number | null;
+  enrolled: number;
+  feeType: string;
+}
+
 export interface PagedResult<T> {
   page: number;
   pageSize: number;

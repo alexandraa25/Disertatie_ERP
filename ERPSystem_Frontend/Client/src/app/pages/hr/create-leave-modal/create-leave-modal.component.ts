@@ -1,6 +1,6 @@
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { MatDialogModule, MatDialogRef , MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -29,16 +29,16 @@ export class CreateLeaveModalComponent {
   constructor(
     private fb: FormBuilder,
     private leaveService: LeaveService,
-     private snackbar: SnackbarService,
-    private dialogRef: MatDialogRef<CreateLeaveModalComponent>, 
-     @Inject(MAT_DIALOG_DATA) public data: any
+    private snackbar: SnackbarService,
+    private dialogRef: MatDialogRef<CreateLeaveModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.leaveForm = this.fb.group({
-  startDate: ['', Validators.required],
-  endDate: ['', Validators.required],
-  leaveType: ['Vacation', Validators.required],
-  reason: ['']
-});
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required],
+      leaveType: ['Vacation', Validators.required],
+      reason: ['']
+    });
   }
 
   ngOnInit() {
@@ -47,8 +47,8 @@ export class CreateLeaveModalComponent {
       this.isEditMode = true;
 
       this.leaveForm.patchValue({
-        startDate: this.data.startDate,
-        endDate: this.data.endDate,
+        startDate: this.parseDateOnly(this.data.startDate),
+        endDate: this.parseDateOnly(this.data.endDate),
         leaveType: this.data.leaveType,
         reason: this.data.reason
       });
@@ -107,53 +107,72 @@ export class CreateLeaveModalComponent {
     this.dialogRef.close();
   }
 
- submit() {
+  submit() {
 
-  if (this.leaveForm.invalid) {
-    this.leaveForm.markAllAsTouched();
+    if (this.leaveForm.invalid) {
+      this.leaveForm.markAllAsTouched();
 
-    this.snackbar.showError(
-      'Completează toate câmpurile obligatorii.',
-      2500
+      this.snackbar.showError(
+        'Completează toate câmpurile obligatorii.',
+        2500
+      );
+
+      return;
+    }
+
+    const value = { ...this.leaveForm.value };
+
+    if (value.endDate < value.startDate) {
+      this.leaveForm.get('endDate')?.setErrors({
+        invalidRange: true
+      });
+
+      this.leaveForm.get('endDate')?.markAsTouched();
+
+      this.snackbar.showError(
+        'Data de sfârșit trebuie să fie după data de început.',
+        3000
+      );
+
+      return;
+    }
+
+    value.startDate = this.toDateOnlyString(value.startDate);
+    value.endDate = this.toDateOnlyString(value.endDate);
+
+    if (!this.isEditMode) {
+      delete value.reason;
+    }
+
+
+
+    this.snackbar.showSuccess(
+      this.isEditMode
+        ? 'Concediul a fost actualizat.'
+        : 'Cererea de concediu este pregătită.',
+      1800
     );
 
-    return;
+    this.dialogRef.close(value);
   }
-
-  const value = this.leaveForm.value;
-
-  if (new Date(value.endDate) < new Date(value.startDate)) {
-
-    this.leaveForm.get('endDate')?.setErrors({
-      invalidRange: true
-    });
-
-    this.leaveForm.get('endDate')?.markAsTouched();
-
-    this.snackbar.showError(
-      'Data de sfârșit trebuie să fie după data de început.',
-      3000
-    );
-
-    return;
-  }
-
-  if (!this.isEditMode) {
-    delete value.reason;
-  }
-
-  this.snackbar.showSuccess(
-    this.isEditMode
-      ? 'Concediul a fost actualizat.'
-      : 'Cererea de concediu este pregătită.',
-    1800
-  );
-
-  this.dialogRef.close(value);
-}
 
   hasError(controlName: string, errorName: string): boolean {
-  const control = this.leaveForm.get(controlName);
-  return !!control && control.hasError(errorName) && control.touched;
-}
+    const control = this.leaveForm.get(controlName);
+    return !!control && control.hasError(errorName) && control.touched;
+  }
+
+  private toDateOnlyString(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  }
+
+  private parseDateOnly(value: string): Date {
+    const dateOnly = value.substring(0, 10);
+    const [year, month, day] = dateOnly.split('-').map(Number);
+
+    return new Date(year, month - 1, day);
+  }
 }

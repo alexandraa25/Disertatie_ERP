@@ -9,17 +9,7 @@
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
 
-      <div class="form-row">
-        <div class="form-group">
-          <i class="fas fa-user icon-inside"></i>
-          <input type="text" formControlName="username" placeholder="Nume utilizator">
-        </div>
-
-        <div class="form-group">
-          <i class="fas fa-envelope icon-inside"></i>
-          <input type="email" formControlName="emailAddress" placeholder="Email">
-        </div>
-      </div>
+     
 
       <div class="form-row">
         <div class="form-group">
@@ -30,6 +20,18 @@
         <div class="form-group">
           <i class="fas fa-id-badge icon-inside"></i>
           <input type="text" formControlName="lastName" placeholder="Nume">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <i class="fas fa-user icon-inside"></i>
+          <input type="text" formControlName="username" placeholder="Nume utilizator">
+        </div>
+
+        <div class="form-group">
+          <i class="fas fa-envelope icon-inside"></i>
+          <input type="email" formControlName="emailAddress" placeholder="Email">
         </div>
       </div>
 

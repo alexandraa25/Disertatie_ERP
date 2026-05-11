@@ -9,7 +9,7 @@
       <h1>{{ user.fullName || (user.firstName + ' ' + user.lastName) }}</h1>
 
       <div class="sub">
-        {{ user.userName || '-' }}
+        {{ user.username || '-' }}
         <span class="dot">•</span>
         <span class="status" [class.active]="user.isActive">
           {{ user.isActive ? 'Activ' : 'Inactiv' }}
@@ -54,7 +54,7 @@
 
         <div class="item">
           <label>Username</label>
-          <span>{{ user.userName || '-' }}</span>
+          <span>{{ user.username || '-' }}</span>
         </div>
 
         <div class="item">

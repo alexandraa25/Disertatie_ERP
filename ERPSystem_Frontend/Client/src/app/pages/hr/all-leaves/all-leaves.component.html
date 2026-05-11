@@ -23,12 +23,13 @@
       <option value="Pending">În așteptare</option>
       <option value="Approved">Aprobat</option>
       <option value="Rejected">Respins</option>
+      <option value="Cancelled">Anulat</option>
     </select>
 
     <select class="filter" [(ngModel)]="filters.leaveType" (ngModelChange)="onFilterChange()">
       <option value="">Toate tipurile</option>
       <option value="Vacation">Concediu de odihnă</option>
-      <option value="Medical">Concediu medical</option>
+      <option value="Sick">Concediu medical</option>
       <option value="Unpaid">Concediu fără plată</option>
     </select>
   </div>
@@ -45,7 +46,7 @@
 
       <thead>
         <tr>
-          <th></th>
+          
           <th (click)="sortBy('employee')">Angajat ⬍</th>
           <th (click)="sortBy('startDate')">Data început ⬍</th>
           <th (click)="sortBy('endDate')">Data sfârșit ⬍</th>
@@ -59,9 +60,6 @@
       <tbody>
         <tr *ngFor="let l of leaves">
 
-          <td>
-            <input type="checkbox" (change)="toggleSelection(l.id)">
-          </td>
 
           <td>{{ l.employee.name }}</td>
           <td>{{ l.startDate | date:'dd MMM yyyy' }}</td>

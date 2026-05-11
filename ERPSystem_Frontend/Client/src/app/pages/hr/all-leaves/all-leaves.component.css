@@ -191,6 +191,11 @@
   color: #991b1b;
 }
 
+.status.cancelled {
+  background: #ccdbf5;
+  color: #365ca3;
+}
+
 .actions {
   display: flex;
   gap: 8px;

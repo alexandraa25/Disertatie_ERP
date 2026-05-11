@@ -30,7 +30,11 @@
             <div class="name">{{ s.courseName }}</div>
             <div class="email">
               {{ s.teacherName }} • {{ getDayName(s.dayOfWeek) }}
-              {{ s.startTime }} - {{ s.endTime }}
+              {{ s.startTime }} - {{ s.endTime }} • 
+              {{ s.feeType === 'Monthly'
+              ? 'Abonament lunar'
+              : 'Pachet fix'
+              }}
             </div>
           </ng-template>
 

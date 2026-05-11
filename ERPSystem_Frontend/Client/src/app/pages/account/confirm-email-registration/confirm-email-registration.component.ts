@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule  } from '@angular/router';
 import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-confirm-email-registration',
   standalone: true,
+  imports: [ RouterModule],
   templateUrl: './confirm-email-registration.component.html',
   styleUrl: './confirm-email-registration.component.css'
 })

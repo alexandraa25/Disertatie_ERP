@@ -340,11 +340,11 @@
           </span>
 
           <button *ngIf="leave.status === 'Pending'" class="approve-btn" (click)="approveLeave(leave.id)">
-            ✔Aproba
+            ✔ Aproba
           </button>
 
           <button *ngIf="leave.status === 'Pending'" class="reject-btn" (click)="rejectLeave(leave)">
-            ✖Respinge
+            ✖ Respinge
           </button>
         </div>
       </div>
@@ -418,6 +418,39 @@
 
       <button type="button" (click)="changeAuditPage(auditPage + 1)" [disabled]="auditPage === auditTotalPages">
         Înainte
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="showRejectModal">
+  <div class="modal small-modal">
+    <h3>Respinge concediul</h3>
+
+    <div class="modal-body">
+      <p class="modal-subtitle">
+        Completează motivul respingerii pentru
+        <strong>{{ employee?.firstName }} {{ employee?.lastName }}</strong>.
+      </p>
+
+      <div class="form-group">
+        <label for="rejectReason">Motiv respingere</label>
+        <textarea
+          id="rejectReason"
+          rows="5"
+          [(ngModel)]="rejectReason"
+          placeholder="Scrie motivul respingerii...">
+        </textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="secondary-btn" (click)="closeRejectModal()">
+        Anulează
+      </button>
+
+      <button type="button" class="reject-btn modal-reject-btn" (click)="confirmReject()">
+        Respinge
       </button>
     </div>
   </div>

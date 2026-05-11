@@ -39,7 +39,9 @@ leavePageSize = 5;
 auditPage = 1;
 auditPageSize = 5;
 
-
+showRejectModal = false;
+selectedLeave: any = null;
+rejectReason = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -69,22 +71,37 @@ auditPageSize = 5;
     });
   }
 
-  rejectLeave(leave: any) {
-    const reason = prompt('Motiv respingere:');
+ rejectLeave(leave: any): void {
+  this.selectedLeave = leave;
+  this.rejectReason = '';
+  this.showRejectModal = true;
+}
 
-    if (!reason) return;
+closeRejectModal(): void {
+  this.showRejectModal = false;
+  this.selectedLeave = null;
+  this.rejectReason = '';
+}
 
-    this.leaveService.reject(leave.id, reason).subscribe({
-      next: () => {
-        this.snackbar.showSuccess('Cererea a fost respinsă.', 1800);
-        this.loadEmployee();
-      },
-      error: () => {
-        this.snackbar.showError('Cererea nu a putut fi respinsă.', 2500);
-      }
-    });
+confirmReject(): void {
+  if (!this.selectedLeave) return;
+
+  if (!this.rejectReason || !this.rejectReason.trim()) {
+    this.snackbar.showError('Completează motivul respingerii.', 2200);
+    return;
   }
 
+  this.leaveService.reject(this.selectedLeave.id, this.rejectReason.trim()).subscribe({
+    next: () => {
+      this.snackbar.showSuccess('Cererea a fost respinsă.', 1800);
+      this.closeRejectModal();
+      this.loadEmployee();
+    },
+    error: () => {
+      this.snackbar.showError('Cererea nu a putut fi respinsă.', 2500);
+    }
+  });
+}
 
   loadEmployee() {
     const id = this.route.snapshot.paramMap.get('id');

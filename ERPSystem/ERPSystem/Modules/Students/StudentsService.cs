@@ -228,7 +228,7 @@ public class StudentsService
             s.Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email.Trim();
             s.Phone = string.IsNullOrWhiteSpace(dto.Phone) ? null : dto.Phone.Trim();
             s.Address = string.IsNullOrWhiteSpace(dto.Address) ? null : dto.Address.Trim();
-            s.DateOfBirth = dto.DateOfBirth;
+            s.DateOfBirth = dto.DateOfBirth?.Date;
             s.IsActive = dto.IsActive;
             s.UpdatedAtUtc = DateTime.UtcNow;
 
@@ -675,7 +675,7 @@ public class StudentsService
                 TeacherName = $"{x.Teacher.FirstName} {x.Teacher.LastName}",
                 Price = x.Fee,
                 Capacity = x.Capacity,
-
+                FeeType = x.FeeType.ToString(),
                 Enrolled = x.Enrollments.Count(e => e.IsActive)
             })
             .ToListAsync();

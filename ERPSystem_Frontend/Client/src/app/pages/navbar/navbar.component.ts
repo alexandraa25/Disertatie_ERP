@@ -24,17 +24,81 @@ export class NavbarComponent implements OnInit {
   unreadCount = 0;
   notificationsOpen = false;
 
+  userRoles: string[] = [];
+
+menuItems = [
+  {
+    label: 'Dashboard',
+    route: '/dashboard',
+    roles: ['Admin', 'Manager', 'Secretary', 'Teacher', 'HR', 'Accountant', 'Marketing']
+  },
+  {
+    label: 'Cursanți',
+    route: '/students',
+    roles: ['Admin', 'Manager', 'Secretary', 'Teacher']
+  },
+  {
+    label: 'Cursuri',
+    route: '/courses',
+    roles: ['Admin', 'Manager', 'Secretary', 'Teacher']
+  },
+  {
+    label: 'Contracte',
+    route: '/all-contracts',
+    roles: ['Admin', 'Manager', 'Accountant', 'Secretary']
+  },
+  {
+    label: 'Angajați',
+    route: '/employees',
+    roles: ['Admin', 'HR', 'Manager']
+  },
+  {
+    label: 'Concedii',
+    route: '/all-leaves',
+    roles: ['Admin', 'HR', 'Manager']
+  },
+  {
+    label: 'Utilizatori',
+    route: '/admin/users',
+    roles: ['Admin', 'Manager' ]
+  },
+  {
+    label: 'Companie',
+    route: '/company',
+    roles: ['Admin', 'Manager']
+  },
+  {
+    label: 'Activitate',
+    route: '/log-activity',
+    roles: ['Admin']
+  },
+  {
+    label: 'Marketing',
+    route: '/mk-campaign',
+    roles: ['Admin', 'Manager', 'Marketing']
+  },
+  {
+    label: 'Feedback',
+    route: '/feedback/analytics/global',
+    roles: ['Admin', 'Manager', 'Marketing']
+  }
+];
+
   constructor(
     private authService: AuthService,
     private router: Router,
     private notificationService: NotificationService
   ) {}
 
-  ngOnInit(): void {
-    this.authService.user$.subscribe(u => this.user = u);
-    this.loadNotifications();
-    this.loadUnreadCount();
-  }
+ ngOnInit(): void {
+  this.authService.user$.subscribe(u => {
+    this.user = u;
+    this.setUserRoles(u);
+  });
+
+  this.loadNotifications();
+  this.loadUnreadCount();
+}
 
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
@@ -49,9 +113,17 @@ export class NavbarComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  goToAnnouncements() {
-    this.router.navigate(['/announcement-list']); 
+  canSee(item: any): boolean {
+  return item.roles.some((role: string) => this.userRoles.includes(role));
+}
+
+private setUserRoles(user: any): void {
+  this.userRoles = user?.roles || user?.role || [];
+
+  if (typeof this.userRoles === 'string') {
+    this.userRoles = [this.userRoles];
   }
+}
 
   goToProfile() {
     const token = localStorage.getItem('accessToken');

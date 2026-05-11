@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { PagedResult, StudentListItemDto, StudentDetailsDto, CreateStudentDto, UpdateStudentDto, StudentOption, GuardianOption } from '../models/student.model';
+import { PagedResult, StudentListItemDto, StudentDetailsDto, CreateStudentDto, UpdateStudentDto, StudentOption, GuardianOption, AvailableCourseDto } from '../models/student.model';
 import { map } from 'rxjs/operators';
 
 
@@ -128,14 +128,14 @@ export class StudentsService {
   }
 
   getAvailableCoursesForStudent(studentId: number, q: string = '') {
-    let url = `${this.baseUrl}/${studentId}/available-courses`;
+  let url = `${this.baseUrl}/${studentId}/available-courses`;
 
-    if (q) {
-      url += `?q=${q}`;
-    }
-
-    return this.http.get<any>(url);
+  if (q) {
+    url += `?q=${q}`;
   }
+
+  return this.http.get<AvailableCourseDto[]>(url);
+}
 
   getStudentCoursesByContract(contractId: number) {
     return this.http.get<any>(`${this.baseUrl}/by-contract/${contractId}`);

@@ -58,9 +58,10 @@ auditPageSize = 10;
 
     this.adminService.getProfileByUserId(id).subscribe({
       next: (res: any) => {
-        this.user = res.value ?? res;
-        this.selectedRoles = [...(this.user.roles || [])];
-      },
+  this.user = res.value ?? res;
+  console.log('USER DETAILS:', this.user);
+  this.selectedRoles = [...(this.user.roles || [])];
+},
       error: () => {
         this.router.navigate(['/admin-users']);
       }

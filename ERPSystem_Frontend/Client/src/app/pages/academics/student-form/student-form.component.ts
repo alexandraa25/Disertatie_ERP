@@ -38,41 +38,41 @@ export class StudentFormComponent implements OnInit {
 
   ngOnInit(): void {
 
-   this.form = this.fb.group({
-  fullName: [
-    '',
-    [
-      Validators.required,
-      Validators.maxLength(120),
-      Validators.pattern(/^[a-zA-ZăĂâÂîÎșȘțȚ\s'-]+$/)
-    ]
-  ],
-  firstName: [
-    '',
-    [
-      Validators.maxLength(80),
-      Validators.pattern(/^[a-zA-ZăĂâÂîÎșȘțȚ\s'-]*$/)
-    ]
-  ],
-  lastName: [
-    '',
-    [
-      Validators.maxLength(80),
-      Validators.pattern(/^[a-zA-ZăĂâÂîÎșȘțȚ\s'-]*$/)
-    ]
-  ],
-  email: ['', [Validators.email, Validators.maxLength(120)]],
-  phone: [
-    '',
-    [
-      Validators.pattern(/^[0-9+\s()-]{7,20}$/)
-    ]
-  ],
-  address: ['', [Validators.maxLength(250)]],
-  dateOfBirth: ['', [this.birthDateValidator.bind(this)]],
-  isActive: [true],
-  guardians: this.fb.array([])
-});
+    this.form = this.fb.group({
+      fullName: [
+        '',
+        [
+          Validators.required,
+          Validators.maxLength(120),
+          Validators.pattern(/^[a-zA-ZăĂâÂîÎșȘțȚ\s'-]+$/)
+        ]
+      ],
+      firstName: [
+        '',
+        [
+          Validators.maxLength(80),
+          Validators.pattern(/^[a-zA-ZăĂâÂîÎșȘțȚ\s'-]*$/)
+        ]
+      ],
+      lastName: [
+        '',
+        [
+          Validators.maxLength(80),
+          Validators.pattern(/^[a-zA-ZăĂâÂîÎșȘțȚ\s'-]*$/)
+        ]
+      ],
+      email: ['', [Validators.email, Validators.maxLength(120)]],
+      phone: [
+        '',
+        [
+          Validators.pattern(/^[0-9+\s()-]{7,20}$/)
+        ]
+      ],
+      address: ['', [Validators.maxLength(250)]],
+      dateOfBirth: ['', [this.birthDateValidator.bind(this)]],
+      isActive: [true],
+      guardians: this.fb.array([])
+    });
 
     if (this.data?.id) {
       this.studentId = this.data.id;
@@ -89,13 +89,13 @@ export class StudentFormComponent implements OnInit {
             phone: s.phone ?? '',
             address: s.address ?? '',
             dateOfBirth: s.dateOfBirth
-              ? new Date(s.dateOfBirth).toISOString().split('T')[0]
+              ? s.dateOfBirth.substring(0, 10)
               : '',
             isActive: s.isActive ?? true
           });
 
           if (s.dateOfBirth) {
-            const birth = new Date(s.dateOfBirth);
+            const birth = this.parseDateOnly(s.dateOfBirth.substring(0, 10));
             const today = new Date();
             let age = today.getFullYear() - birth.getFullYear();
 
@@ -112,7 +112,7 @@ export class StudentFormComponent implements OnInit {
             this.guardians.clear();
 
             s.guardians.forEach((g: any) => {
-             this.guardians.push(this.createGuardianGroup(g));
+              this.guardians.push(this.createGuardianGroup(g));
             });
           }
 
@@ -138,12 +138,12 @@ export class StudentFormComponent implements OnInit {
         return;
       }
 
-      const birth = new Date(value);
-const age = this.calculateAge(birth);
+      const birth = this.parseDateOnly(value);
+      const age = this.calculateAge(birth);
 
-this.isMinor = age < 18;
+      this.isMinor = age < 18;
 
-      
+
 
       if (this.isMinor && this.guardians.length === 0) {
         this.addGuardian();
@@ -155,41 +155,41 @@ this.isMinor = age < 18;
     });
   }
 
- save(): void {
-  const primaryCount = this.guardians.controls.filter(
-    g => g.value.isPrimaryContact
-  ).length;
+  save(): void {
+    const primaryCount = this.guardians.controls.filter(
+      g => g.value.isPrimaryContact
+    ).length;
 
-  if (primaryCount > 1) {
-    this.snackbar.showError(
-      'Poate exista un singur contact principal.',
-      2500
-    );
-    return;
-  }
+    if (primaryCount > 1) {
+      this.snackbar.showError(
+        'Poate exista un singur contact principal.',
+        2500
+      );
+      return;
+    }
 
 
-  if (this.form.invalid) {
-    this.form.markAllAsTouched();
-    this.snackbar.showError('Completează corect câmpurile obligatorii.', 2500);
-    return;
-  }
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.snackbar.showError('Completează corect câmpurile obligatorii.', 2500);
+      return;
+    }
 
-  if (this.isMinor && this.guardians.length === 0) {
-    this.snackbar.showError('Elevul minor trebuie să aibă cel puțin un părinte.', 2500);
-    return;
-  }
+    if (this.isMinor && this.guardians.length === 0) {
+      this.snackbar.showError('Elevul minor trebuie să aibă cel puțin un părinte.', 2500);
+      return;
+    }
 
-  if (this.isMinor && this.guardians.invalid) {
-    this.guardians.markAllAsTouched();
-    this.snackbar.showError('Completează corect datele părintelui/tutorelui.', 2500);
-    return;
-  }
+    if (this.isMinor && this.guardians.invalid) {
+      this.guardians.markAllAsTouched();
+      this.snackbar.showError('Completează corect datele părintelui/tutorelui.', 2500);
+      return;
+    }
 
-  if (primaryCount > 1) {
-    this.snackbar.showError('Poate exista un singur contact principal.', 2500);
-    return;
-  }
+    if (primaryCount > 1) {
+      this.snackbar.showError('Poate exista un singur contact principal.', 2500);
+      return;
+    }
 
 
     this.saving = true;
@@ -260,42 +260,42 @@ this.isMinor = age < 18;
   }
 
   addGuardian(): void {
-  this.guardians.push(this.createGuardianGroup());
-}
+    this.guardians.push(this.createGuardianGroup());
+  }
   removeGuardian(index: number) {
     this.guardians.removeAt(index);
   }
 
   private createGuardianGroup(g?: any): FormGroup {
-  return this.fb.group({
-    firstName: [
-      g?.firstName ?? '',
-      [
-        Validators.required,
-        Validators.maxLength(80),
-        Validators.pattern(/^[a-zA-ZăĂâÂîÎșȘțȚ\s'-]+$/)
-      ]
-    ],
-    lastName: [
-      g?.lastName ?? '',
-      [
-        Validators.required,
-        Validators.maxLength(80),
-        Validators.pattern(/^[a-zA-ZăĂâÂîÎșȘțȚ\s'-]+$/)
-      ]
-    ],
-    email: [
-      g?.email ?? '',
-      [Validators.required, Validators.email, Validators.maxLength(120)]
-    ],
-    phone: [
-      g?.phone ?? '',
-      [Validators.required, Validators.pattern(/^[0-9+\s()-]{7,20}$/)]
-    ],
-    relationshipType: [g?.relationshipType ?? 'Mama', Validators.required],
-    isPrimaryContact: [g?.isPrimaryContact ?? false]
-  });
-}
+    return this.fb.group({
+      firstName: [
+        g?.firstName ?? '',
+        [
+          Validators.required,
+          Validators.maxLength(80),
+          Validators.pattern(/^[a-zA-ZăĂâÂîÎșȘțȚ\s'-]+$/)
+        ]
+      ],
+      lastName: [
+        g?.lastName ?? '',
+        [
+          Validators.required,
+          Validators.maxLength(80),
+          Validators.pattern(/^[a-zA-ZăĂâÂîÎșȘțȚ\s'-]+$/)
+        ]
+      ],
+      email: [
+        g?.email ?? '',
+        [Validators.required, Validators.email, Validators.maxLength(120)]
+      ],
+      phone: [
+        g?.phone ?? '',
+        [Validators.required, Validators.pattern(/^[0-9+\s()-]{7,20}$/)]
+      ],
+      relationshipType: [g?.relationshipType ?? 'Mama', Validators.required],
+      isPrimaryContact: [g?.isPrimaryContact ?? false]
+    });
+  }
 
   private getErrorMessage(err: any, fallback: string): string {
     return err?.error?.message ||
@@ -305,51 +305,56 @@ this.isMinor = age < 18;
   }
 
   private birthDateValidator(control: any) {
-  if (!control.value) return null;
+    if (!control.value) return null;
 
-  const birth = new Date(control.value);
-  const today = new Date();
+    const birth = new Date(control.value);
+    const today = new Date();
 
-  if (birth > today) {
-    return { futureDate: true };
-  }
-
-  const age = this.calculateAge(birth);
-
-  if (age > 100) {
-    return { tooOld: true };
-  }
-
-  return null;
-}
-
-private calculateAge(birth: Date): number {
-  const today = new Date();
-  let age = today.getFullYear() - birth.getFullYear();
-
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-    age--;
-  }
-
-  return age;
-}
-
-canShowPrimaryContact(index: number): boolean {
-  return this.guardians.controls.every((g, i) =>
-    i === index || !g.value.isPrimaryContact
-  );
-}
-
-onPrimaryContactChange(index: number): void {
-  const current = this.guardians.at(index);
-
-  if (!current.value.isPrimaryContact) return;
-
-  this.guardians.controls.forEach((g, i) => {
-    if (i !== index) {
-      g.patchValue({ isPrimaryContact: false }, { emitEvent: false });
+    if (birth > today) {
+      return { futureDate: true };
     }
-  });
-}
+
+    const age = this.calculateAge(birth);
+
+    if (age > 100) {
+      return { tooOld: true };
+    }
+
+    return null;
+  }
+
+  private calculateAge(birth: Date): number {
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+
+    return age;
+  }
+
+  canShowPrimaryContact(index: number): boolean {
+    return this.guardians.controls.every((g, i) =>
+      i === index || !g.value.isPrimaryContact
+    );
+  }
+
+  onPrimaryContactChange(index: number): void {
+    const current = this.guardians.at(index);
+
+    if (!current.value.isPrimaryContact) return;
+
+    this.guardians.controls.forEach((g, i) => {
+      if (i !== index) {
+        g.patchValue({ isPrimaryContact: false }, { emitEvent: false });
+      }
+    });
+  }
+
+  private parseDateOnly(value: string): Date {
+    const [year, month, day] = value.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
 }

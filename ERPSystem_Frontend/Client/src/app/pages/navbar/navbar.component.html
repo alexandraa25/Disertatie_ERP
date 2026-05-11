@@ -1,91 +1,156 @@
 <nav class="navbar">
+
   <div class="navbar-container">
 
-    <a routerLink="/" class="logo">ERP</a>
+    <!-- LOGO -->
+    <a routerLink="/dashboard" class="logo">
+      ERP
+    </a>
 
+    <!-- MOBILE BUTTON -->
     <button class="menu-btn" (click)="isMenuOpen = !isMenuOpen">
       <span class="menu-icon" [class.open]="isMenuOpen"></span>
     </button>
 
+    <!-- NAVIGATION -->
     <ul class="nav-links" [class.open]="isMenuOpen">
 
+      <!-- GUEST -->
       <ng-container *ngIf="!user">
-        <li><a routerLink="/login" (click)="isMenuOpen=false">Login</a></li>
-        <li><a routerLink="/register" (click)="isMenuOpen=false">Register</a></li>
+
+        <li>
+          <a routerLink="/login" (click)="isMenuOpen=false">
+            Login
+          </a>
+        </li>
+
+        <li>
+          <a routerLink="/register" (click)="isMenuOpen=false">
+            Register
+          </a>
+        </li>
+
       </ng-container>
 
+      <!-- AUTHENTICATED -->
       <ng-container *ngIf="user">
-        <li><a (click)="goToProfile(); isMenuOpen=false">Profil</a></li>
-        <li><a (click)="logout(); isMenuOpen=false">Logout</a></li>
+
+        <!-- DYNAMIC MENU -->
+        <ng-container *ngFor="let item of menuItems">
+
+          <li *ngIf="canSee(item)">
+            <a
+              [routerLink]="item.route"
+              routerLinkActive="active-link"
+              (click)="isMenuOpen=false"
+            >
+              {{ item.label }}
+            </a>
+          </li>
+
+        </ng-container>
+
+        <!-- PROFILE -->
+        <li>
+          <a (click)="goToProfile(); isMenuOpen=false">
+            Profil
+          </a>
+        </li>
+
+        <!-- LOGOUT -->
+        <li>
+          <a (click)="logout(); isMenuOpen=false">
+            Logout
+          </a>
+        </li>
+
       </ng-container>
 
     </ul>
 
-   <div class="navbar-notifications">
+    <!-- NOTIFICATIONS -->
+    <div class="navbar-notifications">
 
-  <!-- <button
-    type="button"
-    class="notification-bell"
-    (click)="toggleNotifications()"
-  >
-    🔔
-
-    <span *ngIf="unreadCount > 0" class="notification-badge">
-      {{ unreadCount }}
-    </span>
-  </button>
-
-  <div *ngIf="notificationsOpen" class="notifications-dropdown">
-
-    <div class="notifications-dropdown-header">
-      <div>
-        <h3>Notificări</h3>
-        <span>{{ unreadCount }} necitite</span>
-      </div>
-
+   
       <button
-        *ngIf="unreadCount > 0"
         type="button"
-        (click)="markAllAsRead()"
+        class="notification-bell"
+        (click)="toggleNotifications()"
       >
-        Marchează toate ca citite
+        🔔
+
+        <span *ngIf="unreadCount > 0" class="notification-badge">
+          {{ unreadCount }}
+        </span>
       </button>
-    </div>
 
-    <div *ngIf="notifications.length === 0" class="empty-notifications">
-      Nu ai notificări momentan.
-    </div>
+      <div *ngIf="notificationsOpen" class="notifications-dropdown">
 
-    <div
-      *ngFor="let notification of notifications"
-      class="notification-row"
-      [class.unread]="!notification.isRead"
-      [class.info]="notification.type === 'Info'"
-      [class.success]="notification.type === 'Success'"
-      [class.warning]="notification.type === 'Warning'"
-      [class.error]="notification.type === 'Error'"
-      (click)="openNotification(notification)"
-    >
-      <div class="notification-icon">
-        {{ getNotificationIcon(notification.type) }}
-      </div>
+        <div class="notifications-dropdown-header">
 
-      <div class="notification-content">
-        <div class="notification-title-row">
-          <strong>{{ notification.title }}</strong>
-          <span *ngIf="!notification.isRead" class="notification-dot"></span>
+          <div>
+            <h3>Notificări</h3>
+            <span>{{ unreadCount }} necitite</span>
+          </div>
+
+          <button
+            *ngIf="unreadCount > 0"
+            type="button"
+            (click)="markAllAsRead()"
+          >
+            Marchează toate ca citite
+          </button>
+
         </div>
 
-        <p>{{ notification.message }}</p>
+        <div
+          *ngIf="notifications.length === 0"
+          class="empty-notifications"
+        >
+          Nu ai notificări momentan.
+        </div>
 
-        <span class="notification-time">
-          {{ getTimeAgo(notification.createdAt) }}
-        </span>
+        <div
+          *ngFor="let notification of notifications"
+          class="notification-row"
+          [class.unread]="!notification.isRead"
+          [class.info]="notification.type === 'Info'"
+          [class.success]="notification.type === 'Success'"
+          [class.warning]="notification.type === 'Warning'"
+          [class.error]="notification.type === 'Error'"
+          (click)="openNotification(notification)"
+        >
+
+          <div class="notification-icon">
+            {{ getNotificationIcon(notification.type) }}
+          </div>
+
+          <div class="notification-content">
+
+            <div class="notification-title-row">
+              <strong>{{ notification.title }}</strong>
+
+              <span
+                *ngIf="!notification.isRead"
+                class="notification-dot"
+              ></span>
+            </div>
+
+            <p>{{ notification.message }}</p>
+
+            <span class="notification-time">
+              {{ getTimeAgo(notification.createdAt) }}
+            </span>
+
+          </div>
+
+        </div>
+
       </div>
+     
+
     </div>
 
-  </div> -->
-
-</div>
   </div>
+
 </nav>

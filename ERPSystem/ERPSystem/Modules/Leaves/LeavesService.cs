@@ -59,7 +59,7 @@ namespace ERPSystem.Modules.Leaves
                 var overlap = await _context.EmployeeLeaves
                     .AnyAsync(l =>
                         l.EmployeeId == employee.Id &&
-                        l.Status != "Rejected" &&
+                        l.Status == "Approved" &&
                         dto.StartDate <= l.EndDate &&
                         dto.EndDate >= l.StartDate);
 
@@ -168,12 +168,12 @@ namespace ERPSystem.Modules.Leaves
                     return response.SetError("VALIDATION", "Interval invalid");
 
                 var overlap = await _context.EmployeeLeaves
-                    .AnyAsync(l =>
-                        l.EmployeeId == employee.Id &&
-                        l.Id != id &&
-                        l.Status != "Rejected" &&
-                        dto.StartDate <= l.EndDate &&
-                        dto.EndDate >= l.StartDate);
+                   .AnyAsync(l =>
+                       l.EmployeeId == employee.Id &&
+                       l.Id != id &&
+                       l.Status == "Approved" &&
+                       dto.StartDate <= l.EndDate &&
+                       dto.EndDate >= l.StartDate);
 
                 if (overlap)
                     return response.SetError("VALIDATION", "Concediu suprapus");

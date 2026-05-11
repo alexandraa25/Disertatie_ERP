@@ -111,6 +111,8 @@ export class AllLeavesComponent implements OnInit {
         return 'Aprobat';
       case 'Rejected':
         return 'Respins';
+        case 'Cancelled':
+  return 'Anulat';
       default:
         return status;
     }
@@ -120,7 +122,7 @@ export class AllLeavesComponent implements OnInit {
     switch (type) {
       case 'Vacation':
         return 'Concediu de odihnă';
-      case 'Medical':
+      case 'Sick':
         return 'Concediu medical';
       case 'Unpaid':
         return 'Concediu fără plată';
