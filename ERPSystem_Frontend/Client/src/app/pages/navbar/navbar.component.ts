@@ -26,61 +26,41 @@ export class NavbarComponent implements OnInit {
 
   userRoles: string[] = [];
 
-menuItems = [
+menuGroups = [
   {
-    label: 'Dashboard',
-    route: '/dashboard',
-    roles: ['Admin', 'Manager', 'Secretary', 'Teacher', 'HR', 'Accountant', 'Marketing']
+    label: 'Academie',
+    children: [
+      { label: 'Cursanți', route: '/students', roles: ['Admin', 'Manager', 'Secretary', 'Teacher'] },
+      { label: 'Cursuri', route: '/courses', roles: ['Admin', 'Manager', 'Secretary', 'Teacher'] },
+      { label: 'Feedback', route: '/feedback/analytics/global', roles: ['Admin', 'Manager', 'Marketing'] }
+    ]
   },
   {
-    label: 'Cursanți',
-    route: '/students',
-    roles: ['Admin', 'Manager', 'Secretary', 'Teacher']
+    label: 'Financiar',
+    children: [
+      { label: 'Contracte', route: '/all-contracts', roles: ['Admin', 'Manager', 'Accountant', 'Secretary'] }
+    ]
   },
   {
-    label: 'Cursuri',
-    route: '/courses',
-    roles: ['Admin', 'Manager', 'Secretary', 'Teacher']
+    label: 'HR',
+    children: [
+      { label: 'Angajați', route: '/employees', roles: ['Admin', 'HR', 'Manager'] },
+      { label: 'Concedii', route: '/all-leaves', roles: ['Admin', 'HR', 'Manager'] }
+    ]
   },
   {
-    label: 'Contracte',
-    route: '/all-contracts',
-    roles: ['Admin', 'Manager', 'Accountant', 'Secretary']
-  },
-  {
-    label: 'Angajați',
-    route: '/employees',
-    roles: ['Admin', 'HR', 'Manager']
-  },
-  {
-    label: 'Concedii',
-    route: '/all-leaves',
-    roles: ['Admin', 'HR', 'Manager']
-  },
-  {
-    label: 'Utilizatori',
-    route: '/admin/users',
-    roles: ['Admin', 'Manager' ]
-  },
-  {
-    label: 'Companie',
-    route: '/company',
-    roles: ['Admin', 'Manager']
-  },
-  {
-    label: 'Activitate',
-    route: '/log-activity',
-    roles: ['Admin']
+    label: 'Admin',
+    children: [
+      { label: 'Utilizatori', route: '/admin/users', roles: ['Admin', 'Manager'] },
+      { label: 'Companie', route: '/company', roles: ['Admin', 'Manager'] },
+      { label: 'Activitate', route: '/log-activity', roles: ['Admin'] }
+    ]
   },
   {
     label: 'Marketing',
-    route: '/mk-campaign',
-    roles: ['Admin', 'Manager', 'Marketing']
-  },
-  {
-    label: 'Feedback',
-    route: '/feedback/analytics/global',
-    roles: ['Admin', 'Manager', 'Marketing']
+    children: [
+      { label: 'Campanii', route: '/mk-campaign', roles: ['Admin', 'Manager', 'Marketing'] }
+    ]
   }
 ];
 
@@ -113,18 +93,56 @@ menuItems = [
     this.router.navigate(['/login']);
   }
 
+  canSeeGroup(group: any): boolean {
+  return group.children.some((item: any) => this.canSee(item));
+}
+
+hasAnyRole(roles: string[]): boolean {
+  return roles.some(role => this.userRoles.includes(role));
+}
+
   canSee(item: any): boolean {
   return item.roles.some((role: string) => this.userRoles.includes(role));
 }
 
 private setUserRoles(user: any): void {
-  this.userRoles = user?.roles || user?.role || [];
+  const rolesFromUser =
+    user?.roles ??
+    user?.Roles ??
+    user?.role ??
+    user?.Role;
 
-  if (typeof this.userRoles === 'string') {
-    this.userRoles = [this.userRoles];
+  if (rolesFromUser) {
+    this.userRoles = Array.isArray(rolesFromUser)
+      ? rolesFromUser
+      : [rolesFromUser];
+
+    return;
   }
-}
 
+  const token = localStorage.getItem('accessToken');
+
+  if (!token) {
+    this.userRoles = [];
+    return;
+  }
+
+  const decoded: any = jwtDecode(token);
+ 
+  const tokenRoles =
+    decoded['role'] ??
+    decoded['roles'] ??
+    decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+
+  this.userRoles = Array.isArray(tokenRoles)
+    ? tokenRoles
+    : tokenRoles
+      ? [tokenRoles]
+      : [];
+
+  console.log('DECODED TOKEN:', decoded);
+  console.log('ROLES:', this.userRoles);
+}
   goToProfile() {
     const token = localStorage.getItem('accessToken');
 

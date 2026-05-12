@@ -7,7 +7,6 @@ using ERPSystem.Utils.Response;
 using ERPSystem.Utils.Settings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -31,12 +30,21 @@ namespace ERPSystem.Modules.Authentificate
         private IOptions<JwtSettings> _jwtSettings;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ActivityLogService _activityLogService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         #endregion
 
         #region Constructors
-        public AuthentificationService(ILogger<AuthentificationService> logger, EmailBusinessLogic emailBusinessLogic,
-            IOptions<ERPSystemSettings> ERPSystemSettings, IOptions<JwtSettings> jwtSettings, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public AuthentificationService(
+            ILogger<AuthentificationService> logger, 
+            EmailBusinessLogic emailBusinessLogic,
+            IOptions<ERPSystemSettings> ERPSystemSettings, 
+            IOptions<JwtSettings> jwtSettings,
+            UserManager<ApplicationUser> userManager, 
+            RoleManager<IdentityRole> roleManager,
+            ActivityLogService activityLogService,
+             IHttpContextAccessor httpContextAccessor)
         {
             _logger = logger;
             _emailBusinessLogic = emailBusinessLogic;
@@ -44,6 +52,8 @@ namespace ERPSystem.Modules.Authentificate
             _jwtSettings = jwtSettings;
             _userManager = userManager;
             _roleManager = roleManager;
+            _activityLogService = activityLogService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         #endregion
@@ -80,14 +90,15 @@ namespace ERPSystem.Modules.Authentificate
 
                 if (!string.IsNullOrEmpty(request.Role))
                 {
-                    await userManager.AddToRoleAsync(newUser, request.Role);
+                    if (!await _roleManager.RoleExistsAsync(request.Role))
+                        return publicResponse.SetError(ErrorCodes.InvalidParameters, "Rolul nu există.");
 
-                    //var token = await userManager.GenerateEmailConfirmationTokenAsync(newUser);
-                    //var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
-                    //var confirmationUrl = $"{_ERPSystemSettings.Value.BaseUrl}/confirm-email-registration" + $"?userId={newUser.Id}&token={encodedToken}";
+                    var roleResult = await userManager.AddToRoleAsync(newUser, request.Role);
+
+                    if (!roleResult.Succeeded)
+                        return publicResponse.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
+
                     List<string> to = new List<string>() { newUser.Email };
-
-                    // await _emailBusinessLogic.SendEmailTemplateAsync(TemplateCode.EMAIL_REGISTRATION_CONFIRMATION, JsonConvert.SerializeObject(newUser), to, confirmationUrl);
 
                     var emailModel = new UserCredentialsEmailModel
                     {
@@ -97,6 +108,21 @@ namespace ERPSystem.Modules.Authentificate
                     };
 
                     await _emailBusinessLogic.SendEmailTemplateAsync( TemplateCode.EMAIL_USER_CREDENTIALS, JsonConvert.SerializeObject(emailModel),  to  );
+
+                    var performedBy = _httpContextAccessor.HttpContext?.User?
+                        .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                        ?? _httpContextAccessor.HttpContext?.User?
+                            .FindFirst("username")?.Value
+                        ?? "system";
+
+                    await _activityLogService.AddAsync(
+                         entityType: "User",
+                         entityId: newUser.Id,
+                         action: "Created",
+                         description: $"Utilizatorul {newUser.Email} a fost creat cu rolul {request.Role}.",
+                         performedBy: performedBy
+                     );
+
                     return publicResponse.SetCreated();
                 }
             }
@@ -107,7 +133,6 @@ namespace ERPSystem.Modules.Authentificate
             }
             return publicResponse;
         }
-
 
         public async Task<PublicResponse> ConfirmEmailAsync(ConfirmEmail confirmEmail, UserManager<ApplicationUser> userManager)
         {
@@ -161,7 +186,7 @@ namespace ERPSystem.Modules.Authentificate
                         Encoding.UTF8.GetBytes(token)
                     );
 
-                    var link = $"http://localhost:4200/confirm-email-registration?userId={user.Id}&token={encodedToken}";
+                    var link = $"{_ERPSystemSettings.Value.BaseUrl}/confirm-email-registration?userId={user.Id}&token={encodedToken}";
                     Console.WriteLine("LINK: " + link);
 
                     await _emailBusinessLogic.SendEmailTemplateAsync(templateCode: TemplateCode.EMAIL_REGISTRATION_CONFIRMATION, tableRow: JsonConvert.SerializeObject(user),
@@ -180,14 +205,6 @@ namespace ERPSystem.Modules.Authentificate
 
                 if (!result.Succeeded)
                     return response.SetError(ErrorCodes.InvalidParameters, ErrorMessages.InvalidCredentials);
-                //if (user.MustChangePassword)
-                //{
-                //    return response.SetSuccess(new
-                //    {
-                //        requiresPasswordChange = true,
-                //        userId = user.Id
-                //    });
-                //}
 
                 var code = await userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
 
@@ -210,28 +227,42 @@ namespace ERPSystem.Modules.Authentificate
             }
         }
 
-        public async Task<PublicResponse> ConfirmLoginRequest(ConfirmLoginRequest request, HttpContext httpContext, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        public async Task<PublicResponse> ConfirmLoginRequest( ConfirmLoginRequest request, HttpContext httpContext,  SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
         {
             PublicResponse response = new PublicResponse(true);
 
             try
             {
+                if (string.IsNullOrWhiteSpace(request.TempToken) || string.IsNullOrWhiteSpace(request.Code))
+                    return response.SetError(ErrorCodes.InvalidParameters, ErrorMessages.InvalidParameters);
 
-                var handler = new JwtSecurityTokenHandler();
-                var jwtTemp = handler.ReadJwtToken(request.TempToken);
+                ClaimsPrincipal principal;
 
-                var userId = jwtTemp.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+                try
+                {
+                    principal = ValidateTempToken(request.TempToken);
+                }
+                catch
+                {
+                    return response.SetError(ErrorCodes.InvalidToken, ErrorMessages.InvalidToken);
+                }
 
-                if (string.IsNullOrEmpty(userId))
+                var userId = principal.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+                var purpose = principal.Claims.FirstOrDefault(c => c.Type == "purpose")?.Value;
+
+                if (string.IsNullOrEmpty(userId) || purpose != "login_2fa")
                     return response.SetError(ErrorCodes.InvalidToken, ErrorMessages.InvalidToken);
 
                 var user = await userManager.FindByIdAsync(userId);
 
-
                 if (user == null)
                     return response.SetError(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
 
-                var isValid = await userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider, request.Code);
+                var isValid = await userManager.VerifyTwoFactorTokenAsync(
+                    user,
+                    TokenOptions.DefaultEmailProvider,
+                    request.Code
+                );
 
                 if (!isValid)
                     return response.SetError(ErrorCodes.InvalidToken, ErrorMessages.InvalidCode);
@@ -240,7 +271,6 @@ namespace ERPSystem.Modules.Authentificate
                 await userManager.UpdateAsync(user);
 
                 var roles = await userManager.GetRolesAsync(user);
-
                 var jwt = await GenerateJwtToken(user);
 
                 var cookieOptions = new CookieOptions
@@ -256,7 +286,16 @@ namespace ERPSystem.Modules.Authentificate
                 return response.SetSuccess(new
                 {
                     AccessToken = jwt,
-                    User = new { user.Id, user.Email, user.UserName, user.FirstName, user.LastName, Roles = roles, user.MustChangePassword }
+                    User = new
+                    {
+                        user.Id,
+                        user.Email,
+                        user.UserName,
+                        user.FirstName,
+                        user.LastName,
+                        Roles = roles,
+                        user.MustChangePassword
+                    }
                 });
             }
             catch (Exception ex)
@@ -266,21 +305,30 @@ namespace ERPSystem.Modules.Authentificate
             }
         }
 
-        public async Task<PublicResponse> ResendLoginCodeAsync(ResendCodeRequest request, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        public async Task<PublicResponse> ResendLoginCodeAsync(  ResendCodeRequest request, SignInManager<ApplicationUser> signInManager,  UserManager<ApplicationUser> userManager)
         {
             PublicResponse publicResponse = new PublicResponse(true);
 
             try
             {
-                if (string.IsNullOrEmpty(request.TempToken))
+                if (string.IsNullOrWhiteSpace(request.TempToken))
                     return publicResponse.SetError(ErrorCodes.InvalidToken, ErrorMessages.InvalidToken);
 
-                var handler = new JwtSecurityTokenHandler();
-                var jwtTemp = handler.ReadJwtToken(request.TempToken);
+                ClaimsPrincipal principal;
 
-                var userId = jwtTemp.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+                try
+                {
+                    principal = ValidateTempToken(request.TempToken);
+                }
+                catch
+                {
+                    return publicResponse.SetError(ErrorCodes.InvalidToken, ErrorMessages.InvalidToken);
+                }
 
-                if (string.IsNullOrEmpty(userId))
+                var userId = principal.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+                var purpose = principal.Claims.FirstOrDefault(c => c.Type == "purpose")?.Value;
+
+                if (string.IsNullOrEmpty(userId) || purpose != "login_2fa")
                     return publicResponse.SetError(ErrorCodes.InvalidToken, ErrorMessages.InvalidToken);
 
                 var user = await userManager.FindByIdAsync(userId);
@@ -288,20 +336,22 @@ namespace ERPSystem.Modules.Authentificate
                 if (user == null)
                     return publicResponse.SetError(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
 
-                var newCode = await userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
+                var newCode = await userManager.GenerateTwoFactorTokenAsync(
+                    user,
+                    TokenOptions.DefaultEmailProvider
+                );
 
-                List<string> to = new List<string>() { user.Email };
                 await _emailBusinessLogic.SendEmailTemplateAsync(
                     TemplateCode.LOGIN_CONFIRMATION,
                     JsonConvert.SerializeObject(new { Code = newCode }),
-                    to
+                    new List<string> { user.Email }
                 );
 
                 return publicResponse.SetSuccess();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "Error while resending login 2FA code");
+                _logger.LogError(ex, "Error while resending login 2FA code");
                 return publicResponse.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
             }
         }
@@ -353,7 +403,6 @@ namespace ERPSystem.Modules.Authentificate
                 if (user == null)
                     return response.SetError(ErrorCodes.UserNotFound, ErrorMessages.UserNotFound);
 
-                // Decode + fix for Identity tokens
                 var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Token));
                 var result = await userManager.ResetPasswordAsync(user, decodedToken, request.NewPassword);
 
@@ -401,6 +450,19 @@ namespace ERPSystem.Modules.Authentificate
                 _logger.LogError(ex, "Change password error");
                 return Results.Problem("Internal server error");
             }
+        }
+
+        public async Task<IResult> GetRolesAsync()
+        {
+            var roles = _roleManager.Roles
+                .Select(r => new
+                {
+                    id = r.Id,
+                    name = r.Name
+                })
+                .ToList();
+
+            return Results.Ok(roles);
         }
 
         #endregion
@@ -455,13 +517,15 @@ namespace ERPSystem.Modules.Authentificate
             var roles = await _userManager.GetRolesAsync(user);
 
             var claims = new List<Claim>
-    {
-        new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-        new Claim(JwtRegisteredClaimNames.Email, user.Email),
-        new Claim("username", user.UserName ?? ""),
-        new Claim("firstname", user.FirstName ?? ""),
-        new Claim("lastname", user.LastName ?? "")
-    };
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
+                new Claim(ClaimTypes.Email, user.Email ?? ""),
+                new Claim("username", user.UserName ?? ""),
+                new Claim("firstname", user.FirstName ?? ""),
+                new Claim("lastname", user.LastName ?? "")
+            };
 
             foreach (var role in roles)
             {
@@ -482,21 +546,32 @@ namespace ERPSystem.Modules.Authentificate
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        private ClaimsPrincipal ValidateTempToken(string tempToken)
+        {
+            var key = Encoding.UTF8.GetBytes(_jwtSettings.Value.SecretKey);
+
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ClockSkew = TimeSpan.Zero
+            };
+
+            var handler = new JwtSecurityTokenHandler();
+
+            return handler.ValidateToken(
+                tempToken,
+                validationParameters,
+                out _
+            );
+        }
+
 
         #endregion
 
-
-        public async Task<IResult> GetRolesAsync()
-        {
-            var roles =  _roleManager.Roles
-                .Select(r => new
-                {
-                    id = r.Id,
-                    name = r.Name
-                })
-                .ToList();
-
-            return Results.Ok(roles);
-        }
+        
     }
 }

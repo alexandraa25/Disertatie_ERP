@@ -2,6 +2,7 @@
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.MarketingCampaign.Models;
 using ERPSystem.Shared.BusinessLogic;
+using ERPSystem.Shared.Notifications;
 using ERPSystem.Utils.Constants.Email;
 using ERPSystem.Utils.Enums;
 using ERPSystem.Utils.Response;
@@ -11,11 +12,22 @@ public class MarketingCampaignService
 {
     private readonly ApplicationDbContext _context;
     private readonly EmailBusinessLogic _emailBusinessLogic;
+    private readonly ActivityLogService _activityLogService;
+    private readonly NotificationsService _notificationsService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public MarketingCampaignService(ApplicationDbContext context, EmailBusinessLogic emailBusinessLogic)
+    public MarketingCampaignService(
+     ApplicationDbContext context,
+     EmailBusinessLogic emailBusinessLogic,
+     ActivityLogService activityLogService,
+     NotificationsService notificationsService,
+     IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
         _emailBusinessLogic = emailBusinessLogic;
+        _activityLogService = activityLogService;
+        _notificationsService = notificationsService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<PublicResponse> GetAllAsync(MarketingCampaignQuery query)
@@ -162,6 +174,27 @@ public class MarketingCampaignService
         _context.MarketingCampaigns.Add(campaign);
         await _context.SaveChangesAsync();
 
+        _activityLogService.Add(
+            nameof(MarketingCampaign),
+            campaign.Id.ToString(),
+            "Create",
+            $"Campania de marketing '{campaign.Name}' a fost creată.",
+            GetCurrentUser()
+        );
+
+        await _context.SaveChangesAsync();
+
+        await _notificationsService.CreateNotificationForRolesAsync(
+             roleNames: new[] { "Admin", "Manager", "Marketing" },
+             eventType: NotificationEvents.MarketingActivity,
+             title: "Campanie nouă",
+             message: $"Campania '{campaign.Name}' a fost creată.",
+             type: "Success",
+             link: "/mk-campaign",
+             entityType: nameof(MarketingCampaign),
+             entityId: campaign.Id.ToString()
+         );
+
         return new PublicResponse(true)
             .SetCreated(new
             {
@@ -207,6 +240,16 @@ public class MarketingCampaignService
 
         await _context.SaveChangesAsync();
 
+        _activityLogService.Add(
+            nameof(MarketingCampaign),
+            campaign.Id.ToString(),
+            "Update",
+            $"Campania de marketing '{campaign.Name}' a fost actualizată.",
+            GetCurrentUser()
+        );
+
+        await _context.SaveChangesAsync();
+
         return new PublicResponse(true)
             .SetSuccess(new
             {
@@ -237,6 +280,28 @@ public class MarketingCampaignService
         _context.MarketingCampaigns.Remove(campaign);
         await _context.SaveChangesAsync();
 
+        _activityLogService.Add(
+            nameof(MarketingCampaign),
+            campaign.Id.ToString(),
+            "Delete",
+            $"Campania de marketing '{campaign.Name}' a fost ștearsă.",
+            GetCurrentUser()
+
+        );
+
+        await _context.SaveChangesAsync();
+
+        await _notificationsService.CreateNotificationForRolesAsync(
+            roleNames: new[] { "Admin", "Manager", "Marketing" },
+            eventType: NotificationEvents.MarketingActivity,
+            title: "Campanie ștearsă",
+            message: $"Campania '{campaign.Name}' a fost ștearsă.",
+            type: "Warning",
+            link: "/mk-campaign",
+            entityType: nameof(MarketingCampaign),
+            entityId: campaign.Id.ToString()
+        );
+
         return new PublicResponse(true)
             .SetSuccess("Campania a fost ștearsă cu succes.");
     }
@@ -249,7 +314,6 @@ public class MarketingCampaignService
             return new PublicResponse(false)
                 .BadRequest("Campania nu a fost găsită.", "CampaignNotFound");
 
-        // 🔥 dacă o activezi
         if (!campaign.IsActive)
         {
             if (!endDate.HasValue)
@@ -265,11 +329,40 @@ public class MarketingCampaignService
         }
         else
         {
-            // 🔴 dezactivare simplă
             campaign.IsActive = false;
         }
 
         await _context.SaveChangesAsync();
+
+        var action = campaign.IsActive ? "Activate" : "Deactivate";
+
+        _activityLogService.Add(
+            nameof(MarketingCampaign),
+            campaign.Id.ToString(),
+            action,
+            campaign.IsActive
+                ? $"Campania de marketing '{campaign.Name}' a fost activată."
+                : $"Campania de marketing '{campaign.Name}' a fost dezactivată.",
+            GetCurrentUser()
+        );
+
+        await _context.SaveChangesAsync();
+
+        await _notificationsService.CreateNotificationForRolesAsync(
+            roleNames: new[] { "Admin", "Manager", "Marketing" },
+            eventType: NotificationEvents.MarketingActivity,
+            title: campaign.IsActive
+                ? "Campanie activată"
+                : "Campanie dezactivată",
+            message: campaign.IsActive
+                ? $"Campania '{campaign.Name}' a fost activată."
+                : $"Campania '{campaign.Name}' a fost dezactivată.",
+            type: campaign.IsActive ? "Success" : "Warning",
+            link: "/mk-campaign",
+            entityType: nameof(MarketingCampaign),
+            entityId: campaign.Id.ToString()
+        );
+
 
         return new PublicResponse(true).SetSuccess();
     }
@@ -442,6 +535,8 @@ public class MarketingCampaignService
         int sentCount = 0;
         int failedCount = 0;
 
+        
+
         foreach (var student in students)
         {
             var recipientLog = new EmailRecipientLog
@@ -488,6 +583,29 @@ public class MarketingCampaignService
         emailLog.FailedCount = failedCount;
 
         await _context.SaveChangesAsync();
+
+        _activityLogService.Add(
+            nameof(MarketingCampaign),
+            campaign.Id.ToString(),
+            "SendNewsletter",
+            $"Newsletterul pentru campania '{campaign.Name}' a fost trimis către {sentCount} destinatari. Eșuate: {failedCount}.",
+            GetCurrentUser()
+        );
+
+        await _context.SaveChangesAsync();
+
+        await _notificationsService.CreateNotificationForRolesAsync(
+             roleNames: new[] { "Admin", "Manager", "Marketing" },
+             eventType: NotificationEvents.MarketingActivity,
+             title: "Newsletter trimis",
+             message:
+                 $"Newsletterul pentru campania '{campaign.Name}' a fost trimis. " +
+                 $"Succes: {sentCount}, Eșuate: {failedCount}.",
+             type: failedCount > 0 ? "Warning" : "Success",
+             link: $"/marketing/email-logs/{emailLog.Id}",
+             entityType: nameof(EmailLog),
+             entityId: emailLog.Id.ToString()
+         );
 
         return response.SetSuccess(new
         {
@@ -655,7 +773,16 @@ public class MarketingCampaignService
         return response.SetSuccess(emailLog);
     }
 
-
+    private string GetCurrentUser()
+    {
+        return _httpContextAccessor.HttpContext?.User?
+            .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+            ?? _httpContextAccessor.HttpContext?.User?
+                .FindFirst("email")?.Value
+            ?? _httpContextAccessor.HttpContext?.User?
+                .FindFirst("username")?.Value
+            ?? "system";
+    }
 
 
 }

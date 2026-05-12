@@ -15,14 +15,15 @@ namespace ERPSystem.Modules.Authentificate
         public static void Map(RouteGroupBuilder group)
         {
             group.MapPost(Route.REGISTER,
-                async (RegisterRequest request, UserManager<ApplicationUser> userManager, AuthentificationService authService)
-                    => await authService.RegisterUserAsync(request, userManager))
-                .WithDefaultApiSettings("RegisterUser", "Creates a new user with extended fields", "REGISTER", false);
+              async (RegisterRequest request, UserManager<ApplicationUser> userManager, AuthentificationService authService)
+                  => await authService.RegisterUserAsync(request, userManager))
+              .RequireAuthorization(policy => policy.RequireRole("Admin"))
+              .WithDefaultApiSettings( "RegisterUser", "Creează un utilizator nou", "REGISTER", false);
 
             group.MapPost(Route.CONFIRM_EMAIL_REGISTRATION,
-                async (ConfirmEmail confirmEmail, UserManager<ApplicationUser> userManager, AuthentificationService authService)
-                    => await authService.ConfirmEmailAsync(confirmEmail, userManager))
-                .WithDefaultApiSettings("ConfirmEmailAsync", "Confirm Email Async", "CONFIRM_EMAIL", false);
+              async (ConfirmEmail confirmEmail, UserManager<ApplicationUser> userManager, AuthentificationService authService)
+                  => await authService.ConfirmEmailAsync(confirmEmail, userManager))
+              .WithDefaultApiSettings("ConfirmEmailAsync", "Confirm Email Async", "CONFIRM_EMAIL", false);
 
             group.MapPost(Route.LOGIN,
               async (LoginRequest request, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, AuthentificationService authService)
@@ -40,24 +41,25 @@ namespace ERPSystem.Modules.Authentificate
               .WithDefaultApiSettings("ResendLoginCodeAsync", "Resend Login Code Async", "RESEND_LOGIN_CODE", false);
 
             group.MapPost(Route.FORGOT_PASSWORD,
-            async (ForgotPasswordRequest forgotPasswordRequest, UserManager<ApplicationUser> userManager, AuthentificationService authService)
+               async (ForgotPasswordRequest forgotPasswordRequest, UserManager<ApplicationUser> userManager, AuthentificationService authService)
                 => await authService.ForgotPasswordAsync(forgotPasswordRequest, userManager))
                .WithDefaultApiSettings("ForgotPasswordAsync", "Forgot Password Async", "FORGOT_PASSWORD", false);
 
             group.MapPost(Route.RESET_PASSWORD,
-            async (ResetPasswordRequest resetPasswordRequest, UserManager<ApplicationUser> userManager, AuthentificationService authService)
+              async (ResetPasswordRequest resetPasswordRequest, UserManager<ApplicationUser> userManager, AuthentificationService authService)
                 => await authService.ResetPasswordAsync(resetPasswordRequest, userManager))
               .WithDefaultApiSettings("ResetPasswordAsync", "Reset Password Async", "RESET_PASSWORD", false);
 
             group.MapGet(Route.GET_ROLES,
-            async (RoleManager<IdentityRole> roleManager, AuthentificationService authService)
-                 =>await authService.GetRolesAsync())
-            .WithDefaultApiSettings("GetRoles", "Get Roles", "GET_ROLES", false);
+              async (AuthentificationService authService)
+                  => await authService.GetRolesAsync())
+              .RequireAuthorization(policy => policy.RequireRole("Admin"))
+              .WithDefaultApiSettings( "GetRoles", "Returnează lista rolurilor disponibile", "GET_ROLES", false );
 
             group.MapPost(Route.CHANGE_PASSWORD,
-            async (ChangePasswordRequest request, UserManager<ApplicationUser> userManager, AuthentificationService authService, HttpContext httpContext)
-                 => await authService.ChangePasswordAsync(request, userManager, httpContext)) .RequireAuthorization()
-            .WithDefaultApiSettings("ChangePasswordAsync", "Change Password", "CHANGE_PASSWORD", false);
+              async (ChangePasswordRequest request, UserManager<ApplicationUser> userManager, AuthentificationService authService, HttpContext httpContext)
+                   => await authService.ChangePasswordAsync(request, userManager, httpContext)) .RequireAuthorization()
+              .WithDefaultApiSettings("ChangePasswordAsync", "Schimbare parolă utilizator", "CHANGE_PASSWORD", false);
         }
     }
 }

@@ -1,17 +1,15 @@
-﻿using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
-using ERPSystem.Data.Context;
+﻿using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.AdditionalAct.Models;
 using ERPSystem.Modules.Contracts;
 using ERPSystem.Modules.Contracts.Models;
 using ERPSystem.Shared.BusinessLogic;
-using ERPSystem.Shared.DTOs.PDF;
 using ERPSystem.Shared.Notifications;
 using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Enums;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
-using static ERPSystem.Utils.Constants.General.Route;
+
 
 namespace ERPSystem.Modules.AdditionalAct
 {
@@ -25,6 +23,7 @@ namespace ERPSystem.Modules.AdditionalAct
         private readonly ActivityLogService _activityLogService;
         private readonly ContractPricingService _pricingService;
         private readonly ContractInstallmentService _installmentService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AdditionalActService(
             ApplicationDbContext db, 
@@ -34,7 +33,8 @@ namespace ERPSystem.Modules.AdditionalAct
             TemplateRendererService templateRenderer,
             ActivityLogService activityLogService,
             ContractPricingService pricingService,
-            ContractInstallmentService installmentService)
+            ContractInstallmentService installmentService,
+            IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
             _logger = logger;
@@ -44,6 +44,7 @@ namespace ERPSystem.Modules.AdditionalAct
             _activityLogService = activityLogService;
             _pricingService = pricingService;
             _installmentService = installmentService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<PublicResponse> CreateAdditionalActAsync(int contractId, CreateAdditionalActDto dto)
@@ -60,13 +61,13 @@ namespace ERPSystem.Modules.AdditionalAct
                 .FirstOrDefaultAsync(c => c.Id == contractId);
 
             if (contract == null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Contract not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Contractul nu a fost găsit.");
 
             if (contract.Status != ContractStatus.Active)
-                return response.SetError(ErrorCodes.InvalidParameters, "Only active contracts can have additional acts");
+                return response.SetError(ErrorCodes.InvalidParameters, "Doar contractele active pot avea acte adiționale.");
 
             if (dto.Types == null || !dto.Types.Any())
-                return response.SetError(ErrorCodes.InvalidParameters, "At least one type required");
+                return response.SetError(ErrorCodes.InvalidParameters, "Trebuie selectat cel puțin un tip de modificare.");
 
             var act = new ContractAdditionalAct
             {
@@ -121,7 +122,8 @@ namespace ERPSystem.Modules.AdditionalAct
                 nameof(ContractAdditionalAct),
                 act.Id.ToString(),
                 "Create",
-                $"Actul adițional {act.ActNumber} a fost creat pentru contractul {contract.ContractNumber}. {act.Description}"
+                $"Actul adițional {act.ActNumber} a fost creat pentru contractul {contract.ContractNumber}. {act.Description}",
+                 GetCurrentUser()
             );
 
             await _db.SaveChangesAsync();
@@ -148,13 +150,13 @@ namespace ERPSystem.Modules.AdditionalAct
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (act == null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Act not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Actul adițional nu a fost găsit.");
 
             if (act.Status != AdditionalActStatus.Draft)
-                return response.SetError(ErrorCodes.InvalidParameters, "Only draft editable");
+                return response.SetError(ErrorCodes.InvalidParameters, "Doar actele adiționale în draft pot fi modificate.");
 
             if (string.IsNullOrWhiteSpace(dto.Body))
-                return response.SetError(ErrorCodes.InvalidParameters, "Body is required");
+                return response.SetError(ErrorCodes.InvalidParameters, "Conținutul actului adițional este obligatoriu");
 
             act.Body = dto.Body;
 
@@ -184,10 +186,10 @@ namespace ERPSystem.Modules.AdditionalAct
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (act == null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Act not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Actul adițional nu a fost găsit.");
 
             if (act.Status != AdditionalActStatus.Draft)
-                return response.SetError(ErrorCodes.InvalidParameters, "Only draft editable");
+                return response.SetError(ErrorCodes.InvalidParameters, "Doar actele adiționale în draft pot fi modificate.");
 
             var contract = act.Contract;
 
@@ -243,10 +245,10 @@ namespace ERPSystem.Modules.AdditionalAct
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (act == null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Act not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Actul adițional nu a fost găsit.");
 
             if (act.Status != AdditionalActStatus.Draft)
-                return response.SetError(ErrorCodes.InvalidParameters, "Already finalized");
+                return response.SetError(ErrorCodes.InvalidParameters, "Actul adițional este deja finalizat.");
 
             act.Status = AdditionalActStatus.Finalized;
 
@@ -254,7 +256,8 @@ namespace ERPSystem.Modules.AdditionalAct
                  nameof(ContractAdditionalAct),
                  act.Id.ToString(),
                  "Finalized",
-                 $"Act {act.ActNumber} finalizat"
+                 $"Act {act.ActNumber} finalizat",
+                  GetCurrentUser()
              );
 
             await _db.SaveChangesAsync();
@@ -286,12 +289,12 @@ namespace ERPSystem.Modules.AdditionalAct
                 return Results.BadRequest("Actul adițional nu este aplicat încă.");
 
             if (string.IsNullOrEmpty(act.PdfPath))
-                return Results.BadRequest("PDF not generated");
+                return Results.BadRequest("PDF-ul nu a fost generat.");
 
             var filePath = Path.Combine("wwwroot", "contracts", act.PdfPath);
 
             if (!File.Exists(filePath))
-                return Results.NotFound("PDF file not found");
+                return Results.NotFound("Fișierul PDF nu a fost găsit.");
 
             var bytes = await File.ReadAllBytesAsync(filePath);
 
@@ -313,13 +316,13 @@ namespace ERPSystem.Modules.AdditionalAct
             if (act == null)
                 return response.SetError(
                     ErrorCodes.InvalidParameters,
-                    "Act not found"
+                    "Actul adițional nu a fost găsit."
                 );
 
             if (act.Status != AdditionalActStatus.Draft)
                 return response.SetError(
                     ErrorCodes.InvalidParameters,
-                    "Only draft acts can be deleted"
+                    "Doar actele adiționale în draft pot fi șterse."
                 );
 
             _db.ContractAdditionalActItem.RemoveRange(act.Items);
@@ -330,7 +333,8 @@ namespace ERPSystem.Modules.AdditionalAct
                 nameof(ContractAdditionalAct),
                 act.Id.ToString(),
                 "Delete",
-                $"Actul adițional {act.ActNumber} a fost șters"
+                $"Actul adițional {act.ActNumber} a fost șters",
+                 GetCurrentUser()
             );
 
             await _db.SaveChangesAsync();
@@ -354,7 +358,7 @@ namespace ERPSystem.Modules.AdditionalAct
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (act == null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Actul adițional nu a fost găsit.");
 
             var dto = new AdditionalActDetailsDto
             {
@@ -379,8 +383,6 @@ namespace ERPSystem.Modules.AdditionalAct
                 AdminSignature = act.AdminSignature,
                 AdminSignedAtUtc = act.AdminSignedAtUtc,
 
-
-                // Parties
                 Parties = act.Contract.Parties
                   .Select(p => new ContractPartyDto
                   {
@@ -396,7 +398,6 @@ namespace ERPSystem.Modules.AdditionalAct
                   })
                   .ToList(),
 
-                // Items
                 Items = act.Items
                    .Select(i => new AdditionalActItemDto
                    {
@@ -436,7 +437,6 @@ namespace ERPSystem.Modules.AdditionalAct
                 CreatedAtUtc = a.CreatedAtUtc,
                 ContractId = a.ContractId,
 
-                // PARTIES
                 Parties = a.Contract.Parties
                     .Select(p => new ContractPartyDto
                     {
@@ -452,7 +452,6 @@ namespace ERPSystem.Modules.AdditionalAct
                     })
                     .ToList(),
 
-                // ITEMS
                 Items = a.Items
                    .Select(i => new AdditionalActItemDto
                    {
@@ -738,18 +737,18 @@ namespace ERPSystem.Modules.AdditionalAct
               
 
             if (act == null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Act not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Actul adițional nu a fost găsit.");
 
             if (act.Status == AdditionalActStatus.Applied)
-                return response.SetError(ErrorCodes.InvalidParameters, "Act already applied");
+                return response.SetError(ErrorCodes.InvalidParameters, "Actul adițional este deja aplicat.");
 
             if (act.Status != AdditionalActStatus.SignedByClient)
-                return response.SetError(ErrorCodes.InvalidParameters, "Act must be signed by client before applying");
+                return response.SetError(ErrorCodes.InvalidParameters, "Actul adițional trebuie semnat de client înainte de aplicare.");
 
             var contract = act.Contract;
 
             if (contract.Status != ContractStatus.Active)
-                return response.SetError(ErrorCodes.InvalidParameters, "Contract not active");
+                return response.SetError(ErrorCodes.InvalidParameters, "Contractul nu este activ.");
 
             var studentId = contract.Parties
                 .Where(p => p.StudentId.HasValue)
@@ -757,7 +756,7 @@ namespace ERPSystem.Modules.AdditionalAct
                 .FirstOrDefault();
 
             if (studentId == 0)
-                return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursantul nu a fost găsit.");
 
             foreach (var item in act.Items)
             {
@@ -766,7 +765,7 @@ namespace ERPSystem.Modules.AdditionalAct
                     case AdditionalActType.AddCourse:
                         {
                             if (!item.CourseSessionId.HasValue)
-                                return response.SetError(ErrorCodes.InvalidParameters, "Course required");
+                                return response.SetError(ErrorCodes.InvalidParameters, "ursul este obligatoriu.");
 
                             var enrollment = await _db.CourseEnrollments
                                 .Include(e => e.Session)
@@ -780,7 +779,7 @@ namespace ERPSystem.Modules.AdditionalAct
                             if (enrollment == null)
                                 return response.SetError(
                                     ErrorCodes.InvalidParameters,
-                                    "Enrollment not found or already in contract"
+                                    "Înscrierea nu a fost găsită sau este deja inclusă în contract."
                                 );
 
                             var alreadyInContractCourses = await _db.ContractCourses
@@ -791,7 +790,7 @@ namespace ERPSystem.Modules.AdditionalAct
                             if (alreadyInContractCourses)
                                 return response.SetError(
                                     ErrorCodes.InvalidParameters,
-                                    "Course already exists in contract"
+                                    "Cursul există deja în contract."
                                 );
 
                             enrollment.ContractId = contract.Id;
@@ -812,7 +811,7 @@ namespace ERPSystem.Modules.AdditionalAct
                     case AdditionalActType.RemoveCourse:
                         {
                             if (!item.CourseSessionId.HasValue)
-                                return response.SetError(ErrorCodes.InvalidParameters, "Course required");
+                                return response.SetError(ErrorCodes.InvalidParameters, "Cursul există deja în contract.");
 
                             var existing = await _db.CourseEnrollments
                                 .FirstOrDefaultAsync(e =>
@@ -829,7 +828,7 @@ namespace ERPSystem.Modules.AdditionalAct
                                 _db.ContractCourses.Remove(contractCourse);
 
                             if (existing == null)
-                                return response.SetError(ErrorCodes.InvalidParameters, "Removed course not found in contract");
+                                return response.SetError(ErrorCodes.InvalidParameters, "Cursul eliminat nu a fost găsit în contract.");
 
                             existing.ContractId = null;
 
@@ -839,7 +838,7 @@ namespace ERPSystem.Modules.AdditionalAct
                     case AdditionalActType.ExtendPeriod:
                         {
                             if (!DateTime.TryParse(item.NewValue, out var newDate))
-                                return response.SetError(ErrorCodes.InvalidParameters, "Invalid end date");
+                                return response.SetError(ErrorCodes.InvalidParameters, "Data de sfârșit este invalidă.");
 
                             if (DateTime.TryParse(item.NewValue, out var newEndDate))
                             {
@@ -852,10 +851,10 @@ namespace ERPSystem.Modules.AdditionalAct
                     case AdditionalActType.AddDiscount:
                         {
                             if (!item.CourseSessionId.HasValue)
-                                return response.SetError(ErrorCodes.InvalidParameters, "Course session required for discount");
+                                return response.SetError(ErrorCodes.InvalidParameters, "Sesiunea este obligatorie pentru discount.");
 
                             if (!decimal.TryParse(item.NewValue, out var discount) || discount <= 0)
-                                return response.SetError(ErrorCodes.InvalidParameters, "Invalid discount");
+                                return response.SetError(ErrorCodes.InvalidParameters, "Discountul este invalid.");
 
                             var contractCourse = await _db.ContractCourses
                                 .FirstOrDefaultAsync(c =>
@@ -863,7 +862,7 @@ namespace ERPSystem.Modules.AdditionalAct
                                     c.CourseSessionId == item.CourseSessionId.Value);
 
                             if (contractCourse == null)
-                                return response.SetError(ErrorCodes.InvalidParameters, "Course not found in contract");
+                                return response.SetError(ErrorCodes.InvalidParameters, "Cursul nu a fost găsit în contract.");
 
                             contract.PriceAdjustments.Add(new ContractPriceAdjustment
                             {
@@ -883,10 +882,10 @@ namespace ERPSystem.Modules.AdditionalAct
                     case AdditionalActType.IncreasePrice:
                         {
                             if (!item.CourseSessionId.HasValue)
-                                return response.SetError(ErrorCodes.InvalidParameters, "Course session required for increase");
+                                return response.SetError(ErrorCodes.InvalidParameters, "Sesiunea este obligatorie pentru majorare.");
 
                             if (!decimal.TryParse(item.NewValue, out var increase) || increase <= 0)
-                                return response.SetError(ErrorCodes.InvalidParameters, "Invalid increase");
+                                return response.SetError(ErrorCodes.InvalidParameters, "Majorarea este invalidă.");
 
                             var contractCourse = await _db.ContractCourses
                                 .FirstOrDefaultAsync(c =>
@@ -894,7 +893,7 @@ namespace ERPSystem.Modules.AdditionalAct
                                     c.CourseSessionId == item.CourseSessionId.Value);
 
                             if (contractCourse == null)
-                                return response.SetError(ErrorCodes.InvalidParameters, "Course not found in contract");
+                                return response.SetError(ErrorCodes.InvalidParameters, "Cursul nu a fost găsit în contract.");
 
                             contract.PriceAdjustments.Add(new ContractPriceAdjustment
                             {
@@ -912,7 +911,7 @@ namespace ERPSystem.Modules.AdditionalAct
                         }
 
                     default:
-                        return response.SetError(ErrorCodes.InvalidParameters, "Unsupported change type");
+                        return response.SetError(ErrorCodes.InvalidParameters, "Tipul modificării nu este acceptat.");
                 }
             }
 
@@ -957,7 +956,8 @@ namespace ERPSystem.Modules.AdditionalAct
                 nameof(ContractAdditionalAct),
                 act.Id.ToString(),
                 "Applied",
-                $"Actul adițional {act.ActNumber} a fost aplicat"
+                $"Actul adițional {act.ActNumber} a fost aplicat",
+                 GetCurrentUser()
             );
             if (saveChanges)
             {
@@ -981,7 +981,7 @@ namespace ERPSystem.Modules.AdditionalAct
             var descriptions = new List<string>();
 
             if (dto.Types == null || !dto.Types.Any())
-                throw new InvalidOperationException("At least one type required");
+                throw new InvalidOperationException("Trebuie selectat cel puțin un tip de modificare.");
 
             var studentId = contract.Parties
                 .Where(p => p.StudentId.HasValue)
@@ -989,7 +989,7 @@ namespace ERPSystem.Modules.AdditionalAct
                 .FirstOrDefault();
 
             if (studentId == 0)
-                throw new InvalidOperationException("Student not found");
+                throw new InvalidOperationException("Cursantul nu a fost găsit.");
 
             var selectedSessionIds = dto.AddCourseSessionIds
                 .Concat(dto.RemoveCourseSessionIds)
@@ -1029,7 +1029,7 @@ namespace ERPSystem.Modules.AdditionalAct
                     case AdditionalActType.AddCourse:
                         {
                             if (dto.AddCourseSessionIds == null || !dto.AddCourseSessionIds.Any())
-                                throw new InvalidOperationException("Course required");
+                                throw new InvalidOperationException("Cursul este obligatoriu.");
 
                             foreach (var sessionId in dto.AddCourseSessionIds.Distinct())
                             {
@@ -1042,10 +1042,10 @@ namespace ERPSystem.Modules.AdditionalAct
                                         e.IsActive);
 
                                 if (enrollment == null)
-                                    throw new InvalidOperationException("Enrollment not found");
+                                    throw new InvalidOperationException("Înscrierea nu a fost găsită sau este deja inclusă în contract.");
 
                                 if (enrollment.ContractId != null)
-                                    throw new InvalidOperationException("Already in contract");
+                                    throw new InvalidOperationException("Înscrierea este deja inclusă în contract");
 
                                 var session = enrollment.Session;
                                 var price = session.Fee;
@@ -1074,7 +1074,7 @@ namespace ERPSystem.Modules.AdditionalAct
                     case AdditionalActType.RemoveCourse:
                         {
                             if (dto.RemoveCourseSessionIds == null || !dto.RemoveCourseSessionIds.Any())
-                                throw new InvalidOperationException("Course required");
+                                throw new InvalidOperationException("Cursul este obligatoriu.");
 
                             foreach (var sessionId in dto.RemoveCourseSessionIds.Distinct())
                             {
@@ -1084,7 +1084,7 @@ namespace ERPSystem.Modules.AdditionalAct
                                         c.CourseSessionId == sessionId);
 
                                 if (contractCourse == null)
-                                    throw new InvalidOperationException("Course not found in contract");
+                                    throw new InvalidOperationException("Cursul nu a fost găsit în contract.");
 
                                 var existingEnrollment = await _db.CourseEnrollments
                                     .FirstOrDefaultAsync(e =>
@@ -1094,7 +1094,7 @@ namespace ERPSystem.Modules.AdditionalAct
                                         !e.IsActive);
 
                                 if (existingEnrollment == null)
-                                    throw new InvalidOperationException("Course enrollment not found in contract");
+                                    throw new InvalidOperationException("Înscrierea nu a fost găsită sau este deja inclusă în contract");
 
                                 var price = contractCourse.PriceSnapshot;
 
@@ -1122,11 +1122,11 @@ namespace ERPSystem.Modules.AdditionalAct
                     case AdditionalActType.ExtendPeriod:
                         {
                             if (!dto.NewEndDate.HasValue)
-                                throw new InvalidOperationException("New date required");
+                                throw new InvalidOperationException("Noua dată este obligatorie");
 
                             if (contract.EndDate.HasValue &&
                                 dto.NewEndDate.Value.Date <= contract.EndDate.Value.Date)
-                                throw new InvalidOperationException("New end date must be after current end date");
+                                throw new InvalidOperationException("Noua dată de sfârșit trebuie să fie după data curentă de sfârșit");
 
                             items.Add(new ContractAdditionalActItem
                             {
@@ -1143,19 +1143,19 @@ namespace ERPSystem.Modules.AdditionalAct
                     case AdditionalActType.AddDiscount:
                         {
                             if (dto.PriceAdjustments == null || !dto.PriceAdjustments.Any())
-                                throw new InvalidOperationException("Discount required");
+                                throw new InvalidOperationException("Discountul este obligatoriu.");
 
                             foreach (var adj in dto.PriceAdjustments)
                             {
                                 if (adj.CourseSessionId <= 0 || adj.Amount <= 0)
-                                    throw new InvalidOperationException("Invalid discount");
+                                    throw new InvalidOperationException("Discountul este invalid.");
 
                                 var session = await _db.CourseSessions
                                     .Include(s => s.Course)
                                     .FirstOrDefaultAsync(s => s.Id == adj.CourseSessionId);
 
                                 if (session == null)
-                                    throw new InvalidOperationException("Course session not found");
+                                    throw new InvalidOperationException("Sesiunea nu a fost găsită");
 
                                 var typeLabel = session.FeeType == CourseFeeType.Monthly
                                     ? "abonament lunar"
@@ -1181,19 +1181,19 @@ namespace ERPSystem.Modules.AdditionalAct
                     case AdditionalActType.IncreasePrice:
                         {
                             if (dto.PriceAdjustments == null || !dto.PriceAdjustments.Any())
-                                throw new InvalidOperationException("Increase required");
+                                throw new InvalidOperationException("Majorarea este obligatorie");
 
                             foreach (var adj in dto.PriceAdjustments)
                             {
                                 if (adj.CourseSessionId <= 0 || adj.Amount <= 0)
-                                    throw new InvalidOperationException("Invalid increase");
+                                    throw new InvalidOperationException("Majorarea este invalidă.");
 
                                 var session = await _db.CourseSessions
                                     .Include(s => s.Course)
                                     .FirstOrDefaultAsync(s => s.Id == adj.CourseSessionId);
 
                                 if (session == null)
-                                    throw new InvalidOperationException("Course session not found");
+                                    throw new InvalidOperationException("Sesiunea nu a fost găsită");
 
                                 var typeLabel = session.FeeType == CourseFeeType.Monthly
                                     ? "abonament lunar"
@@ -1217,14 +1217,23 @@ namespace ERPSystem.Modules.AdditionalAct
                         }
 
                     default:
-                        throw new InvalidOperationException("Unsupported change type");
+                        throw new InvalidOperationException("Tipul modificării nu este acceptat.");
                 }
             }
 
             return (items, string.Join(" | ", descriptions));
         }
-       
 
+        private string GetCurrentUser()
+        {
+            return _httpContextAccessor.HttpContext?.User?
+                .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                ?? _httpContextAccessor.HttpContext?.User?
+                    .FindFirst("email")?.Value
+                ?? _httpContextAccessor.HttpContext?.User?
+                    .FindFirst("username")?.Value
+                ?? "system";
+        }
 
     }
 }

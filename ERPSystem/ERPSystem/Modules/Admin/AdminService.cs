@@ -361,13 +361,6 @@ namespace ERPSystem.Modules.Admin
             }
         }
 
-        private string GetCurrentAdminEmail()
-        {
-            return _httpContextAccessor.HttpContext?.User?.Identity?.Name
-                ?? _httpContextAccessor.HttpContext?.User?.FindFirst("email")?.Value
-                ?? "system";
-        }
-
         private async Task AddActivityLogAsync( string entityId,string action, string description)
         {
             _applicationDbContext.ActivityLog.Add(new ActivityLog
@@ -381,6 +374,17 @@ namespace ERPSystem.Modules.Admin
             });
 
             await _applicationDbContext.SaveChangesAsync();
+        }
+
+        private string GetCurrentAdminEmail()
+        {
+            return _httpContextAccessor.HttpContext?.User?
+                .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                ?? _httpContextAccessor.HttpContext?.User?
+                    .FindFirst("email")?.Value
+                ?? _httpContextAccessor.HttpContext?.User?
+                    .FindFirst("username")?.Value
+                ?? "system";
         }
     }
 

@@ -19,14 +19,22 @@ public class CoursesService
     private readonly ILogger<CoursesService> _logger;
     private readonly NotificationsService _notificationService;
     private readonly ExcelExportService _excelExportService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public CoursesService(ApplicationDbContext db, UserManager<ApplicationUser> userManager, ILogger<CoursesService> logger, NotificationsService notificationService, ExcelExportService excelExportService)
-    {
+    public CoursesService(
+        ApplicationDbContext db, 
+        UserManager<ApplicationUser> userManager, 
+        ILogger<CoursesService> logger, 
+        NotificationsService notificationService, 
+        ExcelExportService excelExportService,
+        IHttpContextAccessor httpContextAccessor)
+     {
         _db = db;
         _userManager = userManager;
         _logger = logger;
         _notificationService = notificationService;
         _excelExportService = excelExportService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<PublicResponse> ListAsync(string? q, string? status, string? deleteStatus, DiscountScope? scope)
@@ -105,7 +113,7 @@ public class CoursesService
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (c is null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Course not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursul nu a fost găsit.");
 
             var sessionCounts = await _db.CourseEnrollments.AsNoTracking()
                 .Where(e => e.CourseId == id && e.IsActive)
@@ -243,7 +251,7 @@ public class CoursesService
                 Action = "Create",
                 Description = description,
                 CreatedAtUtc = DateTime.UtcNow,
-                PerformedBy = "system"
+                PerformedBy = GetCurrentUser()
             });
 
             foreach (var session in c.Sessions)
@@ -252,7 +260,7 @@ public class CoursesService
                     userId: session.TeacherUserId,
                     eventType: NotificationEvents.CourseActivity,
                     title: "Ai fost asignat la un curs",
-                    message: $"Ai fost asignat la cursul '{c.Name}', sesiunea {session.DayOfWeek} {session.StartTime:HH:mm}-{session.EndTime:HH:mm}.",
+                    message: $"Ai fost asignat la cursul '{c.Name}', sesiunea {GetRomanianDay(session.DayOfWeek)} {session.StartTime:HH:mm}-{session.EndTime:HH:mm}.",
                     type: "Info",
                     link: "/courses",
                     entityType: "Course",
@@ -512,14 +520,14 @@ public class CoursesService
 
             if (changes.Any())
             {
-                _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+                _db.ActivityLog.Add(new ActivityLog
                 {
                     EntityType = "Course",
                     EntityId = c.Id.ToString(),
                     Action = "Update",
                     Description = $"Curs actualizat:\n{string.Join("\n", changes)}",
                     CreatedAtUtc = DateTime.UtcNow,
-                    PerformedBy = "system"
+                    PerformedBy = GetCurrentUser()
                 });
 
                 await _db.SaveChangesAsync();
@@ -565,7 +573,7 @@ public class CoursesService
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (course == null)
-                return response.SetError("NOT_FOUND", "Course not found");
+                return response.SetError("NOT_FOUND", "Cursul nu a fost găsit.");
 
             var wasActive = course.IsActive;
 
@@ -591,7 +599,7 @@ public class CoursesService
                     ? $"Cursul '{course.Name}' a fost activat."
                     : $"Cursul '{course.Name}' a fost dezactivat.",
                 CreatedAtUtc = DateTime.UtcNow,
-                PerformedBy = "system"
+                PerformedBy = GetCurrentUser()
             });
 
             await _db.SaveChangesAsync();
@@ -640,7 +648,7 @@ public class CoursesService
               .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
             
             if (c is null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Course not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursul nu a fost găsit.");
 
             c.IsDeleted = true;
 
@@ -658,7 +666,7 @@ public class CoursesService
                 Action = "Delete",
                 Description = $"Cursul '{c.Name}' a fost șters.",
                 CreatedAtUtc = DateTime.UtcNow,
-                PerformedBy = "system"
+                PerformedBy = GetCurrentUser()
             });
 
             await _db.SaveChangesAsync();
@@ -700,7 +708,7 @@ public class CoursesService
             .FirstOrDefaultAsync(x => x.Id == id);
           
         if (c is null)
-            return response.SetError(ErrorCodes.InvalidParameters, "Course not found");
+            return response.SetError(ErrorCodes.InvalidParameters, "Cursul nu a fost găsit.");
 
         c.IsDeleted = false;
         c.DeletedAtUtc = null;
@@ -741,7 +749,7 @@ public class CoursesService
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (session == null)
-                return response.SetError("NOT_FOUND", "Session not found");
+                return response.SetError("NOT_FOUND", "Sesiunea nu a fost găsită");
 
             if (session.IsActive)
             {
@@ -760,10 +768,10 @@ public class CoursesService
                 EntityId = session.Id.ToString(),
                 Action = session.IsActive ? "SessionActivated" : "SessionDeactivated",
                 Description = session.IsActive
-                    ? $"Sesiunea {session.Id} a fost activată."
-                    : $"Sesiunea {session.Id} a fost dezactivată.",
+                    ? $"Sesiunea {session.Title} a fost activată."
+                    : $"Sesiunea {session.Title} a fost dezactivată.",
                 CreatedAtUtc = DateTime.UtcNow,
-                PerformedBy = "system"
+                PerformedBy = GetCurrentUser()
             });
 
             await _db.SaveChangesAsync();
@@ -863,11 +871,11 @@ public class CoursesService
         {
             var course = await _db.Courses.FindAsync(courseId);
             if (course is null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Course not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursul nu a fost găsit.");
 
             var student = await _db.Students.FindAsync(studentId);
             if (student is null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursantul nu a fost găsit.");
 
             if (!course.IsActive)
                 return response.SetError(ErrorCodes.InvalidParameters, "Cursul este inactiv.");
@@ -876,7 +884,7 @@ public class CoursesService
                 .FirstOrDefaultAsync(s => s.Id == sessionId && s.CourseId == courseId);
 
             if (session is null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Session not found for this course");
+                return response.SetError(ErrorCodes.InvalidParameters, "Sesiunea nu a fost găsită pentru acest curs.");
 
             if (!session.IsActive)
                 return response.SetError(ErrorCodes.InvalidParameters, "Sesiunea este inactivă.");
@@ -894,7 +902,7 @@ public class CoursesService
                .AnyAsync(x => x.CourseSessionId == sessionId && x.StudentId == studentId && x.IsActive);
 
             if (alreadyActive)
-                return response.SetError(ErrorCodes.InvalidParameters, "Student already active");
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursantul este deja înscris activ la această sesiune.");
 
             _db.CourseEnrollments.Add(new CourseEnrollment
             {
@@ -905,28 +913,28 @@ public class CoursesService
                 IsActive = true
             });
 
-            var sessionInfo = $"{session.DayOfWeek} {session.StartTime:HH:mm}";
+            var sessionInfo = $"{GetRomanianDay(session.DayOfWeek)} {session.StartTime:HH:mm}";
 
             var description = $"Studentul {student.FullName} a fost înscris la cursul {course.Name} ({sessionInfo})";
               
-            _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+            _db.ActivityLog.Add(new ActivityLog
             {
                 EntityType = "Student",
                 EntityId = studentId.ToString(),
                 Action =  "Enroll",
                 Description = description,
                 CreatedAtUtc = DateTime.UtcNow,
-                PerformedBy = "system"
+                PerformedBy = GetCurrentUser()
             });
 
-            _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+            _db.ActivityLog.Add(new ActivityLog
             {
                 EntityType = "Course",
                 EntityId = courseId.ToString(),
                 Action =  "EnrollStudent",
                 Description = description,
                 CreatedAtUtc = DateTime.UtcNow,
-                PerformedBy = "system"
+                PerformedBy = GetCurrentUser()
             });
 
             await _db.SaveChangesAsync();
@@ -935,7 +943,7 @@ public class CoursesService
                 userId: session.TeacherUserId,
                 eventType: NotificationEvents.CourseActivity,
                 title: "Cursant înscris",
-                message: $"Cursantul {student.FullName} a fost înscris la cursul '{course.Name}', sesiunea {session.DayOfWeek} {session.StartTime:HH:mm}.",
+                message: $"Cursantul {student.FullName} a fost înscris la cursul '{course.Name}', sesiunea {GetRomanianDay(session.DayOfWeek)} {session.StartTime:HH:mm}.",
                 type: "Success",
                 link: "/courses",
                 entityType: "CourseEnrollment",
@@ -958,7 +966,7 @@ public class CoursesService
         try
         {     
             var existing = await _db.CourseEnrollments
-     .FirstOrDefaultAsync(x => x.CourseId == courseId && x.CourseSessionId == sessionId && x.StudentId == studentId);
+              .FirstOrDefaultAsync(x => x.CourseId == courseId && x.CourseSessionId == sessionId && x.StudentId == studentId);
 
             if (!isActive)
             {
@@ -972,28 +980,28 @@ public class CoursesService
                 var course = await _db.Courses.FindAsync(courseId);
                 var session = await _db.CourseSessions.FindAsync(sessionId);
 
-                var sessionInfo = $"{session.DayOfWeek} {session.StartTime:HH:mm}";
+                var sessionInfo = $"{GetRomanianDay(session.DayOfWeek)} {session.StartTime:HH:mm}";
 
                 var description = $"Studentul {student!.FullName} a fost eliminat din cursul {course!.Name} ({sessionInfo})";
 
-                _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+                _db.ActivityLog.Add(new ActivityLog
                 {
                     EntityType = "Student",
                     EntityId = studentId.ToString(),
                     Action = "EnrollDeactivate",
                     Description = description,
                     CreatedAtUtc = DateTime.UtcNow,
-                    PerformedBy = "system"
+                    PerformedBy = GetCurrentUser()
                 });
 
-                _db.ActivityLog.Add(new ERPSystem.Data.Entities.ActivityLog
+                _db.ActivityLog.Add(new ActivityLog
                 {
                     EntityType = "Course",
                     EntityId = courseId.ToString(),
                     Action = "StudentRemoved",
                     Description = description,
                     CreatedAtUtc = DateTime.UtcNow,
-                    PerformedBy = "system"
+                    PerformedBy = GetCurrentUser()
                 });
 
                 await _db.SaveChangesAsync();
@@ -1002,7 +1010,7 @@ public class CoursesService
                     userId: session!.TeacherUserId,
                     eventType: NotificationEvents.CourseActivity,
                     title: "Cursant eliminat",
-                    message: $"Cursantul {student!.FullName} a fost eliminat din cursul '{course!.Name}', sesiunea {session.DayOfWeek} {session.StartTime:HH:mm}.",
+                    message: $"Cursantul {student!.FullName} a fost eliminat din cursul '{course!.Name}', sesiunea {GetRomanianDay(session.DayOfWeek)} {session.StartTime:HH:mm}.",
                     type: "Warning",
                     link: "/courses",
                     entityType: "CourseEnrollment",
@@ -1015,7 +1023,6 @@ public class CoursesService
             {
                 return await EnrollStudentAsync(courseId, studentId, sessionId);
             }
-
            
         }
         catch (Exception ex)
@@ -1058,42 +1065,36 @@ public class CoursesService
             return response.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
         }
     }
-    private static TimeOnly ParseTime(string s)
-    {
-        if (!TimeOnly.TryParse(s, out var t))
-            throw new ArgumentException($"Invalid time: {s}. Use HH:mm");
-        return t;
-    }
-
+   
     private static string? ValidateCreate(CreateCourseDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Name))
-            return "Name is required";
+            return "Numele cursului este obligatoriu.";
 
         if (dto.Sessions is null || dto.Sessions.Count == 0)
-            return "Course must have at least one session";
+            return "Cursul trebuie să aibă cel puțin o sesiune.";
 
         foreach (var s in dto.Sessions)
         {
             if (string.IsNullOrWhiteSpace(s.TeacherUserId))
-                return "Each session must have a teacher";
+                return "Fiecare sesiune trebuie să aibă un profesor.";
         }
         foreach (var s in dto.Sessions)
         {
             if (s.FeeType == CourseFeeType.FixedPackage)
             {
                 if (!s.TotalSessions.HasValue || s.TotalSessions <= 0)
-                    return "TotalSessions este obligatoriu pentru pachet fix.";
+                    return "Numarul sesiunilor este obligatoriu pentru pachet fix.";
             }
 
             if (s.FeeType == CourseFeeType.Monthly)
             {
                 if (s.TotalSessions != null)
-                    return "TotalSessions nu este permis pentru abonament.";
+                    return "Numarul sesiunilor nu este permis pentru abonament.";
             }
 
             if (s.Fee <= 0)
-                return "Fee trebuie să fie mai mare decât 0.";
+                return "Pretul trebuie să fie mai mare decât 0.";
         }
 
         return null;
@@ -1102,32 +1103,32 @@ public class CoursesService
     private static string? ValidateUpdate(UpdateCourseDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Name))
-            return "Name is required";
+            return "Numele cursului este obligatoriu.";
 
         if (dto.Sessions is null || dto.Sessions.Count == 0)
-            return "Course must have at least one session";
+            return "Cursul trebuie să aibă cel puțin o sesiune.";
 
         foreach (var s in dto.Sessions)
         {
             if (string.IsNullOrWhiteSpace(s.TeacherUserId))
-                return "Each session must have a teacher";
+                return "Fiecare sesiune trebuie să aibă un profesor.";
         }
         foreach (var s in dto.Sessions)
         {
             if (s.FeeType == CourseFeeType.FixedPackage)
             {
                 if (!s.TotalSessions.HasValue || s.TotalSessions <= 0)
-                    return "TotalSessions este obligatoriu pentru pachet fix.";
+                    return "Numarul sesiunilor este obligatoriu pentru pachet fix.";
             }
 
             if (s.FeeType == CourseFeeType.Monthly)
             {
                 if (s.TotalSessions != null)
-                    return "TotalSessions nu este permis pentru abonament.";
+                    return "Numarul sesiunilor nu este permis pentru abonament.";
             }
 
             if (s.Fee <= 0)
-                return "Fee trebuie să fie mai mare decât 0.";
+                return "Pretul trebuie să fie mai mare decât 0.";
         }
 
         return null;
@@ -1206,7 +1207,7 @@ public class CoursesService
             if (!sessionExists)
                 return response.SetError(
                     ErrorCodes.InvalidParameters,
-                    "Session not found or inactive"
+                    "Sesiunea nu a fost gasita sau este inactiva"
                 );
 
             var enrolledIds = await _db.CourseEnrollments
@@ -1417,6 +1418,22 @@ public class CoursesService
         };
     }
 
-   
+    private static TimeOnly ParseTime(string s)
+    {
+        if (!TimeOnly.TryParse(s, out var t))
+            throw new ArgumentException($"Invalid time: {s}. Use HH:mm");
+        return t;
+    }
+
+    private string GetCurrentUser()
+    {
+        return _httpContextAccessor.HttpContext?.User?
+            .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+            ?? _httpContextAccessor.HttpContext?.User?
+                .FindFirst("email")?.Value
+            ?? _httpContextAccessor.HttpContext?.User?
+                .FindFirst("username")?.Value
+            ?? "system";
+    }
 
 }

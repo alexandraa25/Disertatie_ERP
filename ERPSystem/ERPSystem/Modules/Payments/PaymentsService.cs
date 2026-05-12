@@ -15,12 +15,14 @@ namespace ERPSystem.Modules.Payments
         private readonly ApplicationDbContext _db;
         private readonly ILogger<PaymentsService> _logger;
         private readonly ContractPricingService _pricingService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public PaymentsService(ApplicationDbContext db, ILogger<PaymentsService> logger, ContractPricingService pricingService)
+        public PaymentsService(ApplicationDbContext db, ILogger<PaymentsService> logger, ContractPricingService pricingService, IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
             _logger = logger;
             _pricingService = pricingService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<PublicResponse> PayInstallmentAsync(PayInstallmentDto dto)
@@ -33,6 +35,9 @@ namespace ERPSystem.Modules.Payments
             var installment = await _db.ContractInstallments
                 .Include(i => i.Contract)
                 .FirstOrDefaultAsync(i => i.Id == dto.InstallmentId);
+
+            if (installment == null)
+                return response.SetError(ErrorCodes.InvalidParameters, "Rata nu a fost găsită.");
 
             if (installment.Status == InstallmentStatus.Paid)
                 return response.SetError(
@@ -81,7 +86,8 @@ namespace ERPSystem.Modules.Payments
                 EntityId = installment.Id.ToString(),
                 Action = "Payment",
                 Description = $"Plată {amountToApply} lei pentru rata #{installment.Id}",
-                CreatedAtUtc = DateTime.UtcNow
+                CreatedAtUtc = DateTime.UtcNow,
+                PerformedBy = GetCurrentUser()
             });
 
             await _db.SaveChangesAsync();
@@ -115,30 +121,6 @@ namespace ERPSystem.Modules.Payments
                 .Where(p => p.ContractId == contractId)
                 .OrderByDescending(p => p.PaidAtUtc)
                 .ToListAsync();
-        }
-
-        public string GetInstallmentStatus(ContractInstallment i)
-        {
-            if (i.PaidAmount == 0)
-                return "Neplătit";
-
-            if (i.PaidAmount < i.Amount)
-                return "Parțial";
-
-            return "Plătit";
-        }
-
-        public bool IsOverdue(ContractInstallment i)
-        {
-            return i.PaidAmount < i.Amount &&
-                   i.DueDate < DateTime.UtcNow;
-        }
-
-
-        private int CalculateMonths(DateTime start, DateTime end)
-        {
-            return (end.Year - start.Year) * 12 +
-                   (end.Month - start.Month) + 1;
         }
 
         private async Task GenerateNextUnlimitedInstallmentForContractAsync(int contractId)
@@ -206,6 +188,17 @@ namespace ERPSystem.Modules.Payments
             var day = Math.Min(targetDay, daysInMonth);
 
             return new DateTime(nextMonth.Year, nextMonth.Month, day);
+        }
+
+        private string GetCurrentUser()
+        {
+            return _httpContextAccessor.HttpContext?.User?
+                .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                ?? _httpContextAccessor.HttpContext?.User?
+                    .FindFirst("email")?.Value
+                ?? _httpContextAccessor.HttpContext?.User?
+                    .FindFirst("username")?.Value
+                ?? "system";
         }
     }
 }

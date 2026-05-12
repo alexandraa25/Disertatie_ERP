@@ -61,7 +61,7 @@ public class UserProfileService
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
-                return response.SetError("NOT_FOUND", "User not found");
+                return response.SetError("NOT_FOUND", "Utilizatorul nu a fost găsit.");
 
             var roles = (await _userManager.GetRolesAsync(user)).ToArray();
 
@@ -69,48 +69,48 @@ public class UserProfileService
                 .CountAsync(x => x.UserId == userId && !x.Enabled);
 
             var employee = await _applicationDbContext.Employees
-     .Where(e => e.UserId == userId)
-     .Select(e => new
-     {
-         e.Id,
-         e.JobTitle,
-         e.HireDate,
-         e.TerminationDate,
-         e.Salary,
-         e.ContractType,
-         e.EmploymentStatus,
-
-         Address = e.Address == null ? null : new AddressDto
-         {
-             Street = e.Address.Street,
-             City = e.Address.City,
-             Country = e.Address.Country,
-             PostalCode = e.Address.PostalCode
-         },
-
-         Contact = e.Contact == null ? null : new ContactDto
-         {
-             PhoneNumber = e.Contact.PhoneNumber,
-             EmergencyContactName = e.Contact.EmergencyContactName,
-             EmergencyContactPhone = e.Contact.EmergencyContactPhone
-         },
-
-         Bank = e.Bank == null ? null : new BankDto
-         {
-             IBAN = e.Bank.IBAN,
-             BankName = e.Bank.BankName
-         },
-
-         Documents = e.Documents.Select(d => new DocumentDto
-         {
-             Id = d.Id,
-             FileName = d.FileName,
-             FilePath = d.FilePath,
-             DocumentType = d.DocumentType,
-             UploadedAt = d.UploadedAt
-         }).ToList()
-     })
-     .FirstOrDefaultAsync();
+               .Where(e => e.UserId == userId)
+               .Select(e => new
+               {
+                   e.Id,
+                   e.JobTitle,
+                   e.HireDate,
+                   e.TerminationDate,
+                   e.Salary,
+                   e.ContractType,
+                   e.EmploymentStatus,
+            
+                   Address = e.Address == null ? null : new AddressDto
+                   {
+                       Street = e.Address.Street,
+                       City = e.Address.City,
+                       Country = e.Address.Country,
+                       PostalCode = e.Address.PostalCode
+                   },
+            
+                   Contact = e.Contact == null ? null : new ContactDto
+                   {
+                       PhoneNumber = e.Contact.PhoneNumber,
+                       EmergencyContactName = e.Contact.EmergencyContactName,
+                       EmergencyContactPhone = e.Contact.EmergencyContactPhone
+                   },
+            
+                   Bank = e.Bank == null ? null : new BankDto
+                   {
+                       IBAN = e.Bank.IBAN,
+                       BankName = e.Bank.BankName
+                   },
+            
+                   Documents = e.Documents.Select(d => new DocumentDto
+                   {
+                       Id = d.Id,
+                       FileName = d.FileName,
+                       FilePath = d.FilePath,
+                       DocumentType = d.DocumentType,
+                       UploadedAt = d.UploadedAt
+                   }).ToList()
+               })
+               .FirstOrDefaultAsync();
 
             var result = new UserProfileDto
             {
@@ -150,6 +150,7 @@ public class UserProfileService
             return response.SetError("SERVER", ex.Message);
         }
     }
+
     public async Task<PublicResponse> UpdateProfileAsync(UpdateUserProfileDto body)
     {
         var response = new PublicResponse(true);
@@ -164,7 +165,7 @@ public class UserProfileService
                 .FirstOrDefaultAsync(x => x.Id == userId);
 
             if (user == null)
-                return response.SetError("NOT_FOUND", "User not found");
+                return response.SetError("NOT_FOUND", "Utilizatorul nu a fost găsit.");
 
             user.FirstName = body.FirstName?.Trim();
             user.LastName = body.LastName?.Trim();
@@ -248,7 +249,7 @@ public class UserProfileService
                 });
 
                 await _notificationService.CreateNotificationForRolesAsync(
-                    roleNames: new[] { "HR", "Administrator" },
+                    roleNames: new[] { "HR", "Admin", "Manager" },
                     eventType: NotificationEvents.UserActivity,
                     title: "Profil utilizator actualizat",
                     message: $"{employee.FirstName} {employee.LastName} și-a actualizat profilul.",
@@ -274,14 +275,27 @@ public class UserProfileService
     {
         var userId = GetCurrentUserId();
 
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+            return new List<NotificationSettingDto>();
+
+        var roles = await _userManager.GetRolesAsync(user);
+
+        var allowedEvents = roles
+            .Where(role => NotificationEvents.ByRole.ContainsKey(role))
+            .SelectMany(role => NotificationEvents.ByRole[role])
+            .Distinct()
+            .ToList();
+
         var existing = await _applicationDbContext.UserNotificationSettings
             .AsNoTracking()
-            .Where(x => x.UserId == userId)
+            .Where(x => x.UserId == userId && allowedEvents.Contains(x.EventType))
             .ToListAsync();
 
         var result = new List<NotificationSettingDto>();
 
-        foreach (var eventType in NotificationEvents.All)
+        foreach (var eventType in allowedEvents)
         {
             foreach (NotificationChannel channel in Enum.GetValues<NotificationChannel>())
             {
@@ -309,13 +323,26 @@ public class UserProfileService
     {
         var userId = GetCurrentUserId();
 
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+            throw new UnauthorizedAccessException();
+
+        var roles = await _userManager.GetRolesAsync(user);
+
+        var allowedEvents = roles
+            .Where(role => NotificationEvents.ByRole.ContainsKey(role))
+            .SelectMany(role => NotificationEvents.ByRole[role])
+            .Distinct()
+            .ToList();
+
         var existingSettings = await _applicationDbContext.UserNotificationSettings
-            .Where(x => x.UserId == userId)
+            .Where(x => x.UserId == userId && allowedEvents.Contains(x.EventType))
             .ToListAsync();
 
         foreach (var dto in body)
         {
-            if (!NotificationEvents.All.Contains(dto.EventType))
+            if (!allowedEvents.Contains(dto.EventType))
                 continue;
 
             var existing = existingSettings.FirstOrDefault(x =>
@@ -351,4 +378,6 @@ public class UserProfileService
             ? DigestMode.Daily
             : DigestMode.Immediate;
     }
+
+
 }

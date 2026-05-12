@@ -45,16 +45,16 @@ namespace ERPSystem.Modules.Leaves
                     .FirstOrDefaultAsync(e => e.UserId == userId);
 
                 if (employee == null)
-                    return response.SetError("NOT_FOUND", "Employee not found");
+                    return response.SetError("NOT_FOUND", "Angajatul nu a fost găsit.");
 
                 if (employee.EmploymentStatus == "Terminated")
                     return response.SetError("FORBIDDEN", "Nu poți crea concediu pentru un angajat inactiv.");
 
                 if (dto.StartDate < DateTime.Today)
-                    return response.SetError("VALIDATION", "Nu poți selecta trecut");
+                    return response.SetError("VALIDATION", "Nu poți selecta o dată din trecut.");
 
                 if (dto.EndDate < dto.StartDate)
-                    return response.SetError("VALIDATION", "Interval invalid");
+                    return response.SetError("VALIDATION", "Intervalul selectat este invalid.");
 
                 var overlap = await _context.EmployeeLeaves
                     .AnyAsync(l =>
@@ -64,7 +64,7 @@ namespace ERPSystem.Modules.Leaves
                         dto.EndDate >= l.StartDate);
 
                 if (overlap)
-                    return response.SetError("VALIDATION", "Concediu suprapus");
+                    return response.SetError("VALIDATION", "Există deja un concediu aprobat în această perioadă.");
 
                 var holidays = await _holidayService.GetHolidays(dto.StartDate.Year);
 
@@ -94,7 +94,7 @@ namespace ERPSystem.Modules.Leaves
                     var total = employee.VacationDaysPerYear + employee.CarryOverDays;
 
                     if (usedDays + requestedDays > total)
-                        return response.SetError("VALIDATION", "Nu ai suficiente zile");
+                        return response.SetError("VALIDATION", "Nu ai suficiente zile de concediu disponibile.");
                 }
 
                 var leave = new EmployeeLeave
@@ -147,7 +147,7 @@ namespace ERPSystem.Modules.Leaves
                     .FirstOrDefaultAsync(e => e.UserId == userId);
 
                 if (employee == null)
-                    return response.SetError("NOT_FOUND", "Employee not found");
+                    return response.SetError("NOT_FOUND", "Angajatul nu a fost găsit.");
 
                 if (employee.EmploymentStatus == "Terminated")
                     return response.SetError("FORBIDDEN", "Nu poți modifica concediul.");
@@ -156,16 +156,16 @@ namespace ERPSystem.Modules.Leaves
                     .FirstOrDefaultAsync(l => l.Id == id && l.EmployeeId == employee.Id);
 
                 if (leave == null)
-                    return response.SetError("NOT_FOUND", "Cererea nu există");
+                    return response.SetError("NOT_FOUND", "Cererea de concediu nu există.");
 
                 if (leave.Status != "Pending")
                     return response.SetError("VALIDATION", "Nu poți modifica această cerere");
 
                 if (dto.StartDate < DateTime.Today)
-                    return response.SetError("VALIDATION", "Nu poți selecta trecut");
+                    return response.SetError("VALIDATION", "Nu poți selecta o dată din trecut.");
 
                 if (dto.EndDate < dto.StartDate)
-                    return response.SetError("VALIDATION", "Interval invalid");
+                    return response.SetError("VALIDATION", "Intervalul selectat este invalid.");
 
                 var overlap = await _context.EmployeeLeaves
                    .AnyAsync(l =>
@@ -176,7 +176,7 @@ namespace ERPSystem.Modules.Leaves
                        dto.EndDate >= l.StartDate);
 
                 if (overlap)
-                    return response.SetError("VALIDATION", "Concediu suprapus");
+                    return response.SetError("VALIDATION", "Există deja un concediu aprobat în această perioadă.");
 
                 var holidays = await _holidayService.GetHolidays(dto.StartDate.Year);
 
@@ -207,7 +207,7 @@ namespace ERPSystem.Modules.Leaves
                     var total = employee.VacationDaysPerYear + employee.CarryOverDays;
 
                     if (usedDays + requestedDays > total)
-                        return response.SetError("VALIDATION", "Nu ai suficiente zile");
+                        return response.SetError("VALIDATION", "Nu ai suficiente zile de concediu disponibile.");
                 }
 
                 leave.StartDate = dto.StartDate;
@@ -254,7 +254,7 @@ namespace ERPSystem.Modules.Leaves
                     .FirstOrDefaultAsync(e => e.UserId == userId);
 
                 if (employee == null)
-                    return response.SetError("NOT_FOUND", "Employee not found");
+                    return response.SetError("NOT_FOUND", "Angajatul nu a fost găsit.");
 
                 if (employee.EmploymentStatus == "Terminated")
                     return response.SetError("FORBIDDEN", "Nu poți anula concediul.");
@@ -263,7 +263,7 @@ namespace ERPSystem.Modules.Leaves
                     .FirstOrDefaultAsync(l => l.Id == id && l.EmployeeId == employee.Id);
 
                 if (leave == null)
-                    return response.SetError("NOT_FOUND", "Cererea nu există");
+                    return response.SetError("NOT_FOUND", "Cererea de concediu nu există.");
 
                 if (leave.Status == "Rejected" || leave.Status == "Cancelled")
                     return response.SetError("VALIDATION", "Nu poți anula această cerere");
@@ -312,7 +312,7 @@ namespace ERPSystem.Modules.Leaves
                     .FirstOrDefaultAsync(e => e.UserId == userId);
 
                 if (employee == null)
-                    return response.SetError("NOT_FOUND", "Employee not found");
+                    return response.SetError("NOT_FOUND", "Angajatul nu a fost găsit.");
 
                 var currentYear = DateTime.UtcNow.Year;
 
@@ -414,7 +414,7 @@ namespace ERPSystem.Modules.Leaves
                     var total = leave.Employee.VacationDaysPerYear + leave.Employee.CarryOverDays;
 
                     if (totalUsed + requested > total)
-                        return response.SetError("VALIDATION", "Nu sunt suficiente zile");
+                        return response.SetError("VALIDATION", "Nu ai suficiente zile de concediu disponibile.");
                 }
 
                 leave.Status = "Approved";
@@ -659,8 +659,12 @@ namespace ERPSystem.Modules.Leaves
 
         private string GetCurrentUser()
         {
-            return _httpContextAccessor.HttpContext?.User?.Identity?.Name
-                ?? _httpContextAccessor.HttpContext?.User?.FindFirst("email")?.Value
+            return _httpContextAccessor.HttpContext?.User?
+                .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                ?? _httpContextAccessor.HttpContext?.User?
+                    .FindFirst("email")?.Value
+                ?? _httpContextAccessor.HttpContext?.User?
+                    .FindFirst("username")?.Value
                 ?? GetUserId()
                 ?? "system";
         }

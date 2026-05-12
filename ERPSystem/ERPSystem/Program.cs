@@ -3,6 +3,7 @@ using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAuthorization();
+builder.Services.AddHttpContextAccessor();
 
 builder.ConfigureAllServices();
 

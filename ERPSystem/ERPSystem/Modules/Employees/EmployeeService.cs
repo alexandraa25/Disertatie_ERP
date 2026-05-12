@@ -19,15 +19,22 @@ public class EmployeeService
     private readonly HolidayService _holidayService;
     private readonly NotificationsService _notificationService;
     private readonly ExcelExportService _excelExportService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-
-    public EmployeeService(ApplicationDbContext context, UserManager<ApplicationUser> userManager, HolidayService holidayService, NotificationsService notificationService, ExcelExportService excelExportService)
+    public EmployeeService(
+    ApplicationDbContext context,
+    UserManager<ApplicationUser> userManager,
+    HolidayService holidayService,
+    NotificationsService notificationService,
+    ExcelExportService excelExportService,
+    IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
         _userManager = userManager;
         _holidayService = holidayService;
         _notificationService = notificationService;
         _excelExportService = excelExportService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<PublicResponse> CreateEmployeeFullAsync(CreateEmployeeFullRequest request)
@@ -43,17 +50,15 @@ public class EmployeeService
                 await using var transaction = await _context.Database.BeginTransactionAsync();
 
                 if (string.IsNullOrWhiteSpace(request.JobTitle))
-                    return response.SetError("VALIDATION", "Job title is required");
+                    return response.SetError("VALIDATION", "Funcția este obligatorie.");
 
                 if (request.HireDate == default)
-                    return response.SetError("VALIDATION", "Hire date is required");
+                    return response.SetError("VALIDATION", "Data angajării este obligatorie");
 
                 string? userId = null;
                 string? firstName = request.FirstName;
                 string? lastName = request.LastName;
                 string? email = request.Email;
-
-                Console.WriteLine($"FILES COUNT: {request.Files?.Length ?? 0}");
 
                 if (request.Files != null)
                 {
@@ -68,7 +73,7 @@ public class EmployeeService
                     var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == request.UserId);
 
                     if (user == null)
-                        return response.SetError("NOT_FOUND", "User not found");
+                        return response.SetError("NOT_FOUND", "Utilizatorul nu a fost găsit.");
 
                     userId = user.Id;
                     firstName = user.FirstName;
@@ -77,12 +82,12 @@ public class EmployeeService
                 }
 
                 if (string.IsNullOrWhiteSpace(firstName))
-                    return response.SetError("VALIDATION", "First name is required");
+                    return response.SetError("VALIDATION", "Prenumele este obligatoriu.");
 
                 if (string.IsNullOrWhiteSpace(lastName))
-                    return response.SetError("VALIDATION", "Last name is required");
+                    return response.SetError("VALIDATION", "Numele este obligatoriu.");
 
-                var employee = new Data.Entities.Employee
+                var employee = new Employee
                 {
                     Id = Guid.NewGuid(),
                     UserId = userId,
@@ -129,10 +134,7 @@ public class EmployeeService
 
                 if (request.Files.Any())
                 {
-                    var allowedExtensions = new[]
-                    {
-        ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".txt", ".ppt", ".pptx"
-    };
+                    var allowedExtensions = new[] {  ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".txt", ".ppt", ".pptx"  };
 
                     var root = Directory.GetCurrentDirectory();
                     var uploadPath = Path.Combine(root, "uploads", "employees", employee.Id.ToString());
@@ -146,10 +148,10 @@ public class EmployeeService
                         var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
 
                         if (!allowedExtensions.Contains(ext))
-                            return response.SetError("VALIDATION", $"Invalid file: {file.FileName}");
+                            return response.SetError("VALIDATION", $"Tipul fișierului este invalid.: {file.FileName}");
 
                         if (file.Length > 1 * 1024 * 1024)
-                            return response.SetError("VALIDATION", $"File too large: {file.FileName}");
+                            return response.SetError("VALIDATION", $"Fișierul este prea mare.: {file.FileName}");
 
                         var documentType =
                             request.DocumentTypes.Length > i
@@ -242,7 +244,7 @@ public class EmployeeService
 
                 if (employee == null)
                 {
-                    return response.SetError("NOT_FOUND", "Employee not found");
+                    return response.SetError("NOT_FOUND", "Angajatul nu a fost găsit.");
                 }
 
            
@@ -253,7 +255,7 @@ public class EmployeeService
 
                     if (user == null)
                     {
-                        return response.SetError("NOT_FOUND", "User not found");
+                        return response.SetError("NOT_FOUND", "Utilizatorul nu a fost găsit.");
                     }
 
                     employee.UserId = user.Id;
@@ -349,7 +351,7 @@ public class EmployeeService
                 );
 
                 await _notificationService.CreateNotificationForRolesAsync(
-                     roleNames: new[] { "HR", "Administrator" },
+                     roleNames: new[] { "HR", "Admin", "Manager" },
                      eventType: NotificationEvents.Employee,
                      title: "Date angajat actualizate",
                      message: $"Datele angajatului {employee.FirstName} {employee.LastName} au fost actualizate.",
@@ -393,7 +395,7 @@ public class EmployeeService
         var employeeIdRaw = form["EmployeeId"].FirstOrDefault();
 
         if (!Guid.TryParse(employeeIdRaw, out var employeeId))
-            return response.SetError("VALIDATION", "EmployeeId invalid");
+            return response.SetError("VALIDATION", "ID-ul angajatului este invalid.");
 
         var file = form.Files.GetFile("File");
         var documentType = form["DocumentType"].FirstOrDefault();
@@ -402,10 +404,10 @@ public class EmployeeService
             .FirstOrDefaultAsync(x => x.Id == employeeId);
 
         if (employee == null)
-            return response.SetError("NOT_FOUND", "Employee not found");
+            return response.SetError("NOT_FOUND", "Angajatul nu a fost găsit.");
 
         if (file == null)
-            return response.SetError("VALIDATION", "No file uploaded");
+            return response.SetError("VALIDATION", "Nu a fost încărcat niciun fișier.");
 
         var allowedExtensions = new[]
         {
@@ -416,10 +418,10 @@ public class EmployeeService
         var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
 
         if (!allowedExtensions.Contains(ext))
-            return response.SetError("VALIDATION", "Invalid file type");
+            return response.SetError("VALIDATION", "Tipul fișierului este invalid");
 
         if (file.Length > 1 * 1024 * 1024)
-            return response.SetError("VALIDATION", "File too large");
+            return response.SetError("VALIDATION", "Fișierul este prea mare.");
 
         var root = Directory.GetCurrentDirectory();
         var uploadPath = Path.Combine(root, "uploads", "employees", employee.Id.ToString());
@@ -449,6 +451,7 @@ public class EmployeeService
             employee.Id,
             "EmployeeDocumentUploaded",
             $"A fost încărcat documentul {file.FileName} pentru angajatul {employee.FirstName} {employee.LastName}."
+            
         );
 
         return response.SetSuccess(true);
@@ -542,7 +545,7 @@ public class EmployeeService
                 })
                 .ToListAsync();
 
-            var result = new Utils.Response.PagedResult<EmployeeDto>
+            var result = new PagedResult<EmployeeDto>
             {
                 Items = employees,
                 TotalCount = totalCount,
@@ -624,7 +627,7 @@ public class EmployeeService
                    
             
              if (employee == null)
-                 return response.SetError("NOT_FOUND", "Employee not found");
+                 return response.SetError("NOT_FOUND", "Angajatul nu a fost găsit.");
          
              return response.SetSuccess(employee);
         }
@@ -645,7 +648,7 @@ public class EmployeeService
                 .FirstOrDefaultAsync(x => x.Id == employeeId);
 
             if (employee == null)
-                return response.SetError("NOT_FOUND", "Employee not found");
+                return response.SetError("NOT_FOUND", "Angajatul nu a fost găsit.");
 
             employee.TerminationDate = request.TerminationDate;
             employee.EmploymentStatus = "Terminated";
@@ -793,7 +796,10 @@ public class EmployeeService
         }
     }
 
-    private async Task AddEmployeeActivityLogAsync( Guid employeeId,string action,string description)
+    private async Task AddEmployeeActivityLogAsync(
+    Guid employeeId,
+    string action,
+    string description)
     {
         _context.ActivityLog.Add(new ActivityLog
         {
@@ -802,7 +808,7 @@ public class EmployeeService
             Action = action,
             Description = description,
             CreatedAtUtc = DateTime.UtcNow,
-            PerformedBy = "system"
+            PerformedBy = GetCurrentUser()
         });
 
         await _context.SaveChangesAsync();
@@ -814,10 +820,10 @@ public class EmployeeService
             .FirstOrDefaultAsync(x => x.Id == documentId);
 
         if (document == null)
-            return Results.NotFound("Document not found");
+            return Results.NotFound("Documentul nu a fost găsit.");
 
         if (!File.Exists(document.FilePath))
-            return Results.NotFound("File not found");
+            return Results.NotFound("Fișierul nu a fost găsit.");
 
         var bytes = await File.ReadAllBytesAsync(document.FilePath);
 
@@ -834,10 +840,10 @@ public class EmployeeService
             .FirstOrDefaultAsync(x => x.Id == documentId);
 
         if (document == null)
-            return Results.NotFound("Document not found");
+            return Results.NotFound("Documentul nu a fost găsit.");
 
         if (!File.Exists(document.FilePath))
-            return Results.NotFound("File not found");
+            return Results.NotFound("Fișierul nu a fost găsit.");
 
         var bytes = await File.ReadAllBytesAsync(document.FilePath);
 
@@ -1115,5 +1121,14 @@ public class EmployeeService
         };
     }
 
- 
+    private string GetCurrentUser()
+    {
+        return _httpContextAccessor.HttpContext?.User?
+            .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+            ?? _httpContextAccessor.HttpContext?.User?
+                .FindFirst("email")?.Value
+            ?? _httpContextAccessor.HttpContext?.User?
+                .FindFirst("username")?.Value
+            ?? "system";
+    }
 }

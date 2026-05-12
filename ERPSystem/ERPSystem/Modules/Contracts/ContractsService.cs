@@ -25,6 +25,7 @@ public class ContractsService
     private readonly TemplateRendererService _templateRenderer;
     private readonly ExcelExportService _excelExportService;
     private readonly DocumentSigningService _documentSigningService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public ContractsService(  
         ApplicationDbContext db,  
@@ -36,7 +37,8 @@ public class ContractsService
         ContractPricingService pricingService,
         TemplateRendererService templateRenderer,
         ExcelExportService excelExportService,
-        DocumentSigningService documentSigningService)
+        DocumentSigningService documentSigningService,
+        IHttpContextAccessor httpContextAccessor)
     {
         _db = db;
         _logger = logger;
@@ -48,6 +50,7 @@ public class ContractsService
         _templateRenderer = templateRenderer;
         _excelExportService = excelExportService;
         _documentSigningService = documentSigningService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<PublicResponse> CreateAsync(CreateContractDto dto)
@@ -325,7 +328,8 @@ public class ContractsService
                 nameof(StudentContract),
                 contract.Id.ToString(),
                 "Create",
-                $"Contractul {contract.ContractNumber} a fost creat."
+                $"Contractul {contract.ContractNumber} a fost creat.",
+                GetCurrentUser()
             );
 
             await _db.SaveChangesAsync();
@@ -509,6 +513,16 @@ public class ContractsService
 
         await _db.SaveChangesAsync();
 
+        _activityLogService.Add(
+             nameof(StudentContract),
+             contract.Id.ToString(),
+             "Update",
+             $"Contractul {contract.ContractNumber} a fost actualizat.",
+             GetCurrentUser()
+         );
+
+        await _db.SaveChangesAsync();
+
         return response.SetSuccess(new { contract.Id });
     }
 
@@ -532,6 +546,14 @@ public class ContractsService
         contract.UpdatedAtUtc = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
+
+        _activityLogService.Add(
+             nameof(StudentContract),
+             contract.Id.ToString(),
+             "UpdateBody",
+             $"Conținutul contractului {contract.ContractNumber} a fost actualizat.",
+             GetCurrentUser()
+         );
 
         return response.SetSuccess(true);
     }
@@ -574,6 +596,14 @@ public class ContractsService
 
         await _db.SaveChangesAsync();
 
+        _activityLogService.Add(
+            nameof(StudentContract),
+            contract.Id.ToString(),
+            "ResetBody",
+            $"Conținutul contractului {contract.ContractNumber} a fost resetat la șablon.",
+            GetCurrentUser()
+        );
+
         return response.SetSuccess(true);
     }
 
@@ -609,7 +639,8 @@ public class ContractsService
             nameof(StudentContract),
             contract.Id.ToString(),
             "Finalize",
-            $"Contractul {contract.ContractNumber} a fost finalizat."
+            $"Contractul {contract.ContractNumber} a fost finalizat.",
+            GetCurrentUser()
         );
 
         await _db.SaveChangesAsync();
@@ -655,14 +686,14 @@ public class ContractsService
             .FirstOrDefaultAsync(c => c.Id == id);
 
         if (contract is null)
-            return response.SetError(ErrorCodes.InvalidParameters, "Not found");
+            return response.SetError(ErrorCodes.InvalidParameters, "Contractul nu a fost găsit.");
 
         if (contract.Status == ContractStatus.Cancelled)
-            return response.SetError(ErrorCodes.InvalidParameters, "Contract already cancelled");
+            return response.SetError(ErrorCodes.InvalidParameters, "Contractul este deja anulat.");
 
         if (contract.Status == ContractStatus.Completed ||
             contract.Status == ContractStatus.Expired)
-            return response.SetError(ErrorCodes.InvalidParameters, "Contract cannot be cancelled");
+            return response.SetError(ErrorCodes.InvalidParameters, "Contractul nu poate fi anulat.");
 
         var acts = await _db.ContractAdditionalAct
            .Where(a => a.ContractId == contract.Id)
@@ -695,7 +726,8 @@ public class ContractsService
              nameof(StudentContract),
              contract.Id.ToString(),
              "Cancelled",
-             $"Contract {contract.ContractNumber} a fost anulat"
+             $"Contractl {contract.ContractNumber} a fost anulat",
+             GetCurrentUser()
          );
          
         var enrollments = await _db.CourseEnrollments
@@ -714,7 +746,8 @@ public class ContractsService
                 nameof(CourseEnrollment),
                 e.Id.ToString(),
                 "EnrollmentCancelled",
-                $"Student {e.Student.FirstName} {e.Student.LastName} eliminat din {e.Session.Title} (contract anulat)"
+                $"Cursantul {e.Student.FirstName} {e.Student.LastName} a fost eliminat din {e.Session.Title} deoarece contractul a fost anulat.",
+                GetCurrentUser()
             );
         }
 
@@ -750,7 +783,7 @@ public class ContractsService
 
         if (contract.Status != ContractStatus.Active)
             return response.SetError(ErrorCodes.InvalidParameters,
-                "Only active contracts can be completed");
+                "Doar contractele active pot fi finalizate.");
 
         contract.Status = ContractStatus.Completed;
         contract.UpdatedAtUtc = DateTime.UtcNow;
@@ -787,7 +820,8 @@ public class ContractsService
             nameof(StudentContract),
             contract.Id.ToString(),
             "Completed",
-            $"Contract {contract.ContractNumber} finalizat"
+            $"Contractul {contract.ContractNumber} a fost finalizat.",
+            GetCurrentUser()
         );
 
         var enrollments = await _db.CourseEnrollments
@@ -806,7 +840,8 @@ public class ContractsService
                 nameof(CourseEnrollment),
                 e.Id.ToString(),
                 "EnrollmentCompleted",
-                $"Student {e.Student.FirstName} {e.Student.LastName} a finalizat {e.Session.Title}"
+               $"Cursantul {e.Student.FirstName} {e.Student.LastName} a finalizat sesiunea {e.Session.Title}.",
+                GetCurrentUser()
             );
         }
 
@@ -852,7 +887,8 @@ public class ContractsService
                nameof(StudentContract),
                contract.Id.ToString(),
                "Expired",
-               $"Contract {contract.ContractNumber} a expirat"
+               $"Contract {contract.ContractNumber} a expirat",
+               GetCurrentUser()
              );
              
             var installments = await _db.ContractInstallments
@@ -880,7 +916,8 @@ public class ContractsService
                      nameof(CourseEnrollment),
                      e.Id.ToString(),
                      "EnrollmentEnded",
-                     $"Student {e.Student.FirstName} {e.Student.LastName} a fost scos din sesiunea {e.Session.Title} (contract expirat)"
+                     $"Student {e.Student.FirstName} {e.Student.LastName} a fost scos din sesiunea {e.Session.Title} (contract expirat)",
+                     GetCurrentUser()
                  );
 
             }
@@ -907,13 +944,12 @@ public class ContractsService
             return Results.NotFound();
 
         if (string.IsNullOrEmpty(contract.PdfPath))
-            return Results.BadRequest("PDF not generated");
+            return Results.BadRequest("PDF-ul nu a fost generat.");
 
         var filePath = Path.Combine("wwwroot", "contracts", contract.PdfPath);
 
         if (!File.Exists(filePath))
         {
-            // 🔥 regenerează dacă lipsește
             var fileName = _pdfService.GenerateContractPdf(contract);
 
             contract.PdfPath = fileName;
@@ -1577,6 +1613,17 @@ public class ContractsService
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             $"contracte_contabilitate_{DateTime.UtcNow:yyyyMMdd_HHmm}.xlsx"
         );
+    }
+
+    private string GetCurrentUser()
+    {
+        return _httpContextAccessor.HttpContext?.User?
+            .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+            ?? _httpContextAccessor.HttpContext?.User?
+                .FindFirst("email")?.Value
+            ?? _httpContextAccessor.HttpContext?.User?
+                .FindFirst("username")?.Value
+            ?? "system";
     }
 
 }

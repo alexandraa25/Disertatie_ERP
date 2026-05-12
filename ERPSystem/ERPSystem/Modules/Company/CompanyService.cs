@@ -10,10 +10,17 @@ namespace ERPSystem.Modules.Company
     public class CompanyService
     {
         private readonly ApplicationDbContext _db;
+        private readonly ActivityLogService _activityLogService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CompanyService(ApplicationDbContext db)
+        public CompanyService(
+            ApplicationDbContext db,
+            ActivityLogService activityLogService,
+            IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
+            _activityLogService = activityLogService;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<PublicResponse> GetAsync()
@@ -28,7 +35,10 @@ namespace ERPSystem.Modules.Company
         public async Task<PublicResponse> SaveAsync(CompanySettingsDto dto)
         {
             var response = new PublicResponse(true);
+
             var company = await _db.CompanySettings.FirstOrDefaultAsync();
+
+            bool isNew = company == null;
 
             if (company == null)
             {
@@ -65,6 +75,18 @@ namespace ERPSystem.Modules.Company
             }
 
             await _db.SaveChangesAsync();
+
+            var performedBy = _httpContextAccessor.HttpContext?.User?
+               .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+               ?? "system";
+
+            await _activityLogService.AddAsync(
+                entityType: "CompanySettings",
+                entityId: company.Id.ToString(),
+                action: isNew ? "Created" : "Updated",
+                description: isNew ? "Datele companiei au fost create.": "Datele companiei au fost actualizate.",
+                performedBy: performedBy
+            );
             return response.SetSuccess();
         }
     }

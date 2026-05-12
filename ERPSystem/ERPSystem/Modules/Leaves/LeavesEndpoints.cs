@@ -18,41 +18,53 @@ namespace ERPSystem.Modules.Leaves
             group.MapGet(Route.MY_LEAVES,
                  async (LeavesService service)
                      => await service.GetMyLeaves())
+                .RequireAuthorization()
                  .WithDefaultApiSettings("GetMyLeaves", "Concediile utilizatorului", "GET_MY_LEAVES", true);
 
             group.MapPost(Route.CREATE_LEAVES,
                  async (CreateLeaveDto request, LeavesService service)
                      => await service.CreateLeave(request))
+                .RequireAuthorization()
                  .WithDefaultApiSettings("CreateLeave", "Creare cerere concediu", "CREATE_LEAVE", true);
 
             group.MapPut(Route.UPDATE_LEAVES,
                  async (Guid id, CreateLeaveDto dto, LeavesService service)
                      => await service.UpdateLeave(id, dto))
+                .RequireAuthorization()
                  .WithDefaultApiSettings("UpdateLeave", "Actualizează concediu", "UPDATE_LEAVE", true);
 
             group.MapPut(Route.CANCEL_LEAVES,
                   async (Guid id, LeavesService service)
                       => await service.CancelLeave(id))
+                  .RequireAuthorization()
                   .WithDefaultApiSettings("CancelLeave", "Anulează concediu", "CANCEL_LEAVE", true);
 
             group.MapPut(Route.APPROVE_LEAVES,
                  async (Guid id, LeavesService service)
                      => await service.Approve(id))
+                .RequireAuthorization(policy =>
+                    policy.RequireRole("Admin", "HR", "Manager"))
                  .WithDefaultApiSettings("ApproveLeave", "Aprobare concediu", "APPROVE_LEAVE", false);
 
             group.MapPut(Route.REJECT_LEAVES,
                 async (Guid id, string? reason, LeavesService service)
                     => await service.Reject(id, reason))
+                .RequireAuthorization(policy =>
+                    policy.RequireRole("Admin", "HR", "Manager"))
                 .WithDefaultApiSettings("RejectLeave", "Respingere concediu", "REJECT_LEAVE", false);
 
             group.MapGet(Route.ALL_LEAVES,
                  async ([AsParameters] GetLeavesQuery query, LeavesService service)
                       => await service.GetAllLeaves(query))
+                .RequireAuthorization(policy =>
+                    policy.RequireRole("Admin", "HR", "Manager"))
                  .WithDefaultApiSettings("GetAllLeaves", "Toate concediile", "GET_ALL_LEAVES", true);
 
             group.MapGet(Route.GET_CONFLICTS,
                  async (DateTime start, DateTime end, Guid? excludeId, LeavesService service)
                      => await service.GetConflicts(start, end, excludeId))
+                .RequireAuthorization(policy =>
+                   policy.RequireRole("Admin", "HR", "Manager"))
                  .WithDefaultApiSettings("GetConflicts", "Verifică suprapuneri concedii", "GET_CONFLICTS", true);
 
             group.MapGet(Route.HOLIDAYS,

@@ -14,18 +14,21 @@ public static class UserProfileEndpoints
         group.MapGet(Route.PROFILE, 
             async (UserProfileService service) 
                 => await service.GetProfileAsync())
+            .RequireAuthorization()
           .WithDefaultApiSettings("GetProfile", "Get Profile", "GET_PROFILE", true);
 
       
         group.MapPut(Route.PROFILE, 
             async (UpdateUserProfileDto body,   UserProfileService service)
                 => await service.UpdateProfileAsync(body))
+            .RequireAuthorization()
         .WithDefaultApiSettings("UpdateProfile", "Update Profile", "UPDATE_PROFILE", true);
 
 
         group.MapGet(Route.NOTIFICATION_SETTINGS,
             async (UserProfileService service)
                 => await service.GetNotificationSettingsAsync())
+            .RequireAuthorization()
         .WithDefaultApiSettings("GetNotificationSettings", "Get Notification Settings", "GET_NOTIFICATION_SETTINGS", true);
 
        
@@ -33,6 +36,7 @@ public static class UserProfileEndpoints
             async (List<NotificationSettingDto> body,
                    UserProfileService service)
                 => await service.UpsertNotificationSettingsAsync(body))
+            .RequireAuthorization()
         .WithDefaultApiSettings("UpdateNotificationSettings", "Update Notification Settings", "UPDATE_NOTIFICATION_SETTINGS", true);
     }
 }

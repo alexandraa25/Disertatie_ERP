@@ -137,4 +137,21 @@ public class ActivityLogService
                 : performedBy
         });
     }
+
+    public async Task AddAsync( string entityType, string entityId, string action, string description, string? performedBy = null)
+    {
+        _db.ActivityLog.Add(new ActivityLog
+        {
+            EntityType = entityType,
+            EntityId = entityId,
+            Action = action,
+            Description = description,
+            CreatedAtUtc = DateTime.UtcNow,
+            PerformedBy = string.IsNullOrWhiteSpace(performedBy)
+                ? "system"
+                : performedBy
+        });
+
+        await _db.SaveChangesAsync();
+    }
 }

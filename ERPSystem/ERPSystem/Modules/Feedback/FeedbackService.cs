@@ -733,7 +733,7 @@ namespace ERPSystem.Modules.Feedback
         }
 
 
-        private async Task AddActivityLogAsync(string entityType, string entityId, string action, string description)
+        private async Task AddActivityLogAsync(  string entityType, string entityId,string action,  string description)
         {
             _context.ActivityLog.Add(new ActivityLog
             {
@@ -742,13 +742,22 @@ namespace ERPSystem.Modules.Feedback
                 Action = action,
                 Description = description,
                 CreatedAtUtc = DateTime.UtcNow,
-                PerformedBy = "system"
+                PerformedBy = GetCurrentUser()
             });
 
             await _context.SaveChangesAsync();
         }
 
-
+        private string GetCurrentUser()
+        {
+            return _httpContextAccessor.HttpContext?.User?
+                .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                ?? _httpContextAccessor.HttpContext?.User?
+                    .FindFirst("email")?.Value
+                ?? _httpContextAccessor.HttpContext?.User?
+                    .FindFirst("username")?.Value
+                ?? "system";
+        }
     }
 
 

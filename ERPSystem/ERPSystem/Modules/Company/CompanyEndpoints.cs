@@ -14,13 +14,15 @@ namespace ERPSystem.Modules.Admin
             group.MapGet(Route.COMPANY_GET,
                async (CompanyService service)
                    => await service.GetAsync())
-              .WithDefaultApiSettings("GetCompanySettings", "Get Company Settings", "GET_COMPANY_SETTINGS", false);
+               .RequireAuthorization(policy => policy.RequireRole("Admin", "Manager", "Secretary"))
+               .WithDefaultApiSettings( "GetCompanySettings", "Returnează datele companiei", "GET_COMPANY_SETTINGS",  false);
 
 
             group.MapPost(Route.COMPANY_SAVE,
-                async (CompanySettingsDto dto, CompanyService service)
-                    => await service.SaveAsync(dto))
-               .WithDefaultApiSettings("SaveCompanySettings", "Create or Update Company Settings", "SAVE_COMPANY_SETTINGS", false);
+               async (CompanySettingsDto dto, CompanyService service)
+                   => await service.SaveAsync(dto))
+               .RequireAuthorization(policy => policy.RequireRole("Admin", "Manager"))
+               .WithDefaultApiSettings( "SaveCompanySettings", "Salvează datele companiei", "SAVE_COMPANY_SETTINGS", false);
         }
     }
 }

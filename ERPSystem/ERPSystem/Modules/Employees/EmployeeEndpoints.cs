@@ -47,63 +47,88 @@ namespace ERPSystem.Modules.Employees
                      return await service.CreateEmployeeFullAsync(request);
                  })
               .DisableAntiforgery()
+              .RequireAuthorization(policy =>
+                   policy.RequireRole("Admin", "HR", "Manager"))
               .WithDefaultApiSettings("CreateEmployee", "Creare angajat", "CREATE_EMPLOYEE", false);
 
             group.MapPut(Route.UPDATE_EMPLOYEE,
                 async ([FromBody] UpdateEmployeeRequest request, EmployeeService service) =>
-                    await service.UpdateEmployeeAsync(request))        
+                    await service.UpdateEmployeeAsync(request))
+                .RequireAuthorization(policy =>
+                    policy.RequireRole("Admin", "HR", "Manager"))
                 .WithDefaultApiSettings(  "UpdateEmployee", "Actualizare angajat", "UPDATE_EMPLOYEE", false);
 
             group.MapPost(Route.EMPLOYEE_DOCUMENT,
                 async (HttpRequest request, EmployeeService service) =>
                     await service.UploadEmployeeDocuments(request))
                .DisableAntiforgery()
+               .RequireAuthorization(policy =>
+                     policy.RequireRole("Admin", "HR", "Manager"))
                .WithDefaultApiSettings("UploadEmployeeDocuments", "Încarcă document angajat", "UPLOAD_EMPLOYEE_DOCUMENTS",  false);
 
             group.MapGet(Route.USERS,
                   async (EmployeeService service)
                     => await service.GetSimpleUsers())
+                 .RequireAuthorization(policy =>
+                    policy.RequireRole("Admin", "HR", "Manager"))
                  .WithDefaultApiSettings("GetSimplUsers", "User", "GET_SIMPLE_USERS", false);
 
             group.MapGet(Route.EMPLOYEES,
                 async ([AsParameters] EmployeeListRequest request, EmployeeService service) 
-                  => await service.GetEmployeesAsync(request))
+                   => await service.GetEmployeesAsync(request))
+                .RequireAuthorization(policy =>
+                  policy.RequireRole("Admin", "HR", "Manager"))
                 .WithDefaultApiSettings("ListEmployee", " Employees", "List_EMPLOYEE", false);
 
             group.MapGet(Route.EMPLOYEE_BY_ID,
                 async (Guid id, EmployeeService service)
                     => await service.GetEmployeeAsync(id))
+                .RequireAuthorization(policy =>
+                    policy.RequireRole("Admin", "HR", "Manager"))
                 .WithDefaultApiSettings("getidEmployee", " Employee by id", "EMPLOYEE_BY_ID", false);
 
             group.MapPost(Route.TERMINATE_EMPLOYEE,
                 async (Guid id, [FromForm] TerminateEmployeeRequest request, EmployeeService service)
-                    => await service.TerminateEmployeeAsync(id, request))
+                     => await service.TerminateEmployeeAsync(id, request))
                 .DisableAntiforgery()
+                .RequireAuthorization(policy =>
+                   policy.RequireRole("Admin", "HR", "Manager"))
                 .WithDefaultApiSettings("TerminateEmployee", "Terminate Employee", "Terminate_EMPLOYEE", false);
 
             group.MapGet(Route.HR_DASHBOARD,
                 async (EmployeeService service)
                     => await service.GetDashboardAsync())
+                .RequireAuthorization(policy =>
+                   policy.RequireRole("Admin", "HR", "Manager"))
                 .WithDefaultApiSettings("HRDASHBOARD", "HRDASHBOARD", "HR_DASHBOARD", true);
 
 
             group.MapGet(Route.EMPLOYEE_DOCUMENT_VIEW,
                 async (Guid documentId, EmployeeService service)
                      => await service.ViewEmployeeDocumentAsync(documentId))
+                .RequireAuthorization(policy =>
+                    policy.RequireRole("Admin", "HR", "Manager"))
              .WithDefaultApiSettings("ViewEmployeeDocument", "View Employee DocumenT", "View Employee Document", false);
 
             group.MapGet(Route.EMPLOYEE_DOCUMENT_DOWNLOAD,
-               async (Guid documentId, EmployeeService service)
-               => await service.DownloadEmployeeDocumentAsync(documentId))
+                 async (Guid documentId, EmployeeService service)
+                   => await service.DownloadEmployeeDocumentAsync(documentId))
+                .RequireAuthorization(policy =>
+                    policy.RequireRole("Admin", "HR", "Manager"))
                 .WithDefaultApiSettings("DownloadEmployeeDocument", "Download Employee Document", "Download Employee Document", false);
 
             group.MapDelete(Route.EMPLOYEE_DOCUMENT_DELETE,
-               async (Guid documentId, EmployeeService service) 
-                  => await service.DeleteEmployeeDocumentAsync(documentId));
+               async (Guid documentId, EmployeeService service)
+                    => await service.DeleteEmployeeDocumentAsync(documentId))
+                .RequireAuthorization(policy =>
+                   policy.RequireRole("Admin", "HR", "Manager"))
+               .WithDefaultApiSettings(  "DeleteEmployeeDocument", "Șterge document angajat", "DELETE_EMPLOYEE_DOCUMENT", false );
 
             group.MapGet(Route.EXPORT_EMPLOYEES_EXCEL,
                async ( string? q, string? status, string? contractType, EmployeeService service)
                    => await service.ExportEmployeesExcelAsync(  q, status, contractType))
+                .RequireAuthorization(policy =>
+                   policy.RequireRole("Admin", "HR", "Manager"))
               .WithDefaultApiSettings( "ExportEmployeesExcel", "Exportă angajații în Excel", "EXPORT_EMPLOYEES_EXCEL", true);
 
         }

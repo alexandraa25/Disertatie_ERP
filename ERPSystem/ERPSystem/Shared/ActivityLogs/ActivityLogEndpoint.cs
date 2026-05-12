@@ -17,6 +17,8 @@ namespace ERPSystem.Shared.ActivityLogs
             group.MapGet(Route.ACTIVITY_ALL,
                 async ([FromQuery] string[]? entity, [FromQuery] string[]? action, [FromQuery] string[]? performedBy, DateTime ? from, DateTime? to, int page, int pageSize, ActivityLogService activityLogService)
                     => await activityLogService.GetAllActivity(entity?.ToList(), action?.ToList(), performedBy?.ToList(), from, to, page, pageSize))
+                .RequireAuthorization(policy =>
+                     policy.RequireRole("Admin", "Manager", "Secretary"))
                .WithDefaultApiSettings("GetAllActivity", "Istoric activitati", "GET", false);
 
             group.MapGet(Route.FILLTER_OPTIONS,

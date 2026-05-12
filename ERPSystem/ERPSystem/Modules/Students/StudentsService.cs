@@ -9,7 +9,6 @@ using ERPSystem.Utils.Constants.Error;
 using ERPSystem.Utils.Enums;
 using ERPSystem.Utils.Response;
 using Microsoft.EntityFrameworkCore;
-using SendGrid.Helpers.Mail;
 
 
 namespace ERPSystem.Modules.Student;
@@ -21,15 +20,23 @@ public class StudentsService
     private readonly NotificationsService _notificationService;
     private readonly ExcelExportService _excelExportService;
     private readonly ContractPricingService _pricingService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
 
-    public StudentsService(ApplicationDbContext db, ILogger<StudentsService> logger, NotificationsService notificationservice, ExcelExportService excelExportService, ContractPricingService pricingService)
+    public StudentsService(
+        ApplicationDbContext db, 
+        ILogger<StudentsService> logger, 
+        NotificationsService notificationservice, 
+        ExcelExportService excelExportService, 
+        ContractPricingService pricingService, 
+        IHttpContextAccessor httpContextAccessor)
     {
         _db = db;
         _logger = logger;
         _notificationService = notificationservice;
         _excelExportService = excelExportService;
         _pricingService = pricingService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<PublicResponse> GetStudentsAsync(  string? q,  int page,   int pageSize,  string? sortBy,  string? sortDir,  int? recentDays,  bool? onlyRecent, int? sessionId, string? statusFilter, string? deleteFilter)
@@ -77,7 +84,7 @@ public class StudentsService
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (s is null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursantul nu a fost găsit.");
 
             var guardians = s.StudentGuardians
                 .Select(sg => new GuardianDto
@@ -125,7 +132,7 @@ public class StudentsService
         try
         {
             if (string.IsNullOrWhiteSpace(dto.FullName))
-                return response.SetError(ErrorCodes.InvalidParameters, "FullName is required");
+                return response.SetError(ErrorCodes.InvalidParameters, "Numele complet este obligatoriu.");
 
             var s = new Data.Entities.Student
             {
@@ -212,7 +219,7 @@ public class StudentsService
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (s is null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursantul nu a fost găsit.");
 
             if (s.IsDeleted)
                 return response.SetError(ErrorCodes.InvalidParameters, "Nu poți modifica un cursant șters.");
@@ -329,7 +336,7 @@ public class StudentsService
             var s = await _db.Students.FirstOrDefaultAsync(x => x.Id == id);
 
             if (s is null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursantul nu a fost găsit.");
 
             if (s.IsDeleted)
                 return response.SetError(ErrorCodes.InvalidParameters, "Nu poți modifica statusul unui cursant șters.");
@@ -372,7 +379,7 @@ public class StudentsService
             var s = await _db.Students.FirstOrDefaultAsync(x => x.Id == id);
 
             if (s is null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursantul nu a fost găsit.");
 
             if (s.IsDeleted)
                 return response.SetError(ErrorCodes.InvalidParameters, "Cursantul este deja șters.");
@@ -430,7 +437,7 @@ public class StudentsService
             var s = await _db.Students.FirstOrDefaultAsync(x => x.Id == id);
 
             if (s is null)
-                return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+                return response.SetError(ErrorCodes.InvalidParameters, "Cursantul nu a fost găsit.");
 
             if (!s.IsDeleted)
                 return response.SetError(ErrorCodes.InvalidParameters, "Cursantul nu este șters.");
@@ -510,8 +517,8 @@ public class StudentsService
                    FeeType = (int)e.Session.FeeType,
 
                    SessionId = e.CourseSessionId,
-                   DayOfWeek = e.Session.DayOfWeek.ToString(),
-                   StartTime = e.Session.StartTime,
+                    DayOfWeek = GetRomanianDay(e.Session.DayOfWeek),
+                    StartTime = e.Session.StartTime,
                    EndTime = e.Session.EndTime,
 
                    TeacherName = e.Session.Teacher.FirstName + " " +
@@ -551,7 +558,7 @@ public class StudentsService
             .FirstOrDefaultAsync(c => c.Id == contractId);
 
         if (contract == null)
-            return response.SetError(ErrorCodes.InvalidParameters, "Contract not found");
+            return response.SetError(ErrorCodes.InvalidParameters, "Contractul nu a fost găsit.");
 
         var studentId = contract.Parties
             .Where(p => p.StudentId != null)
@@ -559,7 +566,7 @@ public class StudentsService
             .FirstOrDefault();
 
         if (studentId == 0)
-            return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+            return response.SetError(ErrorCodes.InvalidParameters, "Cursantul nu a fost găsit.");
 
         var enrollments = await _db.CourseEnrollments
             .AsNoTracking()
@@ -623,7 +630,7 @@ public class StudentsService
             .AnyAsync(s => s.Id == studentId);
 
         if (!studentExists)
-            return response.SetError(ErrorCodes.InvalidParameters, "Student not found");
+            return response.SetError(ErrorCodes.InvalidParameters, "Cursantul nu a fost găsit.");
 
         var guardian = await _db.StudentGuardians
            .AsNoTracking()
@@ -933,7 +940,7 @@ public class StudentsService
             Action = action,
             Description = description,
             CreatedAtUtc = DateTime.UtcNow,
-            PerformedBy = "system"
+            PerformedBy = GetCurrentUser()
         });
     }
 
@@ -950,4 +957,32 @@ public class StudentsService
             entityId: student.Id.ToString()
         );
     }
+
+    private string GetCurrentUser()
+    {
+        return _httpContextAccessor.HttpContext?.User?
+            .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+            ?? _httpContextAccessor.HttpContext?.User?
+                .FindFirst("email")?.Value
+            ?? _httpContextAccessor.HttpContext?.User?
+                .FindFirst("username")?.Value
+            ?? "system";
+    }
+
+    private static string GetRomanianDay(int day)
+    {
+        return day switch
+        {
+            1 => "Luni",
+            2 => "Marți",
+            3 => "Miercuri",
+            4 => "Joi",
+            5 => "Vineri",
+            6 => "Sâmbătă",
+            7 => "Duminică",
+            _ => "-"
+        };
+    }
 }
+
+

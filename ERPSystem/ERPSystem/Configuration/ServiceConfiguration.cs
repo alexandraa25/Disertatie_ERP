@@ -39,6 +39,7 @@ namespace ERPSystem.Configuration
         }
         public static void ConfigureBackgroundJobs(this WebApplicationBuilder builder)
         {
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddHostedService<ContractExpirationService>();
         }
         public static void ConfigureService(this WebApplicationBuilder builder)
