@@ -1,0 +1,95 @@
+<div class="dashboard-page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Dashboard</p>
+      <h1>HR</h1>
+      <p class="subtitle">Monitorizare angajați, concedii și documente.</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">Se încarcă datele...</div>
+
+  <div *ngIf="!loading && data" class="kpi-grid">
+    <div class="kpi-card">
+      <span>Total angajați</span>
+      <strong>{{ data.totalEmployees }}</strong>
+      <p>Toți angajații înregistrați</p>
+    </div>
+
+    <div class="kpi-card highlight">
+      <span>Angajați activi</span>
+      <strong>{{ data.activeEmployees }}</strong>
+      <p>Fără dată de încetare</p>
+    </div>
+
+    <div class="kpi-card danger">
+      <span>Fără cont user</span>
+      <strong>{{ data.employeesWithoutUser }}</strong>
+      <p>Angajați nelegați la cont</p>
+    </div>
+
+    <div class="kpi-card danger">
+      <span>Concedii pending</span>
+      <strong>{{ data.pendingLeaves }}</strong>
+      <p>Cereri în așteptare</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Concedii aprobate</span>
+      <strong>{{ data.approvedLeaves }}</strong>
+      <p>Cereri aprobate</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Concedii respinse</span>
+      <strong>{{ data.rejectedLeaves }}</strong>
+      <p>Cereri respinse</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Documente</span>
+      <strong>{{ data.totalDocuments }}</strong>
+      <p>Documente angajați încărcate</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Salariu mediu</span>
+      <strong>{{ data.averageSalary | number:'1.2-2' }} RON</strong>
+      <p>Media salariilor existente</p>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && data" class="tables-grid">
+    <div class="panel">
+      <h2>Angajați pe funcții</h2>
+      <div class="list-row" *ngFor="let item of data.employeesByJobTitle">
+        <span>{{ item.jobTitle }}</span>
+        <strong>{{ item.count }}</strong>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Concedii pe status</h2>
+      <div class="list-row" *ngFor="let item of data.leavesByStatus">
+        <span>{{ item.status }}</span>
+        <strong>{{ item.count }}</strong>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Angajați fără cont user</h2>
+      <div class="list-row" *ngFor="let item of data.employeesMissingUser">
+        <span>{{ item.fullName }} — {{ item.jobTitle }}</span>
+        <strong>{{ item.email || '-' }}</strong>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Zile libere următoare</h2>
+      <div class="list-row" *ngFor="let item of data.upcomingHolidays">
+        <span>{{ item.name }}</span>
+        <strong>{{ item.date | date:'dd.MM.yyyy' }}</strong>
+      </div>
+    </div>
+  </div>
+</div>

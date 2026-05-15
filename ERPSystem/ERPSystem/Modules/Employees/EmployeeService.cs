@@ -721,42 +721,6 @@ public class EmployeeService
         }
     }
 
-    public async Task<PublicResponse> GetDashboardAsync()
-    {
-        var response = new PublicResponse(true);
-
-        try
-        {
-            var total = await _context.Employees.CountAsync();
-
-            var active = await _context.Employees
-                .CountAsync(x => x.EmploymentStatus == "Active");
-
-            var terminated = await _context.Employees
-                .CountAsync(x => x.EmploymentStatus == "Terminated");
-
-            var month = DateTime.UtcNow.Month;
-            var year = DateTime.UtcNow.Year;
-
-            var newHires = await _context.Employees
-                .CountAsync(x => x.HireDate.Month == month && x.HireDate.Year == year);
-
-            var dashboard = new HrDashboardDto
-            {
-                TotalEmployees = total,
-                ActiveEmployees = active,
-                TerminatedEmployees = terminated,
-                NewHiresThisMonth = newHires
-            };
-
-            return response.SetSuccess(dashboard);
-        }
-        catch (Exception ex)
-        {
-            return response.SetError("SERVER", ex.Message);
-        }
-    }
-
     public async Task<PublicResponse> GetSimpleUsers()
     {
         var response = new PublicResponse(true);

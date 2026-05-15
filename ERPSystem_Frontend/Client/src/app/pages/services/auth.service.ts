@@ -49,16 +49,13 @@ export class AuthService {
   }
 
 
-  login(email: string, password: string): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/login`, { email, password }, { withCredentials: true })
-      .pipe(
-        tap((res) => {
-          localStorage.setItem("accessToken", res.accessToken);
-          this.setUser(res.user);
-        })
-      );
-  }
-
+login(email: string, password: string): Observable<any> {
+  return this.http.post<any>(
+    `${this.apiUrl}/login`,
+    { email, password },
+    { withCredentials: true }
+  );
+}
 
   refresh() {
     return this.http.post<{ accessToken: string }>(`${this.apiUrl}/refresh`, {}, { withCredentials: true })
@@ -70,14 +67,13 @@ export class AuthService {
       );
   }
 
-  logout(): void {
-    this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true })
-      .subscribe(() => {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("user");
-        this.currentUserSubject.next(null);
-      });
-  }
+  logout() {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('user');
+  this.currentUserSubject.next(null);
+
+  return this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true });
+}
 
   saveToken(token: string) {
     localStorage.setItem("token", token);
@@ -170,12 +166,23 @@ export class AuthService {
     });
   }
 
-  verifyLoginCode(code: string, tempToken: string) {
-    return this.http.post<any>(`${this.apiUrl}/confirm-login-code`, {
-      tempToken,
-      code
-    });
-  }
+ verifyLoginCode(code: string, tempToken: string) {
+  return this.http.post<any>(`${this.apiUrl}/confirm-login-code`, {
+    tempToken,
+    code
+  }, { withCredentials: true }).pipe(
+    tap((res) => {
+      const data = res.result ?? res;
+
+      localStorage.setItem(
+        'accessToken',
+        data.accessToken ?? data.AccessToken
+      );
+
+      this.setUser(data.user ?? data.User);
+    })
+  );
+}
 
   resendVerificationCode(tempToken: string) {
     return this.http.post<any>(`${this.apiUrl}/resend-login-code`, { tempToken });

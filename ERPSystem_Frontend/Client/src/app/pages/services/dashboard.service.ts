@@ -11,8 +11,22 @@ export class DashboardService {
 
   constructor(private http: HttpClient) {}
 
-  getDashboard(): Observable<any> {
-    return this.http.get<any>(this.baseUrl);
+  getOverview(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/overview`, {
+      withCredentials: false
+    });
+  }
+
+  getFinancial(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/financial`, { withCredentials: true });
+  }
+
+  getEducation(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/education`, { withCredentials: true });
+  }
+
+  getHr(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/hr`, { withCredentials: true });
   }
 
 }

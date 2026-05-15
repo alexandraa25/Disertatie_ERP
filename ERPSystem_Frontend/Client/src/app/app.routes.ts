@@ -16,8 +16,26 @@ export const routes: Routes = [
   { path: 'feedback/:token', loadComponent: () => import('./pages/feedback/feedback-form/feedback-form.component').then(m => m.FeedbackFormComponent) },
 
   {
-    path: 'dashboard',
-    loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    path: 'overview-dashboard',
+    loadComponent: () => import('./pages/dashboard-analysis/overview-dashboard/overview-dashboard.component').then(m => m.OverviewDashboardComponent),
+    canActivate: [AuthGuard]
+  },
+
+  {
+    path: 'financial-dashboard',
+    loadComponent: () => import('./pages/dashboard-analysis/financial-dashboard/financial-dashboard.component').then(m => m.FinancialDashboardComponent),
+    canActivate: [AuthGuard]
+  },
+
+   {
+    path: 'education-dashboard',
+    loadComponent: () => import('./pages/dashboard-analysis/education-dashboard/education-dashboard.component').then(m => m.EducationDashboardComponent),
+    canActivate: [AuthGuard]
+  },
+
+  {
+    path: 'hr-dashboard',
+    loadComponent: () => import('./pages/dashboard-analysis/hr-dashboard/hr-dashboard.component').then(m => m.HrDashboardComponent),
     canActivate: [AuthGuard]
   },
 

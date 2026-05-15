@@ -1,0 +1,95 @@
+<div class="dashboard-page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Dashboard</p>
+      <h1>Financiar</h1>
+      <p class="subtitle">Monitorizare venituri, plăți și restanțe.</p>
+    </div>
+    <button class="bi-btn" (click)="openPowerBiReports('Financiar', financialReports)">
+  Deschide Power BI
+</button>
+  </div>
+
+  <div *ngIf="loading" class="loading">Se încarcă datele...</div>
+
+  <div *ngIf="!loading && data" class="kpi-grid">
+    <div class="kpi-card highlight">
+      <span>Venituri totale</span>
+      <strong>{{ data.totalRevenue | number:'1.2-2' }} RON</strong>
+      <p>Total plăți finalizate</p>
+    </div>
+
+    <div class="kpi-card highlight">
+      <span>Venituri luna curentă</span>
+      <strong>{{ data.currentMonthRevenue | number:'1.2-2' }} RON</strong>
+      <p>Încasări din luna curentă</p>
+    </div>
+
+    <div class="kpi-card danger">
+      <span>Restanțe</span>
+      <strong>{{ data.overdueAmount | number:'1.2-2' }} RON</strong>
+      <p>Sume scadente neachitate</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Rate neachitate total</span>
+      <strong>{{ data.pendingInstallmentsAmount | number:'1.2-2' }} RON</strong>
+      <p>Diferență între sumă și achitat</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Plăți totale</span>
+      <strong>{{ data.totalPayments }}</strong>
+      <p>Număr de plăți înregistrate</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Plăți finalizate</span>
+      <strong>{{ data.completedPayments }}</strong>
+      <p>Plăți cu status Completed</p>
+    </div>
+
+    <div class="kpi-card danger">
+      <span>Rate restante</span>
+      <strong>{{ data.overdueInstallments }}</strong>
+      <p>Rate trecute de scadență</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Discounturi</span>
+      <strong>{{ data.totalDiscounts | number:'1.2-2' }} RON</strong>
+      <p>Total reduceri acordate</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Ajustări preț</span>
+      <strong>{{ data.totalPriceAdjustments | number:'1.2-2' }} RON</strong>
+      <p>Total ajustări contracte</p>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && data" class="tables-grid">
+    <div class="panel">
+      <h2>Venituri lunare</h2>
+      <div class="list-row" *ngFor="let item of data.monthlyRevenue">
+        <span>{{ item.month }}</span>
+        <strong>{{ item.amount | number:'1.2-2' }} RON</strong>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Plăți după metodă</h2>
+      <div class="list-row" *ngFor="let item of data.paymentsByMethod">
+        <span>{{ item.method }} - {{ item.count }} plăți</span>
+        <strong>{{ item.amount | number:'1.2-2' }} RON</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-power-bi-modal
+  [isOpen]="isPowerBiOpen"
+  [title]="'Dashboard Financiar'"
+  [reports]="financialReports"
+  (closed)="isPowerBiOpen = false">
+</app-power-bi-modal>

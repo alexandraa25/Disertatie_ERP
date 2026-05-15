@@ -1,0 +1,75 @@
+<div class="dashboard-page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Dashboard</p>
+      <h1>Overview</h1>
+      <p class="subtitle">
+        Imagine de ansamblu asupra activității platformei.
+      </p>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Se încarcă statisticile...
+  </div>
+
+  <div *ngIf="!loading && !data" class="loading">
+  Nu există date de afișat.
+</div>
+
+  <div *ngIf="!loading && data" class="kpi-grid">
+    <div class="kpi-card">
+      <span>Elevi activi</span>
+      <strong>{{ data.activeStudents }}</strong>
+      <p>Total elevi activi în sistem</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Angajați activi</span>
+      <strong>{{ data.activeEmployees }}</strong>
+      <p>Angajați fără dată de încetare</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Cursuri active</span>
+      <strong>{{ data.activeCourses }}</strong>
+      <p>Cursuri disponibile</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Sesiuni active</span>
+      <strong>{{ data.activeCourseSessions }}</strong>
+      <p>Sesiuni de curs active</p>
+    </div>
+
+    <div class="kpi-card highlight">
+      <span>Venituri luna curentă</span>
+      <strong>{{ data.currentMonthRevenue | number:'1.2-2' }} RON</strong>
+      <p>Plăți finalizate luna aceasta</p>
+    </div>
+
+    <div class="kpi-card danger">
+      <span>Restanțe</span>
+      <strong>{{ data.overdueAmount | number:'1.2-2' }} RON</strong>
+      <p>Rate scadente neachitate complet</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Contracte active</span>
+      <strong>{{ data.activeContracts }}</strong>
+      <p>Din {{ data.totalContracts }} contracte totale</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Rating mediu</span>
+      <strong>{{ data.averageCourseRating | number:'1.1-1' }}/5</strong>
+      <p>Media review-urilor cursurilor</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Campanii active</span>
+      <strong>{{ data.activeCampaigns }}</strong>
+      <p>Campanii de marketing în desfășurare</p>
+    </div>
+  </div>
+</div>

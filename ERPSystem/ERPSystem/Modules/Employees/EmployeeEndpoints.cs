@@ -95,14 +95,6 @@ namespace ERPSystem.Modules.Employees
                    policy.RequireRole("Admin", "HR", "Manager"))
                 .WithDefaultApiSettings("TerminateEmployee", "Terminate Employee", "Terminate_EMPLOYEE", false);
 
-            group.MapGet(Route.HR_DASHBOARD,
-                async (EmployeeService service)
-                    => await service.GetDashboardAsync())
-                .RequireAuthorization(policy =>
-                   policy.RequireRole("Admin", "HR", "Manager"))
-                .WithDefaultApiSettings("HRDASHBOARD", "HRDASHBOARD", "HR_DASHBOARD", true);
-
-
             group.MapGet(Route.EMPLOYEE_DOCUMENT_VIEW,
                 async (Guid documentId, EmployeeService service)
                      => await service.ViewEmployeeDocumentAsync(documentId))

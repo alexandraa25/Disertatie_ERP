@@ -60,6 +60,18 @@ namespace ERPSystem.Modules.Authentificate
               async (ChangePasswordRequest request, UserManager<ApplicationUser> userManager, AuthentificationService authService, HttpContext httpContext)
                    => await authService.ChangePasswordAsync(request, userManager, httpContext)) .RequireAuthorization()
               .WithDefaultApiSettings("ChangePasswordAsync", "Schimbare parolă utilizator", "CHANGE_PASSWORD", false);
+
+            group.MapPost(Route.LOGOUT,
+               (HttpContext context) =>
+               {
+                   context.Response.Cookies.Delete("Token");
+              
+                   return Results.Ok(new
+                   {
+                       isSuccess = true
+                   });
+               })
+               .WithDefaultApiSettings("LogoutUser", "Logs out the current user", "LOGOUT", false);
         }
     }
 }

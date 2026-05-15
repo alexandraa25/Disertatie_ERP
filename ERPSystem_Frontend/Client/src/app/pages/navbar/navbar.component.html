@@ -36,22 +36,34 @@
       <ng-container *ngIf="user">
 
         <!-- DYNAMIC MENU -->
-        <ng-container *ngFor="let group of menuGroups">
-          <li class="nav-dropdown" *ngIf="canSeeGroup(group)">
-            <button type="button" class="dropdown-trigger">
-              {{ group.label }} ▾
-            </button>
+       <ng-container *ngFor="let group of menuGroups">
+  <li
+    class="nav-dropdown"
+    *ngIf="canSeeGroup(group)"
+    (mouseenter)="openDropdown(group.label)"
+    (mouseleave)="closeDropdownWithDelay()"
+  >
+    <button type="button" class="dropdown-trigger">
+      {{ group.label }} ▾
+    </button>
 
-            <ul class="dropdown-menu">
-              <li *ngFor="let item of group.children">
-                <a *ngIf="canSee(item)" [routerLink]="item.route" routerLinkActive="active-link"
-                  (click)="isMenuOpen=false">
-                  {{ item.label }}
-                </a>
-              </li>
-            </ul>
-          </li>
-        </ng-container>
+    <ul
+      class="dropdown-menu"
+      [class.open]="activeDropdown === group.label"
+    >
+      <li *ngFor="let item of group.children">
+        <a
+          *ngIf="canSee(item)"
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          (click)="activeDropdown=null; isMenuOpen=false"
+        >
+          {{ item.label }}
+        </a>
+      </li>
+    </ul>
+  </li>
+</ng-container>
 
         <!-- PROFILE -->
         <li>

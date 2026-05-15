@@ -1,4 +1,5 @@
-﻿using ERPSystem.Data.Entities;
+﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Authentification.Models;
 using ERPSystem.Shared.BusinessLogic;
 using ERPSystem.Utils.Constants.Email;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.Data;
+using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -32,6 +34,7 @@ namespace ERPSystem.Modules.Authentificate
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ActivityLogService _activityLogService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ApplicationDbContext _db;
 
         #endregion
 
@@ -44,7 +47,8 @@ namespace ERPSystem.Modules.Authentificate
             UserManager<ApplicationUser> userManager, 
             RoleManager<IdentityRole> roleManager,
             ActivityLogService activityLogService,
-             IHttpContextAccessor httpContextAccessor)
+             IHttpContextAccessor httpContextAccessor,
+             ApplicationDbContext db)
         {
             _logger = logger;
             _emailBusinessLogic = emailBusinessLogic;
@@ -54,6 +58,7 @@ namespace ERPSystem.Modules.Authentificate
             _roleManager = roleManager;
             _activityLogService = activityLogService;
             _httpContextAccessor = httpContextAccessor;
+            _db = db;
         }
 
         #endregion
@@ -88,6 +93,19 @@ namespace ERPSystem.Modules.Authentificate
                 if (!result.Succeeded)
                     return publicResponse.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
 
+                if (request.EmployeeId.HasValue)
+                {
+                    var employee = await _db.Employees
+                        .FirstOrDefaultAsync(e => e.Id == request.EmployeeId.Value);
+
+                    if (employee == null)
+                        return publicResponse.SetError(ErrorCodes.InvalidParameters, "Angajatul nu există.");
+
+                    employee.UserId = newUser.Id;
+                    employee.UpdatedAt = DateTime.UtcNow;
+                    await _db.SaveChangesAsync();
+                }
+
                 if (!string.IsNullOrEmpty(request.Role))
                 {
                     if (!await _roleManager.RoleExistsAsync(request.Role))
@@ -97,34 +115,38 @@ namespace ERPSystem.Modules.Authentificate
 
                     if (!roleResult.Succeeded)
                         return publicResponse.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
-
-                    List<string> to = new List<string>() { newUser.Email };
-
-                    var emailModel = new UserCredentialsEmailModel
-                    {
-                        FirstName = newUser.FirstName,
-                        Email = newUser.Email,
-                        Password = request.Password
-                    };
-
-                    await _emailBusinessLogic.SendEmailTemplateAsync( TemplateCode.EMAIL_USER_CREDENTIALS, JsonConvert.SerializeObject(emailModel),  to  );
-
-                    var performedBy = _httpContextAccessor.HttpContext?.User?
-                        .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
-                        ?? _httpContextAccessor.HttpContext?.User?
-                            .FindFirst("username")?.Value
-                        ?? "system";
-
-                    await _activityLogService.AddAsync(
-                         entityType: "User",
-                         entityId: newUser.Id,
-                         action: "Created",
-                         description: $"Utilizatorul {newUser.Email} a fost creat cu rolul {request.Role}.",
-                         performedBy: performedBy
-                     );
-
-                    return publicResponse.SetCreated();
                 }
+
+                List<string> to = new List<string>() { newUser.Email };
+
+                var emailModel = new UserCredentialsEmailModel
+                {
+                    FirstName = newUser.FirstName,
+                    Email = newUser.Email,
+                    Password = request.Password
+                };
+
+                await _emailBusinessLogic.SendEmailTemplateAsync(
+                    TemplateCode.EMAIL_USER_CREDENTIALS,
+                    JsonConvert.SerializeObject(emailModel),
+                    to
+                );
+
+                var performedBy = _httpContextAccessor.HttpContext?.User?
+                    .FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                    ?? _httpContextAccessor.HttpContext?.User?
+                        .FindFirst("username")?.Value
+                    ?? "system";
+
+                await _activityLogService.AddAsync(
+                    entityType: "User",
+                    entityId: newUser.Id,
+                    action: "Created",
+                    description: $"Utilizatorul {newUser.Email} a fost creat cu rolul {request.Role}.",
+                    performedBy: performedBy
+                );
+
+                return publicResponse.SetCreated();
             }
             catch (Exception ex)
             {

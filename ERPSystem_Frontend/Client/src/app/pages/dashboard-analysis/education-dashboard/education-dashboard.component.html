@@ -1,0 +1,79 @@
+<div class="dashboard-page">
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Dashboard</p>
+      <h1>Educațional</h1>
+      <p class="subtitle">Analiză cursuri, înscrieri, feedback și evaluări.</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">Se încarcă datele...</div>
+
+  <div *ngIf="!loading && data" class="kpi-grid">
+    <div class="kpi-card">
+      <span>Elevi activi</span>
+      <strong>{{ data.activeStudents }}</strong>
+      <p>Elevi activi în sistem</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Cursuri active</span>
+      <strong>{{ data.activeCourses }}</strong>
+      <p>Cursuri disponibile</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Sesiuni active</span>
+      <strong>{{ data.activeSessions }}</strong>
+      <p>Sesiuni de curs active</p>
+    </div>
+
+    <div class="kpi-card highlight">
+      <span>Înscrieri active</span>
+      <strong>{{ data.activeEnrollments }}</strong>
+      <p>Elevi înscriși activ</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Feedback completat</span>
+      <strong>{{ data.completedFeedbackForms }}</strong>
+      <p>Formulare completate</p>
+    </div>
+
+    <div class="kpi-card danger">
+      <span>Feedback pending</span>
+      <strong>{{ data.pendingFeedbackForms }}</strong>
+      <p>Formulare necompletate</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Rating cursuri</span>
+      <strong>{{ data.averageCourseRating | number:'1.1-1' }}/5</strong>
+      <p>Media review-urilor</p>
+    </div>
+
+    <div class="kpi-card">
+      <span>Evaluare elevi</span>
+      <strong>{{ data.averageStudentEvaluation | number:'1.1-1' }}/5</strong>
+      <p>Media evaluărilor elevilor</p>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && data" class="tables-grid">
+    <div class="panel">
+      <h2>Înscrieri pe curs</h2>
+      <div class="list-row" *ngFor="let item of data.enrollmentsByCourse">
+        <span>{{ item.courseName }}</span>
+        <strong>{{ item.count }}</strong>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Rating pe curs</h2>
+      <div class="list-row" *ngFor="let item of data.ratingByCourse">
+        <span>{{ item.courseName }}</span>
+        <strong>{{ item.averageRating | number:'1.1-1' }}/5</strong>
+      </div>
+    </div>
+  </div>
+</div>

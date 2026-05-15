@@ -18,6 +18,7 @@ namespace ERPSystem.Utils.Constants
             public const string RESET_PASSWORD = "reset-password";
             public const string GET_ROLES = "/roles";
             public const string CHANGE_PASSWORD = "change-password";
+            public const string LOGOUT = "/logout";
 
             public static class General
             {
@@ -212,8 +213,11 @@ namespace ERPSystem.Utils.Constants
 
             public static class Dashboard
             {
-                public const string DASHBOARD = "";
-                
+                public const string DASHBOARD_OVERVIEW = "/overview";
+                public const string DASHBOARD_FINANCIAL = "/financial";
+                public const string DASHBOARD_EDUCATION = "/education";
+                public const string DASHBOARD_HR = "/hr";
+
 
             }
 
