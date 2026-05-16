@@ -22,11 +22,7 @@ currentReportIndex = 0;
 financialReports = [
   {
     title: 'Raport financiar general',
-    url: 'https://app.powerbi.com/view?r=eyJrIjoiMjU0NGU5N2YtNzIyMS00Nzk2LWI2OWQtOTk1OWU5YzYxOTI4IiwidCI6IjdlMTg1ZWM2LWFjODYtNGVmNi1iM2FiLWYwZTIyNGEyMWNkNiIsImMiOjh9&pageName=13b1eeb6e242900e0d24'
-  },
-  {
-    title: 'Cashflow și restanțe',
-    url: 'POWER_BI_URL_2'
+    url: 'https://app.powerbi.com/view?r=eyJrIjoiNzVlODk0NGUtYjVkYS00MDRiLWI4OGEtOGYwMjJhY2Q0NzA1IiwidCI6IjdlMTg1ZWM2LWFjODYtNGVmNi1iM2FiLWYwZTIyNGEyMWNkNiIsImMiOjh9'
   }
 ];
 

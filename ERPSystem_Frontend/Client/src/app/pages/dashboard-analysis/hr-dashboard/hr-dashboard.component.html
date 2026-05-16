@@ -5,6 +5,9 @@
       <h1>HR</h1>
       <p class="subtitle">Monitorizare angajați, concedii și documente.</p>
     </div>
+     <button class="bi-btn" (click)="openPowerBiReports('HR', hrReports)">
+  Deschide Power BI
+</button>
   </div>
 
   <div *ngIf="loading" class="loading">Se încarcă datele...</div>
@@ -93,3 +96,10 @@
     </div>
   </div>
 </div>
+
+<app-power-bi-modal
+  [isOpen]="isPowerBiOpen"
+  [title]="'Dashboard Resurse Umane'"
+  [reports]="hrReports"
+  (closed)="isPowerBiOpen = false">
+</app-power-bi-modal>

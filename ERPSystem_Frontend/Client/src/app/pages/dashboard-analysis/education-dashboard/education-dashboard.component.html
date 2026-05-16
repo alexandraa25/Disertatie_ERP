@@ -5,6 +5,9 @@
       <h1>Educațional</h1>
       <p class="subtitle">Analiză cursuri, înscrieri, feedback și evaluări.</p>
     </div>
+     <button class="bi-btn" (click)="openPowerBiReports('Educational', educationalReports)">
+  Deschide Power BI
+</button>
   </div>
 
   <div *ngIf="loading" class="loading">Se încarcă datele...</div>
@@ -77,3 +80,10 @@
     </div>
   </div>
 </div>
+
+<app-power-bi-modal
+  [isOpen]="isPowerBiOpen"
+  [title]="'Dashboard Educational'"
+  [reports]="educationalReports"
+  (closed)="isPowerBiOpen = false">
+</app-power-bi-modal>
