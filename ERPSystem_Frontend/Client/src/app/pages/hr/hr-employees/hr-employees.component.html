@@ -6,7 +6,18 @@
     </div>
 
     <div class="page-header-actions">
-      <button class="btn btn-light" (click)="exportExcel()">Export Excel</button>
+      <button class="btn btn-light" (click)="exportExcel()" [disabled]="isExporting">
+
+        <span *ngIf="!isExporting">
+          Export Excel
+        </span>
+
+        <span *ngIf="isExporting" class="spinner-wrap">
+          <span class="spinner-dark"></span>
+          Se exportă...
+        </span>
+
+      </button>
       <button class="btn btn-primary" (click)="openCreate()">Adaugă angajat</button>
     </div>
   </div>

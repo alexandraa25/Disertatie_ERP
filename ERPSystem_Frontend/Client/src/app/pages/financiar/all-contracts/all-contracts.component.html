@@ -20,8 +20,17 @@
         </div>
       </div>
 
-      <button class="primary-btn" (click)="exportContractsExcel()">
-        📊 Export Excel
+      <button class="primary-btn" (click)="exportContractsExcel()" [disabled]="isExportingContracts">
+
+        <span *ngIf="!isExportingContracts">
+          📊 Export Excel
+        </span>
+
+        <span *ngIf="isExportingContracts" class="spinner-wrap">
+          <span class="spinner"></span>
+          Se exportă...
+        </span>
+
       </button>
 
     </div>

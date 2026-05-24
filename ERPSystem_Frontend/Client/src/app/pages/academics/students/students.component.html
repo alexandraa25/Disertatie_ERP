@@ -1,14 +1,25 @@
 <div class="page">
   <div class="page-hero">
     <div>
-      <h2>Elevi</h2>
+      <h2>Cursanti</h2>
       <p>Gestionează cursantii, înscrierile și acțiunile disponibile.</p>
     </div>
 
     <div class="hero-actions">
-      <button class="secondary-action" (click)="export()">
-        📊 Export Excel
-      </button>
+      <button
+  class="secondary-action"
+  (click)="export()"
+  [disabled]="isExporting">
+
+  <span *ngIf="!isExporting">
+    📊 Export Excel
+  </span>
+
+  <span *ngIf="isExporting" class="spinner-wrap">
+    <span class="spinner"></span>
+    Se exportă...
+  </span>
+</button>
 
       <button class="primary" (click)="openCreate()">
         + Adaugă elev
@@ -44,7 +55,7 @@
     <div class="filter-combo recent-combo">
       <label class="checkbox-filter">
         <input type="checkbox" [(ngModel)]="onlyRecent" (change)="page=1; load()" />
-        <span>Elevi noi</span>
+        <span>Cursanti noi</span>
       </label>
 
       <span class="combo-text">ultimele</span>
@@ -86,7 +97,7 @@
   <div class="card">
     <div class="card-header">
       <div>
-        <h3>Lista elevilor</h3>
+        <h3>Lista cursantilor</h3>
         <p>
           {{ items.length }} rezultate găsite •
           Pagina {{ page }} din {{ totalPages }}
@@ -95,11 +106,11 @@
     </div>
 
     <div *ngIf="loading" class="loading">
-      Se încarcă elevii...
+      Se încarcă cursantii...
     </div>
 
     <div *ngIf="!loading && items.length === 0" class="empty-state">
-      Nu există elevi pentru filtrele selectate.
+      Nu există cursanti pentru filtrele selectate.
     </div>
 
     <div class="table-wrapper" *ngIf="!loading && items.length > 0">

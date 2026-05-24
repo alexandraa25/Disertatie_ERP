@@ -42,7 +42,6 @@ export class HrDashboardComponent implements OnInit {
     });
   }
 
-
   openPowerBiReports(title: string, reports: any[]) {
     this.powerBiTitle = title;
     this.powerBiReports = reports;

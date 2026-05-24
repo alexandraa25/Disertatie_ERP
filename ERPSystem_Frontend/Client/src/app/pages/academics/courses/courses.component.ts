@@ -35,6 +35,7 @@ export class CoursesComponent implements OnInit {
   pageSize = 10;
   totalPages = 1;
   pagedItems: any[] = [];
+  isExportingCourses = false;
 
   constructor(private courses: CoursesService, private dialog: MatDialog, private router: Router, private snackbar: SnackbarService, private confirmService: ConfirmService) { }
 
@@ -227,26 +228,49 @@ export class CoursesComponent implements OnInit {
   }
 
   exportCoursesExcel(): void {
-    this.courses
-      .exportCoursesExcel(this.q, this.statusFilter, this.deleteStatusFilter, this.scopeFilter)
-      .subscribe({
-        next: (blob: Blob) => {
-          const url = window.URL.createObjectURL(blob);
 
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'cursuri.xlsx';
-          a.click();
+  if (this.isExportingCourses) return;
 
-          window.URL.revokeObjectURL(url);
+  this.isExportingCourses = true;
 
-          this.snackbar.showSuccess('Exportul Excel a fost generat.', 1800);
-        },
-        error: () => {
-          this.snackbar.showError('Exportul Excel nu a putut fi generat.', 2500);
-        }
-      });
-  }
+  this.courses
+    .exportCoursesExcel(
+      this.q,
+      this.statusFilter,
+      this.deleteStatusFilter,
+      this.scopeFilter
+    )
+    .subscribe({
+      next: (blob: Blob) => {
+
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'cursuri.xlsx';
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+
+        this.isExportingCourses = false;
+
+        this.snackbar.showSuccess(
+          'Exportul Excel a fost generat.',
+          1800
+        );
+      },
+
+      error: () => {
+
+        this.isExportingCourses = false;
+
+        this.snackbar.showError(
+          'Exportul Excel nu a putut fi generat.',
+          2500
+        );
+      }
+    });
+}
 
   applyPagination() {
     this.totalPages = Math.max(1, Math.ceil(this.items.length / this.pageSize));

@@ -40,6 +40,7 @@ export class StudentsComponent implements OnInit {
 
 statusFilter = '';
 deleteFilter = 'notDeleted';
+isExporting = false;
 
   constructor(private students: StudentsService, private dialog: MatDialog, private router: Router, private snackbar: SnackbarService, private confirmService: ConfirmService) { }
 
@@ -99,23 +100,49 @@ deleteFilter = 'notDeleted';
       });
   }
 
-  export(): void {
-    this.students.exportExcel(this.q, this.sortBy, this.sortDir, this.onlyRecent, this.recentDays, this.selectedSessionId, this.statusFilter,  this.deleteFilter)
-      .subscribe({
-        next: (blob) => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `students_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.xlsx`;
-          a.click();
-          window.URL.revokeObjectURL(url);
-          this.snackbar.showSuccess('Exportul Excel a fost generat.', 1800);
-        },
-        error: () => {
-          this.snackbar.showError('Eroare export Excel.', 2500);
-        }
-      });
-  }
+ export(): void {
+
+  if (this.isExporting) return;
+
+  this.isExporting = true;
+
+  this.students.exportExcel(
+    this.q,
+    this.sortBy,
+    this.sortDir,
+    this.onlyRecent,
+    this.recentDays,
+    this.selectedSessionId,
+    this.statusFilter,
+    this.deleteFilter
+  ).subscribe({
+    next: (blob) => {
+
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+
+      a.download =
+        `students_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.xlsx`;
+
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+
+      this.snackbar.showSuccess('Exportul Excel a fost generat.', 1800);
+
+      this.isExporting = false;
+    },
+
+    error: () => {
+
+      this.isExporting = false;
+
+      this.snackbar.showError('Eroare export Excel.', 2500);
+    }
+  });
+}
 
   toggleSortDirection(): void {
     this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';

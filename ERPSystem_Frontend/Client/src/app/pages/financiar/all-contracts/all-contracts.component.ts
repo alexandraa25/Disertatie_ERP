@@ -22,6 +22,7 @@ export class AllContractsComponent implements OnInit {
 
   currentPage = 1;
   pageSize = 5;
+  isExportingContracts = false;
 
   constructor(
     private contractsService: ContractsService,
@@ -78,41 +79,52 @@ export class AllContractsComponent implements OnInit {
 
   exportContractsExcel(): void {
 
-    if (
-      this.exportFrom &&
-      this.exportTo &&
-      this.exportFrom > this.exportTo
-    ) {
-      this.snackbar.showError(
-        'Perioada selectată este invalidă.',
-        2500
-      );
-      return;
-    }
+  if (this.isExportingContracts) return;
 
-    this.contractsService
-      .exportContractsExcel(this.exportFrom, this.exportTo)
-      .subscribe({
-
-        next: (blob: Blob) => {
-
-          this.downloadFile(blob, 'contracte_contabilitate.xlsx');
-
-          this.snackbar.showSuccess(
-            'Export realizat cu succes.',
-            1800
-          );
-        },
-
-        error: () => {
-
-          this.snackbar.showError(
-            'Fișierul Excel nu a putut fi generat.',
-            2500
-          );
-        }
-      });
+  if (
+    this.exportFrom &&
+    this.exportTo &&
+    this.exportFrom > this.exportTo
+  ) {
+    this.snackbar.showError(
+      'Perioada selectată este invalidă.',
+      2500
+    );
+    return;
   }
+
+  this.isExportingContracts = true;
+
+  this.contractsService
+    .exportContractsExcel(this.exportFrom, this.exportTo)
+    .subscribe({
+
+      next: (blob: Blob) => {
+
+        this.downloadFile(
+          blob,
+          'contracte_contabilitate.xlsx'
+        );
+
+        this.isExportingContracts = false;
+
+        this.snackbar.showSuccess(
+          'Export realizat cu succes.',
+          1800
+        );
+      },
+
+      error: () => {
+
+        this.isExportingContracts = false;
+
+        this.snackbar.showError(
+          'Fișierul Excel nu a putut fi generat.',
+          2500
+        );
+      }
+    });
+}
 
   private downloadFile(blob: Blob, fileName: string): void {
 

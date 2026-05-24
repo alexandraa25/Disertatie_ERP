@@ -44,6 +44,7 @@ export class HrEmployeesComponent implements OnInit {
 
   terminationDocumentType: string = 'DecizieIncetare';
   terminationCustomType: string = '';
+  isExporting = false;
 
   constructor(
     private service: EmployeeService,
@@ -165,26 +166,48 @@ export class HrEmployeesComponent implements OnInit {
   }
 
   exportExcel(): void {
-    this.service
-      .exportEmployeesExcel(this.searchText, this.statusFilter, this.contractFilter)
-      .subscribe({
-        next: (blob: Blob) => {
-          const url = window.URL.createObjectURL(blob);
 
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'angajati.xlsx';
-          a.click();
+  if (this.isExporting) return;
 
-          window.URL.revokeObjectURL(url);
+  this.isExporting = true;
 
-          this.snackBar.showSuccess('Exportul Excel a fost generat.', 1800);
-        },
-        error: () => {
-          this.snackBar.showError('Exportul Excel nu a putut fi generat.', 2500);
-        }
-      });
-  }
+  this.service
+    .exportEmployeesExcel(
+      this.searchText,
+      this.statusFilter,
+      this.contractFilter
+    )
+    .subscribe({
+      next: (blob: Blob) => {
+
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'angajati.xlsx';
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+
+        this.isExporting = false;
+
+        this.snackBar.showSuccess(
+          'Exportul Excel a fost generat.',
+          1800
+        );
+      },
+
+      error: () => {
+
+        this.isExporting = false;
+
+        this.snackBar.showError(
+          'Exportul Excel nu a putut fi generat.',
+          2500
+        );
+      }
+    });
+}
 
   getSortIndicator(column: string): string {
     if (this.sortBy !== column) {

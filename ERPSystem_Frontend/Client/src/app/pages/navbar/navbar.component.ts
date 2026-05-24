@@ -176,7 +176,7 @@ export class NavbarComponent implements OnInit {
     const token = localStorage.getItem('accessToken');
 
     if (!token) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/profil-user']);
       return;
     }
 
@@ -184,11 +184,9 @@ export class NavbarComponent implements OnInit {
       const decoded: any = jwtDecode(token);
       const role = decoded["role"];
 
-      if (role === 'User') {
+     
         this.router.navigate(['/profil-user']);
-      } else {
-        this.router.navigate(['/admin-dashboard']);
-      }
+      
     } catch (error) {
       console.error('Invalid token:', error);
       this.router.navigate(['/login']);

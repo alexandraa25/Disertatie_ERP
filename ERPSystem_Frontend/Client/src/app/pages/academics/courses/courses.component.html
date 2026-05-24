@@ -6,9 +6,21 @@
       <p>Gestionează cursurile, statusurile și acțiunile disponibile.</p>
     </div>
     <div class="hero-actions">
-      <button class="secondary-action" (click)="exportCoursesExcel()">
-        📊 Export Excel
-      </button>
+      <button
+  class="secondary-action"
+  (click)="exportCoursesExcel()"
+  [disabled]="isExportingCourses">
+
+  <span *ngIf="!isExportingCourses">
+    📊 Export Excel
+  </span>
+
+  <span *ngIf="isExportingCourses" class="spinner-wrap">
+    <span class="spinner"></span>
+    Se exportă...
+  </span>
+
+</button>
 
       <button class="primary" (click)="openCreate()">
         + Adaugă curs
