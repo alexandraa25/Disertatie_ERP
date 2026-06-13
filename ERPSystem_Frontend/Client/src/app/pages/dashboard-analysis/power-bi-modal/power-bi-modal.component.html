@@ -1,68 +1,54 @@
 <div class="report-modal" *ngIf="isOpen">
 
-  <div
-    class="report-modal-backdrop"
-    (click)="close()">
+  <div class="report-modal-backdrop" (click)="close()">
   </div>
 
   <div class="report-modal-content">
 
     <div class="report-modal-header">
 
-  <div>
-    <p>Business Intelligence</p>
+      <div>
+        <p>Business Intelligence</p>
 
-    <h2>{{ title }}</h2>
+        <h2>{{ title }}</h2>
 
-    <span>
-      {{ reports[currentIndex]?.title }}
-    </span>
-  </div>
+        <span>
+          {{ reports[currentIndex]?.title }}
+        </span>
+      </div>
 
-  <div class="header-actions">
+      <div class="header-actions">
 
-    <div
-      class="report-switcher"
-      *ngIf="reports.length > 1">
+        <div class="report-switcher" *ngIf="reports.length > 1">
 
-      <button
-        (click)="prev()"
-        [disabled]="currentIndex === 0">
+          <button (click)="prev()" [disabled]="currentIndex === 0">
 
-        ‹ Înapoi
-      </button>
+            ‹ Înapoi
+          </button>
 
-      <strong>
-        {{ currentIndex + 1 }}
-        /
-        {{ reports.length }}
-      </strong>
+          <strong>
+            {{ currentIndex + 1 }}
+            /
+            {{ reports.length }}
+          </strong>
 
-      <button
-        (click)="next()"
-        [disabled]="currentIndex === reports.length - 1">
+          <button (click)="next()" [disabled]="currentIndex === reports.length - 1">
 
-        Înainte ›
-      </button>
+            Înainte ›
+          </button>
+
+        </div>
+
+        <button class="close-btn" (click)="close()">
+
+          ✕
+        </button>
+
+      </div>
 
     </div>
 
-    <button
-      class="close-btn"
-      (click)="close()">
-
-      ✕
-    </button>
-
-  </div>
-
-</div>
-
-    
-
-    <iframe
-      [src]="reports[currentIndex]?.safeUrl"
-      allowfullscreen="true">
+    <iframe [src]="reports[currentIndex]?.safeUrl" allowfullscreen="true">
     </iframe>
 
   </div>

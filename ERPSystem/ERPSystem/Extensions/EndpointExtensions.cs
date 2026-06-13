@@ -44,7 +44,7 @@ namespace ERPSystem.Extensions
             }
             else
             {
-                group.AllowAnonymous(); // 🔴 FOARTE IMPORTANT
+                group.AllowAnonymous(); 
             }
 
             return group;

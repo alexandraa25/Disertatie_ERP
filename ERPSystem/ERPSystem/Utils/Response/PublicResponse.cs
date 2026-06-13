@@ -5,28 +5,19 @@
         public bool IsSuccess { get; set; }
         public object? Value { get; set; }
         public Error? Error { get; set; }
-        public int StatusCode { get; set; } = 200; // default OK
+        public int StatusCode { get; set; } = 200; 
 
-        public PublicResponse(bool isSuccess)
-        {
-            IsSuccess = isSuccess;
-        }
+        public PublicResponse(bool isSuccess)  {  IsSuccess = isSuccess; }
 
         public PublicResponse SetSuccess(object? value = null)
         {
-            IsSuccess = true;
-            Value = value;
-            Error = null;
-            StatusCode = 200;
+            IsSuccess = true; Value = value;  Error = null;  StatusCode = 200; 
             return this;
         }
 
         public PublicResponse SetCreated(object? value = null)
         {
-            IsSuccess = true;
-            Value = value;
-            Error = null;
-            StatusCode = 201;
+            IsSuccess = true; Value = value; Error = null; StatusCode = 201;
             return this;
         }
 
@@ -34,12 +25,8 @@
         {
             IsSuccess = false;
             Value = null;
-            Error = new Error
-            {
-                ErrorCode = errorCode,
-                ErrorMessage = errorMessage
-            };
-            StatusCode = 400; // default bad request or custom later
+            Error = new Error {  ErrorCode = errorCode,  ErrorMessage = errorMessage  };
+            StatusCode = 400; 
             return this;
         }
 
@@ -47,11 +34,7 @@
         {
             IsSuccess = false;
             Value = null;
-            Error = new Error
-            {
-                ErrorCode = code ?? "BadRequest",
-                ErrorMessage = message
-            };
+            Error = new Error {  ErrorCode = code ?? "BadRequest", ErrorMessage = message  };
             StatusCode = 400;
             return this;
         }

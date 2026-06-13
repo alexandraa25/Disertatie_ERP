@@ -209,7 +209,6 @@ namespace ERPSystem.Modules.Authentificate
                     );
 
                     var link = $"{_ERPSystemSettings.Value.BaseUrl}/confirm-email-registration?userId={user.Id}&token={encodedToken}";
-                    Console.WriteLine("LINK: " + link);
 
                     await _emailBusinessLogic.SendEmailTemplateAsync(templateCode: TemplateCode.EMAIL_REGISTRATION_CONFIRMATION, tableRow: JsonConvert.SerializeObject(user),
                         url: link,
@@ -496,36 +495,30 @@ namespace ERPSystem.Modules.Authentificate
             try
             {
                 var secret = _jwtSettings.Value.SecretKey;
-
                 if (string.IsNullOrEmpty(secret))
-                    throw new Exception("JWT SecretKey is missing!");
-
+                    throw new Exception("Cheia secretă JWT lipsește!");
                 if (secret.Length < 32)
-                    throw new Exception("JWT SecretKey must be at least 32 characters long!");
-
+                    throw new Exception("Cheia secretă JWT trebuie să aibă cel puțin 32 de caractere!");
                 var key = Encoding.UTF8.GetBytes(secret);
-
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(new[]
                     {
-                      new Claim("userId", user.Id),
-                      new Claim("purpose", "login_2fa")
-                     }),
+                        new Claim("userId", user.Id),
+                        new Claim("purpose", "login_2fa")
+                    }),
+
                     Expires = DateTime.UtcNow.AddMinutes(5),
-                    SigningCredentials = new SigningCredentials(
-                        new SymmetricSecurityKey(key),
-                        SecurityAlgorithms.HmacSha256Signature)
+                    SigningCredentials = new SigningCredentials( new SymmetricSecurityKey(key),SecurityAlgorithms.HmacSha256Signature)
                 };
 
                 var handler = new JwtSecurityTokenHandler();
                 var token = handler.CreateToken(tokenDescriptor);
-
                 return handler.WriteToken(token);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, "An error occured in GenerateTempToken");
+                _logger.LogError(ex.Message, "A apărut o eroare în metoda GenerateTempToken");
                 throw;
             }
         }

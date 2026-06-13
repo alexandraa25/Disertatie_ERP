@@ -27,7 +27,7 @@
       type="button"
       [class.active]="activeTab === 'analytics'"
       (click)="setTab('analytics')">
-      Analiză AI
+      Analiză
     </button>
   </div>
 
@@ -151,7 +151,7 @@
  <div *ngIf="activeTab === 'analytics'">
 
   <div class="empty-state" *ngIf="loadingAnalytics">
-    Se încarcă analiza AI...
+    Se încarcă analiza...
   </div>
 
   <div class="empty-state" *ngIf="!loadingAnalytics && !analytics">
@@ -246,7 +246,7 @@
 
     <div class="ai-analysis" *ngIf="analytics.summary">
       <div class="ai-header">
-        <strong>Rezumat AI</strong>
+        <strong>Rezumat</strong>
       </div>
       <p>{{ analytics.summary }}</p>
     </div>

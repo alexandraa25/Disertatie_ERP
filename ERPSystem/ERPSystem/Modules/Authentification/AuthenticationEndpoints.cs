@@ -23,27 +23,27 @@ namespace ERPSystem.Modules.Authentificate
             group.MapPost(Route.CONFIRM_EMAIL_REGISTRATION,
               async (ConfirmEmail confirmEmail, UserManager<ApplicationUser> userManager, AuthentificationService authService)
                   => await authService.ConfirmEmailAsync(confirmEmail, userManager))
-              .WithDefaultApiSettings("ConfirmEmailAsync", "Confirm Email Async", "CONFIRM_EMAIL", false);
+              .WithDefaultApiSettings("ConfirmEmailAsync", "Confirmare email utilizator", "CONFIRM_EMAIL", false);
 
             group.MapPost(Route.LOGIN,
               async (LoginRequest request, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, AuthentificationService authService)
                   => await authService.LoginAsync(request, signInManager, userManager))
-              .WithDefaultApiSettings("LoginUser", "Authenticates a user and returns token", "LOGIN", false);
+              .WithDefaultApiSettings("LoginUser", "Autentifică utilizatorul și returnează token-ul", "LOGIN", false);
 
             group.MapPost(Route.CONFIRM_LOGIN_CODE,
               async (ConfirmLoginRequest confirmLoginRequest, SignInManager<ApplicationUser> signInManager, HttpContext httpContext, UserManager<ApplicationUser> userManager, AuthentificationService authService)
                   => await authService.ConfirmLoginRequest(confirmLoginRequest, httpContext, signInManager, userManager))
-              .WithDefaultApiSettings("ConfirmLoginRequest", "Confirm Login Request", "CONFIRM_LOGIN_CODE", false);
+              .WithDefaultApiSettings("ConfirmLoginRequest", "Confirmare cod login", "CONFIRM_LOGIN_CODE", false);
 
             group.MapPost(Route.RESEND_LOGIN_CODE,
               async (ResendCodeRequest resendCodeRequest, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, AuthentificationService authService)
                   => await authService.ResendLoginCodeAsync(resendCodeRequest, signInManager, userManager))
-              .WithDefaultApiSettings("ResendLoginCodeAsync", "Resend Login Code Async", "RESEND_LOGIN_CODE", false);
+              .WithDefaultApiSettings("ResendLoginCodeAsync", "Retrimitere cod login", "RESEND_LOGIN_CODE", false);
 
             group.MapPost(Route.FORGOT_PASSWORD,
                async (ForgotPasswordRequest forgotPasswordRequest, UserManager<ApplicationUser> userManager, AuthentificationService authService)
                 => await authService.ForgotPasswordAsync(forgotPasswordRequest, userManager))
-               .WithDefaultApiSettings("ForgotPasswordAsync", "Forgot Password Async", "FORGOT_PASSWORD", false);
+               .WithDefaultApiSettings("ForgotPasswordAsync", "Inițiere resetare parolă", "FORGOT_PASSWORD", false);
 
             group.MapPost(Route.RESET_PASSWORD,
               async (ResetPasswordRequest resetPasswordRequest, UserManager<ApplicationUser> userManager, AuthentificationService authService)

@@ -1,15 +1,6 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  EventEmitter,
-  Input,
-  Output
-} from '@angular/core';
-
-import {
-  DomSanitizer,
-  SafeResourceUrl
-} from '@angular/platform-browser';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import { DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-power-bi-modal',
@@ -21,9 +12,7 @@ import {
 export class PowerBiModalComponent {
 
   @Input() isOpen = false;
-
   @Input() title = '';
-
   @Input() reports: {
     title: string;
     url: string;
@@ -31,9 +20,8 @@ export class PowerBiModalComponent {
   }[] = [];
 
   @Output() closed = new EventEmitter<void>();
-
   currentIndex = 0;
-
+  
   constructor(private sanitizer: DomSanitizer) {}
 
   ngOnChanges() {

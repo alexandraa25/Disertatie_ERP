@@ -15,7 +15,7 @@ export class EducationDashboardComponent implements OnInit {
   data: any;
 
   
-  isPowerBiOpen = false;
+isPowerBiOpen = false;
 powerBiTitle = '';
 powerBiReports: any[] = [];
 currentReportIndex = 0;

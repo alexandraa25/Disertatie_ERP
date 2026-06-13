@@ -32,6 +32,7 @@ export class NavbarComponent implements OnInit {
     children: [
       { label: 'Cursanți', route: '/students', roles: ['Admin', 'Manager', 'Secretary', 'Teacher'] },
       { label: 'Cursuri', route: '/courses', roles: ['Admin', 'Manager', 'Secretary', 'Teacher'] }, 
+      { label: 'Campanii', route: '/mk-campaign', roles: ['Admin', 'Manager', 'Marketing'] }
     ]
   },
   
@@ -52,12 +53,7 @@ export class NavbarComponent implements OnInit {
       { label: 'Contracte cursanti', route: '/all-contracts', roles: ['Admin', 'Manager', 'Accountant', 'Secretary'] }
     ]
   },
-  {
-    label: 'Marketing',
-    children: [
-      { label: 'Campanii', route: '/mk-campaign', roles: ['Admin', 'Manager', 'Marketing'] }
-    ]
-  },
+ 
   {
     label: 'Feedback',
     children: [

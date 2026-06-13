@@ -1,5 +1,4 @@
 ﻿using ERPSystem.Modules.Feedback.Models;
-using System.Net.Http.Json;
 
 public interface INlpAnalysisService
 {
@@ -27,9 +26,7 @@ public class NlpAnalysisService : INlpAnalysisService
         };
 
         var response = await _httpClient.PostAsJsonAsync("/analyze-review", request);
-
         var raw = await response.Content.ReadAsStringAsync();
-
         if (!response.IsSuccessStatusCode)
             throw new Exception($"NLP error: {response.StatusCode} - {raw}");
 

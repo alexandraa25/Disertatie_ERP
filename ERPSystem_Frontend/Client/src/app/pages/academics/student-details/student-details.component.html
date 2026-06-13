@@ -499,7 +499,7 @@
           </button>
 
           <button [class.active]="studentTab === 'analytics'" (click)="setStudentTab('analytics')">
-            Analiză AI
+            Analiză
           </button>
         </div>
         <div *ngIf="studentTab === 'evaluations'">
@@ -550,7 +550,7 @@
 
               <div class="ai-analysis" *ngIf="ev.sentiment">
                 <div class="ai-header">
-                  <strong>Analiză AI evaluare</strong>
+                  <strong>Analiză evaluare</strong>
 
                   <span class="sentiment" [ngClass]="ev.sentiment">
                     {{ ev.sentiment }}
@@ -623,7 +623,7 @@
         <div *ngIf="studentTab === 'analytics'">
 
           <div *ngIf="loadingStudentAnalytics" class="empty-state">
-            Se încarcă analiza AI...
+            Se încarcă analiza...
           </div>
 
           <div *ngIf="!loadingStudentAnalytics && !studentAnalytics" class="empty-state">
@@ -659,7 +659,7 @@
               </div>
 
               <div>
-                <strong>Risc AI</strong>
+                <strong>Risc </strong>
                 <span>{{ studentAnalytics.averageRiskScore || 0 }}%</span>
               </div>
 

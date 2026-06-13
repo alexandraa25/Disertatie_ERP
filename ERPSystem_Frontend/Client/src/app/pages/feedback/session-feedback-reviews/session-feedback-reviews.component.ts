@@ -83,7 +83,7 @@ export class SessionFeedbackReviewsComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.loadingAnalytics = false;
-        this.snackbar.showError('Nu s-a putut încărca analiza AI.');
+        this.snackbar.showError('Nu s-a putut încărca analiza.');
       }
     });
   }

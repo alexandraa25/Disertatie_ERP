@@ -753,7 +753,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.loadingStudentAnalytics = false;
         this.snackbar.showError(
-          this.getErrorMessage(err, 'Eroare la încărcarea analizei AI.'),
+          this.getErrorMessage(err, 'Eroare la încărcarea analizei.'),
           2500
         );
       }

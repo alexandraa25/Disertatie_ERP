@@ -84,12 +84,12 @@
 
         <button type="button" class="secondary-btn ai-toggle-btn" *ngIf="r.sentiment"
           (click)="toggleReviewAnalysis(r.id)">
-          {{ isReviewAnalysisOpen(r.id) ? 'Ascunde analiza AI' : 'Vezi analiza AI' }}
+          {{ isReviewAnalysisOpen(r.id) ? 'Ascunde analiza' : 'Vezi analiza' }}
         </button>
 
         <div class="ai-review" *ngIf="r.sentiment && isReviewAnalysisOpen(r.id)">
           <div class="ai-review-header">
-            <strong>Analiză AI review</strong>
+            <strong>Analiză review</strong>
 
             <span class="sentiment" [ngClass]="r.sentiment">
               {{ r.sentiment }}
@@ -176,7 +176,7 @@
       </p>
 
       <div *ngIf="loadingAnalytics" class="empty">
-        Se încarcă analiza AI...
+        Se încarcă analiza ...
       </div>
 
       <div *ngIf="!loadingAnalytics && !analytics" class="empty">
@@ -226,7 +226,7 @@
         </div>
 
         <div class="ai-section" *ngIf="analytics.summary">
-          <h4>Rezumat AI</h4>
+          <h4>Rezumat</h4>
           <p>{{ analytics.summary }}</p>
         </div>
 
