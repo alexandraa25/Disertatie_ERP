@@ -1,14 +1,264 @@
 @import 'quill/dist/quill.snow.css';
+
+/* ============================================
+   TEME: VARIABILE CSS
+   ============================================ */
+:root {
+  --bg-body-start: rgb(217, 219, 241);
+  --bg-body-end: #ffffff;
+  --bg-card: #ffffff;
+  --bg-input: #f8fafc;
+  --bg-table-header: #f8fafc;
+  --bg-hover: #f1f5f9;
+  --bg-dropdown: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --border-color: #e5e7eb;
+}
+
+[data-theme="dark"] {
+  --bg-body-start: #0f0f1a;
+  --bg-body-end: #1a1a2e;
+  --bg-card: #252535;
+  --bg-input: #2a2a3d;
+  --bg-table-header: #2a2a3d;
+  --bg-hover: #32324a;
+  --bg-dropdown: #252535;
+  --text-primary: #e2e8f0;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: #374151;
+}
+
 html, body {
   min-height: 100%;
   margin: 0;
 }
 
 body {
-  background: linear-gradient(135deg, rgb(217, 219, 241), #ffffff);
+  background: linear-gradient(135deg, var(--bg-body-start), var(--bg-body-end));
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: cover;
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================
+   DARK MODE — OVERRIDE-URI GLOBALE
+   ============================================ */
+
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .filters-card,
+html[data-theme="dark"] .modal,
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .modal.large,
+html[data-theme="dark"] .details-card,
+html[data-theme="dark"] .section-card,
+html[data-theme="dark"] .info-card,
+html[data-theme="dark"] .summary-card,
+html[data-theme="dark"] .stat-card,
+html[data-theme="dark"] .box,
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .upload-container,
+html[data-theme="dark"] .drop-zone,
+html[data-theme="dark"] .stepper,
+html[data-theme="dark"] .tab-pane,
+html[data-theme="dark"] .toolbar,
+html[data-theme="dark"] .tabs,
+html[data-theme="dark"] .review,
+html[data-theme="dark"] .ai-review,
+html[data-theme="dark"] .ai-section,
+html[data-theme="dark"] .page-card,
+html[data-theme="dark"] .form-card,
+html[data-theme="dark"] .contract-card,
+html[data-theme="dark"] .step-card,
+html[data-theme="dark"] .employee-card,
+html[data-theme="dark"] .leave-card,
+html[data-theme="dark"] .campaign-card,
+html[data-theme="dark"] .course-card,
+html[data-theme="dark"] .list-card,
+html[data-theme="dark"] .header-card,
+html[data-theme="dark"] .chart-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+}
+
+html[data-theme="dark"] .review,
+html[data-theme="dark"] .ai-section,
+html[data-theme="dark"] .ai-grid div,
+html[data-theme="dark"] .summary-card div {
+  background: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] p,
+html[data-theme="dark"] span:not(.badge-new):not(.badge-active):not(.badge-warning):not(.badge-deleted):not(.notification-badge):not(.log-performer):not(.sentiment):not(.low):not(.medium):not(.high),
+html[data-theme="dark"] label,
+html[data-theme="dark"] li,
+html[data-theme="dark"] strong,
+html[data-theme="dark"] small,
+html[data-theme="dark"] .hint,
+html[data-theme="dark"] .page-hero p,
+html[data-theme="dark"] .analytics-context,
+html[data-theme="dark"] .empty {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] table {
+  background: var(--bg-card) !important;
+}
+
+html[data-theme="dark"] th {
+  background: var(--bg-table-header) !important;
+  color: var(--text-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] td {
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] tr:hover td {
+  background: var(--bg-hover) !important;
+}
+
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] select:focus,
+html[data-theme="dark"] textarea:focus {
+  border-color: #6366f1 !important;
+}
+
+/* ng-select */
+html[data-theme="dark"] .ng-select .ng-select-container {
+  background: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .ng-select .ng-placeholder {
+  color: var(--text-muted) !important;
+}
+
+html[data-theme="dark"] .ng-select .ng-value-label {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .ng-dropdown-panel {
+  background: var(--bg-dropdown) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] .ng-dropdown-panel .ng-option {
+  background: var(--bg-dropdown) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .ng-dropdown-panel .ng-option:hover,
+html[data-theme="dark"] .ng-dropdown-panel .ng-option.ng-option-marked {
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .ng-dropdown-panel .ng-option.ng-option-selected {
+  background: #3730a3 !important;
+  color: #e0e7ff !important;
+}
+
+/* Log items */
+html[data-theme="dark"] .log-item {
+  background: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="dark"] .log-item:hover {
+  background: var(--bg-hover) !important;
+}
+
+/* Modal overlay */
+html[data-theme="dark"] .modal-overlay,
+html[data-theme="dark"] .overlay,
+html[data-theme="dark"] .modal-backdrop {
+  background: rgba(0, 0, 0, 0.75) !important;
+}
+
+/* Butoane generice (nu cele colorate) */
+html[data-theme="dark"] .cancel,
+html[data-theme="dark"] .secondary,
+html[data-theme="dark"] .secondary-btn,
+html[data-theme="dark"] .back,
+html[data-theme="dark"] .close-btn,
+html[data-theme="dark"] .icon-btn,
+html[data-theme="dark"] .pagination button,
+html[data-theme="dark"] .filter {
+  background: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* Paginator Material */
+html[data-theme="dark"] .mat-mdc-paginator {
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .mat-mdc-paginator .mat-mdc-form-field,
+html[data-theme="dark"] .mat-mdc-paginator .mat-mdc-text-field-wrapper {
+  background: var(--bg-input) !important;
+}
+
+html[data-theme="dark"] .mat-mdc-select-value,
+html[data-theme="dark"] .mat-mdc-paginator-page-size-label,
+html[data-theme="dark"] .mat-mdc-paginator-range-label {
+  color: var(--text-primary) !important;
+}
+
+/* Scrollbar */
+html[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #1e1e2e;
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+html[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Quill editor */
+html[data-theme="dark"] .ql-toolbar,
+html[data-theme="dark"] .ql-container {
+  background: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme="dark"] .ql-editor {
+  color: var(--text-primary) !important;
 }
 
 .mdc-snackbar {

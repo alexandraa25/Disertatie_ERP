@@ -34,6 +34,7 @@
     <div class="filter-group">
       <label>Utilizator</label>
       <ng-select [items]="users" [(ngModel)]="filters.performedBy" [multiple]="true"
+        bindLabel="fullName" bindValue="email"
         [placeholder]="filters.performedBy?.length ? '' :'Toți utilizatorii'" [searchable]="true" [clearable]="true"
         (change)="onFilterChange()">
       </ng-select>
@@ -69,6 +70,7 @@
       <div class="log-meta">
         {{ log.createdAtUtc | date:'HH:mm' }} |
         <span>{{ log.entityType }} #{{ log.entityId }}</span>
+        <span class="log-performer">👤 {{ log.performedByName || log.performedBy || 'system' }}</span>
       </div>
 
       <div class="log-text">
@@ -82,7 +84,7 @@
   <div class="pagination" *ngIf="totalPages >= 1">
 
     <button (click)="prevPage()" [disabled]="filters.page === 1">
-      ← Previous
+      ← Anterior
     </button>
 
     <span>
@@ -90,7 +92,7 @@
     </span>
 
     <button (click)="nextPage()" [disabled]="filters.page === totalPages">
-      Next →
+      Următor →
     </button>
 
   </div>

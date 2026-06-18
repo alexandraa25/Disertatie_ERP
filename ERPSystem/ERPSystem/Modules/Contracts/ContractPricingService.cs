@@ -14,12 +14,22 @@ public class ContractPricingService
             {
                 case DiscountScope.Package:
                     if (session.FeeType == CourseFeeType.FixedPackage)
-                        price = ApplyCourseDiscountValue(price, discount);
+                    {
+                        var scopeTotal = allSessions
+                            .Where(s => s.FeeType == CourseFeeType.FixedPackage)
+                            .Sum(s => s.Fee);
+                        price = ApplyProportionalOrPercentageDiscount(price, session.Fee, scopeTotal, discount);
+                    }
                     break;
 
                 case DiscountScope.Subscription:
                     if (session.FeeType == CourseFeeType.Monthly)
-                        price = ApplyCourseDiscountValue(price, discount);
+                    {
+                        var scopeTotal = allSessions
+                            .Where(s => s.FeeType == CourseFeeType.Monthly)
+                            .Sum(s => s.Fee);
+                        price = ApplyProportionalOrPercentageDiscount(price, session.Fee, scopeTotal, discount);
+                    }
                     break;
 
                 case DiscountScope.Total:
@@ -29,6 +39,18 @@ public class ContractPricingService
         }
 
         return Math.Max(0, Math.Round(price, 2));
+    }
+
+    private static decimal ApplyProportionalOrPercentageDiscount(
+        decimal price, decimal sessionFee, decimal scopeTotal, ContractDiscount discount)
+    {
+        if (discount.Type == DiscountType.Percentage)
+            return ApplyCourseDiscountValue(price, discount);
+
+        if (scopeTotal <= 0) return price;
+
+        var share = discount.Value * sessionFee / scopeTotal;
+        return Math.Max(0, Math.Round(price - share, 2));
     }
 
     public PricingResult CalculatePricingFromContractCourses(StudentContract contract)
@@ -85,13 +107,16 @@ public class ContractPricingService
         if (total <= 0)
             return price;
 
-        var courseTotalWeight = session.FeeType == CourseFeeType.Monthly
+        // For unlimited: all courses use face value as weight (months = 0, so can't multiply).
+        // For limited monthly: weight = fee * months (total contribution over contract period).
+        var courseTotalWeight = (!contract.IsUnlimited && session.FeeType == CourseFeeType.Monthly)
             ? session.Fee * months
             : session.Fee;
 
         var allocatedDiscount = discount.Value * courseTotalWeight / total;
 
-        if (session.FeeType == CourseFeeType.Monthly && months > 0)
+        // Convert from total-period discount back to per-month discount (limited only).
+        if (!contract.IsUnlimited && session.FeeType == CourseFeeType.Monthly && months > 0)
             allocatedDiscount /= months;
 
         return Math.Max(0, Math.Round(price - allocatedDiscount, 2));

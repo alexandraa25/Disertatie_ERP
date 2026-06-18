@@ -348,6 +348,35 @@ export class ContractDetailsComponent implements OnInit {
     this.router.navigate(['/contracts/edit', this.contract.id]);
   }
 
+  async deleteDraft() {
+    const confirmed = await this.confirmService.confirm(
+      'Confirmare ștergere',
+      'Contractul va fi șters definitiv și se va putea crea unul nou pentru acest elev. Continui?'
+    );
+
+    if (!confirmed) return;
+
+    this.actionLoading = true;
+
+    this.contractsService.deleteDraft(this.contract.id).subscribe({
+      next: (res: any) => {
+        this.actionLoading = false;
+
+        if (res?.isSuccess === false) {
+          this.snackbar.showError(res.error?.errorMessage || 'Contractul nu a putut fi șters.', 2500);
+          return;
+        }
+
+        this.snackbar.showSuccess('Contractul a fost șters.', 1800);
+        this.goBack();
+      },
+      error: () => {
+        this.actionLoading = false;
+        this.snackbar.showError('Eroare la ștergerea contractului.', 2500);
+      }
+    });
+  }
+
   get safeBody() {
     return this.sanitizer.bypassSecurityTrustHtml(this.contract.contractBody);
   }

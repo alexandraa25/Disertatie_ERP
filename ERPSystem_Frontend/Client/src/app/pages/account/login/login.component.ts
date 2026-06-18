@@ -135,7 +135,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         error: () => {
           this.isLoading = false;
           this.snackbar.showError(
-            'Login failed.',
+            'Autentificare eșuată.',
             2000
           );
         }

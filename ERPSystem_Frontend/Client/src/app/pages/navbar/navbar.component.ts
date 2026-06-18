@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
+import { ThemeService } from '../services/theme.service';
 import { jwtDecode } from 'jwt-decode';
 import { NotificationService } from '../services/notification.service';
 import { NotificationDto } from '../models/user-profile.model';
@@ -76,8 +77,17 @@ export class NavbarComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private elRef: ElementRef,
+    public theme: ThemeService
   ) { }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (this.notificationsOpen && !this.elRef.nativeElement.contains(event.target)) {
+      this.notificationsOpen = false;
+    }
+  }
 
   ngOnInit(): void {
     this.authService.user$.subscribe(u => {
@@ -147,26 +157,27 @@ export class NavbarComponent implements OnInit {
 
     const token = localStorage.getItem('accessToken');
 
-    if (!token) {
+    if (!token || token === 'undefined') {
       this.userRoles = [];
       return;
     }
 
-    const decoded: any = jwtDecode(token);
+    try {
+      const decoded: any = jwtDecode(token);
 
-    const tokenRoles =
-      decoded['role'] ??
-      decoded['roles'] ??
-      decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      const tokenRoles =
+        decoded['role'] ??
+        decoded['roles'] ??
+        decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 
-    this.userRoles = Array.isArray(tokenRoles)
-      ? tokenRoles
-      : tokenRoles
-        ? [tokenRoles]
-        : [];
-
-    console.log('DECODED TOKEN:', decoded);
-    console.log('ROLES:', this.userRoles);
+      this.userRoles = Array.isArray(tokenRoles)
+        ? tokenRoles
+        : tokenRoles
+          ? [tokenRoles]
+          : [];
+    } catch {
+      this.userRoles = [];
+    }
   }
   goToProfile() {
     const token = localStorage.getItem('accessToken');

@@ -180,6 +180,7 @@ namespace ERPSystem.Utils.Constants
                 public const string CONTRACT_BY_ID = "/{id:int}";
                 public const string STUDENT_CONTRACTS = "/students/{id:int}";
 
+                public const string CONTRACT_DELETE = "/{id}/delete";
                 public const string GET_CONTRACTS_OVERVIEW = "/overview";
                 public const string EXPORT_CONTRACTS_OVERVIEW = "/export";
                 public const string EXPORT_CONTRACTS_INSTALLMENTS= "/export/installments";

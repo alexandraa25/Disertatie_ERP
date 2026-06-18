@@ -77,7 +77,17 @@ public class ActivityLogService
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
-       
+
+        var performedByEmails = logs
+            .Where(l => !string.IsNullOrEmpty(l.PerformedBy))
+            .Select(l => l.PerformedBy!)
+            .Distinct()
+            .ToList();
+
+        var userNames = await _db.Users
+            .Where(u => u.Email != null && performedByEmails.Contains(u.Email))
+            .ToDictionaryAsync(u => u.Email!, u => u.FullName ?? $"{u.FirstName} {u.LastName}".Trim());
+
         return new PagedResult<ActivityLogDto>
         {
             Page = page,
@@ -90,7 +100,10 @@ public class ActivityLogService
                 Action = log.Action,
                 CreatedAtUtc = log.CreatedAtUtc,
                 Description = log.Description,
-                PerformedBy = log.PerformedBy
+                PerformedBy = log.PerformedBy,
+                PerformedByName = !string.IsNullOrEmpty(log.PerformedBy)
+                    ? userNames.GetValueOrDefault(log.PerformedBy, log.PerformedBy)
+                    : "system"
             }).ToList()
         };
     }
@@ -109,16 +122,30 @@ public class ActivityLogService
             .OrderBy(x => x)
             .ToListAsync();
 
-        var users = await _db.ActivityLog
-           .Select(x => x.PerformedBy)
-           .Distinct()
-           .OrderBy(x => x)
-           .ToListAsync();
+        var rawPerformedBy = await _db.ActivityLog
+            .Select(x => x.PerformedBy)
+            .Distinct()
+            .Where(x => x != null)
+            .ToListAsync();
+
+        var appUsers = await _db.Users
+            .Where(u => u.Email != null && rawPerformedBy.Contains(u.Email))
+            .Select(u => new { u.Email, Name = u.FullName ?? (u.FirstName + " " + u.LastName).Trim() })
+            .ToListAsync();
+
+        var users = rawPerformedBy
+            .Select(email => new
+            {
+                email,
+                fullName = appUsers.FirstOrDefault(u => u.Email == email)?.Name ?? email
+            })
+            .OrderBy(u => u.fullName)
+            .ToList();
 
         return new
         {
             entities,
-            actions, 
+            actions,
             users
         };
     }

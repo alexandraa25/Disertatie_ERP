@@ -1,14 +1,14 @@
 <div class="picker-container">
 
     <div class="trigger" (click)="toggle()">
-        {{ from ? (from | date:'shortDate') : 'Start' }}
+        {{ from ? (from | date:'shortDate') : 'De la' }}
         -
-        {{ to ? (to | date:'shortDate') : 'End' }}
+        {{ to ? (to | date:'shortDate') : 'Până la' }}
     </div>
 
     <div class="dropdown" *ngIf="isOpen">
         <mat-tab-group>
-            <mat-tab label="Date range">
+            <mat-tab label="Interval de date">
                 <div class="content">
 
                     <div class="presets">
@@ -30,38 +30,38 @@
                 </div>
             </mat-tab>
 
-            <mat-tab label="Realtime">
+            <mat-tab label="Timp real">
                 <div class="content">
 
                     <div class="presets">
                         <button [class.active]="selectedPreset === 'rt-0'" (click)="selectRealtimePreset(0)">
-                            Now
+                            Acum
                         </button>
 
                         <button [class.active]="selectedPreset === 'rt-60'" (click)="selectRealtimePreset(60)">
-                            Last Hour
+                            Ultima oră
                         </button>
 
                         <button [class.active]="selectedPreset === 'rt-180'" (click)="selectRealtimePreset(180)">
-                            Last 3 Hours
+                            Ultimele 3 ore
                         </button>
 
                         <button [class.active]="isCustomMode" (click)="activateCustom()">
-                            Custom
+                            Personalizat
                         </button>
                     </div>
 
                     <div class="custom" *ngIf="isCustomMode">
-                        <span>Last</span>
+                        <span>Ultimele</span>
 
                         <input type="number" [(ngModel)]="customValue">
 
                         <select [(ngModel)]="customUnit">
-                            <option value="minutes">Minutes</option>
-                            <option value="hours">Hours</option>
+                            <option value="minutes">Minute</option>
+                            <option value="hours">Ore</option>
                         </select>
 
-                        <button class="secondary" (click)="applyRealtime()">Set</button>
+                        <button class="secondary" (click)="applyRealtime()">Aplică</button>
                     </div>
 
                     <div class="preview" *ngIf="tempFrom && tempTo">
@@ -74,12 +74,12 @@
         </mat-tab-group>
 
         <div class="actions">
-            <button class="cancel" (click)="cancel()">Cancel</button>
+            <button class="cancel" (click)="cancel()">Anulează</button>
 
-            <button class="clear"  *ngIf="from || to" (click)="clear()">Clear</button>
+            <button class="clear"  *ngIf="from || to" (click)="clear()">Șterge</button>
 
             <button class="apply" [disabled]="!tempFrom || !tempTo" (click)="apply()">
-                Apply Range
+                Aplică intervalul
             </button>
         </div>
     </div>

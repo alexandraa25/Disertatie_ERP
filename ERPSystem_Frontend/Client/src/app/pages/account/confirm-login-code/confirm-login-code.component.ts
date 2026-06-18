@@ -83,16 +83,13 @@ export class ConfirmLoginCodeComponent implements OnInit {
     this.auth.verifyLoginCode(code, tempToken).subscribe({
       next: (res) => {
         this.isLoading = false;
-        const accessToken = res.value?.accessToken;
-        const user = res.value?.user;
+        const accessToken = localStorage.getItem('accessToken');
 
-        if (!accessToken) {
+        if (!accessToken || accessToken === 'undefined') {
           this.snackbar.showError('A apărut o eroare. Tokenul nu a fost returnat.', 2000);
           return;
         }
 
-        localStorage.setItem("accessToken", accessToken);
-        localStorage.setItem("user", JSON.stringify(user));
         sessionStorage.removeItem("tempToken");
         this.snackbar.showSuccess('Autentificare confirmată!', 1500);
         this.router.navigate(['/profil-user']);

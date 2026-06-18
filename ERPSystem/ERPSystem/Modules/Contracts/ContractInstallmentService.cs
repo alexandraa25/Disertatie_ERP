@@ -27,7 +27,9 @@ public class ContractInstallmentService
 
         var months = isUnlimited
             ? hasPackage ? packageInstallments : 1
-            : pricing.Months > 0 ? pricing.Months : packageInstallments;
+            : hasSubscription
+                ? (pricing.Months > 0 ? pricing.Months : packageInstallments)
+                : packageInstallments; // pachet-only: nu genera rate goale după ultimul pachet
 
         for (var i = 0; i < months; i++)
         {

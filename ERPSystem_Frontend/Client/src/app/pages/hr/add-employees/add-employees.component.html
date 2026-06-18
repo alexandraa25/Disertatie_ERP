@@ -2,7 +2,7 @@
   <div class="modal large" (click)="$event.stopPropagation()">
 
     <div class="modal-header">
-      <h2>Create Employee</h2>
+      <h2>Adaugă angajat</h2>
       <button class="close-btn" type="button" (click)="closeModal()">✕</button>
     </div>
 
@@ -20,23 +20,23 @@
       <div *ngIf="currentStep === 0">
         <div class="switch">
           <button type="button" (click)="setMode('existing')" [class.active]="mode === 'existing'">
-            Existing
+            Existent
           </button>
           <button type="button" (click)="setMode('new')" [class.active]="mode === 'new'">
-            New
+            Nou
           </button>
         </div>
 
         <div *ngIf="mode === 'existing'">
           <select formControlName="userId">
-            <option value="">Select user</option>
+            <option value="">Selectează utilizator</option>
             <option *ngFor="let u of users" [value]="u.id">
               {{ u.firstName }} {{ u.lastName }}
             </option>
           </select>
 
           <div class="error" *ngIf="hasError('userId', 'required')">
-            User is required
+            Utilizatorul este obligatoriu
           </div>
         </div>
 
@@ -58,29 +58,29 @@
 
         <div *ngIf="mode === 'new'" class="grid">
           <div>
-            <input placeholder="First Name" formControlName="firstName">
+            <input placeholder="Prenume" formControlName="firstName">
             <div class="error" *ngIf="hasError('firstName', 'required')">
-              First name is required
+              Prenumele este obligatoriu
             </div>
             <div class="error" *ngIf="hasError('firstName', 'maxlength')">
-              First name is too long
+              Prenumele este prea lung
             </div>
           </div>
 
           <div>
-            <input placeholder="Last Name" formControlName="lastName">
+            <input placeholder="Nume" formControlName="lastName">
             <div class="error" *ngIf="hasError('lastName', 'required')">
-              Last name is required
+              Numele este obligatoriu
             </div>
             <div class="error" *ngIf="hasError('lastName', 'maxlength')">
-              Last name is too long
+              Numele este prea lung
             </div>
           </div>
 
           <div>
             <input placeholder="Email" formControlName="email">
             <div class="error" *ngIf="hasError('email', 'required')">
-              Email is required
+              Email-ul este obligatoriu
             </div>
             <div class="error" *ngIf="hasError('email', 'email')">
               Email invalid
@@ -91,72 +91,72 @@
 
       <div *ngIf="currentStep === 1" class="grid">
         <div>
-          <input placeholder="Job Title" formControlName="jobTitle">
+          <input placeholder="Funcție" formControlName="jobTitle">
           <div class="error" *ngIf="hasError('jobTitle', 'required')">
-            Job title is required
+            Funcția este obligatorie
           </div>
         </div>
 
         <div>
           <input type="date" formControlName="hireDate">
           <div class="error" *ngIf="hasError('hireDate', 'required')">
-            Hire date is required
+            Data angajării este obligatorie
           </div>
         </div>
 
         <div>
           <input type="number" placeholder="Salariu brut" formControlName="salary">
           <div class="error" *ngIf="hasError('salary', 'min')">
-            Salary must be positive
+            Salariul trebuie să fie pozitiv
           </div>
         </div>
 
         <div>
           <select formControlName="contractType">
-            <option value="">Select contract</option>
-            <option value="FullTime">Full Time</option>
-            <option value="PartTime">Part Time</option>
-            <option value="Collaboration">Collaboration</option>
+            <option value="">Selectează tipul contractului</option>
+            <option value="FullTime">Normă întreagă</option>
+            <option value="PartTime">Jumătate de normă</option>
+            <option value="Collaboration">Colaborare</option>
           </select>
 
           <div class="error" *ngIf="hasError('contractType', 'required')">
-            Contract type is required
+            Tipul contractului este obligatoriu
           </div>
         </div>
 
         <div>
-          <textarea placeholder="Notes" formControlName="notes"></textarea>
+          <textarea placeholder="Observații" formControlName="notes"></textarea>
           <div class="error" *ngIf="hasError('notes', 'maxlength')">
-            Notes cannot exceed 500 characters
+            Observațiile nu pot depăși 500 de caractere
           </div>
         </div>
       </div>
 
       <div *ngIf="currentStep === 2" class="grid">
         <div>
-          <input placeholder="Phone Number" formControlName="phoneNumber">
+          <input placeholder="Număr de telefon" formControlName="phoneNumber">
           <div class="error" *ngIf="hasError('phoneNumber', 'pattern')">
-            Phone number invalid
+            Număr de telefon invalid
           </div>
         </div>
 
         <div>
-          <input placeholder="Emergency Name" formControlName="emergencyContactName">
+          <input placeholder="Persoană de urgență" formControlName="emergencyContactName">
         </div>
 
         <div>
-          <input placeholder="Emergency Phone" formControlName="emergencyContactPhone">
+          <input placeholder="Telefon de urgență" formControlName="emergencyContactPhone">
           <div class="error" *ngIf="hasError('emergencyContactPhone', 'pattern')">
-            Emergency phone invalid
+            Telefon de urgență invalid
           </div>
         </div>
       </div>
 
       <div *ngIf="currentStep === 3" class="grid">
-        <input placeholder="Street" formControlName="street">
-        <input placeholder="City" formControlName="city">
-        <input placeholder="Country" formControlName="country">
-        <input placeholder="Postal Code" formControlName="postalCode">
+        <input placeholder="Stradă" formControlName="street">
+        <input placeholder="Oraș" formControlName="city">
+        <input placeholder="Țară" formControlName="country">
+        <input placeholder="Cod poștal" formControlName="postalCode">
       </div>
 
       <div *ngIf="currentStep === 4" class="grid">
@@ -167,7 +167,7 @@
           </div>
         </div>
 
-        <input placeholder="Bank Name" formControlName="bankName">
+        <input placeholder="Bancă" formControlName="bankName">
       </div>
 
       <div *ngIf="currentStep === 5" class="upload-container">
@@ -250,15 +250,15 @@
 
       <div class="actions">
         <button type="button" (click)="prev()" [disabled]="currentStep === 0">
-          Back
+          Înapoi
         </button>
 
         <button type="button" *ngIf="currentStep < steps.length - 1" (click)="next()">
-          Next
+          Continuă
         </button>
 
         <button type="submit" *ngIf="currentStep === steps.length - 1">
-          Create
+          Creează
         </button>
       </div>
 

@@ -44,10 +44,10 @@ export class DateRangePickerComponent {
   customUnit: 'minutes' | 'hours' = 'minutes';
 
   presets = [
-    { key: 'today', label: 'Today' },
-    { key: 'yesterday', label: 'Yesterday' },
-    { key: 'week', label: 'Last 7 Days' },
-    { key: 'month', label: 'Last 30 Days' }
+    { key: 'today', label: 'Azi' },
+    { key: 'yesterday', label: 'Ieri' },
+    { key: 'week', label: 'Ultimele 7 zile' },
+    { key: 'month', label: 'Ultimele 30 de zile' }
   ];
 
   toggle() {

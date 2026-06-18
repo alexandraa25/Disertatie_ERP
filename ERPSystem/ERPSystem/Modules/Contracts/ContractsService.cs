@@ -860,6 +860,38 @@ public class ContractsService
         return response.SetSuccess(true);
     }
 
+    public async Task<PublicResponse> DeleteAsync(int id)
+    {
+        var response = new PublicResponse(true);
+
+        var contract = await _db.StudentContracts
+            .Include(c => c.InstallmentsList)
+            .Include(c => c.Discounts)
+            .Include(c => c.Courses)
+            .Include(c => c.Parties)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (contract is null)
+            return response.SetError(ErrorCodes.InvalidParameters, "Contractul nu a fost găsit.");
+
+        if (contract.Status != ContractStatus.Draft)
+            return response.SetError(ErrorCodes.InvalidParameters, "Doar contractele în stare Draft pot fi șterse.");
+
+        _db.StudentContracts.Remove(contract);
+
+        _activityLogService.Add(
+            nameof(StudentContract),
+            contract.Id.ToString(),
+            "Delete",
+            $"Contractul {contract.ContractNumber} a fost șters.",
+            GetCurrentUser()
+        );
+
+        await _db.SaveChangesAsync();
+
+        return response.SetSuccess(true);
+    }
+
     public async Task ExpireContractsAsync()
     {
         var contracts = await _db.StudentContracts
@@ -1163,13 +1195,20 @@ public class ContractsService
         var hasPackage = contract.Courses.Any(c => c.FeeType == CourseFeeType.FixedPackage);
         var hasMonthly = contract.Courses.Any(c => c.FeeType == CourseFeeType.Monthly);
 
+        // Load original (pre-discount) fees from DB to use as the pricing base.
+        // PriceSnapshot already reflects discounts; applying them again here would double-discount.
+        var sessionIds = contract.Courses.Select(c => c.CourseSessionId).ToList();
+        var originalFees = await _db.CourseSessions
+            .Where(s => sessionIds.Contains(s.Id))
+            .ToDictionaryAsync(s => s.Id, s => s.Fee);
+
         var packageBaseAmount = contract.Courses
             .Where(c => c.FeeType == CourseFeeType.FixedPackage)
-            .Sum(c => c.PriceSnapshot);
+            .Sum(c => originalFees.GetValueOrDefault(c.CourseSessionId, c.PriceSnapshot));
 
         var monthlyBaseAmount = contract.Courses
             .Where(c => c.FeeType == CourseFeeType.Monthly)
-            .Sum(c => c.PriceSnapshot);
+            .Sum(c => originalFees.GetValueOrDefault(c.CourseSessionId, c.PriceSnapshot));
 
         var subtotal = packageBaseAmount + monthlyBaseAmount;
 
@@ -1310,20 +1349,31 @@ public class ContractsService
             case DiscountScope.Total:
                 if (isUnlimited)
                 {
-                    if (result.PackageAmount > 0)
+                    if (discount.Type == DiscountType.Percentage)
                     {
-                        result.PackageAmount = ApplyTemplateDiscountValue(
-                            result.PackageAmount,
-                            discount,
-                            result);
-                    }
+                        if (result.PackageAmount > 0)
+                            result.PackageAmount = ApplyTemplateDiscountValue(result.PackageAmount, discount, result);
 
-                    if (result.MonthlyAmount > 0)
+                        if (result.MonthlyAmount > 0)
+                            result.MonthlyAmount = ApplyTemplateDiscountValue(result.MonthlyAmount, discount, result);
+                    }
+                    else
                     {
-                        result.MonthlyAmount = ApplyTemplateDiscountValue(
-                            result.MonthlyAmount,
-                            discount,
-                            result);
+                        // Fixed: distribute proportionally across package + monthly at face value.
+                        var unlimitedTotal = result.PackageAmount + result.MonthlyAmount;
+                        if (unlimitedTotal > 0)
+                        {
+                            var pkgShare = discount.Value * result.PackageAmount / unlimitedTotal;
+                            var subShare = discount.Value * result.MonthlyAmount / unlimitedTotal;
+
+                            var oldPkg = result.PackageAmount;
+                            var oldSub = result.MonthlyAmount;
+
+                            result.PackageAmount = Math.Max(0, Math.Round(result.PackageAmount - pkgShare, 2));
+                            result.MonthlyAmount = Math.Max(0, Math.Round(result.MonthlyAmount - subShare, 2));
+
+                            result.DiscountTotal += (oldPkg - result.PackageAmount) + (oldSub - result.MonthlyAmount);
+                        }
                     }
                 }
                 else

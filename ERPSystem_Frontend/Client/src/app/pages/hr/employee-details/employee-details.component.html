@@ -35,15 +35,15 @@
       </button>
 
       <button type="button" *ngIf="activeTab === 'info' && !isEditMode" (click)="enableEdit()">
-        ✏ Edit
+        ✏ Editează
       </button>
 
       <button type="button" *ngIf="activeTab === 'info' && isEditMode" (click)="save()">
-        💾 Save
+        💾 Salvează
       </button>
 
       <button type="button" *ngIf="activeTab === 'info' && isEditMode" (click)="cancelEdit()">
-        ✖ Cancel
+        ✖ Anulează
       </button>
     </div>
   </div>
@@ -269,7 +269,7 @@
       </div>
 
       <button type="button" class="upload-btn" (click)="uploadDocuments()" [disabled]="selectedFiles.length === 0">
-        Upload
+        Încarcă
       </button>
 
     </div>

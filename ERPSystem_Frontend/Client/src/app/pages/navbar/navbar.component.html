@@ -1,4 +1,4 @@
-<nav class="navbar">
+<nav class="navbar" *ngIf="user">
 
   <div class="navbar-container">
 
@@ -15,66 +15,48 @@
     <!-- NAVIGATION -->
     <ul class="nav-links" [class.open]="isMenuOpen">
 
-      <!-- GUEST -->
-      <ng-container *ngIf="!user">
+      <!-- DYNAMIC MENU based on role -->
+      <ng-container *ngFor="let group of menuGroups">
+        <li class="nav-dropdown" *ngIf="canSeeGroup(group)" (mouseenter)="openDropdown(group.label)"
+          (mouseleave)="closeDropdownWithDelay()">
+          <button type="button" class="dropdown-trigger">
+            {{ group.label }} ▾
+          </button>
 
-        <li>
-          <a routerLink="/login" (click)="isMenuOpen=false">
-            Login
-          </a>
+          <ul class="dropdown-menu" [class.open]="activeDropdown === group.label">
+            <li *ngFor="let item of group.children">
+              <a *ngIf="canSee(item)" [routerLink]="item.route" routerLinkActive="active-link"
+                (click)="activeDropdown=null; isMenuOpen=false">
+                {{ item.label }}
+              </a>
+            </li>
+          </ul>
         </li>
-
-        <li>
-          <a routerLink="/register" (click)="isMenuOpen=false">
-            Register
-          </a>
-        </li>
-
       </ng-container>
 
-      <!-- AUTHENTICATED -->
-      <ng-container *ngIf="user">
+      <!-- PROFILE -->
+      <li>
+        <a (click)="goToProfile(); isMenuOpen=false">
+          Profil
+        </a>
+      </li>
 
-        <!-- DYNAMIC MENU -->
-        <ng-container *ngFor="let group of menuGroups">
-          <li class="nav-dropdown" *ngIf="canSeeGroup(group)" (mouseenter)="openDropdown(group.label)"
-            (mouseleave)="closeDropdownWithDelay()">
-            <button type="button" class="dropdown-trigger">
-              {{ group.label }} ▾
-            </button>
-
-            <ul class="dropdown-menu" [class.open]="activeDropdown === group.label">
-              <li *ngFor="let item of group.children">
-                <a *ngIf="canSee(item)" [routerLink]="item.route" routerLinkActive="active-link"
-                  (click)="activeDropdown=null; isMenuOpen=false">
-                  {{ item.label }}
-                </a>
-              </li>
-            </ul>
-          </li>
-        </ng-container>
-
-        <!-- PROFILE -->
-        <li>
-          <a (click)="goToProfile(); isMenuOpen=false">
-            Profil
-          </a>
-        </li>
-
-        <!-- LOGOUT -->
-        <li>
-          <a (click)="logout(); isMenuOpen=false">
-            Logout
-          </a>
-        </li>
-
-      </ng-container>
+      <!-- LOGOUT -->
+      <li>
+        <a (click)="logout(); isMenuOpen=false">
+          Logout
+        </a>
+      </li>
 
     </ul>
 
+    <!-- DARK MODE TOGGLE -->
+    <!-- <button class="theme-toggle" (click)="theme.toggle()" [title]="theme.isDark ? 'Mod luminos' : 'Mod întunecat'">
+      {{ theme.isDark ? '☀️' : '🌙' }}
+    </button> -->
+
     <!-- NOTIFICATIONS -->
     <div class="navbar-notifications">
-
 
       <button type="button" class="notification-bell" (click)="toggleNotifications()">
         🔔
@@ -131,7 +113,6 @@
         </div>
 
       </div>
-
 
     </div>
 

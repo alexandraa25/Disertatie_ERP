@@ -4,14 +4,21 @@ export interface ActivityLog {
   action: string;
   createdAtUtc: string;
   description?: string;
+  performedBy?: string;
+  performedByName?: string;
   oldValues: Record<string, any>;
   newValues: Record<string, any>;
+}
+
+export interface UserOption {
+  email: string;
+  fullName: string;
 }
 
 export interface ActivityFilterOptions {
   entities: string[];
   actions: string[];
-  users: string[];
+  users: UserOption[];
 }
 
 export interface ActivityFilters {

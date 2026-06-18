@@ -13,14 +13,23 @@ export class AuthService {
   public user$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
+    if (!this.isAuthenticated()) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+      return;
+    }
+
     const savedUser = localStorage.getItem("user");
 
     try {
       if (savedUser && savedUser !== "undefined" && savedUser !== "null") {
         this.currentUserSubject.next(JSON.parse(savedUser));
+      } else {
+        this.loadUserFromToken();
       }
     } catch {
       localStorage.removeItem("user");
+      this.loadUserFromToken();
     }
   }
 
@@ -75,16 +84,16 @@ login(email: string, password: string): Observable<any> {
   return this.http.post(`${this.apiUrl}/logout`, {}, { withCredentials: true });
 }
 
-  saveToken(token: string) {
-    localStorage.setItem("token", token);
-  }
-
-  getToken(): string | null {
-    return localStorage.getItem("token");
-  }
-
   isAuthenticated(): boolean {
-    return !!localStorage.getItem("accessToken");
+    const token = localStorage.getItem('accessToken');
+    if (!token || token === 'undefined' || token === 'null') return false;
+
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp ? payload.exp * 1000 > Date.now() : false;
+    } catch {
+      return false;
+    }
   }
 
   get userRole(): string | null {
@@ -138,7 +147,7 @@ login(email: string, password: string): Observable<any> {
     try {
       const payload = JSON.parse(atob(parts[1]));
       this.currentUserSubject.next({
-        id: payload.id,
+        id: payload.sub,
         role: payload.role,
         email: payload.email
       });
@@ -172,14 +181,14 @@ login(email: string, password: string): Observable<any> {
     code
   }, { withCredentials: true }).pipe(
     tap((res) => {
-      const data = res.result ?? res;
+      const data = res?.value ?? res?.result ?? res;
+      const token = data?.accessToken ?? data?.AccessToken;
+      const user = data?.user ?? data?.User;
 
-      localStorage.setItem(
-        'accessToken',
-        data.accessToken ?? data.AccessToken
-      );
-
-      this.setUser(data.user ?? data.User);
+      if (token) {
+        localStorage.setItem('accessToken', token);
+        this.setUser(user ?? null);
+      }
     })
   );
 }

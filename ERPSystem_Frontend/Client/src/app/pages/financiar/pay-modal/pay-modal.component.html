@@ -38,13 +38,13 @@
 
   <!-- ACTIONS -->
   <div class="actions">
-    <button class="btn-cancel" (click)="close()">Cancel</button>
+    <button class="btn-cancel" (click)="close()">Anulează</button>
 
-    <button 
+    <button
       class="btn-confirm"
-      (click)="confirm()" 
+      (click)="confirm()"
       [disabled]="amount <= 0 || amount > data.remaining">
-      Confirm
+      Confirmă
     </button>
   </div>
 

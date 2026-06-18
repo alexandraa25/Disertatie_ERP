@@ -92,6 +92,10 @@ export class ContractsService {
     return this.http.put(`${this.baseUrl}/${id}/complete`, {});
   }
 
+  deleteDraft(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/${id}/delete`);
+  }
+
   createAct(contractId: number, dto: any) {
     return this.http.post(`${this.baseUrl}/${contractId}/additional-act`, dto);
   }

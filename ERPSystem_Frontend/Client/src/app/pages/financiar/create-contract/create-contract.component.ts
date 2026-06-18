@@ -304,12 +304,25 @@ export class CreateContractComponent implements OnInit {
 
       if (normalizedScope === 'Total') {
         if (isUnlimited) {
-          if (this.hasFixedPackageCourses) {
-            this.packageAmount = applyDiscount(this.packageAmount, type, value);
-          }
+          const isPercentage = type === 'Percentage' || Number(type) === 1;
 
-          if (this.hasSubscriptionCourses) {
-            this.monthlyAmount = applyDiscount(this.monthlyAmount, type, value);
+          if (isPercentage) {
+            if (this.hasFixedPackageCourses)
+              this.packageAmount = applyDiscount(this.packageAmount, type, value);
+            if (this.hasSubscriptionCourses)
+              this.monthlyAmount = applyDiscount(this.monthlyAmount, type, value);
+          } else {
+            // Fixed: distribute proportionally across package + monthly at face value.
+            const unlimitedTotal = this.packageAmount + this.monthlyAmount;
+            if (unlimitedTotal > 0) {
+              const pkgShare = value * this.packageAmount / unlimitedTotal;
+              const subShare = value * this.monthlyAmount / unlimitedTotal;
+              const newPkg = Math.max(0, this.packageAmount - pkgShare);
+              const newSub = Math.max(0, this.monthlyAmount - subShare);
+              this.discountTotal += (this.packageAmount - newPkg) + (this.monthlyAmount - newSub);
+              this.packageAmount = newPkg;
+              this.monthlyAmount = newSub;
+            }
           }
 
           return;

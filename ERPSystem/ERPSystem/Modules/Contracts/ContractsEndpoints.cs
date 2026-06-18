@@ -109,6 +109,13 @@ public static class ContractsEndpoints
                 =>{await service.ExpireContractsAsync(); return Results.Ok();})
           .WithDefaultApiSettings( "ExpireContractsJob", "Rulează expirarea contractelor","SYSTEM",false);
 
+        group.MapDelete(Route.CONTRACT_DELETE,
+            async (int id, ContractsService service)
+                => await service.DeleteAsync(id))
+            .RequireAuthorization(policy =>
+                policy.RequireRole("Admin", "Manager", "Accountant"))
+            .WithDefaultApiSettings("DeleteDraftContract", "Ștergere contract Draft", "DELETE", false);
+
         group.MapGet(Route.GET_CONTRACTS_OVERVIEW,
            async (ContractsService service)
                => await service.GetContractsOverviewAsync())

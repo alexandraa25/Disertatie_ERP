@@ -479,7 +479,7 @@ namespace ERPSystem.Modules.AdditionalAct
 
             var studentList = string.Join(", ", students.Select(s => s.FullName));
 
-            var coursesList = string.Join("\n",
+            var coursesList = string.Join("<br/>",
                 contract.Courses.Select(c =>
                     $"- {c.CourseNameSnapshot} ({c.SessionNameSnapshot}) – {c.PriceSnapshot} RON"));
 
@@ -765,7 +765,7 @@ namespace ERPSystem.Modules.AdditionalAct
                     case AdditionalActType.AddCourse:
                         {
                             if (!item.CourseSessionId.HasValue)
-                                return response.SetError(ErrorCodes.InvalidParameters, "ursul este obligatoriu.");
+                                return response.SetError(ErrorCodes.InvalidParameters, "Cursul este obligatoriu.");
 
                             var enrollment = await _db.CourseEnrollments
                                 .Include(e => e.Session)
@@ -813,24 +813,24 @@ namespace ERPSystem.Modules.AdditionalAct
                             if (!item.CourseSessionId.HasValue)
                                 return response.SetError(ErrorCodes.InvalidParameters, "Cursul există deja în contract.");
 
-                            var existing = await _db.CourseEnrollments
-                                .FirstOrDefaultAsync(e =>
-                                    e.CourseSessionId == item.CourseSessionId.Value &&
-                                    e.ContractId == contract.Id &&
-                                    !e.IsActive);
-
                             var contractCourse = await _db.ContractCourses
                              .FirstOrDefaultAsync(c =>
                                  c.ContractId == contract.Id &&
                                  c.CourseSessionId == item.CourseSessionId.Value);
 
-                            if (contractCourse != null)
-                                _db.ContractCourses.Remove(contractCourse);
-
-                            if (existing == null)
+                            if (contractCourse == null)
                                 return response.SetError(ErrorCodes.InvalidParameters, "Cursul eliminat nu a fost găsit în contract.");
 
-                            existing.ContractId = null;
+                            _db.ContractCourses.Remove(contractCourse);
+
+                            var existing = await _db.CourseEnrollments
+                                .FirstOrDefaultAsync(e =>
+                                    e.CourseSessionId == item.CourseSessionId.Value &&
+                                    e.ContractId == contract.Id &&
+                                    e.IsActive);
+
+                            if (existing != null)
+                                existing.ContractId = null;
 
                             break;
                         }
@@ -1091,7 +1091,7 @@ namespace ERPSystem.Modules.AdditionalAct
                                         e.CourseSessionId == sessionId &&
                                         e.ContractId == contract.Id &&
                                         e.StudentId == studentId &&
-                                        !e.IsActive);
+                                        e.IsActive);
 
                                 if (existingEnrollment == null)
                                     throw new InvalidOperationException("Înscrierea nu a fost găsită sau este deja inclusă în contract");

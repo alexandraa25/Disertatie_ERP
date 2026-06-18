@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivityLogService } from '../../services/activity-log.service';
-import { ActivityFilters, ActivityLog, } from '../../models/activity-log.model';
+import { ActivityFilters, ActivityLog, UserOption } from '../../models/activity-log.model';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,7 +25,7 @@ export class AdminActivityComponent implements OnInit {
 
   entities: string[] = [];
   actions: string[] = [];
-  users: string[] = [];
+  users: UserOption[] = [];
 
   filters: ActivityFilters = {
     entity: [],

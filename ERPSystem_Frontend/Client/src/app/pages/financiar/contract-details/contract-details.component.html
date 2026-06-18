@@ -125,6 +125,14 @@
     </button>
 
     <button
+      *ngIf="contract.status === 'Draft'"
+      class="btn danger"
+      [disabled]="actionLoading"
+      (click)="deleteDraft()">
+      🗑 Șterge draft
+    </button>
+
+    <button
       *ngIf="contract.status === 'Finalized'"
       class="btn primary"
       (click)="sendToClient()">

@@ -299,7 +299,7 @@ namespace ERPSystem.Modules.Authentificate
                     HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddHours(1)
+                    Expires = DateTime.UtcNow.AddHours(8)
                 };
 
                 httpContext.Response.Cookies.Append("Token", jwt, cookieOptions);
@@ -554,7 +554,7 @@ namespace ERPSystem.Modules.Authentificate
                 issuer: jwtIssuer,
                 audience: jwtAudience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddHours(8),
                 signingCredentials: creds
             );
 

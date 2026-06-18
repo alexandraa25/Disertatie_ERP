@@ -115,7 +115,7 @@
 
   min-width: 240px;
 
-  background: white;
+  background: var(--bg-card, white);
   border-radius: 18px;
 
   padding: 10px;
@@ -149,7 +149,7 @@
 
   width: 100%;
 
-  color: #111827 !important;
+  color: var(--text-primary, #111827) !important;
 
   font-size: 0.95rem;
   font-weight: 700;
@@ -162,8 +162,8 @@
 }
 
 .dropdown-menu a:hover {
-  background: #f3f4f6;
-  color: #22023f !important;
+  background: var(--bg-hover, #f3f4f6);
+  color: var(--text-primary, #22023f) !important;
 }
 
 /* =========================
@@ -232,6 +232,27 @@
 .menu-icon.open::after {
   top: 0;
   transform: rotate(-45deg);
+}
+
+/* =========================
+   DARK MODE TOGGLE
+========================= */
+
+.theme-toggle {
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 20px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  flex-shrink: 0;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: scale(1.1);
 }
 
 /* =========================
@@ -306,13 +327,13 @@
 
   overflow-y: auto;
 
-  background: white;
+  background: var(--bg-card, white);
 
   border-radius: 20px;
 
   box-shadow: 0 22px 50px rgba(15, 23, 42, 0.18);
 
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
 
   z-index: 9999;
 }
@@ -322,11 +343,11 @@
 
   top: 0;
 
-  background: white;
+  background: var(--bg-card, white);
 
   padding: 16px;
 
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-color, #f1f5f9);
 
   display: flex;
   justify-content: space-between;
@@ -341,7 +362,7 @@
   margin: 0;
 
   font-size: 18px;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
 }
 
 .notifications-dropdown-header span {
@@ -350,7 +371,7 @@
   margin-top: 4px;
 
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-muted, #64748b);
 }
 
 .notifications-dropdown-header button {
@@ -385,7 +406,7 @@
 
   padding: 14px 16px;
 
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-color, #f1f5f9);
 
   cursor: pointer;
 
@@ -393,7 +414,7 @@
 }
 
 .notification-row:hover {
-  background: #f8fafc;
+  background: var(--bg-hover, #f8fafc);
 }
 
 .notification-row.unread {
@@ -431,14 +452,14 @@
 }
 
 .notification-content strong {
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   font-size: 14px;
 }
 
 .notification-content p {
   margin: 4px 0;
 
-  color: #475569;
+  color: var(--text-secondary, #475569);
 
   font-size: 13px;
   line-height: 1.4;
