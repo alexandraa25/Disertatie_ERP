@@ -439,10 +439,10 @@ namespace ERPSystem.Data.Context
 
 
             modelBuilder.Entity<EmailLog>()
-    .HasMany(x => x.Recipients)
-    .WithOne(x => x.EmailLog)
-    .HasForeignKey(x => x.EmailLogId)
-    .OnDelete(DeleteBehavior.Cascade);
+               .HasMany(x => x.Recipients)
+               .WithOne(x => x.EmailLog)
+               .HasForeignKey(x => x.EmailLogId)
+               .OnDelete(DeleteBehavior.Cascade);
 
         }
 

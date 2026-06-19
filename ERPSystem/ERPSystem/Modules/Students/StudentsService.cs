@@ -531,7 +531,7 @@ public class StudentsService
                 .ToListAsync();
 
             var total = enrollments
-                .Where(x => x.IsActive) // 🔥 doar active în total
+                .Where(x => x.IsActive) 
                 .Sum(c => c.Price);
 
             return response.SetSuccess(new

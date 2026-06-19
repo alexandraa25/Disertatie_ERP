@@ -411,7 +411,6 @@ public class DocumentSigningService
                         contract.ActivatedAtUtc = DateTime.UtcNow;
                         contract.UpdatedAtUtc = DateTime.UtcNow;
 
-                        // 🔥 ENROLLMENTS
                         var studentIds = contract.Parties
                             .Where(p => p.StudentId.HasValue && p.Role == ContractPartyRole.Student)
                             .Select(p => p.StudentId!.Value)
@@ -434,7 +433,6 @@ public class DocumentSigningService
                                 e.ContractId = contract.Id;
                         }
 
-                        // 🔥 PDF
                         contract.PdfPath = _pdfService.GenerateContractPdf(contract);
 
 
@@ -477,10 +475,8 @@ public class DocumentSigningService
                         act.AdminSignedAtUtc = DateTime.UtcNow;
                         
 
-                        // 🔥 APPLY LOGIC REALĂ
                         await _additionalActService.ApplyAdditionalActAsync(act.Id, saveChanges: false);
 
-                        // 🔥 PDF
                         act.PdfPath = _pdfService.GenerateAdditionalActPdf(act);
 
                         _activityLogService.Add(

@@ -191,7 +191,6 @@ public class EmployeeService
 
                 if (string.IsNullOrWhiteSpace(employee.UserId))
                 {
-                    // 🔴 nu are cont → notificare Admin
                     await _notificationService.CreateNotificationForRolesAsync(
                         roleNames: new[] { "Admin" },
                         eventType: NotificationEvents.Employee,
@@ -205,7 +204,6 @@ public class EmployeeService
                 }
                 else
                 {
-                    // 🟢 are cont → notificare HR/Admin
                     await _notificationService.CreateNotificationForRolesAsync(
                         roleNames: new[] { "HR", "Admin", "Secretary" },
                         eventType: NotificationEvents.Employee,

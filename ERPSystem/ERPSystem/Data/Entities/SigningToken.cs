@@ -11,10 +11,10 @@
 
         public bool IsUsed { get; set; }
 
-        // 🔥 TIPUL DOCUMENTULUI
+        
         public SigningEntityType EntityType { get; set; }
 
-        // 🔥 ID-ul documentului (contract sau act)
+        
         public int EntityId { get; set; }
     }
 

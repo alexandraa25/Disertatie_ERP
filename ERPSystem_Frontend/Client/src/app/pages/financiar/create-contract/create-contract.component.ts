@@ -342,7 +342,7 @@ export class CreateContractComponent implements OnInit {
       }
     };
 
-    // Discounturi manuale
+    
     this.discounts.controls.forEach(ctrl => {
       const type = ctrl.value.type;
       const value = Number(ctrl.value.value);

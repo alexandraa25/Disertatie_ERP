@@ -12,7 +12,7 @@ namespace ERPSystem.Data.Entities
 
         public ApplicationUser? User { get; set; }
 
-        // 🔥 date HR (obligatorii)
+       
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string? Email { get; set; }
@@ -27,12 +27,12 @@ namespace ERPSystem.Data.Entities
         public string JobTitle { get; set; }
 
         [MaxLength(50)]
-        public string? EmploymentStatus { get; set; } // Active / Terminated / Suspended
+        public string? EmploymentStatus { get; set; } 
 
         public decimal? Salary { get; set; }
 
         [MaxLength(50)]
-        public string? ContractType { get; set; } // FullTime / PartTime / Collaboration
+        public string? ContractType { get; set; } 
 
         [MaxLength(500)]
         public string? Notes { get; set; }
@@ -43,7 +43,7 @@ namespace ERPSystem.Data.Entities
 
         public int VacationDaysPerYear { get; set; } = 21;
 
-        // zile rămase din anul trecut
+       
         public int CarryOverDays { get; set; } = 0;
 
 

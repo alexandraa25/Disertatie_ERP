@@ -107,15 +107,14 @@ public class ContractPricingService
         if (total <= 0)
             return price;
 
-        // For unlimited: all courses use face value as weight (months = 0, so can't multiply).
-        // For limited monthly: weight = fee * months (total contribution over contract period).
+       
         var courseTotalWeight = (!contract.IsUnlimited && session.FeeType == CourseFeeType.Monthly)
             ? session.Fee * months
             : session.Fee;
 
         var allocatedDiscount = discount.Value * courseTotalWeight / total;
 
-        // Convert from total-period discount back to per-month discount (limited only).
+        
         if (!contract.IsUnlimited && session.FeeType == CourseFeeType.Monthly && months > 0)
             allocatedDiscount /= months;
 

@@ -3,10 +3,10 @@
     public int Id { get; set; }
 
     public string Source { get; set; } = string.Empty;
-    // Google, Facebook, CSV, Manual
+    
 
     public string TargetType { get; set; } = "General";
-    // General, Course, CourseSession, Teacher, Student
+    
 
     public string? TargetId { get; set; }
 

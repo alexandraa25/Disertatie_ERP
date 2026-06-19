@@ -12,7 +12,7 @@ namespace ERPSystem.Data.Entities
         public Guardian Guardian { get; set; } = null!;
 
         [Required, MaxLength(50)]
-        public string RelationshipType { get; set; } = ""; // Mama, Tata, Tutore
+        public string RelationshipType { get; set; } = ""; 
 
         public bool IsPrimaryContact { get; set; } = false;
     }

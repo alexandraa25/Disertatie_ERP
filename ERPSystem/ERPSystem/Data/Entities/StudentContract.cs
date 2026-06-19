@@ -28,26 +28,17 @@ public class StudentContract
 
     public bool IsBodyCustomized { get; set; }
 
-    // =========================
-    // CLIENT SIGNATURE
-    // =========================
 
     public string? ClientSignature { get; set; }
 
     public DateTime? ClientSignedAtUtc { get; set; }
 
-    // =========================
-    // ADMIN SIGNATURE
-    // =========================
 
     public string? AdminSignature { get; set; }
 
     public DateTime? AdminSignedAtUtc { get; set; }
 
-    // =========================
-    // COMPANY SNAPSHOT
-    // =========================
-
+  
     public string CompanyNameSnapshot { get; set; }
 
     public string CompanyAddressSnapshot { get; set; }
@@ -64,9 +55,6 @@ public class StudentContract
 
     public string CompanyPhoneSnapshot { get; set; }
 
-    // =========================
-    // BENEFICIARY SNAPSHOT
-    // =========================
 
     public string BeneficiaryNameSnapshot { get; set; }
 
@@ -78,10 +66,6 @@ public class StudentContract
 
  
 
-    // =========================
-    // TIMESTAMPS
-    // =========================
-
     public DateTime CreatedAtUtc { get; set; }
 
     public DateTime? UpdatedAtUtc { get; set; }
@@ -90,9 +74,6 @@ public class StudentContract
 
     public DateTime? ActivatedAtUtc { get; set; }
 
-    // =========================
-    // RELATIONS
-    // =========================
 
     public ICollection<ContractParty> Parties { get; set; } = new List<ContractParty>();
 

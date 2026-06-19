@@ -12,7 +12,7 @@ namespace ERPSystem.Data.Entities
         public string UserId { get; set; } = default!;
 
         [Required, MaxLength(60)]
-        public string EventType { get; set; } = default!; // ex: "InvoiceIssued"
+        public string EventType { get; set; } = default!; 
 
         [Required]
         public NotificationChannel Channel { get; set; }

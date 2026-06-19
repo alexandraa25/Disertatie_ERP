@@ -46,7 +46,7 @@ public class ContractDetailsDto
     public DateTime CreatedAtUtc { get; set; }
     public DateTime? FinalizedAtUtc { get; set; }
 
-    // semnături
+    // semnaturi
     public string? ClientSignature { get; set; }
     public DateTime? ClientSignedAtUtc { get; set; }
     public string? AdminSignature { get; set; }

@@ -29,7 +29,7 @@ public class ContractInstallmentService
             ? hasPackage ? packageInstallments : 1
             : hasSubscription
                 ? (pricing.Months > 0 ? pricing.Months : packageInstallments)
-                : packageInstallments; // pachet-only: nu genera rate goale după ultimul pachet
+                : packageInstallments; 
 
         for (var i = 0; i < months; i++)
         {

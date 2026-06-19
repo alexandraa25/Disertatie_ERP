@@ -1011,7 +1011,7 @@ public class ContractsService
             .AsNoTracking()
             .Include(c => c.Parties)
                 .ThenInclude(p => p.Guardian)
-            .Include(c => c.InstallmentsList) // 🔥 important
+            .Include(c => c.InstallmentsList) 
             .Where(c => c.Parties.Any(p =>
                 p.StudentId == studentId &&
                 p.Role == ContractPartyRole.Student))
@@ -1030,7 +1030,7 @@ public class ContractsService
 
                 TotalAmount = c.TotalAmount,
 
-                // 🔥 display smart
+               
                 DisplayTotal =
                     c.TotalAmount.HasValue
                         ? c.TotalAmount.Value.ToString("0.##") + " RON"
@@ -1038,7 +1038,7 @@ public class ContractsService
 
                 IsUnlimited = c.IsUnlimited,
 
-                // 🔥 lunar (primul installment)
+                
                 MonthlyAmount = c.InstallmentsList
                     .OrderBy(i => i.DueDate)
                     .Select(i => i.Amount)
@@ -1060,7 +1060,7 @@ public class ContractsService
             .AsNoTracking()
             .Include(c => c.Courses)
             .Include(c => c.Discounts)
-            .Include(c => c.InstallmentsList) // 🔥 important
+            .Include(c => c.InstallmentsList) 
             .Include(c => c.Parties)
                 .ThenInclude(p => p.Student)
             .Include(c => c.Parties)
@@ -1195,8 +1195,7 @@ public class ContractsService
         var hasPackage = contract.Courses.Any(c => c.FeeType == CourseFeeType.FixedPackage);
         var hasMonthly = contract.Courses.Any(c => c.FeeType == CourseFeeType.Monthly);
 
-        // Load original (pre-discount) fees from DB to use as the pricing base.
-        // PriceSnapshot already reflects discounts; applying them again here would double-discount.
+        
         var sessionIds = contract.Courses.Select(c => c.CourseSessionId).ToList();
         var originalFees = await _db.CourseSessions
             .Where(s => sessionIds.Contains(s.Id))
@@ -1359,7 +1358,7 @@ public class ContractsService
                     }
                     else
                     {
-                        // Fixed: distribute proportionally across package + monthly at face value.
+                       
                         var unlimitedTotal = result.PackageAmount + result.MonthlyAmount;
                         if (unlimitedTotal > 0)
                         {
@@ -1517,9 +1516,7 @@ public class ContractsService
         var contractsSheet = workbook.Worksheets.Add("Contracte");
         var installmentsSheet = workbook.Worksheets.Add("Rate");
 
-        // =========================
-        // SHEET 1: CONTRACTE
-        // =========================
+       
 
         var contractHeaders = new[]
         {
@@ -1595,10 +1592,7 @@ public class ContractsService
             contractRow++;
         }
 
-        // =========================
-        // SHEET 2: RATE
-        // =========================
-
+       
         var installmentHeaders = new[]
         {
         "Nr. contract",

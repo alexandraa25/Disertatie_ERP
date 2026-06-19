@@ -18,9 +18,9 @@
 
         public string? Notes { get; set; }
 
-        public string? Reference { get; set; } // nr chitanță / OP
+        public string? Reference { get; set; } 
 
-        public string Status { get; set; } = "Completed"; //Completed, Pending, Failed, Refunded
+        public string Status { get; set; } = "Completed"; 
 
         public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 

@@ -13,6 +13,6 @@ namespace ERPSystem.Shared.DTOs.Email
     public class EmailAddress
     {
         public string Email { get; set; }
-        public string Name { get; set; }  // optional
+        public string Name { get; set; }  
     }
 }

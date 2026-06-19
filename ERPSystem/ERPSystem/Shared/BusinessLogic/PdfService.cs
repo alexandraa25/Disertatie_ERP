@@ -156,7 +156,7 @@ public class PdfService
 
                     RenderHtml(col, act.Body);
 
-                    // SPACING
+                   
                     col.Item().PaddingTop(30);
 
                     // ================= SEMNĂTURI =================
@@ -342,7 +342,6 @@ public class PdfService
         return fileName;
     }
 
-    // ================= HELPERS =================
     private void RenderHtml(ColumnDescriptor col, string html)
     {
         if (string.IsNullOrWhiteSpace(html))
