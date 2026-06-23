@@ -126,6 +126,27 @@ export class NavbarComponent implements OnInit {
     return item.roles.some((role: string) => this.userRoles.includes(role));
   }
 
+  get orderedMenuGroups(): any[] {
+    const priorityMap: Record<string, string[]> = {
+      Admin:      ['Administrare', 'Academie', 'HR', 'Statistici', 'Feedback'],
+      Manager:    ['Statistici', 'Administrare', 'Academie', 'HR', 'Feedback'],
+      Secretary:  ['Administrare', 'Academie', 'Feedback', 'Statistici', 'HR'],
+      Teacher:    ['Academie', 'Feedback', 'Statistici', 'Administrare', 'HR'],
+      HR:         ['HR', 'Administrare', 'Academie', 'Statistici', 'Feedback'],
+      Accountant: ['Administrare', 'Academie', 'Statistici', 'HR', 'Feedback'],
+      Marketing:  ['Feedback', 'Academie', 'Statistici', 'Administrare', 'HR'],
+    };
+
+    const primaryRole = this.userRoles[0] ?? '';
+    const order = priorityMap[primaryRole] ?? this.menuGroups.map(g => g.label);
+
+    return [...this.menuGroups].sort((a, b) => {
+      const ai = order.indexOf(a.label);
+      const bi = order.indexOf(b.label);
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
+  }
+
   activeDropdown: string | null = null;
   private dropdownCloseTimer: any;
 

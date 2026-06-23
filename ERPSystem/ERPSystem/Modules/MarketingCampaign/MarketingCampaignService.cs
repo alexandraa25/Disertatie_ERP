@@ -654,9 +654,7 @@ public class MarketingCampaignService
                 if (session == null) continue;
 
                 sessionsHtml += $@"
-            <li>
-                <strong> {session.Title}
-            </li>";
+            <li><strong>{session.Title}</strong></li>";
             }
 
             sessionsHtml += "</ul>";

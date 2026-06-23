@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-admin-users',
@@ -32,12 +33,19 @@ export class AdminUsersComponent implements OnInit {
   currentPage = 1;
   pageSize = 10;
 
+  canToggleStatus = false;
+  canCreateUser = false;
+
   constructor(
-    private adminService: AdminService, 
-    private router: Router,  
+    private adminService: AdminService,
+    private router: Router,
     private snackbar: SnackbarService,
-     private confirmService: ConfirmService, 
-    ) { }
+    private confirmService: ConfirmService,
+    private auth: AuthService,
+  ) {
+    this.canToggleStatus = this.auth.hasRole(['Admin', 'Manager']);
+    this.canCreateUser = this.auth.hasRole(['Admin']);
+  }
 
 
   filteredUsers() {

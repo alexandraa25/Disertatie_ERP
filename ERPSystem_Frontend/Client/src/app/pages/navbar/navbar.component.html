@@ -16,7 +16,7 @@
     <ul class="nav-links" [class.open]="isMenuOpen">
 
       <!-- DYNAMIC MENU based on role -->
-      <ng-container *ngFor="let group of menuGroups">
+      <ng-container *ngFor="let group of orderedMenuGroups">
         <li class="nav-dropdown" *ngIf="canSeeGroup(group)" (mouseenter)="openDropdown(group.label)"
           (mouseleave)="closeDropdownWithDelay()">
           <button type="button" class="dropdown-trigger">

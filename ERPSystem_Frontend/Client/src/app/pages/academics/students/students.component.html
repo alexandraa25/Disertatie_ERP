@@ -6,22 +6,22 @@
     </div>
 
     <div class="hero-actions">
-      <button
-  class="secondary-action"
-  (click)="export()"
-  [disabled]="isExporting">
+      <button *ngIf="canExport"
+        class="secondary-action"
+        (click)="export()"
+        [disabled]="isExporting">
 
-  <span *ngIf="!isExporting">
-    📊 Export Excel
-  </span>
+        <span *ngIf="!isExporting">
+          📊 Export Excel
+        </span>
 
-  <span *ngIf="isExporting" class="spinner-wrap">
-    <span class="spinner"></span>
-    Se exportă...
-  </span>
-</button>
+        <span *ngIf="isExporting" class="spinner-wrap">
+          <span class="spinner"></span>
+          Se exportă...
+        </span>
+      </button>
 
-      <button class="primary" (click)="openCreate()">
+      <button *ngIf="canWrite" class="primary" (click)="openCreate()">
         + Adaugă elev
       </button>
     </div>
@@ -172,22 +172,22 @@
                   Detalii
                 </button>
 
-                <button class="action-btn edit" [disabled]="$any(s).isDeleted"
+                <button *ngIf="canWrite" class="action-btn edit" [disabled]="$any(s).isDeleted"
                   [title]="$any(s).isDeleted ? 'Elev șters - nu poate fi editat' : ''" (click)="openEdit(s.id)">
                   Editează
                 </button>
 
-                <button *ngIf="!$any(s).isDeleted" class="action-btn" [ngClass]="s.isActive ? 'danger' : 'primary-soft'"
+                <button *ngIf="canWrite && !$any(s).isDeleted" class="action-btn" [ngClass]="s.isActive ? 'danger' : 'primary-soft'"
                   (click)="toggleStudent(s)">
                   {{ s.isActive ? 'Dezactivează' : 'Activează' }}
                 </button>
 
-                <button *ngIf="!$any(s).isDeleted && !s.isActive" class="action-btn danger-outline"
+                <button *ngIf="canWrite && !$any(s).isDeleted && !s.isActive" class="action-btn danger-outline"
                   (click)="deleteStudent(s)">
                   Șterge
                 </button>
 
-                <button *ngIf="$any(s).isDeleted" class="action-btn restore" (click)="restoreStudent(s)">
+                <button *ngIf="canWrite && $any(s).isDeleted" class="action-btn restore" (click)="restoreStudent(s)">
                   Restaurează
                 </button>
               </div>

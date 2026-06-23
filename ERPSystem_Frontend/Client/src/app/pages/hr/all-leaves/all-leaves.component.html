@@ -76,13 +76,13 @@
           <td class="actions">
 
             <!-- ✔ APPROVE -->
-            <button *ngIf="l.status === 'Pending'" class="approve-btn" title="Aproba concediul"
+            <button *ngIf="canApprove && l.status === 'Pending'" class="approve-btn" title="Aproba concediul"
               (click)="approveLeave(l.id)">
               ✔
             </button>
 
             <!-- ✖ REJECT -->
-            <button *ngIf="l.status === 'Pending'" class="reject-btn" title="Respinge concediul"
+            <button *ngIf="canApprove && l.status === 'Pending'" class="reject-btn" title="Respinge concediul"
               (click)="openRejectModal(l)">
               ✖
             </button>

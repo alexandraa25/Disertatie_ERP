@@ -129,7 +129,10 @@ export class LoginComponent implements OnInit, OnDestroy {
             return;
           }
 
-          this.router.navigate(['/profil-user']);
+          if (res.value?.accessToken) {
+            localStorage.setItem('accessToken', res.value.accessToken);
+          }
+          this.router.navigate([this.auth.getRedirectRouteForRole()]);
         },
 
         error: () => {

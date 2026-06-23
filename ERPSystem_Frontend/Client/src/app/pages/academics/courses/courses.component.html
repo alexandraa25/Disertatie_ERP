@@ -6,23 +6,22 @@
       <p>Gestionează cursurile, statusurile și acțiunile disponibile.</p>
     </div>
     <div class="hero-actions">
-      <button
-  class="secondary-action"
-  (click)="exportCoursesExcel()"
-  [disabled]="isExportingCourses">
+      <button *ngIf="canExport"
+        class="secondary-action"
+        (click)="exportCoursesExcel()"
+        [disabled]="isExportingCourses">
 
-  <span *ngIf="!isExportingCourses">
-    📊 Export Excel
-  </span>
+        <span *ngIf="!isExportingCourses">
+          📊 Export Excel
+        </span>
 
-  <span *ngIf="isExportingCourses" class="spinner-wrap">
-    <span class="spinner"></span>
-    Se exportă...
-  </span>
+        <span *ngIf="isExportingCourses" class="spinner-wrap">
+          <span class="spinner"></span>
+          Se exportă...
+        </span>
+      </button>
 
-</button>
-
-      <button class="primary" (click)="openCreate()">
+      <button *ngIf="canWrite" class="primary" (click)="openCreate()">
         + Adaugă curs
       </button>
     </div>
@@ -126,23 +125,23 @@
                   Detalii
                 </a>
 
-                <button class="action-btn edit" [disabled]="!c.isActive || c.isDeleted" (click)="openEdit(c.id)"
+                <button *ngIf="canWrite" class="action-btn edit" [disabled]="!c.isActive || c.isDeleted" (click)="openEdit(c.id)"
                   [title]="!c.isActive ? 'Curs inactiv - nu poate fi editat' : ''">
                   Editează
                 </button>
 
-                <button *ngIf="!c.isDeleted" class="action-btn" [ngClass]="c.isActive ? 'danger' : 'primary-soft'"
+                <button *ngIf="canWrite && !c.isDeleted" class="action-btn" [ngClass]="c.isActive ? 'danger' : 'primary-soft'"
                   (click)="toggleCourse(c)">
                   {{ c.isActive ? 'Dezactivează' : 'Activează' }}
                 </button>
 
-                <button *ngIf="!c.isDeleted" class="action-btn danger-outline" (click)="deleteCourse(c)"
+                <button *ngIf="canWrite && !c.isDeleted" class="action-btn danger-outline" (click)="deleteCourse(c)"
                   [disabled]="hasActiveSessions(c) || !c.isActive"
                   [title]="hasActiveSessions(c) ? 'Nu poți șterge cursul deoarece are sesiuni active' : !c.isActive  ? 'Curs inactiv'  : ''">
                   Șterge
                 </button>
 
-                <button *ngIf=" c.isDeleted" class="action-btn restore" (click)="restoreCourse(c)">
+                <button *ngIf="canWrite && c.isDeleted" class="action-btn restore" (click)="restoreCourse(c)">
                   Restaurează
                 </button>
               </div>

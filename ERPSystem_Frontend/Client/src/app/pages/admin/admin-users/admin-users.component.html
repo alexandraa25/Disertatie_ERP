@@ -26,7 +26,7 @@
                     <td>{{emp.email}}</td>
 
                     <td>
-                        <button class="btn primary" (click)="goToRegister(emp)">
+                        <button *ngIf="canCreateUser" class="btn primary" (click)="goToRegister(emp)">
                             Creează cont
                         </button>
                     </td>
@@ -95,7 +95,7 @@
                         Detalii
                     </button>
 
-                    <button class="btn disable" [ngClass]="user.isActive ? 'danger' : 'primary'"
+                    <button *ngIf="canToggleStatus" class="btn disable" [ngClass]="user.isActive ? 'danger' : 'primary'"
                         (click)="askToggleUserStatus(user)">
                         {{ user.isActive ? 'Dezactivează cont' : 'Activează cont' }}
                     </button>

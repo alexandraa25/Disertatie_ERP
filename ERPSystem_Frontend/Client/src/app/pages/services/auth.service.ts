@@ -107,6 +107,37 @@ login(email: string, password: string): Observable<any> {
       return null;
     }
   }
+
+  getUserRoles(): string[] {
+    const token = localStorage.getItem('accessToken');
+    if (!token || token.split('.').length !== 3) return [];
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const roles =
+        payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ??
+        payload.role ??
+        payload.roles ??
+        [];
+      return Array.isArray(roles) ? roles : roles ? [roles] : [];
+    } catch {
+      return [];
+    }
+  }
+
+  hasRole(roles: string[]): boolean {
+    return this.getUserRoles().some(r => roles.includes(r));
+  }
+
+  getRedirectRouteForRole(): string {
+    const roles = this.getUserRoles();
+    if (roles.includes('Admin') || roles.includes('Manager')) return '/overview-dashboard';
+    if (roles.includes('Secretary')) return '/students';
+    if (roles.includes('Teacher')) return '/courses';
+    if (roles.includes('HR')) return '/employees';
+    if (roles.includes('Accountant')) return '/all-contracts';
+    if (roles.includes('Marketing')) return '/mk-campaign';
+    return '/profil-user';
+  }
   setUser(user: any) {
     this.currentUserSubject.next(user);
 

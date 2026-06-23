@@ -92,7 +92,7 @@ export class ConfirmLoginCodeComponent implements OnInit {
 
         sessionStorage.removeItem("tempToken");
         this.snackbar.showSuccess('Autentificare confirmată!', 1500);
-        this.router.navigate(['/profil-user']);
+        this.router.navigate([this.auth.getRedirectRouteForRole()]);
       },
       error: () => {
         this.isLoading = false;

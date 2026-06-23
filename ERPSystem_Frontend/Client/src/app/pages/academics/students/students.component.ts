@@ -11,6 +11,7 @@ import { RomanianDayPipe } from '../../../components/pipes/romanian-day.pipe';
 import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
+import { AuthService } from '../../services/auth.service';
 
 
 
@@ -42,7 +43,13 @@ statusFilter = '';
 deleteFilter = 'notDeleted';
 isExporting = false;
 
-  constructor(private students: StudentsService, private dialog: MatDialog, private router: Router, private snackbar: SnackbarService, private confirmService: ConfirmService) { }
+  canWrite = false;
+  canExport = false;
+
+  constructor(private students: StudentsService, private dialog: MatDialog, private router: Router, private snackbar: SnackbarService, private confirmService: ConfirmService, private auth: AuthService) {
+    this.canWrite = this.auth.hasRole(['Admin', 'Manager', 'Secretary']);
+    this.canExport = this.auth.hasRole(['Admin', 'Manager', 'Secretary', 'Teacher']);
+  }
 
   ngOnInit(): void {
     this.loadSessions();

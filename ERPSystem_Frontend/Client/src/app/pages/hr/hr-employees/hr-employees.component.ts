@@ -9,6 +9,7 @@ import { EmployeeService } from '../../services/employee.service';
 import { Employee, HrDashboard } from '../../models/employee.model';
 import { ConfirmService } from '../../services/confirm.service';
 import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-modal/confirm-custom-modal.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-hr-employees',
@@ -45,13 +46,17 @@ export class HrEmployeesComponent implements OnInit {
   terminationDocumentType: string = 'DecizieIncetare';
   terminationCustomType: string = '';
   isExporting = false;
+  canWrite = false;
 
   constructor(
     private service: EmployeeService,
     private router: Router,
     private snackBar: SnackbarService,
-    private confirmService: ConfirmService
-  ) { }
+    private confirmService: ConfirmService,
+    private auth: AuthService
+  ) {
+    this.canWrite = this.auth.hasRole(['Admin', 'HR', 'Manager']);
+  }
 
   ngOnInit(): void {
     this.loadEmployees();

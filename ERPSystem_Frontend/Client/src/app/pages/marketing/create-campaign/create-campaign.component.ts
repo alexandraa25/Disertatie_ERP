@@ -93,6 +93,11 @@ export class CreateCampaignComponent implements OnInit {
       return;
     }
 
+    if (!this.campaignForm.description?.trim()) {
+      this.snackbar.showError('Descrierea campaniei este obligatorie (apare în emailul de newsletter).');
+      return;
+    }
+
     if (!this.campaignForm.startDate || !this.campaignForm.endDate) {
       this.snackbar.showError('Perioada campaniei este obligatorie.');
       return;

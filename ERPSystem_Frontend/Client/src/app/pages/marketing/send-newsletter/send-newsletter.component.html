@@ -123,6 +123,10 @@
                 </div>
             </div>
             
+            <div class="newsletter-warning" *ngIf="!campaign.description?.trim()">
+                Atenție: campania nu are descriere. Emailul va fi trimis fără textul descrierii. Editează campania și adaugă o descriere înainte de a trimite.
+            </div>
+
             <div class="empty-mini" *ngIf="loadingTemplate">
                 Se încarcă template-ul emailului...
             </div>

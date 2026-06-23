@@ -6,7 +6,7 @@
     </div>
 
     <div class="page-header-actions">
-      <button class="btn btn-light" (click)="exportExcel()" [disabled]="isExporting">
+      <button *ngIf="canWrite" class="btn btn-light" (click)="exportExcel()" [disabled]="isExporting">
 
         <span *ngIf="!isExporting">
           Export Excel
@@ -18,7 +18,7 @@
         </span>
 
       </button>
-      <button class="btn btn-primary" (click)="openCreate()">Adaugă angajat</button>
+      <button *ngIf="canWrite" class="btn btn-primary" (click)="openCreate()">Adaugă angajat</button>
     </div>
   </div>
 
@@ -126,7 +126,8 @@
               <div class="table-actions">
                 <button class="btn btn-small btn-light" (click)="viewDetails(e)">Detalii</button>
 
-                <button class="btn btn-small btn-danger-soft" *ngIf="e.employmentStatus === 'Active'"
+                <button *ngIf="canWrite && e.employmentStatus === 'Active'"
+                  class="btn btn-small btn-danger-soft"
                   (click)="terminateEmployee(e)">
                   Încetează
                 </button>

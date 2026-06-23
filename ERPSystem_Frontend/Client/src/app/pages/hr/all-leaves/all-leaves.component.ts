@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LeaveService } from '../../services/leave.service';
 import { SnackbarService } from '../../../components/snack-bar/snack-bar.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-all-leaves',
@@ -36,7 +37,11 @@ export class AllLeavesComponent implements OnInit {
   loadingConflicts = false;
   checkedConflicts = false;
 
-  constructor(private leaveService: LeaveService, private snackbar: SnackbarService) { }
+  canApprove = false;
+
+  constructor(private leaveService: LeaveService, private snackbar: SnackbarService, private auth: AuthService) {
+    this.canApprove = this.auth.hasRole(['Admin', 'HR', 'Manager']);
+  }
 
   ngOnInit() {
     this.loadLeaves();
