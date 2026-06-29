@@ -312,7 +312,7 @@ export class CreateContractComponent implements OnInit {
             if (this.hasSubscriptionCourses)
               this.monthlyAmount = applyDiscount(this.monthlyAmount, type, value);
           } else {
-            // Fixed: distribute proportionally across package + monthly at face value.
+            
             const unlimitedTotal = this.packageAmount + this.monthlyAmount;
             if (unlimitedTotal > 0) {
               const pkgShare = value * this.packageAmount / unlimitedTotal;
