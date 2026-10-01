@@ -10,7 +10,7 @@
 
         public string? LastName { get; set; }
 
-        public string JobTitle { get; set; }
+        public string JobTitle { get; set; } = string.Empty;
 
         public DateTime HireDate { get; set; }
 

@@ -2,12 +2,12 @@
 {
     public class SignContractDto
     {
-        public string Token { get; set; }
-        public string Signature { get; set; }
+        public string Token { get; set; } = string.Empty;
+        public string Signature { get; set; } = string.Empty;
     }
 
     public class AdminSignContractDto
     {
-        public string Signature { get; set; }
+        public string Signature { get; set; } = string.Empty;
     }
 }

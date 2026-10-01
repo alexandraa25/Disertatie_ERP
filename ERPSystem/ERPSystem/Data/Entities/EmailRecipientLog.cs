@@ -6,11 +6,16 @@
 
         public int EmailLogId { get; set; }
 
-        public EmailLog EmailLog { get; set; }
+        private EmailLog? _emailLog;
+        public EmailLog EmailLog
+        {
+            get => _emailLog ?? throw new InvalidOperationException("Navigation 'EmailLog' has not been loaded.");
+            set => _emailLog = value;
+        }
 
         public int? StudentId { get; set; }
 
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         public string? Name { get; set; }
 

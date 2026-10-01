@@ -6,7 +6,12 @@ public class CourseEnrollment
 {   public int Id {  get; set; }
 
     public int CourseId { get; set; }
-    public Course Course { get; set; }
+    private Course? _course;
+        public Course Course
+        {
+            get => _course ?? throw new InvalidOperationException("Navigation 'Course' has not been loaded.");
+            set => _course = value;
+        }
     public int CourseSessionId { get; set; }
     public CourseSession Session { get; set; } = default!;
 

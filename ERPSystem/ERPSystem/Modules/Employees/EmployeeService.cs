@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Employees.Models;
@@ -118,21 +118,21 @@ public class EmployeeService
                 {
                     Id = Guid.NewGuid(),
                     EmployeeId = employee.Id,
-                    Street = request.Street,
-                    City = request.City,
-                    Country = request.Country,
-                    PostalCode = request.PostalCode
+                    Street = request.Street ?? string.Empty,
+                    City = request.City ?? string.Empty,
+                    Country = request.Country ?? string.Empty,
+                    PostalCode = request.PostalCode ?? string.Empty
                 });
 
                 _context.EmployeeBank.Add(new EmployeeBank
                 {
                     Id = Guid.NewGuid(),
                     EmployeeId = employee.Id,
-                    IBAN = request.IBAN,
-                    BankName = request.BankName
+                    IBAN = request.IBAN ?? string.Empty,
+                    BankName = request.BankName ?? string.Empty
                 });
 
-                if (request.Files.Any())
+                if (request.Files is { Length: > 0 })
                 {
                     var allowedExtensions = new[] {  ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".txt", ".ppt", ".pptx"  };
 
@@ -257,8 +257,8 @@ public class EmployeeService
                     }
 
                     employee.UserId = user.Id;
-                    employee.FirstName = user.FirstName;
-                    employee.LastName = user.LastName;
+                    employee.FirstName = user.FirstName ?? employee.FirstName;
+                    employee.LastName = user.LastName ?? employee.LastName;
                     employee.Email = user.Email;
                 }
                 else

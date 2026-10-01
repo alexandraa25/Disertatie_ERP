@@ -1,4 +1,4 @@
-﻿using ERPSystem.Data.Entities;
+using ERPSystem.Data.Entities;
 using ERPSystem.Shared.DTOs.PDF;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -9,6 +9,7 @@ public class PdfService
 {
     public string GenerateContractPdf(StudentContract contract)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(contract.ContractBody);
         var folder = Path.Combine("wwwroot", "contracts");
 
         if (!Directory.Exists(folder))
@@ -50,7 +51,7 @@ public class PdfService
                 {
                     col.Spacing(6);
 
-                    RenderHtml(col, contract.ContractBody);
+                    RenderHtml(col, contract.ContractBody ?? throw new InvalidOperationException("Contract content is missing."));
 
                     // 🔹 SPACING
                     col.Item().PaddingTop(30);
@@ -110,6 +111,7 @@ public class PdfService
 
     public string GenerateAdditionalActPdf(ContractAdditionalAct act)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(act.Body);
         var folder = Path.Combine("wwwroot", "contracts");
 
         if (!Directory.Exists(folder))
@@ -154,7 +156,7 @@ public class PdfService
                 {
                     col.Spacing(6);
 
-                    RenderHtml(col, act.Body);
+                    RenderHtml(col, act.Body ?? throw new InvalidOperationException("Additional act content is missing."));
 
                    
                     col.Item().PaddingTop(30);

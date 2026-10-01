@@ -2,6 +2,6 @@
 {
     public class ResendCodeRequest
     {
-        public string TempToken { get; set; }
+        public string TempToken { get; set; } = string.Empty;
     }
 }

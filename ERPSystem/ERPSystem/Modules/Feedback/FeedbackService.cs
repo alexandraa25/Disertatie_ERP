@@ -85,6 +85,7 @@ namespace ERPSystem.Modules.Feedback
 
             foreach (var student in students)
             {
+                if (string.IsNullOrWhiteSpace(student.Email)) continue;
                 var token = Guid.NewGuid().ToString("N");
 
                 var feedbackForm = new FeedbackForm
@@ -106,7 +107,7 @@ namespace ERPSystem.Modules.Feedback
                 {
                     CourseName = session.Course.Name,
                     SessionTitle = session.Title,
-                    TeacherName = session.Teacher.FullName
+                    TeacherName = session.Teacher.FullName ?? session.Teacher.UserName ?? string.Empty
                 };
 
                 var tableRow = JsonConvert.SerializeObject(emailModel);
@@ -182,7 +183,7 @@ namespace ERPSystem.Modules.Feedback
             {
                 CourseName = session.Course.Name,
                 SessionTitle = session.Title,
-                TeacherName = session.Teacher.FullName,
+                TeacherName = session.Teacher.FullName ?? session.Teacher.UserName ?? string.Empty,
                 IsCompleted = form.IsCompleted,
                 IsExpired = isExpired
             });

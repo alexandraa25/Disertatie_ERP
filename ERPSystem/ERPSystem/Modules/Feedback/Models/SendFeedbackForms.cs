@@ -9,11 +9,11 @@
 
     public class FeedbackFormDetailsDto
     {
-        public string CourseName { get; set; }
+        public string CourseName { get; set; } = string.Empty;
 
-        public string SessionTitle { get; set; }
+        public string SessionTitle { get; set; } = string.Empty;
 
-        public string TeacherName { get; set; }
+        public string TeacherName { get; set; } = string.Empty;
 
         public bool IsCompleted { get; set; }
 
@@ -21,7 +21,7 @@
     }
     public class SubmitFeedbackRequest
     {
-        public string Token { get; set; }
+        public string Token { get; set; } = string.Empty;
 
         public int Rating { get; set; }
 
@@ -33,7 +33,7 @@
         public int? TeacherEngagementRating { get; set; }
         public int? TeacherSupportRating { get; set; }
 
-        public string Comment { get; set; }
+        public string Comment { get; set; } = string.Empty;
     }
 
 }

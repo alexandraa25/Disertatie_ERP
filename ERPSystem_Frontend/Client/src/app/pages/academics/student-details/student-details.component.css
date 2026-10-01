@@ -1,15 +1,9 @@
-/* =========================
-   LAYOUT
-========================= */
+
 .details-container {
   max-width: 1100px;
   margin: 100px auto 40px;
   padding: 0 20px;
 }
-
-/* =========================
-   HEADER STUDENT
-========================= */
 .student-header {
   display: flex;
   justify-content: space-between;
@@ -20,13 +14,11 @@
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
   margin-bottom: 24px;
 }
-
 .student-info {
   display: flex;
   align-items: center;
   gap: 16px;
 }
-
 .avatar {
   width: 56px;
   height: 56px;
@@ -38,14 +30,12 @@
   color: white;
   font-weight: 600;
 }
-
 .student-text h2 {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
   color: #1e293b;
 }
-
 .meta {
   display: flex;
   gap: 10px;
@@ -53,22 +43,16 @@
   font-size: 13px;
   color: #64748b;
 }
-
 .status {
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 500;
 }
-
 .status.active {
   background: #dcfce7;
   color: #15803d;
 }
-
-/* =========================
-   BUTTONS (UNIFIED)
-========================= */
 button {
   padding: 8px 14px;
   border-radius: 10px;
@@ -78,32 +62,20 @@ button {
   cursor: pointer;
   transition: 0.2s ease;
 }
-
-.primary,
-.btn-primary {
-  background: #6366f1;
+.primary {
   color: white;
 }
-
 .primary:hover,
-.btn-primary:hover {
+.pay-btn:hover {
   background: #4f46e5;
 }
-
-.secondary,
-.btn-secondary {
+.secondary {
   background: #f1f5f9;
   color: #334155;
 }
-
-.secondary:hover,
-.btn-secondary:hover {
+.secondary:hover {
   background: #e2e8f0;
 }
-
-/* =========================
-   TABS
-========================= */
 .tabs {
   display: inline-flex;
   gap: 6px;
@@ -112,23 +84,17 @@ button {
   background: #f1f5f9;
   margin-bottom: 24px;
 }
-
 .tabs button {
   padding: 8px 16px;
   border-radius: 10px;
   background: transparent;
   color: #64748b;
 }
-
 .tabs button.active {
   background: white;
   color: #111827;
   box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 }
-
-/* =========================
-   CARD (ALL TABS)
-========================= */
 .card {
   background: white;
   padding: 28px;
@@ -137,47 +103,26 @@ button {
   border: 1px solid #f1f5f9;
   margin-bottom: 20px;
 }
-
-.section-header {
+.section-header,
+.courses-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
-
-/* opțional – să fie mai elegant */
 .edit-btn {
   padding: 8px 16px;
   font-size: 13px;
 }
-/* =========================
-   INFO GRID
-========================= */
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px 30px;
 }
-
-.info-item label {
-  font-size: 12px;
-  color: #94a3b8;
-}
-
-.info-item span {
-  font-weight: 600;
-  color: #1e293b;
-}
-
-/* GRID MODERN */
 .info-grid.modern {
-  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px 30px;
   margin-bottom: 30px;
 }
-
-/* BOX INFO */
 .info-box {
   background: #f9fafc;
   border: 1px solid #e5e7eb;
@@ -188,28 +133,19 @@ button {
   gap: 6px;
   transition: 0.2s;
 }
-
 .info-box:hover {
   background: #ffffff;
   box-shadow: 0 6px 16px rgba(0,0,0,0.04);
 }
-
-/* LABEL */
 .info-box label {
   font-size: 12px;
   color: #94a3b8;
 }
-
-/* VALUE */
 .info-box span {
   font-size: 14px;
   font-weight: 600;
   color: #1e293b;
 }
-/* =========================
-   GUARDIANS
-========================= */
-/* CARD */
 .guardian-card {
   background: #ffffff;
   border-radius: 16px;
@@ -218,27 +154,21 @@ button {
   margin-bottom: 14px;
   transition: 0.2s ease;
 }
-
 .guardian-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0,0,0,0.05);
 }
-
-/* HEADER */
 .guardian-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
 }
-
 .guardian-name {
   font-size: 16px;
   font-weight: 600;
   color: #1e293b;
 }
-
-/* BADGE */
 .primary-badge {
   font-size: 11px;
   padding: 5px 10px;
@@ -247,35 +177,27 @@ button {
   color: #1d4ed8;
   font-weight: 500;
 }
-
-/* GRID */
 .guardian-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 14px 20px;
 }
-
-/* ITEM */
-.guardian-item {
+.guardian-item,
+.courses-left {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-
 .guardian-item label {
   font-size: 11px;
   color: #94a3b8;
   text-transform: uppercase;
 }
-
 .guardian-item span {
   font-size: 14px;
   font-weight: 500;
   color: #1e293b;
 }
-/* =========================
-   COURSES
-========================= */
 .course-card {
   display: flex;
   justify-content: space-between;
@@ -286,18 +208,15 @@ button {
   margin-bottom: 12px;
   transition: 0.2s ease;
 }
-
 .course-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 18px rgba(0,0,0,0.05);
 }
-
 .course-title-row {
   display: flex;
   gap: 10px;
   align-items: center;
 }
-
 .day-badge {
   background: #e0e7ff;
   color: #3730a3;
@@ -305,42 +224,16 @@ button {
   border-radius: 20px;
   font-size: 12px;
 }
-
-.course-meta {
-  font-size: 13px;
-  color: #64748b;
-}
-
-
-
-/* HEADER */
-.courses-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-/* LEFT */
-.courses-left {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
+.course-meta,
 .courses-count {
   font-size: 13px;
   color: #64748b;
 }
-
-/* RIGHT */
 .courses-right {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-
-/* TOTAL */
 .total-box {
   background: #f1f5f9;
   padding: 8px 14px;
@@ -349,46 +242,32 @@ button {
   flex-direction: column;
   align-items: flex-end;
 }
-
 .total-box span {
   font-size: 11px;
   color: #64748b;
 }
-
 .total-box strong {
   font-size: 14px;
   font-weight: 600;
 }
-/* =========================
-   CONTRACT CARD
-========================= */
-
-/* spacing general */
 .financiar-card {
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
-
-/* CONTRACT WRAPPER */
 .contract-wrapper {
   margin-bottom: 10px;
 }
-
-/* HEADER */
 .contract-header {
   display: flex;
   align-items: center;
   gap: 14px;
 }
-
 .contract-header h2 {
   font-size: 20px;
   font-weight: 600;
   color: #111827;
 }
-
-/* CARD */
 .contract-card {
   display: flex;
   justify-content: space-between;
@@ -399,19 +278,15 @@ button {
   background: #ffffff;
   box-shadow: 0 4px 18px rgba(0,0,0,0.04);
 }
-
-/* LEFT */
-.contract-left {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* ACTIONS */
+.contract-left,
+.act-list,
+.payment-list,
 .contract-actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+.contract-actions {
   min-width: 200px;
 }
 .contract-actions button {
@@ -420,23 +295,18 @@ button {
   font-size: 13px;
   font-weight: 500;
 }
-
 .primary {
   background: linear-gradient(135deg, #6366f1, #4f46e5);
 }
-
 .primary:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 14px rgba(99,102,241,0.25);
 }
-
-/* SUMMARY */
 .finance-summary {
   display: flex;
   gap: 10px;
   margin-top: 12px;
 }
-
 .finance-summary .box {
   background: #f9fafb;
   border-radius: 12px;
@@ -449,37 +319,24 @@ button {
   display: flex;
   align-items: center;
 }
-
 .finance-summary .box strong {
   font-size: 14px;
   color: #111827;
   margin-top: 2px;
 }
-
 .finance-summary .box:hover {
   transform: translateY(-1px);
   background: #ffffff;
   box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
-
 .box.total { border-color: #6366f1; }
 .box.paid { border-color: #22c55e; }
 .box.remaining { border-color: #ef4444; }
-
-/* SECTION */
 .section {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
-
-/* ACTS */
-.act-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .act-card {
   padding: 16px 18px;
   border-radius: 14px;
@@ -487,48 +344,34 @@ button {
   background: #ffffff;
   transition: all 0.2s ease;
 }
-
 .act-card:hover {
   border-color: #6366f1;
   box-shadow: 0 8px 18px rgba(0,0,0,0.06);
 }
-
-/* TOP */
 .act-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 6px;
 }
-
-/* TITLU */
 .act-top strong {
   font-size: 14px;
   color: #111827;
 }
-
-/* DESCRIPTION */
 .act-description {
   font-size: 13px;
   color: #64748b;
   margin-bottom: 10px;
   line-height: 1.4;
 }
-
-/* BUTTON */
 .ghost {
   background: #eef2ff;
   color: #4338ca;
   font-size: 12px;
 }
-
 .ghost:hover {
   background: #e0e7ff;
 }
-
-/* BUTTON LIGHT */
-
-
 .installments-table {
   width: 100%;
   border-collapse: separate;
@@ -537,8 +380,6 @@ button {
   overflow: hidden;
   border: 1px solid #e5e7eb;
 }
-
-/* HEADER */
 .installments-table th {
   background: #f1f5f9;
   font-size: 12px;
@@ -546,49 +387,28 @@ button {
   font-weight: 600;
   padding: 12px;
 }
-
-/* ROW */
 .installments-table td {
   padding: 14px 12px;
   font-size: 13px;
   border-top: 1px solid #f1f5f9;
 }
-
-/* zebra effect */
 .installments-table tr:nth-child(even) {
   background: #fafafa;
 }
-
-/* hover */
 .installments-table tr:hover {
   background: #f1f5f9;
 }
-
-/* PAY BUTTON */
 .pay-btn {
   background: #6366f1;
   padding: 6px 10px;
   border-radius: 8px;
   font-size: 12px;
 }
-
-.pay-btn:hover {
-  background: #4f46e5;
-}
-
 .badge.warning {
   background: #fef3c7;
   color: #92400e;
   font-weight: 600;
 }
-
-/* PAYMENTS */
-.payment-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
 .payment-item {
   display: flex;
   justify-content: space-between;
@@ -599,44 +419,28 @@ button {
   background: white;
   transition: 0.2s;
 }
-
 .payment-item:hover {
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(0,0,0,0.05);
 }
-
-/* LEFT */
 .payment-item .left {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
-
 .payment-item strong {
   font-size: 15px;
   color: #111827;
 }
-
-/* METHOD */
 .payment-item .method {
   font-size: 13px;
   font-weight: 500;
   color: #374151;
 }
-
-/* SUB */
-.sub {
-  font-size: 12px;
-  color: #9ca3af;
-}
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
-
-/* =========================
-   STATUS BADGE
-========================= */
 .status-badge {
   padding: 5px 12px;
   border-radius: 999px;
@@ -644,12 +448,10 @@ button:disabled {
   font-weight: 600;
   letter-spacing: 0.3px;
 }
-
 .status-badge.Active {
   background: #22c55e;
   color: white;
 }
-
 .status-badge.Draft { background: #eee; }
 .status-badge.Finalized { background: #fde68a; }
 .status-badge.SentToClient { background: #93c5fd; }
@@ -658,61 +460,35 @@ button:disabled {
   background: #ef4444;
   color: white;
 }
-
-/* =========================
-   ALERTS
-========================= */
 .alert {
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 13px;
   margin-top: 4px; /* 🔥 spacing */
 }
-
 .alert.warning {
   background: #fff7ed;
   color: #c2410c;
 }
-
 .alert.danger {
   background: #fef2f2;
   color: #dc2626;
 }
-
-/* =========================
-   INVOICES
-========================= */
-.invoice-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #f1f5f9;
-}
-
 .badge {
   padding: 4px 10px;
   border-radius: 20px;
   background: #fee2e2;
   font-size: 12px;
 }
-
 .badge.paid {
   background: #dcfce7;
 }
-
-/* =========================
-   EMPTY STATE
-========================= */
 .empty-state {
   text-align: center;
   padding: 24px;
   color: #94a3b8;
   font-style: italic;
 }
-
-/* =========================
-   RESPONSIVE
-========================= */
 @media (max-width: 768px) {
   .course-card {
     flex-direction: column;
@@ -724,102 +500,19 @@ button:disabled {
     gap: 10px;
   }
 }
-
-
-/* LOG ITEM */
-.log-item {
-  position: relative;
-  padding: 12px 16px 12px 20px;
-  margin-bottom: 12px;
-  border-left: 3px solid #e5e7eb;
-  background: #f9fafb;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-/* hover subtle */
-.log-item:hover {
-  background: #f3f4f6;
-  transform: translateX(2px);
-}
-
-/* DATA */
-.log-date {
-  font-size: 12px;
-  color: #6b7280;
-  margin-bottom: 4px;
-}
-
-/* TEXT */
-.log-text {
-  font-size: 14px;
-  color: #111827;
-  line-height: 1.4;
-}
-
-/* ACTION (fallback) */
-.log-action {
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-/* CHANGE ITEMS */
-.log-item div b {
-  color: #374151;
-}
-
-/* EMPTY STATE */
 .card div:empty::after {
   content: "Nu există activitate.";
   color: #9ca3af;
   font-style: italic;
 }
-
-/* CREATE */
-.log-create {
-  border-left-color: #10b981;
-}
-
-/* UPDATE */
-.log-update {
-  border-left-color: #3b82f6;
-}
-
-/* DELETE */
-.log-delete {
-  border-left-color: #ef4444;
-}
-
-.log-enroll{
-  border-left-color: #eb3bdc;
-}
-
-.log-item::before {
-  content: "";
-  position: absolute;
-  left: -7px;
-  top: 16px;
-  width: 10px; 
-  height: 10px;
-  background: #d1d5db;
-  border-radius: 50%;
-}
-
 .contract-card.highlight {
   border: 2px solid #4CAF50;
   box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
   transform: scale(1.01);
 }
-
-.contract-item.active {
-  border-left: 4px solid #4CAF50;
-  background: #f0fff4;
-}
-
 .contract-selector {
   margin-bottom: 20px;
 }
-
 .contract-selector select {
   width: 100%;
   padding: 10px 14px;
@@ -830,335 +523,16 @@ button:disabled {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .contract-selector select:focus {
   outline: none;
   border-color: #4CAF50;
   box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
 }
-
-.evaluation-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.evaluation-card {
-  background: #ffffff;
-  border: 1px solid #eee;
-  border-radius: 14px;
-  padding: 16px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
-}
-
-.evaluation-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 14px;
-}
-
 .sub {
   color: #777;
   font-size: 13px;
   margin-top: 4px;
 }
-
-.rating-badge {
-  background: #eef2ff;
-  color: #4b4bd6;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 13px;
-}
-
-.evaluation-scores {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.evaluation-scores div {
-  background: #fafafa;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  padding: 12px;
-}
-
-.evaluation-scores label {
-  display: block;
-  color: #777;
-  font-size: 12px;
-  margin-bottom: 4px;
-}
-
-.evaluation-comment {
-  background: #fafafa;
-  border-radius: 12px;
-  padding: 12px;
-  color: #333;
-  line-height: 1.5;
-}
-
-.analysis-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-top: 10px;
-}
-
-.sentiment {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.sentiment.positive {
-  background: #eafaf1;
-  color: #27ae60;
-}
-
-.sentiment.negative {
-  background: #fdecea;
-  color: #e74c3c;
-}
-
-.sentiment.neutral {
-  background: #eef2ff;
-  color: #4b4bd6;
-}
-
-.score {
-  color: #777;
-  font-size: 12px;
-}
-
-.ai-analysis {
-  margin-top: 14px;
-  padding: 12px;
-  border-radius: 12px;
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
-}
-
-.ai-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.ai-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
-.ai-grid div {
-  background: white;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-}
-
-.ai-grid label {
-  display: block;
-  font-size: 12px;
-  color: #6b7280;
-  margin-bottom: 4px;
-}
-
-.ai-grid strong {
-  font-size: 15px;
-}
-
-.ai-tags {
-  margin-top: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.ai-tags span {
-  background: #eef2ff;
-  color: #3730a3;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-}
-
-.sentiment {
-  padding: 5px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: capitalize;
-}
-
-.sentiment.pozitiv {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.sentiment.negativ {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.sentiment.neutru {
-  background: #e5e7eb;
-  color: #374151;
-}
-
-.risk-warning {
-  margin-top: 12px;
-  padding: 10px;
-  border-radius: 10px;
-  background: #fef3c7;
-  color: #92400e;
-  font-weight: 600;
-}
-
-.problem-row {
-  display: grid;
-  grid-template-columns: 180px 1fr 60px;
-  gap: 12px;
-  align-items: center;
-  margin-top: 10px;
-}
-
-.problem-row div:first-child {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.problem-row span {
-  font-size: 13px;
-  color: #64748b;
-}
-
-.bar {
-  height: 8px;
-  background: #e5e7eb;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.fill {
-  height: 100%;
-  background: #2563eb;
-  border-radius: 999px;
-}
-
-.alert-box {
-  background: #fef3c7;
-  color: #92400e;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 8px;
-  font-weight: 500;
-}
-
-.recommendation-box {
-  background: #ecfdf5;
-  color: #065f46;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 8px;
-  font-weight: 500;
-}
-
-.risk-warning {
-  margin-top: 10px;
-  background: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
-  padding: 10px;
-  border-radius: 10px;
-  font-weight: 600;
-}
-
-.high {
-  color: #dc2626 !important;
-}
-
-.medium {
-  color: #d97706 !important;
-}
-
-.low {
-  color: #16a34a !important;
-}
-
-.ai-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
-}
-
-.ai-tags span {
-  background: #eef2ff;
-  color: #3730a3;
-  padding: 5px 9px;
-  border-radius: 999px;
-  font-size: 12px;
-}
-
-.chart-wrapper {
-  height: 320px;
-  width: 100%;
-  margin-top: 12px;
-}
-
-.summary-card {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin: 18px 0;
-}
-
-.summary-card > div {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 14px 16px;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.summary-card strong {
-  font-size: 12px;
-  color: #64748b;
-  font-weight: 600;
-}
-
-.summary-card span {
-  font-size: 22px;
-  font-weight: 700;
-  color: #111827;
-}
-
-.ai-analysis > strong {
-  display: block;
-  margin-bottom: 12px;
-  font-size: 16px;
-  color: #111827;
-}
-
-.ai-analysis p {
-  margin: 8px 0 0;
-  color: #334155;
-  line-height: 1.5;
-}
-
 .pagination {
   display: flex;
   justify-content: center;
@@ -1166,7 +540,6 @@ button:disabled {
   gap: 14px;
   margin: 18px 0 6px;
 }
-
 .pagination button {
   min-width: 38px;
   height: 32px;
@@ -1176,32 +549,12 @@ button:disabled {
   cursor: pointer;
   font-weight: 800;
 }
-
 .pagination button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
-
 .pagination span {
   color: #64748b;
   font-size: 13px;
   font-weight: 700;
-}
-
-@media (max-width: 700px) {
-  .problem-row,
-  .ai-grid,
-  .summary-card {
-    grid-template-columns: 1fr;
-  }
-
-  .chart-wrapper {
-    height: 260px;
-  }
-}
-
-@media (max-width: 700px) {
-  .evaluation-scores {
-    grid-template-columns: 1fr;
-  }
 }

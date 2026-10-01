@@ -121,7 +121,8 @@ namespace ERPSystem.Configuration
                     ValidAudience = jwt["Audience"],
 
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwt["SecretKey"])
+                        Encoding.UTF8.GetBytes(jwt["SecretKey"]
+                            ?? throw new InvalidOperationException("JwtSettings:SecretKey is required."))
                     ),
 
                     ClockSkew = TimeSpan.Zero

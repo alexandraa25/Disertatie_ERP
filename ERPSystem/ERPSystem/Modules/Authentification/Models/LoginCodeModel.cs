@@ -2,6 +2,6 @@
 {
     public class LoginCodeModel
     {
-        public string Code { get; set; }
+        public string Code { get; set; } = string.Empty;
     }
 }

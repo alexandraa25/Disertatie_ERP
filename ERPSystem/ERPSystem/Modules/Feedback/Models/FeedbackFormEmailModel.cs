@@ -2,10 +2,10 @@
 {
     public class FeedbackFormEmailModel
     {
-        public string CourseName { get; set; }
+        public string CourseName { get; set; } = string.Empty;
 
-        public string SessionTitle { get; set; }
+        public string SessionTitle { get; set; } = string.Empty;
 
-        public string TeacherName { get; set; }
+        public string TeacherName { get; set; } = string.Empty;
     }
 }

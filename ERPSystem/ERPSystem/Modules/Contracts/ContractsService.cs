@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Contracts.Models;
@@ -193,16 +193,16 @@ public class ContractsService
                 contract.BeneficiaryAddressSnapshot =
                     !string.IsNullOrWhiteSpace(guardian.Address)
                         ? guardian.Address
-                        : student.Address;
+                        : student.Address ?? string.Empty;
             }
             else
             {
                 contract.BeneficiaryNameSnapshot =
                     $"{student.FirstName} {student.LastName}";
 
-                contract.BeneficiaryEmailSnapshot = student.Email;
-                contract.BeneficiaryPhoneSnapshot = student.Phone;
-                contract.BeneficiaryAddressSnapshot = student.Address;
+                contract.BeneficiaryEmailSnapshot = student.Email ?? string.Empty;
+                contract.BeneficiaryPhoneSnapshot = student.Phone ?? string.Empty;
+                contract.BeneficiaryAddressSnapshot = student.Address ?? string.Empty;
             }
 
             
@@ -1022,7 +1022,7 @@ public class ContractsService
 
                 GuardianName = c.Parties
                     .Where(p => p.Role == ContractPartyRole.Guardian)
-                    .Select(p => p.Guardian.FirstName + " " + p.Guardian.LastName)
+                    .Select(p => p.Guardian != null ? p.Guardian.FirstName + " " + p.Guardian.LastName : null)
                     .FirstOrDefault(),
 
                 StartDate = c.StartDate,
@@ -1123,7 +1123,7 @@ public class ContractsService
             BeneficiaryPhone = contract.BeneficiaryPhoneSnapshot,
             BeneficiaryAddress = contract.BeneficiaryAddressSnapshot,
 
-            ContractBody = contract.ContractBody,
+            ContractBody = contract.ContractBody ?? string.Empty,
 
             // parties
             Parties = contract.Parties
@@ -1289,7 +1289,7 @@ public class ContractsService
 
         var paymentPlan = BuildPaymentPlanText(contract);
 
-        var values = new Dictionary<string, string>
+        var values = new Dictionary<string, string?>
         {
             ["ContractNumber"] = contract.ContractNumber,
             ["Date"] = DateTime.UtcNow.ToString("dd.MM.yyyy"),

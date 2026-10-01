@@ -1,4 +1,4 @@
-﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Feedback.Analytics.Models;
 using ERPSystem.Modules.Feedback.Analytics.Models.ERPSystem.Modules.Feedback.Analytics.Models;
@@ -113,7 +113,7 @@ namespace ERPSystem.Modules.Feedback.Analytics
                 .Select(g => new TopTeacherDto
                 {
                     TeacherUserId = g.Key.TeacherUserId,
-                    TeacherName = g.Key.TeacherName,
+                    TeacherName = g.Key.TeacherName ?? string.Empty,
                     AverageRating = Math.Round(g.Average(x => x.r.Rating), 2),
                     AverageTeacherScore = Math.Round(g.Average(x => x.r.TeacherScore ?? 0), 2),
                     NegativePercent = AverageOrZero(

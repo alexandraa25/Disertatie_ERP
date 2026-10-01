@@ -10,8 +10,8 @@
 
         public int AdminUsers { get; set; }
 
-        public List<CompanyUserDto> LatestUsers { get; set; }
+        public List<CompanyUserDto> LatestUsers { get; set; } = [];
 
-        public List<CompanyUserDto> Users { get; set; }
+        public List<CompanyUserDto> Users { get; set; } = [];
     }
 }

@@ -9,12 +9,17 @@ namespace ERPSystem.Data.Entities
 
         public Guid EmployeeId { get; set; }
 
-        public Employee Employee { get; set; }
+        private Employee? _employee;
+        public Employee Employee
+        {
+            get => _employee ?? throw new InvalidOperationException("Navigation 'Employee' has not been loaded.");
+            set => _employee = value;
+        }
 
-        public string FileName { get; set; }
-        public string FilePath { get; set; }
-        public string ContentType { get; set; }
-        public string DocumentType { get; set; }
+        public string FileName { get; set; } = string.Empty;
+        public string FilePath { get; set; } = string.Empty;
+        public string ContentType { get; set; } = string.Empty;
+        public string DocumentType { get; set; } = string.Empty;
 
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
 

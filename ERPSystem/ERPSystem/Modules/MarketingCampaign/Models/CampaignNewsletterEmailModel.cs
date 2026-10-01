@@ -2,11 +2,11 @@
 {
     public class CampaignNewsletterEmailModel
     {
-        public string CampaignName { get; set; }
-        public string CampaignDescription { get; set; }
-        public string Discount { get; set; }
-        public string StartDate { get; set; }
-        public string EndDate { get; set; }
+        public string CampaignName { get; set; } = string.Empty;
+        public string CampaignDescription { get; set; } = string.Empty;
+        public string Discount { get; set; } = string.Empty;
+        public string StartDate { get; set; } = string.Empty;
+        public string EndDate { get; set; } = string.Empty;
         
     }
 }

@@ -1,4 +1,4 @@
-﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.AdditionalAct.Models;
 using ERPSystem.Modules.Contracts;
@@ -95,8 +95,8 @@ namespace ERPSystem.Modules.AdditionalAct
             }
 
             var studentIds = contract.Parties
-                .Where(p => p.StudentId != null)
-                .Select(p => p.StudentId.Value)
+                .Select(p => p.StudentId)
+                .OfType<int>()
                 .ToList();
 
             var students = await _db.Students
@@ -212,8 +212,8 @@ namespace ERPSystem.Modules.AdditionalAct
             }
 
             var studentIds = contract.Parties
-                .Where(p => p.StudentId != null)
-                .Select(p => p.StudentId.Value)
+                .Select(p => p.StudentId)
+                .OfType<int>()
                 .ToList();
 
             var students = await _db.Students
@@ -375,7 +375,7 @@ namespace ERPSystem.Modules.AdditionalAct
 
                 Status = act.Status.ToString(),
                 Description = act.Description,
-                Body = act.Body,
+                Body = act.Body ?? string.Empty,
                 CreatedAtUtc = act.CreatedAtUtc,
 
                 ClientSignature = act.ClientSignature,
@@ -433,7 +433,7 @@ namespace ERPSystem.Modules.AdditionalAct
                 ActNumber = a.ActNumber,
                 Status = a.Status.ToString(),
                 Description = a.Description,
-                Body = a.Body,
+                Body = a.Body ?? string.Empty,
                 CreatedAtUtc = a.CreatedAtUtc,
                 ContractId = a.ContractId,
 
@@ -486,8 +486,8 @@ namespace ERPSystem.Modules.AdditionalAct
             var effectiveDate = DateTime.UtcNow.ToString("dd.MM.yyyy");
 
             var sessionIds = act.Items
-               .Where(i => i.CourseSessionId.HasValue)
-               .Select(i => i.CourseSessionId.Value)
+               .Select(i => i.CourseSessionId)
+                .OfType<int>()
                .ToList();
 
             var sessions = await _db.CourseSessions
@@ -637,7 +637,8 @@ namespace ERPSystem.Modules.AdditionalAct
                    decimal.TryParse(i.NewValue, out _))
                .Sum(i =>
                {
-                   var value = decimal.Parse(i.NewValue);
+                   if (!decimal.TryParse(i.NewValue, out var value))
+                        return 0m;
                
                    return i.Type == AdditionalActType.AddDiscount
                        ? -value
@@ -666,7 +667,7 @@ namespace ERPSystem.Modules.AdditionalAct
                    i.Type == AdditionalActType.IncreasePrice
                );
 
-            var values = new Dictionary<string, string>
+            var values = new Dictionary<string, string?>
             {
                 ["ActNumber"] = act.ActNumber,
                 ["ContractNumber"] = contract.ContractNumber,

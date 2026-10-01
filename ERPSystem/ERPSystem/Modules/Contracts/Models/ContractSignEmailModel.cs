@@ -3,8 +3,8 @@
     public class ContractSignEmailModel
     {
 
-        public string ClientName { get; set; }
-        public string ContractNumber { get; set; }
+        public string ClientName { get; set; } = string.Empty;
+        public string ContractNumber { get; set; } = string.Empty;
        
     }
 }

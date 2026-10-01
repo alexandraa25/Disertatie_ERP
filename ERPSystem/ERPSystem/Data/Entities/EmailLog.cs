@@ -4,13 +4,13 @@
     {
         public int Id { get; set; }
 
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
 
         public int? ReferenceId { get; set; }
 
-        public string Subject { get; set; }
+        public string Subject { get; set; } = string.Empty;
 
-        public string HtmlContent { get; set; }
+        public string HtmlContent { get; set; } = string.Empty;
 
         public string? RecipientMode { get; set; }
 

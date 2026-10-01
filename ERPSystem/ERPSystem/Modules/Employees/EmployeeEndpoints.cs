@@ -1,4 +1,4 @@
-﻿using ERPSystem.Extensions;
+using ERPSystem.Extensions;
 using ERPSystem.Modules.Admin;
 using ERPSystem.Modules.Employees;
 using ERPSystem.Modules.Employees.Models;
@@ -21,15 +21,15 @@ namespace ERPSystem.Modules.Employees
 
                      var request = new CreateEmployeeFullRequest
                      {
-                         Mode = form["mode"],
+                         Mode = form["mode"].ToString(),
                          UserId = form["userId"],
                          FirstName = form["firstName"],
                          LastName = form["lastName"],
                          Email = form["email"],
                          HireDate = DateTime.Parse(form["hireDate"]!),
-                         JobTitle = form["jobTitle"],
+                         JobTitle = form["jobTitle"].ToString(),
                          Salary = decimal.TryParse(form["salary"], out var salary) ? salary : 0,
-                         ContractType = form["contractType"],
+                         ContractType = form["contractType"].ToString(),
                          Notes = form["notes"],
                          PhoneNumber = form["phoneNumber"],
                          EmergencyContactName = form["emergencyContactName"],
@@ -41,7 +41,7 @@ namespace ERPSystem.Modules.Employees
                          IBAN = form["IBAN"],
                          BankName = form["bankName"],
                          Files = form.Files.GetFiles("Files").ToArray(),
-                         DocumentTypes = form["DocumentTypes"].ToArray()
+                         DocumentTypes = form["DocumentTypes"].Select(value => value ?? "Document").ToArray()
                      };
 
                      return await service.CreateEmployeeFullAsync(request);

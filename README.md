@@ -72,10 +72,10 @@ Autentificarea completă necesită un cont pregătit în baza de date și config
 
 Verificare efectuată la 1 octombrie 2026, pe codul local:
 
-- Backend: compilare reușită cu SDK 10.0.401. Persistă avertismente, în principal privind valorile nullable.
+- Backend: compilare reușită cu SDK 10.0.401, fără avertismente sau erori; verificările de nulabilitate rămân activate.
 - Frontend: build de producție reușit cu Node.js 24.13.0; pachet inițial de aproximativ 705 kB după eliminarea scriptului Font Awesome redundant.
-- Verificările de securitate folosesc rutele reale și middleware-ul JWT: acces anonim, roluri, tokenuri invalide/expirate și CORS. Sunt verificate și șabloanele incluse.
-- Rezultat: 424 verificări HTTP trecute pe 138 de rute ale aplicației și o rută de test pentru politica implicită; 7 teste frontend trecute în ChromeHeadless.
+- Verificările de securitate folosesc rutele reale și middleware-ul JWT: acces anonim, roluri, tokenuri invalide/expirate și CORS. Sunt verificate și șabloanele incluse, cazurile de date lipsă și absența modificărilor schemei EF.
+- Rezultat: 424 verificări HTTP trecute pe 138 de rute ale aplicației și o rută de test pentru politica implicită; 15 teste frontend trecute în ChromeHeadless.
 - Nu au fost executate migrări, trimiteri de e-mail sau fluxuri complete cu SQL Server, NLP și Power BI.
 - Frontendul include teste pentru structura aplicației și trimiterea tokenului doar către API-ul configurat. Nu există încă teste dedicate modelelor NLP.
 

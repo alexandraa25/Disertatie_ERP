@@ -1,3 +1,5 @@
+import { StudentActivityPanelComponent } from '../student-activity-panel/student-activity-panel.component';
+import { StudentFeedbackPanelComponent } from '../student-feedback-panel/student-feedback-panel.component';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -28,7 +30,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-student-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmCustomModalComponent, RomanianDayPipe],
+  imports: [StudentActivityPanelComponent, StudentFeedbackPanelComponent, CommonModule, FormsModule, ConfirmCustomModalComponent, RomanianDayPipe],
   templateUrl: './student-details.component.html',
   styleUrls: ['./student-details.component.css']
 })
@@ -76,7 +78,7 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
 
   pageSize = 10;
 
-  objectKeys = Object.keys;
+
 
   constructor(
     private route: ActivatedRoute,
@@ -137,6 +139,9 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
     }
     if (tab === 'Evaluări profesor') {
       this.loadStudentEvaluations();
+      if (this.studentTab === 'analytics') setTimeout(() => this.createStudentChart(), 0);
+    } else {
+      this.destroyStudentChart();
     }
   }
 
@@ -712,9 +717,6 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       });
   }
 
-  get pagedActivityLogs() {
-    return this.paginate(this.activityLogs, this.activityPage);
-  }
 
   // ================= TAB: EVALUĂRI PROFESOR =================
   loadStudentEvaluations(): void {
@@ -818,19 +820,6 @@ export class StudentDetailsComponent implements OnInit, OnDestroy {
       this.studentChart.destroy();
       this.studentChart = null;
     }
-  }
-
-  getRiskLabel(level: string): string {
-    switch (level) {
-      case 'high': return 'Ridicat';
-      case 'medium': return 'Mediu';
-      case 'low': return 'Scăzut';
-      default: return 'Necunoscut';
-    }
-  }
-
-  get pagedStudentEvaluations() {
-    return this.paginate(this.studentEvaluations, this.evaluationsPage);
   }
 
  // =================  HELPERS =================

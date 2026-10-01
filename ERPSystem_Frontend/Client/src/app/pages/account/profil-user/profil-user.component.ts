@@ -1,10 +1,11 @@
+import { ProfileNotificationsComponent } from '../profile-notifications/profile-notifications.component';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { finalize } from 'rxjs';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { UserProfileService } from '../../services/user-profile.service';
-import { UserProfileDto, NotificationSettingDto, NotificationChannel, DigestMode } from '../../models/user-profile.model';
+import { UserProfileDto, NotificationSettingDto } from '../../models/user-profile.model';
 import { LeaveService } from '../../services/leave.service';
 import { CreateLeaveModalComponent } from '../../hr/create-leave-modal/create-leave-modal.component';
 import { EmployeeService } from '../../services/employee.service';
@@ -16,7 +17,7 @@ import { ConfirmCustomModalComponent } from '../../../components/confirm-custom-
 @Component({
   selector: 'app-profil-user',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, MatDialogModule, ConfirmCustomModalComponent],
+  imports: [ProfileNotificationsComponent, ReactiveFormsModule, CommonModule, MatDialogModule, ConfirmCustomModalComponent],
   templateUrl: './profil-user.component.html',
   styleUrls: ['./profil-user.component.css'],
 })
@@ -31,15 +32,13 @@ export class ProfilUserComponent implements OnInit {
   loadingNotifications = true;
   savingNotifications = false;
 
-  NotificationChannel = NotificationChannel;
-  DigestMode = DigestMode;
 
   form!: FormGroup;
   notificationForm!: FormGroup;
   passwordForm!: FormGroup;
   leaveForm!: FormGroup;
 
-  originalData!: UserProfileDto;
+  originalData: UserProfileDto | null = null;
 
   leaves: any[] = [];
   vacation: any;
@@ -95,7 +94,7 @@ export class ProfilUserComponent implements OnInit {
       emergencyContactPhone: ['']
     });
 
-    console.log('Token ' + localStorage.getItem('accessToken'));
+
 
     this.loadProfile();
 
@@ -163,6 +162,7 @@ export class ProfilUserComponent implements OnInit {
   }
 
   cancelEdit() {
+    if (!this.originalData) return;
     this.editMode = false;
 
     this.form.patchValue({
@@ -481,21 +481,6 @@ export class ProfilUserComponent implements OnInit {
           this.snackbar.showError('Eroare la salvarea notificărilor');
         }
       });
-  }
-
-  getNotificationLabel(eventType: string): string {
-    return this.notificationLabels[eventType] ?? eventType;
-  }
-
-  getChannelLabel(channel: NotificationChannel): string {
-    switch (Number(channel)) {
-      case NotificationChannel.InApp:
-        return 'În aplicație';
-      case NotificationChannel.Email:
-        return 'Email';
-      default:
-        return 'Necunoscut';
-    }
   }
 
   getExperience(hireDate: string | Date): string {

@@ -1,4 +1,4 @@
-﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.MarketingCampaign.Models;
 using ERPSystem.Shared.BusinessLogic;
@@ -539,6 +539,7 @@ public class MarketingCampaignService
 
         foreach (var student in students)
         {
+            if (string.IsNullOrWhiteSpace(student.Email)) continue;
             var recipientLog = new EmailRecipientLog
             {
                 EmailLogId = emailLog.Id,

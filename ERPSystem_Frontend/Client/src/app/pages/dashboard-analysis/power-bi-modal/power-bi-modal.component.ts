@@ -24,7 +24,12 @@ export class PowerBiModalComponent {
   
   constructor(private sanitizer: DomSanitizer) {}
 
+  get currentReport(): { title: string; url: string; safeUrl?: SafeResourceUrl } | undefined {
+    return this.reports[this.currentIndex];
+  }
+
   ngOnChanges() {
+    this.currentIndex = Math.min(this.currentIndex, Math.max(0, this.reports.length - 1));
     this.reports = this.reports.map(r => ({
       ...r,
       safeUrl: this.sanitizer.bypassSecurityTrustResourceUrl(r.url)

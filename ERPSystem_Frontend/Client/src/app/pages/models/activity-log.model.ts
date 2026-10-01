@@ -22,9 +22,9 @@ export interface ActivityFilterOptions {
 }
 
 export interface ActivityFilters {
-  entity: string[];
-  action: string[];
-  performedBy: string[];
+  entity: string[] | null;
+  action: string[] | null;
+  performedBy: string[] | null;
   from: Date | null;
   to: Date | null;
   page: number;

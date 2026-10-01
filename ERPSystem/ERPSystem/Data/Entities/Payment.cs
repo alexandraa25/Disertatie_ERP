@@ -5,7 +5,12 @@
         public int Id { get; set; }
 
         public int ContractId { get; set; }
-        public StudentContract Contract { get; set; }
+        private StudentContract? _contract;
+        public StudentContract Contract
+        {
+            get => _contract ?? throw new InvalidOperationException("Navigation 'Contract' has not been loaded.");
+            set => _contract = value;
+        }
 
         public int? InstallmentId { get; set; }
         public ContractInstallment? Installment { get; set; }
@@ -14,7 +19,7 @@
 
         public DateTime PaidAtUtc { get; set; }
 
-        public string Method { get; set; }
+        public string Method { get; set; } = string.Empty;
 
         public string? Notes { get; set; }
 

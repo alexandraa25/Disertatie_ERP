@@ -23,11 +23,11 @@
 
         public int StudentId { get; set; }
 
-        public string StudentName { get; set; }
+        public string StudentName { get; set; } = string.Empty;
 
         public int CourseSessionId { get; set; }
 
-        public string TeacherName { get; set; }
+        public string TeacherName { get; set; } = string.Empty;
 
         public int Rating { get; set; }
 

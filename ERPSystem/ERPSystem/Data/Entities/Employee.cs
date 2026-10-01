@@ -13,8 +13,8 @@ namespace ERPSystem.Data.Entities
         public ApplicationUser? User { get; set; }
 
        
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
         public string? Email { get; set; }
 
         [Required]
@@ -24,7 +24,7 @@ namespace ERPSystem.Data.Entities
 
         [Required]
         [MaxLength(150)]
-        public string JobTitle { get; set; }
+        public string JobTitle { get; set; } = string.Empty;
 
         [MaxLength(50)]
         public string? EmploymentStatus { get; set; } 
@@ -47,9 +47,9 @@ namespace ERPSystem.Data.Entities
         public int CarryOverDays { get; set; } = 0;
 
 
-        public ICollection<EmployeeLeave>? Leaves { get; set; }
+        public ICollection<EmployeeLeave> Leaves { get; set; } = [];
 
-        public ICollection<EmployeeDocument>? Documents { get; set; }
+        public ICollection<EmployeeDocument> Documents { get; set; } = [];
 
         public EmployeeAddress? Address { get; set; }
         public EmployeeBank? Bank { get; set; }

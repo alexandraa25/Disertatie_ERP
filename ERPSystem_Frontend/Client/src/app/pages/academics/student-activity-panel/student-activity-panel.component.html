@@ -1,0 +1,44 @@
+<div class="card">
+        <h3>Istoric activitate</h3>
+
+        <div *ngIf="activityLogs.length === 0">
+          Nu există activitate.
+        </div>
+
+        <div *ngFor="let log of pagedActivityLogs" class="log-item" [ngClass]="{
+            'log-create': log.action === 'Create',
+            'log-update': log.action === 'Update',
+            'log-delete': log.action === 'Delete',
+            'log-enroll': log.action === 'Enroll'
+            }">
+
+          <div class="log-date">
+            {{ log.createdAtUtc | date:'dd.MM.yyyy HH:mm' }}
+          </div>
+
+          <!-- description -->
+          <div *ngIf="log.description; else fallback">
+            {{ log.description }}
+          </div>
+
+          <!-- fallback -->
+          <ng-template #fallback>
+
+            <div><b>{{ log.action }}</b></div>
+
+            <div *ngFor="let key of objectKeys(log.newValues)">
+              <b>{{ key }}</b>:
+              {{ log.oldValues[key] ?? '-' }} → {{ log.newValues[key] ?? '-' }}
+            </div>
+
+          </ng-template>
+
+        </div>
+
+        <div class="pagination" *ngIf="activityLogs.length > pageSize">
+          <button (click)="activityPageChange.emit(activityPage - 1)" [disabled]="activityPage <= 1">◀</button>
+          <span>Pagina {{ activityPage }} din {{ totalPages(activityLogs) }}</span>
+          <button (click)="activityPageChange.emit(activityPage + 1)"
+            [disabled]="activityPage >= totalPages(activityLogs)">▶</button>
+        </div>
+      </div>

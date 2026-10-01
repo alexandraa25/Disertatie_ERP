@@ -2,8 +2,8 @@
 {
     public class AdditionalActSignEmailModel
     {
-        public string ClientName { get; set; }
-        public string ActNumber { get; set; }
-        public string Description { get; set; }
+        public string ClientName { get; set; } = string.Empty;
+        public string ActNumber { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
     }
 }

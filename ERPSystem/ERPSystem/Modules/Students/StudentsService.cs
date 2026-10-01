@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Student.Models;
@@ -561,8 +561,8 @@ public class StudentsService
             return response.SetError(ErrorCodes.InvalidParameters, "Contractul nu a fost găsit.");
 
         var studentId = contract.Parties
-            .Where(p => p.StudentId != null)
-            .Select(p => p.StudentId.Value)
+            .Select(p => p.StudentId)
+            .OfType<int>()
             .FirstOrDefault();
 
         if (studentId == 0)

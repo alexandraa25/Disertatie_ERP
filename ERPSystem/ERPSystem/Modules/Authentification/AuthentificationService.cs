@@ -1,4 +1,4 @@
-﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Authentification.Models;
 using ERPSystem.Shared.BusinessLogic;
@@ -117,12 +117,12 @@ namespace ERPSystem.Modules.Authentificate
                         return publicResponse.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
                 }
 
-                List<string> to = new List<string>() { newUser.Email };
+                List<string> to = new List<string>() { GetRequiredEmail(newUser) };
 
                 var emailModel = new UserCredentialsEmailModel
                 {
-                    FirstName = newUser.FirstName,
-                    Email = newUser.Email,
+                    FirstName = newUser.FirstName ?? string.Empty,
+                    Email = GetRequiredEmail(newUser),
                     Password = request.Password
                 };
 
@@ -153,7 +153,13 @@ namespace ERPSystem.Modules.Authentificate
                 _logger.LogError(ex.Message, "Error occurred while registering user.");
                 return publicResponse.SetError(ErrorCodes.InternalServerError, ErrorMessages.InternalServerError);
             }
-            return publicResponse;
+        }
+
+        private static string GetRequiredEmail(ApplicationUser user)
+        {
+            if (string.IsNullOrWhiteSpace(user.Email))
+                throw new InvalidOperationException("The user does not have an email address.");
+            return user.Email;
         }
 
         public async Task<PublicResponse> ConfirmEmailAsync(ConfirmEmail confirmEmail, UserManager<ApplicationUser> userManager)
@@ -212,7 +218,7 @@ namespace ERPSystem.Modules.Authentificate
 
                     await _emailBusinessLogic.SendEmailTemplateAsync(templateCode: TemplateCode.EMAIL_REGISTRATION_CONFIRMATION, tableRow: JsonConvert.SerializeObject(user),
                         url: link,
-                        to: new List<string> { user.Email }
+                        to: new List<string> { GetRequiredEmail(user) }
                     );
 
                     return response.SetSuccess(new
@@ -229,7 +235,7 @@ namespace ERPSystem.Modules.Authentificate
 
                 var code = await userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultEmailProvider);
 
-                List<string> to = new List<string>() { user.Email };
+                List<string> to = new List<string>() { GetRequiredEmail(user) };
                 await _emailBusinessLogic.SendEmailTemplateAsync(TemplateCode.LOGIN_CONFIRMATION,
                     JsonConvert.SerializeObject(new { Code = code }), to);
 
@@ -365,7 +371,7 @@ namespace ERPSystem.Modules.Authentificate
                 await _emailBusinessLogic.SendEmailTemplateAsync(
                     TemplateCode.LOGIN_CONFIRMATION,
                     JsonConvert.SerializeObject(new { Code = newCode }),
-                    new List<string> { user.Email }
+                    new List<string> { GetRequiredEmail(user) }
                 );
 
                 return publicResponse.SetSuccess();
@@ -394,7 +400,7 @@ namespace ERPSystem.Modules.Authentificate
 
                 var resetUrl = $"{_ERPSystemSettings.Value.BaseUrl}/reset-password?userId={user.Id}&token={encodedToken}";
 
-                List<string> to = new List<string>() { user.Email };
+                List<string> to = new List<string>() { GetRequiredEmail(user) };
 
                 await _emailBusinessLogic.SendEmailTemplateAsync(TemplateCode.FORGOT_PASSWORD,
                     JsonConvert.SerializeObject(new

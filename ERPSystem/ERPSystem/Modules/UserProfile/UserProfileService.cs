@@ -1,4 +1,4 @@
-﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Models.Notifications;
 using ERPSystem.Modules.UserProfile.Models;
@@ -180,8 +180,8 @@ public class UserProfileService
 
             if (employee != null)
             {
-                employee.FirstName = user.FirstName;
-                employee.LastName = user.LastName;
+                employee.FirstName = user.FirstName ?? employee.FirstName;
+                employee.LastName = user.LastName ?? employee.LastName;
                 employee.UpdatedAt = DateTime.UtcNow;
 
                 var address = await _applicationDbContext.EmployeeAddress

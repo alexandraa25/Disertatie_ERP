@@ -2,6 +2,6 @@
 {
     public class ERPSystemSettings
     {
-        public string BaseUrl { get; set; }
+        public string BaseUrl { get; set; } = string.Empty;
     }
 }

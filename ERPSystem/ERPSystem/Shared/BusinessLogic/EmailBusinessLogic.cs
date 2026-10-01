@@ -1,4 +1,4 @@
-﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.AdditionalAct.Models;
 using ERPSystem.Modules.Authentification.Models;
@@ -37,7 +37,7 @@ namespace ERPSystem.Shared.BusinessLogic
 
             try
             {
-                EmailTemplate emailTemplate = await _applicationDbContext.EmailTemplates.FirstOrDefaultAsync(t => t.TemplateCode == templateCode && t.IsActive);
+                var emailTemplate = await _applicationDbContext.EmailTemplates.FirstOrDefaultAsync(t => t.TemplateCode == templateCode && t.IsActive);
 
                 if (emailTemplate == null)
                     return publicResponse.SetError(ErrorCodes.EmailTemplateNotFound, ErrorMessages.EmailTemplateNotFound);
@@ -99,13 +99,14 @@ namespace ERPSystem.Shared.BusinessLogic
             }
         }
 
-        private string GetTemplateEmailByCode(string templateCode, string tableRow, string url, EmailTemplate emailTemplate)
+        private string GetTemplateEmailByCode(string templateCode, string tableRow, string? url, EmailTemplate emailTemplate)
         {
-            string template = null;
+            string? template = null;
 
             if (templateCode == TemplateCode.EMAIL_REGISTRATION_CONFIRMATION)
             {
-                var applicationUser = JsonConvert.DeserializeObject<ApplicationUser>(tableRow);
+                var applicationUser = JsonConvert.DeserializeObject<ApplicationUser>(tableRow)
+                    ?? throw new JsonSerializationException("Email template data is missing.");
 
                 template = emailTemplate.HtmlContent
                     .Replace(EmailConstants.FIRST_NAME, applicationUser.FirstName)
@@ -114,14 +115,16 @@ namespace ERPSystem.Shared.BusinessLogic
             }
             else if (templateCode == TemplateCode.LOGIN_CONFIRMATION)
             {
-                var emailConfirmation = JsonConvert.DeserializeObject<LoginCodeModel>(tableRow);
+                var emailConfirmation = JsonConvert.DeserializeObject<LoginCodeModel>(tableRow)
+                    ?? throw new JsonSerializationException("Email template data is missing.");
 
                 template = emailTemplate.HtmlContent
                     .Replace(EmailConstants.CONFIRMATION_LOGIN_CODE, emailConfirmation.Code);
             }
             else if (templateCode == TemplateCode.FORGOT_PASSWORD)
             {
-                var applicationUser = JsonConvert.DeserializeObject<ApplicationUser>(tableRow);
+                var applicationUser = JsonConvert.DeserializeObject<ApplicationUser>(tableRow)
+                    ?? throw new JsonSerializationException("Email template data is missing.");
 
                 template = emailTemplate.HtmlContent
                     .Replace(EmailConstants.FIRST_NAME, applicationUser.FirstName)
@@ -130,7 +133,8 @@ namespace ERPSystem.Shared.BusinessLogic
             }
             else if (templateCode == TemplateCode.EMAIL_USER_CREDENTIALS)
             {
-                var model = JsonConvert.DeserializeObject<UserCredentialsEmailModel>(tableRow);
+                var model = JsonConvert.DeserializeObject<UserCredentialsEmailModel>(tableRow)
+                    ?? throw new JsonSerializationException("Email template data is missing.");
 
                 template = emailTemplate.HtmlContent
                     .Replace(EmailConstants.FIRST_NAME, model.FirstName)
@@ -140,7 +144,8 @@ namespace ERPSystem.Shared.BusinessLogic
             }
             else if (templateCode == TemplateCode.CONTRACT_SIGN_REQUEST)
             {
-                var model = JsonConvert.DeserializeObject<ContractSignEmailModel>(tableRow);
+                var model = JsonConvert.DeserializeObject<ContractSignEmailModel>(tableRow)
+                    ?? throw new JsonSerializationException("Email template data is missing.");
 
                 template = emailTemplate.HtmlContent
                     .Replace(EmailConstants.CLIENT_NAME, model.ClientName)
@@ -150,7 +155,8 @@ namespace ERPSystem.Shared.BusinessLogic
             }
             else if (templateCode == TemplateCode.ADDITIONAL_ACT_SIGN_REQUEST)
             {
-                var model = JsonConvert.DeserializeObject<AdditionalActSignEmailModel>(tableRow);
+                var model = JsonConvert.DeserializeObject<AdditionalActSignEmailModel>(tableRow)
+                    ?? throw new JsonSerializationException("Email template data is missing.");
 
                 template = emailTemplate.HtmlContent
                     .Replace(EmailConstants.CLIENT_NAME, model.ClientName)
@@ -161,7 +167,8 @@ namespace ERPSystem.Shared.BusinessLogic
             }
             else if (templateCode == TemplateCode.CAMPAIGN_NEWSLETTER)
             {
-                var model = JsonConvert.DeserializeObject<CampaignNewsletterEmailModel>(tableRow);
+                var model = JsonConvert.DeserializeObject<CampaignNewsletterEmailModel>(tableRow)
+                    ?? throw new JsonSerializationException("Email template data is missing.");
 
                 template = emailTemplate.HtmlContent
                     .Replace(EmailConstants.CAMPAIGN_NAME, model.CampaignName)
@@ -173,7 +180,8 @@ namespace ERPSystem.Shared.BusinessLogic
             }
             else if (templateCode == TemplateCode.FEEDBACK_FORM_REQUEST)
             {
-                var model = JsonConvert.DeserializeObject<FeedbackFormEmailModel>(tableRow);
+                var model = JsonConvert.DeserializeObject<FeedbackFormEmailModel>(tableRow)
+                    ?? throw new JsonSerializationException("Email template data is missing.");
 
                 template = emailTemplate.HtmlContent
                     .Replace(EmailConstants.COURSE_NAME, model.CourseName)
@@ -183,7 +191,7 @@ namespace ERPSystem.Shared.BusinessLogic
                     .Replace(EmailConstants.YEAR, DateTime.UtcNow.Year.ToString());
             }
 
-            return template;
+            return template ?? throw new ArgumentException("Unsupported email template code.", nameof(templateCode));
         }
     }
 }

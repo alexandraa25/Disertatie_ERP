@@ -7,7 +7,12 @@ namespace ERPSystem.Data.Entities
         public int Id { get; set; }
 
         public int ActId { get; set; }
-        public ContractAdditionalAct Act { get; set; }
+        private ContractAdditionalAct? _act;
+        public ContractAdditionalAct Act
+        {
+            get => _act ?? throw new InvalidOperationException("Navigation 'Act' has not been loaded.");
+            set => _act = value;
+        }
 
         public AdditionalActType Type { get; set; }
 

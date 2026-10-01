@@ -2,7 +2,7 @@
 {
     public class NagerHoliday
     {
-        public string date { get; set; }
-        public string localName { get; set; }
+        public string date { get; set; } = string.Empty;
+        public string localName { get; set; } = string.Empty;
     }
 }

@@ -5,6 +5,9 @@ using System.Security.Claims;
 using System.Text;
 using ERPSystem.Configuration;
 using ERPSystem.Data;
+using ERPSystem.Data.Context;
+using ERPSystem.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -118,6 +121,29 @@ try
     Check(seed.EmailTemplates.Count == 8 && seed.EmailTemplates.Select(t => t.TemplateCode).Distinct().Count() == 8, "Email seed incomplete.");
     Check(seed.ContractTemplates.Count == 2, "Contract seed incomplete.");
     Check(DatabaseInitializer.Roles.Contains("Marketing"), "Marketing role missing.");
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        Check(!db.Database.HasPendingModelChanges(), "Nullability fixes must not change the database schema.");
+        var notifications = scope.ServiceProvider.GetRequiredService<NotificationsService>();
+        try
+        {
+            await notifications.GetMyNotifications();
+            throw new InvalidOperationException("Missing notification identity was accepted.");
+        }
+        catch (UnauthorizedAccessException) { }
+    }
+    Check(new Employee().Documents.Count == 0 && new Employee().Leaves.Count == 0,
+        "New employees must have empty collections, not null.");
+    foreach (Action invalidPdf in new Action[]
+    {
+        () => new PdfService().GenerateContractPdf(new StudentContract()),
+        () => new PdfService().GenerateAdditionalActPdf(new ContractAdditionalAct())
+    })
+    {
+        try { invalidPdf(); throw new InvalidOperationException("Missing PDF content was accepted."); }
+        catch (ArgumentException) { }
+    }
     Console.WriteLine($"PASS: {endpoints.Length} routes, {count + 7} JWT/access checks, CORS preflight and embedded seed templates. No database or email calls.");
 
     async Task Expect(string method, string route, string? token, HttpStatusCode expected)

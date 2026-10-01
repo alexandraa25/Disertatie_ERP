@@ -1,0 +1,368 @@
+:host { display: block; }
+
+button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.tabs {
+  display: inline-flex;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 14px;
+  background: #f1f5f9;
+  margin-bottom: 24px;
+}
+.tabs button {
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: transparent;
+  color: #64748b;
+}
+.tabs button.active {
+  background: white;
+  color: #111827;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+.card {
+  background: white;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  border: 1px solid #f1f5f9;
+  margin-bottom: 20px;
+}
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.sub {
+  font-size: 12px;
+  color: #9ca3af;
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.empty-state {
+  text-align: center;
+  padding: 24px;
+  color: #94a3b8;
+  font-style: italic;
+}
+.card div:empty::after {
+  content: "Nu există activitate.";
+  color: #9ca3af;
+  font-style: italic;
+}
+.evaluation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.evaluation-card {
+  background: #ffffff;
+  border: 1px solid #eee;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+}
+.evaluation-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.sub {
+  color: #777;
+  font-size: 13px;
+  margin-top: 4px;
+}
+.rating-badge {
+  background: #eef2ff;
+  color: #4b4bd6;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 13px;
+}
+.evaluation-scores {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.evaluation-scores div {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 12px;
+}
+.evaluation-scores label {
+  display: block;
+  color: #777;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.evaluation-comment {
+  background: #fafafa;
+  border-radius: 12px;
+  padding: 12px;
+  color: #333;
+  line-height: 1.5;
+}
+.sentiment {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.sentiment.positive {
+  background: #eafaf1;
+  color: #27ae60;
+}
+.sentiment.negative {
+  background: #fdecea;
+  color: #e74c3c;
+}
+.sentiment.neutral {
+  background: #eef2ff;
+  color: #4b4bd6;
+}
+.ai-analysis {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+}
+.ai-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.ai-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.ai-grid div {
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+.ai-grid label {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+.ai-grid strong {
+  font-size: 15px;
+}
+.ai-tags {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ai-tags span {
+  background: #eef2ff;
+  color: #3730a3;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.sentiment {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.sentiment.pozitiv {
+  background: #dcfce7;
+  color: #166534;
+}
+.sentiment.negativ {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.sentiment.neutru {
+  background: #e5e7eb;
+  color: #374151;
+}
+.risk-warning {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: 600;
+}
+.problem-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 60px;
+  gap: 12px;
+  align-items: center;
+  margin-top: 10px;
+}
+.problem-row div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.problem-row span {
+  font-size: 13px;
+  color: #64748b;
+}
+.bar {
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.fill {
+  height: 100%;
+  background: #2563eb;
+  border-radius: 999px;
+}
+.alert-box {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+.recommendation-box {
+  background: #ecfdf5;
+  color: #065f46;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+.risk-warning {
+  margin-top: 10px;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  padding: 10px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.ai-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.ai-tags span {
+  background: #eef2ff;
+  color: #3730a3;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+.chart-wrapper {
+  height: 320px;
+  width: 100%;
+  margin-top: 12px;
+}
+.summary-card {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 18px 0;
+}
+.summary-card > div {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.summary-card strong {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+.summary-card span {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+.ai-analysis > strong {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: #111827;
+}
+.ai-analysis p {
+  margin: 8px 0 0;
+  color: #334155;
+  line-height: 1.5;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin: 18px 0 6px;
+}
+.pagination button {
+  min-width: 38px;
+  height: 32px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 800;
+}
+.pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.pagination span {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+@media (max-width: 700px) {
+  .problem-row,
+.ai-grid,
+.summary-card {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-wrapper {
+    height: 260px;
+  }
+}
+@media (max-width: 700px) {
+  .evaluation-scores {
+    grid-template-columns: 1fr;
+  }
+}
+.high {
+  color: #dc2626 !important;
+}
+.medium {
+  color: #d97706 !important;
+}
+.low {
+  color: #16a34a !important;
+}

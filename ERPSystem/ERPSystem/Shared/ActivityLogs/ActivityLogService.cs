@@ -1,4 +1,4 @@
-﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Student.Models;
 using ERPSystem.Shared.ActivityLogs;
@@ -62,7 +62,7 @@ public class ActivityLogService
             query = query.Where(x => actions.Contains(x.Action));
 
         if (performedBy != null && performedBy.Any())
-            query = query.Where(x => performedBy.Contains(x.PerformedBy));
+            query = query.Where(x => x.PerformedBy != null && performedBy.Contains(x.PerformedBy));
 
         if (from.HasValue)
             query = query.Where(x => x.CreatedAtUtc >= from.Value);

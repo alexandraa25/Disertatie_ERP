@@ -4,7 +4,7 @@ namespace ERPSystem.Modules.Employees.Models
 {
     public class CreateEmployeeFullRequest
     {
-        public string Mode { get; set; } 
+        public string Mode { get; set; } = string.Empty;
 
         public string? UserId { get; set; }
         public string? FirstName { get; set; }
@@ -12,9 +12,9 @@ namespace ERPSystem.Modules.Employees.Models
         public string? Email { get; set; }
 
         public DateTime HireDate { get; set; }
-        public string JobTitle { get; set; }
+        public string JobTitle { get; set; } = string.Empty;
         public decimal Salary { get; set; }
-        public string ContractType { get; set; }
+        public string ContractType { get; set; } = string.Empty;
         public string? Notes { get; set; }
 
         public string? PhoneNumber { get; set; }

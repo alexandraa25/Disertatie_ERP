@@ -6,7 +6,7 @@ public class StudentContract
 {
     public int Id { get; set; }
 
-    public string ContractNumber { get; set; }
+    public string ContractNumber { get; set; } = string.Empty;
 
     public DateTime StartDate { get; set; }
 
@@ -39,30 +39,30 @@ public class StudentContract
     public DateTime? AdminSignedAtUtc { get; set; }
 
   
-    public string CompanyNameSnapshot { get; set; }
+    public string CompanyNameSnapshot { get; set; } = string.Empty;
 
-    public string CompanyAddressSnapshot { get; set; }
+    public string CompanyAddressSnapshot { get; set; } = string.Empty;
 
-    public string CompanyCuiSnapshot { get; set; }
+    public string CompanyCuiSnapshot { get; set; } = string.Empty;
 
-    public string CompanyRegistrationSnapshot { get; set; }
+    public string CompanyRegistrationSnapshot { get; set; } = string.Empty;
 
-    public string CompanyIbanSnapshot { get; set; }
+    public string CompanyIbanSnapshot { get; set; } = string.Empty;
 
-    public string CompanyBankSnapshot { get; set; }
+    public string CompanyBankSnapshot { get; set; } = string.Empty;
 
-    public string CompanyEmailSnapshot { get; set; }
+    public string CompanyEmailSnapshot { get; set; } = string.Empty;
 
-    public string CompanyPhoneSnapshot { get; set; }
+    public string CompanyPhoneSnapshot { get; set; } = string.Empty;
 
 
-    public string BeneficiaryNameSnapshot { get; set; }
+    public string BeneficiaryNameSnapshot { get; set; } = string.Empty;
 
-    public string BeneficiaryEmailSnapshot { get; set; }
+    public string BeneficiaryEmailSnapshot { get; set; } = string.Empty;
 
-    public string BeneficiaryPhoneSnapshot { get; set; }
+    public string BeneficiaryPhoneSnapshot { get; set; } = string.Empty;
 
-    public string BeneficiaryAddressSnapshot { get; set; }
+    public string BeneficiaryAddressSnapshot { get; set; } = string.Empty;
 
  
 

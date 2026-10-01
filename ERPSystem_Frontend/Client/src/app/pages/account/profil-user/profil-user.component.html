@@ -75,12 +75,12 @@
 
         <div>
           <strong>Username:</strong>
-          {{ originalData.username }}
+          {{ originalData?.username }}
         </div>
 
         <div>
           <strong>Email:</strong>
-          {{ originalData.email }}
+          {{ originalData?.email }}
         </div>
 
         <div>
@@ -220,7 +220,7 @@
 
         <div class="documents" *ngIf="originalData?.documents?.length">
 
-          <div class="doc-card" *ngFor="let doc of originalData.documents">
+          <div class="doc-card" *ngFor="let doc of originalData?.documents">
 
             <div class="doc-info">
               <strong>{{ doc.fileName }}</strong>
@@ -466,53 +466,10 @@
 
     <!-- ================= NOTIFICATIONS TAB ================= -->
 
-    <div *ngIf="activeTab === 'notifications'" class="notifications-section">
-
-      <div *ngIf="loadingNotifications" class="notifications-loading">
-        Se încarcă notificările...
-      </div>
-
-      <form *ngIf="!loadingNotifications" [formGroup]="notificationForm">
-
-        <p>Alege cum vrei să primești notificările pentru activitățile interne.</p>
-
-        <div formArrayName="settings" class="notifications-list">
-
-          <div *ngFor="let group of settings.controls; let i = index" [formGroupName]="i" class="notification-card">
-
-            <div class="notification-main">
-              <div>
-                <h3>{{ getNotificationLabel(group.value.eventType) }}</h3>
-                <span class="notification-channel">
-                  {{ getChannelLabel(group.value.channel) }}
-                </span>
-              </div>
-
-              <label class="switch-row">
-                <input type="checkbox" formControlName="enabled">
-                <span>Primește notificări</span>
-              </label>
-            </div>
-
-            <div class="notification-options">
-              <label>
-                Frecvență notificare
-                <select formControlName="digest">
-                  <option [ngValue]="DigestMode.Immediate">Imediat</option>
-                  <option [ngValue]="DigestMode.Daily">Zilnic - rezumat</option>
-                </select>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="notifications-actions">
-          <button type="button" (click)="saveNotifications()" [disabled]="savingNotifications">
-            {{ savingNotifications ? 'Se salvează...' : 'Salvează modificările' }}
-          </button>
-        </div>
-      </form>
-    </div>
+    <app-profile-notifications *ngIf="activeTab === 'notifications'"
+      [notificationForm]="notificationForm" [loadingNotifications]="loadingNotifications"
+      [savingNotifications]="savingNotifications" [labels]="notificationLabels"
+      (save)="saveNotifications()"></app-profile-notifications>
   </div>
 </div>
 

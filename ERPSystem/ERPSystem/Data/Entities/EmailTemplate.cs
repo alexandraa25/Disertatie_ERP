@@ -4,13 +4,13 @@
     {
         public int Id { get; set; }
 
-        public string TemplateCode { get; set; } 
+        public string TemplateCode { get; set; } = string.Empty;
 
-        public string Subject { get; set; }
+        public string Subject { get; set; } = string.Empty;
 
-        public string HtmlContent { get; set; }
+        public string HtmlContent { get; set; } = string.Empty;
 
-        public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         public bool IsActive { get; set; } = true;
 

@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Models.Notifications;
@@ -422,7 +422,8 @@ namespace ERPSystem.Modules.Leaves
 
                 await _context.SaveChangesAsync();
 
-                await _notificationService.CreateNotificationAsync(
+                if (!string.IsNullOrWhiteSpace(leave.Employee.UserId))
+                    await _notificationService.CreateNotificationAsync(
                     userId: leave.Employee.UserId,
                     eventType: NotificationEvents.Leave,
                     title: "Cerere de concediu aprobată",
@@ -471,7 +472,8 @@ namespace ERPSystem.Modules.Leaves
 
                 await _context.SaveChangesAsync();
 
-                await _notificationService.CreateNotificationAsync(
+                if (!string.IsNullOrWhiteSpace(leave.Employee.UserId))
+                    await _notificationService.CreateNotificationAsync(
                     userId: leave.Employee.UserId,
                     eventType: NotificationEvents.Leave,
                     title: "Cerere de concediu respinsă",

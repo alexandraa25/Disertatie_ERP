@@ -5,7 +5,7 @@ namespace ERPSystem.Modules.Course.Models;
 public class CourseListItemDto
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     public bool IsActive { get; set; }
     public DateTime CreatedAtUtc { get; set; }
     public bool IsDeleted { get; set; }
@@ -14,7 +14,7 @@ public class CourseListItemDto
 public class CourseDetailsDto
 {
     public int Id { get; set; }
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAtUtc { get; set; }
@@ -26,14 +26,14 @@ public class CourseDetailsDto
 
 public class CreateCourseDto
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public List<CourseSessionUpsertDto> Sessions { get; set; } = new();
 }
 
 public class UpdateCourseDto
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public bool IsActive { get; set; }
     public List<CourseSessionUpsertDto> Sessions { get; set; } = new();
@@ -44,11 +44,11 @@ public class CourseSessionUpsertDto
     public int? Id { get; set; }
 
     public int DayOfWeek { get; set; }
-    public string StartTime { get; set; }
-    public string EndTime { get; set; }
+    public string StartTime { get; set; } = string.Empty;
+    public string EndTime { get; set; } = string.Empty;
 
     public int? Capacity { get; set; }
-    public string TeacherUserId { get; set; }
+    public string TeacherUserId { get; set; } = string.Empty;
 
     public CourseFeeType FeeType { get; set; }
     public decimal Fee { get; set; }
@@ -58,17 +58,17 @@ public class CourseSessionUpsertDto
 public class CourseSessionDto
 {
     public int Id { get; set; }
-    public string Title { get; set; }
+    public string Title { get; set; } = string.Empty;
 
     public int DayOfWeek { get; set; }
-    public string StartTime { get; set; }
-    public string EndTime { get; set; }
+    public string StartTime { get; set; } = string.Empty;
+    public string EndTime { get; set; } = string.Empty;
 
     public int? Capacity { get; set; }
     public int EnrolledActiveCount { get; set; }
 
-    public string TeacherUserId { get; set; }
-    public string TeacherName { get; set; }
+    public string TeacherUserId { get; set; } = string.Empty;
+    public string TeacherName { get; set; } = string.Empty;
 
     public CourseFeeType FeeType { get; set; }
     public decimal Fee { get; set; }

@@ -5,7 +5,12 @@
         public Guid Id { get; set; }
 
         public Guid EmployeeId { get; set; }
-        public Employee Employee { get; set; }
+        private Employee? _employee;
+        public Employee Employee
+        {
+            get => _employee ?? throw new InvalidOperationException("Navigation 'Employee' has not been loaded.");
+            set => _employee = value;
+        }
 
         public string? PhoneNumber { get; set; }
         public string? EmergencyContactName { get; set; }

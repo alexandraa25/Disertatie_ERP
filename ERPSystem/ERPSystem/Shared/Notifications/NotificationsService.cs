@@ -1,4 +1,4 @@
-﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -18,23 +18,17 @@ public class NotificationsService
 
     private string GetUserId()
     {
-        try
-        {
-            var user = _httpContextAccessor.HttpContext?.User;
+        var user = _httpContextAccessor.HttpContext?.User;
 
-            var userId =
-                user?.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
-                user?.FindFirst("sub")?.Value ??
-                user?.FindFirst("uid")?.Value;
+        var userId =
+            user?.FindFirst(ClaimTypes.NameIdentifier)?.Value ??
+            user?.FindFirst("sub")?.Value ??
+            user?.FindFirst("uid")?.Value;
 
-            if (string.IsNullOrWhiteSpace(userId))
-                throw new UnauthorizedAccessException("Utilizatorul nu este autentificat.");
+        if (string.IsNullOrWhiteSpace(userId))
+            throw new UnauthorizedAccessException("Utilizatorul nu este autentificat.");
 
-            return userId;
-        }catch(Exception ex)
-        {
-            return "string";
-        }
+        return userId;
     }
 
     public async Task<List<Notification>> GetMyNotifications()

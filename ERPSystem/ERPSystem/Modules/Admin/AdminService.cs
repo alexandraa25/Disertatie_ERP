@@ -1,4 +1,4 @@
-﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Admin.Models;
 using ERPSystem.Modules.UserProfile.Models;
@@ -44,10 +44,10 @@ namespace ERPSystem.Modules.Admin
                 userDtos.Add(new CompanyUserDto
                 {
                     Id = user.Id,
-                    Username = user.UserName,
-                    Email = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
+                    Username = user.UserName ?? string.Empty,
+                    Email = user.Email ?? string.Empty,
+                    FirstName = user.FirstName ?? string.Empty,
+                    LastName = user.LastName ?? string.Empty,
                     IsActive = user.IsActive,
                     CreatedAt = user.CreatedAt,
                     Roles = roles.ToList()
@@ -147,11 +147,11 @@ namespace ERPSystem.Modules.Admin
                 var result = new UserProfileDto
                 {
                     Id = user.Id,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
+                    FirstName = user.FirstName ?? string.Empty,
+                    LastName = user.LastName ?? string.Empty,
                     FullName = user.FullName,
-                    Username = user.UserName,
-                    Email = user.Email,
+                    Username = user.UserName ?? string.Empty,
+                    Email = user.Email ?? string.Empty,
                     EmailConfirmed = user.EmailConfirmed,
                     PhoneNumber = user.PhoneNumber,
                     Roles = roles,

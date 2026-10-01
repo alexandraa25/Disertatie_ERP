@@ -6,12 +6,12 @@
 
         public string? UserId { get; set; }
 
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
         public string? Email { get; set; }
 
         public DateTime HireDate { get; set; }
-        public string JobTitle { get; set; }
+        public string JobTitle { get; set; } = string.Empty;
 
         public decimal? Salary { get; set; }
         public string? ContractType { get; set; }
