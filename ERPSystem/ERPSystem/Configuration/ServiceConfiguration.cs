@@ -145,11 +145,25 @@ namespace ERPSystem.Configuration
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("frontend", policy =>
-                    policy.WithOrigins(builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-                        ?? ["http://localhost:4200"])
-                          .AllowAnyHeader()
+                {
+                    if (builder.Environment.IsDevelopment())
+                    {
+                        // Visual Studio may assign a different local port on each run.
+                        policy.SetIsOriginAllowed(origin =>
+                                Uri.TryCreate(origin, UriKind.Absolute, out var uri)
+                                && uri.Host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+                                && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps));
+                    }
+                    else
+                    {
+                        policy.WithOrigins(builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                            ?? ["http://localhost:4200"]);
+                    }
+
+                    policy.AllowAnyHeader()
                           .AllowAnyMethod()
-                          .AllowCredentials());
+                          .AllowCredentials();
+                });
             });
         }
     }

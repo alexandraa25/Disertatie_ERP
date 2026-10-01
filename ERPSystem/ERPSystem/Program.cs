@@ -29,12 +29,14 @@ if (args.Contains("--initialize-database", StringComparer.OrdinalIgnoreCase))
 
 
 app.UseCors("frontend");
+// Swagger is a local development interface and must be served before the
+// application's default authentication policy is applied to API endpoints.
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapAllApiEndpoints();
-app.UseSwagger();
-app.UseSwaggerUI();
 
 app.MapOpenApi();
 
