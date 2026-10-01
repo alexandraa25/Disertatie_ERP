@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.OpenApi;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
 namespace ERPSystem.Extensions
@@ -30,7 +30,7 @@ namespace ERPSystem.Extensions
                this IEndpointRouteBuilder app,
                string route,
                string tag,
-               bool requireAuth = false,
+               bool requireAuth = true,
                string? description = null)
         {
             var group = app.MapGroup(route)
@@ -41,10 +41,6 @@ namespace ERPSystem.Extensions
             if (requireAuth)
             {
                 group.RequireAuthorization();
-            }
-            else
-            {
-                group.AllowAnonymous(); 
             }
 
             return group;

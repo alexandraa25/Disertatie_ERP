@@ -924,7 +924,7 @@ public class ContractsService
              );
              
             var installments = await _db.ContractInstallments
-              .Where(i => i.ContractId == contract.Id &&!i.IsPaid &&  i.DueDate.Date > DateTime.UtcNow.Date)
+              .Where(i => i.ContractId == contract.Id && i.PaidAmount < i.Amount && i.DueDate > DateTime.UtcNow.Date)
               .ToListAsync();
 
             foreach (var i in installments)

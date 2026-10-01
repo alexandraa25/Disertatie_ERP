@@ -395,3 +395,6 @@ appsettings.Development.json
 # ========================
 .DS_Store
 Thumbs.db
+# Local Python environments
+.venv/
+__pycache__/

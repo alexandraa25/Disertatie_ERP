@@ -1,4 +1,6 @@
-﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Context;
+using ERPSystem.Utils.Settings;
+using Microsoft.Extensions.Options;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.AdditionalAct;
 using ERPSystem.Shared.BusinessLogic;
@@ -23,6 +25,7 @@ public class DocumentSigningService
     private readonly NotificationsService _notificationsService;
     private readonly ActivityLogService _activityLogService;
     private readonly ContractRecipientResolver _recipientResolver;
+    private readonly string _frontendUrl;
 
     public DocumentSigningService(
         ApplicationDbContext db,
@@ -32,7 +35,8 @@ public class DocumentSigningService
         AdditionalActService additionalActService,
         NotificationsService notificationsService,
         ActivityLogService activityLogService,
-        ContractRecipientResolver recipientResolver)
+        ContractRecipientResolver recipientResolver,
+        IOptions<ERPSystemSettings> settings)
     {
         _db = db;
         _logger = logger;
@@ -42,6 +46,7 @@ public class DocumentSigningService
         _notificationsService = notificationsService;
         _activityLogService = activityLogService;
         _recipientResolver = recipientResolver;
+        _frontendUrl = settings.Value.BaseUrl.TrimEnd('/');
     }
 
     public async Task<PublicResponse> SendToClientAsync(SigningEntityType type, int id)
@@ -52,7 +57,7 @@ public class DocumentSigningService
         {
             var now = DateTime.UtcNow;
             var token = Guid.NewGuid().ToString();
-            var signLink = $"http://localhost:4200/sign/{token}";
+            var signLink = $"{_frontendUrl}/sign/{token}";
 
             string clientName;
             string email;

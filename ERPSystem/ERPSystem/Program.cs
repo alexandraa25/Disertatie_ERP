@@ -1,8 +1,9 @@
-﻿using ERPSystem.Configuration;
+using ERPSystem.Configuration;
+using ERPSystem.Data;
 using QuestPDF.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAuthorization();
+builder.Services.ConfigureApiAuthorization();
 builder.Services.AddHttpContextAccessor();
 
 builder.ConfigureAllServices();
@@ -15,10 +16,16 @@ QuestPDF.Settings.License = LicenseType.Community;
 
 builder.Services.AddHttpClient<INlpAnalysisService, NlpAnalysisService>(client =>
 {
-    client.BaseAddress = new Uri("http://127.0.0.1:8000");
+    client.BaseAddress = new Uri(builder.Configuration["Nlp:BaseUrl"] ?? "http://127.0.0.1:8000");
 });
 
 var app = builder.Build();
+
+if (args.Contains("--initialize-database", StringComparer.OrdinalIgnoreCase))
+{
+    await DatabaseInitializer.InitializeAsync(app.Services, app.Configuration);
+    return;
+}
 
 
 app.UseCors("frontend");

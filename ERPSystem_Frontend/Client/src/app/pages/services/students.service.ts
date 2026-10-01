@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -9,7 +10,7 @@ import { StudentCoursesResponse } from '../models/student.model';
 
 @Injectable({ providedIn: 'root' })
 export class StudentsService {
-  private baseUrl = 'https://localhost:7195/students';
+  private baseUrl = `${environment.apiBaseUrl}/students`;
 
   constructor(private http: HttpClient) { }
 
@@ -95,7 +96,7 @@ export class StudentsService {
 
   searchOptions(q: string) {
     return this.http.get<any[]>(
-      `https://localhost:7195/students/options?q=${encodeURIComponent(q)}`
+      `${environment.apiBaseUrl}/students/options?q=${encodeURIComponent(q)}`
     );
   }
 

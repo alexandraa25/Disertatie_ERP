@@ -1,4 +1,4 @@
-﻿using ERPSystem.Data.Entities;
+using ERPSystem.Data.Entities;
 using ERPSystem.Extensions;
 using ERPSystem.Modules.AdditionalAct.Models;
 using ERPSystem.Modules.Contracts.Models;
@@ -76,12 +76,12 @@ public static class ContractsEndpoints
         group.MapPost(Route.DOCUMENT_CLIENT_SIGN,
             async (SignContractDto dto, ContractsService service)
                  => await service.SignByClientAsync(dto.Token, dto.Signature))
-            .WithDefaultApiSettings( "ClientSignContract", "Semnarea contractului de către client","UPDATE",false);
+            .WithDefaultApiSettings( "ClientSignContract", "Semnarea contractului de către client","UPDATE",false).AllowAnonymous();
 
         group.MapGet(Route.DOCUMENT_GET_FOR_SIGNING,
             async (string token, ContractsService service)
                  => await service.GetContractForSigningAsync(token))
-            .WithDefaultApiSettings( "GetContractForSigning","Returnează contractul pentru semnare","READ", true);
+            .WithDefaultApiSettings( "GetContractForSigning","Returnează contractul pentru semnare","READ", true).AllowAnonymous();
 
         group.MapPost(Route.CONTRACT_ADMIN_SIGN,
             async (int id, AdminSignContractDto dto, ContractsService service)
@@ -107,6 +107,7 @@ public static class ContractsEndpoints
         group.MapPost(Route.CONTRACT_EXPIRE,
            async (ContractsService service) 
                 =>{await service.ExpireContractsAsync(); return Results.Ok();})
+          .RequireAuthorization(policy => policy.RequireRole("Admin"))
           .WithDefaultApiSettings( "ExpireContractsJob", "Rulează expirarea contractelor","SYSTEM",false);
 
         group.MapDelete(Route.CONTRACT_DELETE,

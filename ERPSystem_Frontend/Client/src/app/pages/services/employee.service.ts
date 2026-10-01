@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { Injectable } from '@angular/core'
 import { HttpClient, HttpParams } from '@angular/common/http'
 import { Observable } from 'rxjs'
@@ -9,7 +10,7 @@ import { PublicResponse } from '../../app.model'
 })
 export class EmployeeService {
 
-  private baseUrl = 'https://localhost:7195/employee'
+  private baseUrl = `${environment.apiBaseUrl}/employee`
 
   constructor(private http: HttpClient) { }
 

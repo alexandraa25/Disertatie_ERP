@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NotificationDto } from '../models/user-profile.model';
@@ -7,7 +8,7 @@ import { NotificationDto } from '../models/user-profile.model';
 })
 export class NotificationService {
 
-  private baseUrl = 'https://localhost:7195/notifications';
+  private baseUrl = `${environment.apiBaseUrl}/notifications`;
 
   constructor(private http: HttpClient) {}
 

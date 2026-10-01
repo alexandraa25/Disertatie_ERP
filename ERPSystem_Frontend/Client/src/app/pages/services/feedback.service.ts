@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
@@ -5,7 +6,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class FeedbackService {
-   private baseUrl = 'https://localhost:7195/feedback';
+   private baseUrl = `${environment.apiBaseUrl}/feedback`;
 
   constructor(private http: HttpClient) {}
 

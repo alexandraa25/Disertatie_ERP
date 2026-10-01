@@ -1,0 +1,72 @@
+{
+  "EmailTemplates": [
+    {
+      "TemplateCode": "EMAIL_REGISTRATION_CONFIRMATION",
+      "Subject": "Confirmare cont",
+      "HtmlContent": "<!DOCTYPE html>\r\n<html lang=\"ro\" style=\"margin:0; padding:0;\">\r\n<head><meta charset=\"UTF-8\" /></head>\r\n<body>\r\nConfirmare email - EduManager<br/>\r\nSalut, {{FIRST_NAME}}<br/>\r\nConfirmă adresa de email: {{CONFIRMATION_EMAIL_URL}}<br/>\r\n© {{YEAR}} EduManager.\r\n</body>\r\n</html>",
+      "Description": "Email trimis utilizatorului pentru confirmarea adresei de email și activarea contului.",
+      "IsActive": true
+    },
+    {
+      "TemplateCode": "LOGIN_CONFIRMATION",
+      "Subject": "Confirmare autentificare",
+      "HtmlContent": "<!DOCTYPE html>\r\n<html lang=\"ro\">\r\n<body>\r\nCodul tău de verificare: {{CONFIRMATION_LOGIN_CODE}}<br/>\r\nAcest cod va expira în 5 minute.<br/>\r\n© {{YEAR}} EduManager.\r\n</body>\r\n</html>",
+      "Description": "Email trimis utilizatorului cu codul de verificare pentru autentificare.",
+      "IsActive": true
+    },
+    {
+      "TemplateCode": "FORGOT_PASSWORD",
+      "Subject": "Schimbare parola",
+      "HtmlContent": "<!DOCTYPE html>\r\n<html lang=\"ro\">\r\n<body>\r\nSalut, {{FIRST_NAME}}<br/>\r\nResetare parolă: {{FORGOT_PASSWORD_URL}}<br/>\r\n© {{YEAR}} EduManager.\r\n</body>\r\n</html>",
+      "Description": "Email trimis utilizatorului pentru resetarea parolei contului.",
+      "IsActive": true
+    },
+    {
+      "TemplateCode": "EMAIL_USER_CREDENTIALS",
+      "Subject": "Contul tau a fost creat",
+      "HtmlContent": "<!DOCTYPE html>\r\n<html lang=\"ro\">\r\n<body>\r\nSalut, {{FIRST_NAME}}<br/>\r\nEmail: {{EMAIL}}<br/>\r\nParolă: {{PASSWORD}}<br/>\r\n© {{YEAR}} EduManager.\r\n</body>\r\n</html>",
+      "Description": "Email trimis utilizatorului cu datele de autentificare la crearea contului.",
+      "IsActive": true
+    },
+    {
+      "TemplateCode": "CONTRACT_SIGN_REQUEST",
+      "Subject": "Contract cursuri - semnare necesara",
+      "HtmlContent": "<!DOCTYPE html>\r\n<html lang=\"ro\">\r\n<body>\r\nBună ziua, {{CLIENT_NAME}}<br/>\r\nNumăr contract: {{CONTRACT_NUMBER}}<br/>\r\nSemnează contractul: {{SIGN_URL}}<br/>\r\n© {{YEAR}} EduManager.\r\n</body>\r\n</html>",
+      "Description": "Email trimis clientului pentru semnarea contractului.",
+      "IsActive": true
+    },
+    {
+      "TemplateCode": "ADDITIONAL_ACT_SIGN_REQUEST",
+      "Subject": "Act aditional - semnare necesara",
+      "HtmlContent": "<!DOCTYPE html>\r\n<html lang=\"ro\">\r\n<body>\r\nBună ziua, {{CLIENT_NAME}}<br/>\r\nNumăr act: {{ACT_NUMBER}}<br/>\r\n{{DESCRIPTION}}<br/>\r\nSemnează actul adițional: {{SIGN_URL}}<br/>\r\n© {{YEAR}} EduManager.\r\n</body>\r\n</html>",
+      "Description": "Email trimis clientului pentru semnarea actului adițional.",
+      "IsActive": true
+    },
+    {
+      "TemplateCode": "CAMPAIGN_NEWSLETTER",
+      "Subject": "Campanie noua",
+      "HtmlContent": "<!DOCTYPE html>\r\n<html lang=\"ro\">\r\n<body>\r\n{{CAMPAIGN_NAME}}<br/>\r\n{{CAMPAIGN_DESCRIPTION}}<br/>\r\nDiscount: {{DISCOUNT}}<br/>\r\nPerioada: {{START_DATE}} - {{END_DATE}}<br/>\r\n© {{YEAR}} EduManager.\r\n</body>\r\n</html>",
+      "Description": "Template utilizat pentru trimiterea newsletterelor și campaniilor de marketing.",
+      "IsActive": true
+    },
+    {
+      "TemplateCode": "FEEDBACK_FORM_REQUEST",
+      "Subject": "Te rugam sa ne lași feedback",
+      "HtmlContent": "<!DOCTYPE html>\r\n<html lang=\"ro\">\r\n<body>\r\nFeedback curs<br/>\r\nCurs: {{COURSE_NAME}}<br/>\r\nSesiune: {{SESSION_TITLE}}<br/>\r\nProfesor: {{TEACHER_NAME}}<br/>\r\nLink feedback: {{FEEDBACK_URL}}<br/>\r\n© {{YEAR}} EduManager.\r\n</body>\r\n</html>",
+      "Description": "Email trimis cursanților pentru completarea formularului de feedback.",
+      "IsActive": true
+    }
+  ],
+  "ContractTemplates": [
+    {
+      "Name": "Default ERP Contract Template",
+      "Body": "<h3>I. PĂRȚILE CONTRACTANTE</h3>\r\n\r\n<p>\r\n<strong>{{CompanyName}}</strong>, cu sediul în {{CompanyAddress}}, înregistrată la Registrul Comerțului sub nr. {{CompanyRegistration}},\r\nCUI {{CompanyCui}}, IBAN {{CompanyIban}} deschis la {{CompanyBank}},Email: {{CompanyEmail}}, Telefon: {{CompanyPhone}}, în calitate de <strong>PRESTATOR</strong>.\r\n</p>\r\n\r\n<p>\r\n<strong>{{BeneficiaryName}}</strong>, domiciliat în {{BeneficiaryAddress}},\r\nEmail: {{BeneficiaryEmail}}, Telefon: {{BeneficiaryPhone}},\r\nîn calitate de <strong>BENEFICIAR</strong>.\r\n</p>\r\n\r\n<h3>II. OBIECTUL CONTRACTULUI</h3>\r\n\r\n<p>Prestatorul va furniza servicii educaționale după cum urmează:</p>\r\n\r\n<ul>\r\n{{Courses}}\r\n</ul>\r\n\r\n<p><strong>Cursant:</strong></p>\r\n\r\n<ul>\r\n{{Students}}\r\n</ul>\r\n\r\n<h3>III. DURATA CONTRACTULUI</h3>\r\n\r\n<p>{{ContractPeriod}}</p>\r\n\r\n<h3>IV. PREȚUL CONTRACTULUI</h3>\r\n\r\n<p>Tip contract: {{ContractType}}</p>\r\n<p>Subtotal: {{Subtotal}}</p>\r\n<p>Pachet fix: {{PackageAmount}}</p>\r\n<p>Abonament lunar: {{MonthlyAmount}}</p>\r\n<p>Discount aplicat: {{Discount}}</p>\r\n<p><strong>{{TotalLabel}}: {{Total}}</strong></p>\r\n<p>Număr rate pachet fix: {{Installments}}</p>\r\n<p>{{PaymentPlan}}</p>\r\n\r\n<p>\r\nPlata se efectuează prin transfer bancar sau numerar în contul prestatorului.\r\n</p>\r\n\r\n<p>\r\n<strong>Notă:</strong> În cazul abonamentelor, plata este recurentă lunar pe toată durata activă a contractului.\r\n</p>\r\n\r\n<h3>V. OBLIGAȚII</h3>\r\n\r\n<p><strong>Prestatorul se obligă:</strong></p>\r\n<ul>\r\n  <li>să furnizeze serviciile educaționale conform programului stabilit</li>\r\n  <li>să asigure calitatea actului educațional</li>\r\n  <li>să informeze beneficiarul în cazul modificării programului</li>\r\n</ul>\r\n\r\n<p><strong>Beneficiarul se obligă:</strong></p>\r\n<ul>\r\n  <li>să respecte programul cursurilor</li>\r\n  <li>să achite contravaloarea serviciilor</li>\r\n  <li>să anunțe în cazul imposibilității de participare</li>\r\n</ul>\r\n\r\n<p>\r\nBeneficiarul își dă acordul privind utilizarea imaginilor sau înregistrărilor audio-video.\r\n</p>\r\n\r\n<p>\r\nFirma {{CompanyName}} nu va face publice datele personale ale cursantului.\r\n</p>\r\n\r\n<h3>VI. ÎNCETAREA CONTRACTULUI</h3>\r\n\r\n<p>\r\nContractul poate înceta prin acordul părților sau prin notificare verbală ori scrisă.\r\n</p>",
+      "IsActive": true
+    },
+    {
+      "Name": "Default Additional Act Template",
+      "Body": "<h3>I. PĂRȚILE CONTRACTANTE</h3>\r\n\r\n<p>\r\n<strong>{{CompanyName}}</strong>, cu sediul în {{CompanyAddress}},\r\nînregistrată la Registrul Comerțului sub nr. {{CompanyRegistration}},\r\nCUI {{CompanyCui}}, IBAN {{CompanyIban}} deschis la {{CompanyBank}},\r\nEmail: {{CompanyEmail}}, Telefon: {{CompanyPhone}},\r\nîn calitate de <strong>PRESTATOR</strong>.\r\n</p>\r\n\r\n<p>\r\n<strong>{{BeneficiaryName}}</strong>, domiciliat în {{BeneficiaryAddress}},\r\nEmail: {{BeneficiaryEmail}}, Telefon: {{BeneficiaryPhone}},\r\nîn calitate de <strong>BENEFICIAR</strong>.\r\n</p>\r\n\r\n<h3>II. OBIECTUL ACTULUI ADIȚIONAL</h3>\r\n\r\n<p>Prezentul act adițional are ca obiect:</p>\r\n\r\n<p>{{ActDescription}}</p>\r\n\r\n<h3>III. MODIFICĂRI CONTRACTUALE</h3>\r\n\r\n<p>\r\nÎncepând cu data de <strong>{{EffectiveDate}}</strong>,\r\ncontractul se modifică după cum urmează:\r\n</p>\r\n\r\n<p>{{Changes}}</p>\r\n\r\n<p>{{PricingSection}}</p>\r\n\r\n<h3>IV. CLAUZE FINALE</h3>\r\n\r\n<p>\r\nToate celelalte prevederi ale Contractului nr.\r\n<strong>{{ContractNumber}}</strong> rămân neschimbate și valabile.\r\n</p>\r\n\r\n<p>\r\nPrezentul act adițional face parte integrantă din contract.\r\n</p>",
+      "IsActive": true
+    }
+  ]
+}

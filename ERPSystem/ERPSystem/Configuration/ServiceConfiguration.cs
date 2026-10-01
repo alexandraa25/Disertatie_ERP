@@ -1,4 +1,4 @@
-﻿using ERPSystem.Data.Context;
+using ERPSystem.Data.Context;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.AdditionalAct;
 using ERPSystem.Modules.Admin;
@@ -104,6 +104,7 @@ namespace ERPSystem.Configuration
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddJwtBearer(options =>
             {
@@ -143,7 +144,8 @@ namespace ERPSystem.Configuration
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("frontend", policy =>
-                    policy.WithOrigins("http://localhost:4200")
+                    policy.WithOrigins(builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                        ?? ["http://localhost:4200"])
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials());

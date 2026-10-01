@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { ActivityFilterOptions, ActivityLog } from "../models/activity-log.model";
@@ -9,7 +10,7 @@ import { HttpParams } from '@angular/common/http';
 })
 export class ActivityLogService {
 
-    private apiUrl = 'https://localhost:7195';
+    private apiUrl = `${environment.apiBaseUrl}`;
 
   constructor(private http: HttpClient) {}
 

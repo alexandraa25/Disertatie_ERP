@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -8,7 +9,7 @@ import { UserProfileDto, NotificationSettingDto, ChangePasswordRequest, UpdateUs
 })
 export class UserProfileService {
 
-  private baseUrl = 'https://localhost:7195/me';
+  private baseUrl = `${environment.apiBaseUrl}/me`;
 
   constructor(private http: HttpClient) { }
 
@@ -35,6 +36,6 @@ export class UserProfileService {
   }
 
   changePassword(data: ChangePasswordRequest) {
-    return this.http.post(`https://localhost:7195/auth/change-password`, data)
+    return this.http.post(`${environment.apiBaseUrl}/auth/change-password`, data)
   }
 }

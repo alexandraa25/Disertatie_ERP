@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -8,7 +9,7 @@ import { AdminDashboard, AdminUser } from '../models/admin-user.model';
 })
 export class AdminService {
 
-  private baseUrl = 'https://localhost:7195/admin';
+  private baseUrl = `${environment.apiBaseUrl}/admin`;
 
   constructor(private http: HttpClient) { }
 

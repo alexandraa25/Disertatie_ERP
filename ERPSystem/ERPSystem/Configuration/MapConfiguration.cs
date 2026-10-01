@@ -1,4 +1,4 @@
-﻿using ERPSystem.Extensions;
+using ERPSystem.Extensions;
 
 using ERPSystem.Modules.AdditionalAct;
 using ERPSystem.Modules.Admin;
@@ -23,7 +23,7 @@ namespace ERPSystem.Configuration
             var authGroup = app.CreateApiGroup(
                 route: "/auth",
                 tag: "Authentication",
-                requireAuth: false,
+                requireAuth: true,
                 description: "Authentication & Identity endpoints"
             );
 
@@ -33,7 +33,7 @@ namespace ERPSystem.Configuration
             var generalGroup = app.CreateApiGroup(
                route: "/",
                tag: "General",
-               requireAuth: false,
+               requireAuth: true,
                description: "Audit"
            );
 
@@ -42,7 +42,7 @@ namespace ERPSystem.Configuration
             var notificationsGroup = app.CreateApiGroup(
                route: "/notifications",
                tag: "Notifications",
-               requireAuth: false,
+               requireAuth: true,
                description: "Notifications"
            );
 
@@ -61,17 +61,17 @@ namespace ERPSystem.Configuration
             var adminGroup = app.CreateApiGroup(
                 route: "/admin",
                 tag: "Admin",
-                requireAuth: false,
+                requireAuth: true,
                 description: "Admin dashboard"
             );
             AdminEndpoints.Map(adminGroup);
-         
+
 
 
             var employeeGroup = app.CreateApiGroup(
                 route: "/employee",
                 tag: "Employee",
-                requireAuth: false,
+                requireAuth: true,
                 description: "Employee dashboard"
             );
 
@@ -80,7 +80,7 @@ namespace ERPSystem.Configuration
             var leavesGroup = app.CreateApiGroup(
                route: "/leaves",
                tag: "Leaves",
-               requireAuth: false,
+               requireAuth: true,
                description: "Leaves dashboard"
            );
 
@@ -90,7 +90,7 @@ namespace ERPSystem.Configuration
             var studentsGroup = app.CreateApiGroup(
                 route: "/students",
                 tag: "Students",
-                requireAuth: false,
+                requireAuth: true,
                 description: "Students CRUD endpoints"
              );
 
@@ -99,16 +99,16 @@ namespace ERPSystem.Configuration
             var coursesGroup = app.CreateApiGroup(
                 route: "/courses",
                 tag: "Courses",
-                requireAuth: false,
+                requireAuth: true,
                 description: "Courses endpoints"
              );
 
             CoursesEndpoints.Map(coursesGroup);
-            
+
             var contractsGroup = app.CreateApiGroup(
                route: "/contracts",
                tag: "Contracts",
-               requireAuth: false, 
+               requireAuth: true,
                description: "Contracts endpoints"
             );
 
@@ -117,7 +117,7 @@ namespace ERPSystem.Configuration
             var additionalActGroup = app.CreateApiGroup(
                route: "/additional-act",
                tag: "AdditionalAct",
-               requireAuth: false, 
+               requireAuth: true,
                description: "AdditionalAct endpoints"
             );
 
@@ -126,7 +126,7 @@ namespace ERPSystem.Configuration
             var paymentsGroup = app.CreateApiGroup(
               route: "",
               tag: "Payments",
-              requireAuth: false, 
+              requireAuth: true,
               description: "Payments endpoints"
            );
 
@@ -135,7 +135,7 @@ namespace ERPSystem.Configuration
             var dashboardGroup = app.CreateApiGroup(
               route: "/dashboard",
               tag: "Dashboard",
-              requireAuth: false, 
+              requireAuth: true,
               description: "Dashboard endpoints"
            );
 
@@ -145,7 +145,7 @@ namespace ERPSystem.Configuration
             var companyGroup = app.CreateApiGroup(
              route: "/company",
              tag: "company",
-             requireAuth: false, 
+             requireAuth: true,
              description: "Company endpoints"
           );
 
@@ -155,7 +155,7 @@ namespace ERPSystem.Configuration
             var marketingGroup = app.CreateApiGroup(
             route: "/mk-campaign",
             tag: "Marketing Campaigns",
-            requireAuth: false, 
+            requireAuth: true,
             description: "Marketing Campaigns endpoints"
          );
 
@@ -164,7 +164,7 @@ namespace ERPSystem.Configuration
             var feedbackGroup = app.CreateApiGroup(
            route: "/feedback",
            tag: "Feedback",
-           requireAuth: false, 
+           requireAuth: true,
            description: "Feedback endpoints"
         );
 

@@ -1,14 +1,15 @@
+import { environment } from '../../../environments/environment';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-import { UserDetailsModel } from '../models/user-details.model';
+import { UpdateUserProfileDto, UserProfileDto } from '../models/user-profile.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
 
-  private apiUrl = 'https://localhost:7195/auth';
+  private apiUrl = `${environment.apiBaseUrl}/auth`;
   private currentUserSubject = new BehaviorSubject<any>(null);
   public user$ = this.currentUserSubject.asObservable();
 
@@ -191,17 +192,17 @@ login(email: string, password: string): Observable<any> {
 
   getUserDetails() {
     const token = localStorage.getItem('accessToken');
-    return this.http.get<UserDetailsModel>("http://localhost:3000/get-user-details", {
+    return this.http.get<UserProfileDto>(`${environment.apiBaseUrl}/me/profile`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
     });
   }
 
-  updateProfile(data: any) {
+  updateProfile(data: UpdateUserProfileDto) {
     const token = localStorage.getItem("accessToken");
 
-    return this.http.put("http://localhost:3000/update-user", data, {
+    return this.http.put<void>(`${environment.apiBaseUrl}/me/profile`, data, {
       headers: { Authorization: `Bearer ${token}` }
     });
   }

@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CreateContractDto } from '../models/contract.model';
@@ -7,7 +8,7 @@ import { AdditionalActListDto, CreateAdditionalActDto } from '../models/addition
 @Injectable({ providedIn: 'root' })
 export class AdditionalActService {
 
-  private baseUrl = 'https://localhost:7195/additional-act';
+  private baseUrl = `${environment.apiBaseUrl}/additional-act`;
 
   constructor(private http: HttpClient) { }
 

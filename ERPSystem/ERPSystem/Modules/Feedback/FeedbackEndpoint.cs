@@ -1,4 +1,4 @@
-﻿
+
 using ERPSystem.Extensions;
 using ERPSystem.Modules.Feedback.Analytics;
 using ERPSystem.Modules.Feedback.Models;
@@ -21,12 +21,12 @@ namespace ERPSystem.Modules.Feedback
             group.MapGet(Route.GET_FEEDBACK_FORM,
                 async (string token, FeedbackService service)
                     => await service.GetFeedbackFormAsync(token))
-                .WithDefaultApiSettings( "GetFeedbackForm","Obține formular feedback", "GET_FEEDBACK_FORM",    false);
+                .WithDefaultApiSettings( "GetFeedbackForm","Obține formular feedback", "GET_FEEDBACK_FORM",    false).AllowAnonymous();
 
             group.MapPost(Route.SUBMIT_FEEDBACK_FORM,
                 async ([FromBody] SubmitFeedbackRequest request, FeedbackService service)
                     => await service.SubmitFeedbackAsync(request))
-                .WithDefaultApiSettings(  "SubmitFeedbackForm", "Trimite feedback", "SUBMIT_FEEDBACK_FORM",false );
+                .WithDefaultApiSettings(  "SubmitFeedbackForm", "Trimite feedback", "SUBMIT_FEEDBACK_FORM",false ).AllowAnonymous();
 
             group.MapGet(Route.SESSION_REVIEWS,
                 async (int sessionId, FeedbackService service)

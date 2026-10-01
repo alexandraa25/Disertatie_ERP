@@ -1,5 +1,7 @@
-﻿
+
 using ERPSystem.Data.Context;
+using ERPSystem.Utils.Settings;
+using Microsoft.Extensions.Options;
 using ERPSystem.Data.Entities;
 using ERPSystem.Modules.Feedback.Models;
 using ERPSystem.Shared.BusinessLogic;
@@ -19,16 +21,18 @@ namespace ERPSystem.Modules.Feedback
         private readonly NotificationsService _notificationService;
         private readonly EmailBusinessLogic _emailBusinessLogic;
         private readonly INlpAnalysisService _nlpAnalysisService;
+        private readonly string _frontendUrl;
 
 
 
-        public FeedbackService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, NotificationsService notificationService, EmailBusinessLogic emailBusinessLogic, INlpAnalysisService nlpAnalysisService)
+        public FeedbackService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor, NotificationsService notificationService, EmailBusinessLogic emailBusinessLogic, INlpAnalysisService nlpAnalysisService, IOptions<ERPSystemSettings> settings)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _notificationService = notificationService;
             _emailBusinessLogic = emailBusinessLogic;
             _nlpAnalysisService = nlpAnalysisService;
+            _frontendUrl = settings.Value.BaseUrl.TrimEnd('/');
         }
 
 
@@ -96,7 +100,7 @@ namespace ERPSystem.Modules.Feedback
                 _context.FeedbackForms.Add(feedbackForm);
                 await _context.SaveChangesAsync();
 
-                var feedbackUrl = $"http://localhost:4200/feedback/{token}";
+                var feedbackUrl = $"{_frontendUrl}/feedback/{token}";
 
                 var emailModel = new FeedbackFormEmailModel
                 {

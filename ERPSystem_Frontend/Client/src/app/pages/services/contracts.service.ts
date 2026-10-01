@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CreateContractDto } from '../models/contract.model';
@@ -6,7 +7,7 @@ import { Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class ContractsService {
 
-  private baseUrl = 'https://localhost:7195/contracts';
+  private baseUrl = `${environment.apiBaseUrl}/contracts`;
 
   constructor(private http: HttpClient) { }
 

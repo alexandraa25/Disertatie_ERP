@@ -38,6 +38,10 @@
     <Folder Include="wwwroot\contracts\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Data\Seed\templates.json" LogicalName="ERPSystem.SeedTemplates" />
+  </ItemGroup>
+
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="https://www.schemastore.org/aspire-8.0.json" /></VisualStudio></ProjectExtensions>
 
 </Project>

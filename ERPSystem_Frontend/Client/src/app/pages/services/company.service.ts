@@ -1,3 +1,4 @@
+import { environment } from '../../../environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -7,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class CompanyService {
 
-  private baseUrl = 'https://localhost:7195/company';
+  private baseUrl = `${environment.apiBaseUrl}/company`;
 
   constructor(private http: HttpClient) {}
 
