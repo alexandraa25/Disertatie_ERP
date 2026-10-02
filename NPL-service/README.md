@@ -54,6 +54,4 @@ Backendul .NET apelează implicit `http://127.0.0.1:8000`; adresa se suprascrie 
 
 Rezultatele combină un model multilingv și euristici; nu sunt probabilități calibrate. Nu există un raport de validare a preciziei pe texte românești în repository. Procentele temelor sunt rotunjite individual și pot să nu însumeze exact 100.
 
-Serviciul nu configurează autentificare proprie; comanda de pornire îl limitează la interfața locală. Nu au fost identificate teste automate dedicate, iar modelele nu au fost descărcate sau executate în verificarea documentației.
-
 [Prezentarea proiectului](../README.md)

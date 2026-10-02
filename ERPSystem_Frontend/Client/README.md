@@ -62,13 +62,6 @@ npm run test:ci
 - `watch`: compilare continuă pentru dezvoltare.
 - `test`: Jasmine/Karma; necesită un browser compatibil cu lansatorul Chrome configurat.
 
-Cele 15 teste verifică structura aplicației, butonul de revenire sus, interceptorul de autentificare, panourile de notificări/evaluări/istoric și afișarea Power BI fără rapoarte sau cu index invalid. `test:ci` rulează o singură dată în ChromeHeadless; `npm test` rămâne interactiv. Dacă browserul nu este detectat, setează `CHROME_BIN` la executabilul Chrome. Resursele pentru teste folosesc aceeași configurare `public/` și `src/assets/` ca buildul.
-
-Aplicația este configurată pentru rulare în browser. Scriptul `serve:ssr:app`, care indica un fișier negenerat, a fost eliminat. Fișierele SSR existente nu sunt activate de build.
-
-Compilarea de producție păstrează optimizarea JavaScript și CSS, dar dezactivează descărcarea și încorporarea fonturilor externe. Browserul încarcă în continuare fonturile Google din `index.html`; afișarea acelor pictograme necesită acces la serviciul de fonturi. Font Awesome este încărcat local prin CSS, fără scriptul global redundant și fără copia CDN.
-
-Bugetul inițial avertizează la 768 kB și oprește buildul la 1,05 MB. Pentru stilurile componentelor, pragurile rămân 8 kB/16 kB. Panourile de notificări, evaluări și istoric sunt componente separate, cu stiluri proprii, iar regulile CSS redundante au fost eliminate.
 
 ## Depanare și verificare
 
@@ -81,6 +74,5 @@ Bugetul inițial avertizează la 768 kB și oprește buildul la 1,05 MB. Pentru 
 | Buildul depășește bugetele | Mesajele Angular și limitele `budgets` din `angular.json` |
 | Raport Power BI indisponibil | Linkul publicat și sursele de date |
 
-La verificarea din 1 octombrie 2026, buildul de producție a reușit cu Node.js 24.13.0; pachetul inițial a scăzut de la aproximativ 2,27 MB la 705 kB. Toate cele 15 teste au trecut în ChromeHeadless, iar buildul de producție se încheie fără avertismente. Tipurile și șabloanele tratează explicit datele absente, iar stilurile se încadrează în bugetele existente. Dependența editorului, `quill-delta`, este distribuită ca CommonJS și are o excepție punctuală în `allowedCommonJsDependencies`; aceasta acceptă formatul existent, fără să îl convertească la ESM. Fluxurile complete din browser cu API și bază de date nu au fost validate.
 
 [Prezentarea proiectului](../../README.md)

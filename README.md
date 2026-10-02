@@ -68,37 +68,4 @@ Comenzile sunt pentru PowerShell. Rulează fiecare serviciu într-un terminal se
 
 Autentificarea completă necesită un cont pregătit în baza de date și configurarea e-mailurilor. Nu există un cont demo documentat cu parolă publică.
 
-## Verificarea proiectului
 
-Verificare efectuată la 1 octombrie 2026, pe codul local:
-
-- Backend: compilare reușită cu SDK 10.0.401, fără avertismente sau erori; verificările de nulabilitate rămân activate.
-- Frontend: build de producție reușit cu Node.js 24.13.0; pachet inițial de aproximativ 705 kB după eliminarea scriptului Font Awesome redundant.
-- Verificările de securitate folosesc rutele reale și middleware-ul JWT: acces anonim, roluri, tokenuri invalide/expirate și CORS. Sunt verificate și șabloanele incluse, cazurile de date lipsă și absența modificărilor schemei EF.
-- Rezultat: 424 verificări HTTP trecute pe 138 de rute ale aplicației și o rută de test pentru politica implicită; 15 teste frontend trecute în ChromeHeadless.
-- Nu au fost executate migrări, trimiteri de e-mail sau fluxuri complete cu SQL Server, NLP și Power BI.
-- Frontendul include teste pentru structura aplicației și trimiterea tokenului doar către API-ul configurat. Nu există încă teste dedicate modelelor NLP.
-
-### Corecții incluse
-
-- API protejat implicit; acces anonim declarat explicit pentru autentificare/recuperare și fluxurile de semnare/feedback bazate pe token.
-- API centralizat în `src/environments/environment.ts`; adresa NLP, CORS și linkurile din e-mail sunt configurabile.
-- Comandă separată de inițializare cu șapte roluri, opt șabloane de e-mail și două șabloane de documente, fără suprascrierea datelor existente.
-- Exportul SQL folosește directoarele implicite ale serverului. Conține în continuare date: inspectează-l înainte de import sau distribuire.
-- Metodele de profil folosesc `/me/profile`. Scriptul SSR nefuncțional a fost eliminat; aplicația se construiește pentru browser.
-- Buildul nu mai descarcă fonturi în timpul compilării; fonturile Google rămân resurse externe încărcate de browser.
-
-### Comenzi de verificare
-
-Din rădăcina repository-ului:
-
-```powershell
-dotnet run --project .\ERPSystem\ERPSystem.SecurityChecks\ERPSystem.SecurityChecks.csproj
-Set-Location .\ERPSystem_Frontend\Client
-npm run build
-npm run test:ci
-```
-
-Testele de securitate verifică accesul până la intrarea în handler, fără execuția serviciilor de business. Pentru validarea funcțională completă sunt necesare servicii și date de test configurate separat.
-
-Folosește variabile de mediu pentru secrete și nu copia chei sau date personale în documentație.

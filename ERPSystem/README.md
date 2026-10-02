@@ -93,6 +93,5 @@ dotnet run --project .\ERPSystem\ERPSystem.SecurityChecks\ERPSystem.SecurityChec
 
 Proiectul de verificare pornește un server local pe un port liber, cu JWT-uri de test, și oprește cererile după autorizare, înaintea serviciilor de business. Verifică toate rutele pentru acces anonim, utilizator fără rol și administrator, plus tokenuri expirate/invalide, roluri nepotrivite, politica implicită, CORS și resursele de inițializare.
 
-Compilarea reușește fără avertismente sau erori, cu verificările de nulabilitate activate. Testele suplimentare verifică identitatea absentă la notificări, documentele fără conținut, colecțiile inițializate și absența modificărilor modelului față de schema EF salvată, fără acces la SQL Server. Conexiunile SQL, SendGrid și NLP și execuția migrării/inițializării pe SQL Server nu au fost validate în această sesiune.
 
 [Prezentarea proiectului](../README.md)

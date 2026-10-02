@@ -19,10 +19,4 @@ Pornirea aplicației ERP nu publică automat fișierele `.pbix`.
 
 Linkurile `https://app.powerbi.com/view?...` sunt definite în componentele `education-dashboard`, `financial-dashboard` și `hr-dashboard`, din `ERPSystem_Frontend/Client/src/app/pages/dashboard-analysis/`. Modalul comun este în `power-bi-modal/`.
 
-Nu a fost identificat un serviciu backend de generare a tokenurilor Power BI Embed pentru această integrare. Verifică accesul înainte de publicarea datelor financiare, HR sau ale cursanților: linkurile publice nu oferă controlul de acces al aplicației ERP.
-
-## Limitele verificării
-
-Au fost verificate existența fișierelor și referințele Angular. Rapoartele nu au fost deschise în Power BI Desktop; modelul de date, măsurile DAX, acreditările și actualizarea nu au fost validate.
-
 [Prezentarea proiectului](../README.md)
